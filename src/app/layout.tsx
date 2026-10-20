@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Amiri, Inter } from "next/font/google";
+import { Inter, Amiri, Noto_Sans_Arabic, Scheherazade_New, Noto_Nastaliq_Urdu } from "next/font/google";
 import "./globals.css";
 import { APP_CONFIG } from "@/config/version";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -20,6 +20,28 @@ const amiri = Amiri({
   variable: "--font-amiri",
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],
+  display: "swap",
+});
+
+const notoSansArabic = Noto_Sans_Arabic({
+  variable: "--font-noto-sans-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
+
+const scheherazade = Scheherazade_New({
+  variable: "--font-scheherazade",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
+  variable: "--font-noto-nastaliq-urdu",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -36,7 +58,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${amiri.variable} dark theme-emerald`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${amiri.variable} ${notoSansArabic.variable} ${scheherazade.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
+    >
       <body className="min-h-screen flex flex-col font-sans">
         <ThemeProvider>
           <BookmarksProvider>

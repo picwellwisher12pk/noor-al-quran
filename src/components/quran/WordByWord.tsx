@@ -8,9 +8,10 @@ import { Volume2 } from "lucide-react";
 interface WordByWordProps {
   words: Word[];
   arabicFontSize: number;
+  arabicFontClass?: string;
 }
 
-export function WordByWord({ words, arabicFontSize }: WordByWordProps) {
+export function WordByWord({ words, arabicFontSize, arabicFontClass = "font-arabic-amiri" }: WordByWordProps) {
   const { playWord } = useAudio();
 
   // Filter out the end marker symbol if it doesn't have translation
@@ -47,7 +48,7 @@ export function WordByWord({ words, arabicFontSize }: WordByWordProps) {
           >
             {/* Arabic Word */}
             <span
-              className="font-arabic text-[var(--foreground)] group-hover:text-emerald-400 transition-colors leading-relaxed"
+              className={`${arabicFontClass} text-[var(--foreground)] group-hover:text-emerald-400 transition-colors leading-relaxed`}
               style={{ fontSize: `${arabicFontSize}px` }}
             >
               {word.text_uthmani || word.text}

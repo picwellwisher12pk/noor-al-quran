@@ -7,6 +7,7 @@ import { VerseItem } from "./VerseItem";
 import { TafsirModal } from "@/components/modals/TafsirModal";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
+import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
 import Link from "next/link";
@@ -29,6 +30,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const targetAyah = searchParams.get("ayah");
   const { setLastReadPosition } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
+  const { prefs } = useReadingPreferences();
 
   // Handle jump to ayah on initial load if query param present
   useEffect(() => {
@@ -66,7 +68,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     setLoadingMore(true);
     try {
       const nextPage = currentPage + 1;
-      const res = await fetchVersesByChapter(chapter.id, nextPage, 50);
+      const res = await fetchVersesByChapter(chapter.id, nextPage, 50, 20, prefs.selectedUrduTranslationId);
       setVerses((prev) => [...prev, ...res.verses]);
       setCurrentPage(nextPage);
     } catch (e) {

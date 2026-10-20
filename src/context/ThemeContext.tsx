@@ -1,9 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-
-export type ThemeStyle = "emerald" | "monochrome";
-export type ThemeMode = "dark" | "light";
+import { ThemeStyle, ThemeMode } from "@/types/quran";
 
 interface ThemeContextType {
   themeStyle: ThemeStyle;
@@ -16,7 +14,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themeStyle, setThemeStyle] = useState<ThemeStyle>("emerald");
+  const [themeStyle, setThemeStyle] = useState<ThemeStyle>("hadith");
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
   const [mounted, setMounted] = useState(false);
 
@@ -24,7 +22,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedStyle = localStorage.getItem("naq_theme_style") as ThemeStyle;
       const savedMode = localStorage.getItem("naq_theme_mode") as ThemeMode;
-      if (savedStyle && (savedStyle === "emerald" || savedStyle === "monochrome")) {
+      if (savedStyle && (savedStyle === "hadith" || savedStyle === "emerald" || savedStyle === "monochrome")) {
         setThemeStyle(savedStyle);
       }
       if (savedMode && (savedMode === "dark" || savedMode === "light")) {
@@ -46,7 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     const root = document.documentElement;
-    root.classList.remove("theme-emerald", "theme-monochrome", "dark", "light");
+    root.classList.remove("theme-hadith", "theme-emerald", "theme-monochrome", "dark", "light");
     root.classList.add(`theme-${themeStyle}`);
     root.classList.add(themeMode);
   }, [themeStyle, themeMode, mounted]);

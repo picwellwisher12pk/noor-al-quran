@@ -46,6 +46,28 @@ export function VerseItem({
   const currentAyahAbsIndex = getAbsoluteVerseIndex(verse.chapter_id, verse.verse_number);
   const isReadInKhatmah = plan ? currentAyahAbsIndex <= plan.completedAyahsCount : false;
 
+  // Font class mapping
+  const arabicFontClass = {
+    amiri: "font-arabic-amiri",
+    "noto-sans-arabic": "font-arabic-noto",
+    scheherazade: "font-arabic-scheherazade",
+    nastaliq: "font-arabic-nastaliq",
+  }[prefs.arabicFont] || "font-arabic-amiri";
+
+  // Distinguish English and Urdu translations
+  const urduTranslation = verse.translations?.find(
+    (t) =>
+      t.resource_id === prefs.selectedUrduTranslationId ||
+      [234, 97, 54, 158, 151].includes(t.resource_id) ||
+      /[\u0600-\u06FF]/.test(t.text)
+  );
+
+  const englishTranslation = verse.translations?.find(
+    (t) =>
+      t !== urduTranslation &&
+      (/[a-zA-Z]/.test(t.text))
+  );
+
   // Auto-scroll when this verse starts playing
   useEffect(() => {
     if (isCurrentPlaying && prefs.autoScroll && verseRef.current) {
@@ -227,10 +249,10 @@ export function VerseItem({
       {/* Arabic Script Display */}
       <div className="py-2 text-right" dir="rtl">
         {prefs.showWordByWord && verse.words && verse.words.length > 0 ? (
-          <WordByWord words={verse.words} arabicFontSize={prefs.arabicFontSize} />
+          <WordByWord words={verse.words} arabicFontSize={prefs.arabicFontSize} arabicFontClass={arabicFontClass} />
         ) : (
           <p
-            className="font-arabic text-[var(--foreground)] leading-[2.4] select-text"
+            className={`${arabicFontClass} text-[var(--foreground)] leading-[2.4] select-text`}
             style={{ fontSize: `${prefs.arabicFontSize}px` }}
           >
             {verse.text_uthmani}
@@ -241,13 +263,26 @@ export function VerseItem({
         )}
       </div>
 
-      {/* English Translation */}
-      {prefs.showTranslation && verse.translations && verse.translations[0] && (
-        <div className="mt-4 pt-3 border-t border-[var(--border-subtle,#1a2621)]">
+      {/* Urdu Translation */}
+      {prefs.showUrduTranslation && urduTranslation && (
+        <div className="mt-4 pt-3 border-t border-[var(--border-subtle,#1a2621)] text-right" dir="rtl">
+          <div className="text-[10px] text-emerald-400/80 mb-1 font-sans">اردو ترجمہ</div>
           <p
-            className="text-[var(--translation-color,#c2cec7)] leading-relaxed select-text"
+            className="font-urdu text-[var(--urdu-color,#e2e8f0)] leading-loose select-text"
+            style={{ fontSize: `${prefs.urduFontSize}px` }}
+            dangerouslySetInnerHTML={{ __html: urduTranslation.text }}
+          />
+        </div>
+      )}
+
+      {/* English Translation */}
+      {prefs.showTranslation && englishTranslation && (
+        <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle,#1a2621)]/60 text-left" dir="ltr">
+          <div className="text-[10px] text-emerald-400/80 mb-1">English Translation</div>
+          <p
+            className="text-[var(--translation-color,#cbd5e1)] leading-relaxed select-text"
             style={{ fontSize: `${prefs.englishFontSize}px` }}
-            dangerouslySetInnerHTML={{ __html: verse.translations[0].text }}
+            dangerouslySetInnerHTML={{ __html: englishTranslation.text }}
           />
         </div>
       )}

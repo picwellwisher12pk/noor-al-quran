@@ -1,28 +1,38 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ReadingPreferences } from "@/types/quran";
+import { ReadingPreferences, ArabicFontFamily } from "@/types/quran";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
   setArabicFontSize: (size: number) => void;
   setEnglishFontSize: (size: number) => void;
+  setUrduFontSize: (size: number) => void;
+  setArabicFont: (font: ArabicFontFamily) => void;
   toggleShowTranslation: () => void;
+  toggleShowUrduTranslation: () => void;
   toggleShowTransliteration: () => void;
   toggleShowWordByWord: () => void;
   toggleAutoScroll: () => void;
+  setSelectedUrduTranslationId: (id: number) => void;
+  setSelectedTafsirId: (id: number) => void;
   updatePreferences: (updates: Partial<ReadingPreferences>) => void;
 }
 
 const DEFAULT_PREFERENCES: ReadingPreferences = {
   arabicFontSize: 32,
   englishFontSize: 16,
+  urduFontSize: 20,
+  arabicFont: "amiri",
   showTranslation: true,
+  showUrduTranslation: true,
   showTransliteration: true,
   showWordByWord: true,
   autoScroll: true,
   selectedReciterId: 7,
   selectedReciterName: "Mishari Rashid al-`Afasy",
+  selectedUrduTranslationId: 234,
+  selectedTafsirId: 169,
 };
 
 const ReadingPreferencesContext = createContext<ReadingPreferencesContextType | undefined>(undefined);
@@ -60,8 +70,20 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, englishFontSize: Math.max(12, Math.min(26, size)) }));
   };
 
+  const setUrduFontSize = (size: number) => {
+    setPrefs((prev) => ({ ...prev, urduFontSize: Math.max(14, Math.min(32, size)) }));
+  };
+
+  const setArabicFont = (font: ArabicFontFamily) => {
+    setPrefs((prev) => ({ ...prev, arabicFont: font }));
+  };
+
   const toggleShowTranslation = () => {
     setPrefs((prev) => ({ ...prev, showTranslation: !prev.showTranslation }));
+  };
+
+  const toggleShowUrduTranslation = () => {
+    setPrefs((prev) => ({ ...prev, showUrduTranslation: !prev.showUrduTranslation }));
   };
 
   const toggleShowTransliteration = () => {
@@ -76,6 +98,14 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, autoScroll: !prev.autoScroll }));
   };
 
+  const setSelectedUrduTranslationId = (id: number) => {
+    setPrefs((prev) => ({ ...prev, selectedUrduTranslationId: id }));
+  };
+
+  const setSelectedTafsirId = (id: number) => {
+    setPrefs((prev) => ({ ...prev, selectedTafsirId: id }));
+  };
+
   const updatePreferences = (updates: Partial<ReadingPreferences>) => {
     setPrefs((prev) => ({ ...prev, ...updates }));
   };
@@ -86,10 +116,15 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         prefs,
         setArabicFontSize,
         setEnglishFontSize,
+        setUrduFontSize,
+        setArabicFont,
         toggleShowTranslation,
+        toggleShowUrduTranslation,
         toggleShowTransliteration,
         toggleShowWordByWord,
         toggleAutoScroll,
+        setSelectedUrduTranslationId,
+        setSelectedTafsirId,
         updatePreferences,
       }}
     >

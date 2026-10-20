@@ -1,22 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #07130f;
-  --foreground: #e2ece7;
-  --surface-raised: #0e1f19;
-  --surface-card: #132a22;
-  --card-border: #1b3b30;
-  --border-subtle: #163229;
-  --header-bg: #081612;
-  --modal-bg: #0b1a15;
-  --hover-bg: #17332a;
-  --muted-foreground: #8fa89e;
-  --translation-color: #c4d6cd;
+  /* Default / Hadith App Theme (Light) */
+  --background: #fef9f3;
+  --foreground: #2d1b0e;
+  --surface-raised: #ffffff;
+  --surface-card: #fdf6ed;
+  --card-border: rgba(8, 145, 178, 0.2);
+  --border-subtle: rgba(8, 145, 178, 0.15);
+  --header-bg: #fef9f3;
+  --modal-bg: #ffffff;
+  --hover-bg: #ecfeff;
+  --primary: #0891b2;
+  --accent: #fb923c;
+  --muted-foreground: #78614e;
+  --translation-color: #3d2b1f;
+  --urdu-color: #1f2937;
 }
 
-/* Emerald Dark (Default) */
-.theme-emerald.dark,
-:root:not(.theme-monochrome):not(.light) {
+/* Hadith App Theme (Dark) */
+.theme-hadith.dark,
+:root:not(.theme-emerald):not(.theme-monochrome):not(.light) {
+  --background: #0c1420;
+  --foreground: #f8fafc;
+  --surface-raised: #131f30;
+  --surface-card: #1e293b;
+  --card-border: rgba(34, 211, 238, 0.25);
+  --border-subtle: rgba(34, 211, 238, 0.15);
+  --header-bg: #0c1420;
+  --modal-bg: #131f30;
+  --hover-bg: #1e293b;
+  --primary: #22d3ee;
+  --accent: #f97316;
+  --muted-foreground: #94a3b8;
+  --translation-color: #cbd5e1;
+  --urdu-color: #e2e8f0;
+}
+
+/* Hadith App Theme (Light) */
+.theme-hadith.light,
+:root:not(.theme-emerald):not(.theme-monochrome).light {
+  --background: #fef9f3;
+  --foreground: #2d1b0e;
+  --surface-raised: #ffffff;
+  --surface-card: #fdf6ed;
+  --card-border: rgba(8, 145, 178, 0.2);
+  --border-subtle: rgba(8, 145, 178, 0.15);
+  --header-bg: #fef9f3;
+  --modal-bg: #ffffff;
+  --hover-bg: #ecfeff;
+  --primary: #0891b2;
+  --accent: #fb923c;
+  --muted-foreground: #78614e;
+  --translation-color: #3d2b1f;
+  --urdu-color: #1f2937;
+}
+
+/* Emerald Dark */
+.theme-emerald.dark {
   --background: #07130f;
   --foreground: #e2ece7;
   --surface-raised: #0e1f19;
@@ -26,13 +67,15 @@
   --header-bg: #081612;
   --modal-bg: #0b1a15;
   --hover-bg: #17332a;
+  --primary: #10b981;
+  --accent: #f59e0b;
   --muted-foreground: #8fa89e;
   --translation-color: #c4d6cd;
+  --urdu-color: #d1fae5;
 }
 
 /* Emerald Light */
-.theme-emerald.light,
-:root:not(.theme-monochrome).light {
+.theme-emerald.light {
   --background: #f7faf8;
   --foreground: #142820;
   --surface-raised: #ffffff;
@@ -42,13 +85,15 @@
   --header-bg: #f3f8f5;
   --modal-bg: #ffffff;
   --hover-bg: #e7f2ec;
+  --primary: #059669;
+  --accent: #d97706;
   --muted-foreground: #4c695e;
   --translation-color: #264639;
+  --urdu-color: #064e3b;
 }
 
 /* Monochrome OLED Dark */
-.theme-monochrome.dark,
-.theme-monochrome:not(.light) {
+.theme-monochrome.dark {
   --background: #000000;
   --foreground: #f4f4f5;
   --surface-raised: #09090b;
@@ -58,8 +103,11 @@
   --header-bg: #000000;
   --modal-bg: #09090b;
   --hover-bg: #18181b;
+  --primary: #ffffff;
+  --accent: #a1a1aa;
   --muted-foreground: #a1a1aa;
   --translation-color: #d4d4d8;
+  --urdu-color: #f4f4f5;
 }
 
 /* Monochrome Pure Light */
@@ -73,8 +121,11 @@
   --header-bg: #ffffff;
   --modal-bg: #ffffff;
   --hover-bg: #f4f4f5;
+  --primary: #09090b;
+  --accent: #52525b;
   --muted-foreground: #52525b;
   --translation-color: #18181b;
+  --urdu-color: #18181b;
 }
 
 body {
@@ -84,10 +135,37 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.font-arabic {
-  font-family: var(--font-amiri), "Traditional Arabic", "Scheherazade New", serif;
+/* Dynamic Arabic Fonts */
+.font-arabic-amiri {
+  font-family: var(--font-amiri), "Traditional Arabic", serif;
   letter-spacing: 0;
   word-spacing: 2px;
+}
+
+.font-arabic-noto {
+  font-family: var(--font-noto-sans-arabic), system-ui, sans-serif;
+  letter-spacing: 0;
+  word-spacing: 2px;
+}
+
+.font-arabic-scheherazade {
+  font-family: var(--font-scheherazade), serif;
+  letter-spacing: 0;
+  word-spacing: 3px;
+}
+
+.font-arabic-nastaliq {
+  font-family: var(--font-noto-nastaliq-urdu), "Jameel Noori Nastaleeq", serif;
+  letter-spacing: 0;
+  word-spacing: 4px;
+  line-height: 2.6;
+}
+
+/* Urdu Typography */
+.font-urdu {
+  font-family: var(--font-noto-nastaliq-urdu), var(--font-noto-sans-arabic), "Jameel Noori Nastaleeq", "Noto Sans Arabic", serif;
+  letter-spacing: 0;
+  line-height: 2.2;
 }
 
 /* Custom scrollbars */
@@ -112,9 +190,9 @@ body {
 /* Tafsir html styling */
 .tafsir-html p {
   margin-bottom: 1rem;
-  line-height: 1.8;
+  line-height: 1.9;
 }
 
 .tafsir-html strong {
-  color: #10b981;
+  color: var(--primary);
 }

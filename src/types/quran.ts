@@ -126,15 +126,23 @@ export interface KhatmahPlan {
   isCompleted: boolean;
 }
 
-export type ThemeMode = "emerald" | "monochrome" | "parchment";
+export type ArabicFontFamily = "amiri" | "noto-sans-arabic" | "scheherazade" | "nastaliq";
+
+export type ThemeStyle = "hadith" | "emerald" | "monochrome";
+export type ThemeMode = "dark" | "light";
 
 export interface ReadingPreferences {
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
+  urduFontSize: number; // 16 to 26
+  arabicFont: ArabicFontFamily;
   showTranslation: boolean;
+  showUrduTranslation: boolean;
   showTransliteration: boolean;
   showWordByWord: boolean;
   autoScroll: boolean;
   selectedReciterId: number;
   selectedReciterName: string;
+  selectedUrduTranslationId: number;
+  selectedTafsirId: number;
 }
