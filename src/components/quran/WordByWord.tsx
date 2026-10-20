@@ -16,7 +16,7 @@ export function WordByWord({ words, arabicFontSize }: WordByWordProps) {
   // Filter out the end marker symbol if it doesn't have translation
   return (
     <div
-      className="flex flex-wrap flex-row-reverse items-start gap-y-6 gap-x-2 my-4 select-text"
+      className="flex flex-wrap items-start justify-start gap-y-6 gap-x-2 my-4 select-text"
       dir="rtl"
     >
       {words.map((word) => {
