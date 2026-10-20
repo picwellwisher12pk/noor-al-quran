@@ -5,9 +5,11 @@ import Link from "next/link";
 import { APP_CONFIG } from "@/config/version";
 import { useTheme } from "@/context/ThemeContext";
 import { useBookmarks } from "@/context/BookmarksContext";
+import { useKhatmah } from "@/context/KhatmahContext";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { BookmarksModal } from "@/components/modals/BookmarksModal";
 import { SettingsModal } from "@/components/modals/SettingsModal";
+import { KhatmahModal } from "@/components/modals/KhatmahModal";
 import {
   BookOpen,
   Search,
@@ -15,15 +17,18 @@ import {
   Settings,
   Sun,
   Moon,
+  Calendar,
 } from "lucide-react";
 
 export function Header() {
   const { themeMode, toggleThemeMode } = useTheme();
   const { bookmarks } = useBookmarks();
+  const { plan, targetInfo } = useKhatmah();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isKhatmahOpen, setIsKhatmahOpen] = useState(false);
 
   return (
     <>
@@ -59,6 +64,23 @@ export function Header() {
             >
               <Search className="h-4 w-4 text-emerald-400" />
               <span className="hidden sm:inline">Search Quran...</span>
+            </button>
+
+            {/* Khatmah Goal Tracker Button */}
+            <button
+              type="button"
+              onClick={() => setIsKhatmahOpen(true)}
+              aria-label="Khatmah reading plan"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--surface-raised,#141e1a)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-xs text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 transition-colors"
+            >
+              <Calendar className="h-4 w-4 text-emerald-400" />
+              {plan && targetInfo ? (
+                <span className="hidden md:inline font-medium text-emerald-400">
+                  Day {targetInfo.dayNumber}/{targetInfo.totalDays}
+                </span>
+              ) : (
+                <span className="hidden md:inline">Khatmah</span>
+              )}
             </button>
 
             {/* Bookmarks Button */}
@@ -107,6 +129,7 @@ export function Header() {
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <BookmarksModal isOpen={isBookmarksOpen} onClose={() => setIsBookmarksOpen(false)} />
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <KhatmahModal isOpen={isKhatmahOpen} onClose={() => setIsKhatmahOpen(false)} />
     </>
   );
 }

@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { BookmarksProvider } from "@/context/BookmarksContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext";
+import { KhatmahProvider } from "@/context/KhatmahContext";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { AudioPlayerBar } from "@/components/audio/AudioPlayerBar";
@@ -41,10 +42,12 @@ export default function RootLayout({
           <BookmarksProvider>
             <AudioProvider>
               <ReadingPreferencesProvider>
-                <Header />
-                <main className="flex-1">{children}</main>
-                <AudioPlayerBar />
-                <Footer />
+                <KhatmahProvider>
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <AudioPlayerBar />
+                  <Footer />
+                </KhatmahProvider>
               </ReadingPreferencesProvider>
             </AudioProvider>
           </BookmarksProvider>

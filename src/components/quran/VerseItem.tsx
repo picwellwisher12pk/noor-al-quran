@@ -5,6 +5,8 @@ import { Verse } from "@/types/quran";
 import { useAudio } from "@/context/AudioContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
+import { useKhatmah } from "@/context/KhatmahContext";
+import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
 import {
   Play,
@@ -14,6 +16,7 @@ import {
   Copy,
   Check,
   Share2,
+  CheckCircle2,
 } from "lucide-react";
 
 interface VerseItemProps {
@@ -32,12 +35,16 @@ export function VerseItem({
   const { currentVerseKey, isPlaying, playVerse, togglePlayPause } = useAudio();
   const { isBookmarked, addBookmark, removeBookmark, setLastReadPosition } = useBookmarks();
   const { prefs } = useReadingPreferences();
+  const { plan, recordReadingProgress } = useKhatmah();
 
   const [copied, setCopied] = useState(false);
   const verseRef = useRef<HTMLDivElement>(null);
 
   const isCurrentPlaying = currentVerseKey === verse.verse_key;
   const bookmarked = isBookmarked(verse.verse_key);
+
+  const currentAyahAbsIndex = getAbsoluteVerseIndex(verse.chapter_id, verse.verse_number);
+  const isReadInKhatmah = plan ? currentAyahAbsIndex <= plan.completedAyahsCount : false;
 
   // Auto-scroll when this verse starts playing
   useEffect(() => {
@@ -53,8 +60,12 @@ export function VerseItem({
         verseNumber: verse.verse_number,
         verseKey: verse.verse_key,
       });
+      // Also record in Khatmah
+      if (plan) {
+        recordReadingProgress(verse.chapter_id, verse.verse_number);
+      }
     }
-  }, [isCurrentPlaying, prefs.autoScroll, verse, chapterName, setLastReadPosition]);
+  }, [isCurrentPlaying, prefs.autoScroll, verse, chapterName, setLastReadPosition, plan, recordReadingProgress]);
 
   const handlePlayToggle = () => {
     if (isCurrentPlaying) {
@@ -164,6 +175,22 @@ export function VerseItem({
           >
             <BookmarkIcon className={`h-4 w-4 ${bookmarked ? "fill-emerald-400" : ""}`} />
           </button>
+
+          {/* Khatmah Progress Toggle */}
+          {plan && (
+            <button
+              type="button"
+              onClick={() => recordReadingProgress(verse.chapter_id, verse.verse_number)}
+              title={isReadInKhatmah ? "Completed in your Khatmah plan" : "Mark as read in Khatmah"}
+              className={`p-2 rounded-lg transition-colors ${
+                isReadInKhatmah
+                  ? "text-emerald-400 bg-emerald-950/40"
+                  : "text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1f2d27)]"
+              }`}
+            >
+              <CheckCircle2 className={`h-4 w-4 ${isReadInKhatmah ? "fill-emerald-400/20" : ""}`} />
+            </button>
+          )}
 
           {/* Tafsir */}
           <button

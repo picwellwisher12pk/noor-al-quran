@@ -111,6 +111,21 @@ export interface Bookmark {
   note?: string;
 }
 
+export interface KhatmahPlan {
+  id: string;
+  name: string;
+  targetDays: number; // strictly >= 7 as per Prophetic tradition
+  startDate: string; // ISO string
+  lastReadVerseKey: string; // e.g. "1:1"
+  lastReadChapterId: number;
+  lastReadAyahNumber: number;
+  completedAyahsCount: number; // out of 6,236 total Quranic ayahs
+  dailyLogs: Record<string, number>; // "YYYY-MM-DD" -> count of ayahs read
+  currentStreak: number;
+  lastActiveDate: string; // "YYYY-MM-DD"
+  isCompleted: boolean;
+}
+
 export type ThemeMode = "emerald" | "monochrome" | "parchment";
 
 export interface ReadingPreferences {

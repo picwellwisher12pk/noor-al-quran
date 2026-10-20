@@ -6,8 +6,9 @@ import { fetchVersesByChapter } from "@/services/quranApi";
 import { VerseItem } from "./VerseItem";
 import { TafsirModal } from "@/components/modals/TafsirModal";
 import { useBookmarks } from "@/context/BookmarksContext";
+import { useKhatmah } from "@/context/KhatmahContext";
 import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Loader2, ArrowUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
 import Link from "next/link";
 
 interface SurahReaderProps {
@@ -27,6 +28,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const searchParams = useSearchParams();
   const targetAyah = searchParams.get("ayah");
   const { setLastReadPosition } = useBookmarks();
+  const { plan, targetInfo } = useKhatmah();
 
   // Handle jump to ayah on initial load if query param present
   useEffect(() => {
@@ -135,6 +137,16 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         <p className="text-sm text-emerald-400 mt-1">
           {chapter.translated_name.name}
         </p>
+
+        {/* Khatmah Goal Tracker Pill */}
+        {plan && targetInfo && (
+          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs text-[var(--muted-foreground,#8e9b94)]">
+            <Calendar className="h-3.5 w-3.5 text-emerald-400" />
+            <span>
+              Khatmah Day <strong className="text-emerald-400">{targetInfo.dayNumber}</strong> of {targetInfo.totalDays} • {targetInfo.percentageCompleted.toFixed(1)}% Completed
+            </span>
+          </div>
+        )}
 
         {/* Bismillah Decoration */}
         {showBismillah && (

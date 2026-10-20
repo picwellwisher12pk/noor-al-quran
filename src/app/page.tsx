@@ -2,6 +2,7 @@ import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 import { Chapter, Juz } from "@/types/quran";
 import { SurahList } from "@/components/home/SurahList";
 import { JuzList } from "@/components/home/JuzList";
+import { KhatmahWidget } from "@/components/home/KhatmahWidget";
 import { BookOpen, Sparkles, Compass, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -82,6 +83,9 @@ export default async function HomePage({
         </div>
       ) : (
         <>
+          {/* Khatmah & Daily Goal Tracker */}
+          <KhatmahWidget />
+
           {/* Tabs: Surahs vs Juzs */}
           <div className="flex items-center justify-center mb-8">
             <div className="p-1 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex gap-1 shadow-inner">

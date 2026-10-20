@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Bookmark } from "@/types/quran";
 
 interface LastRead {
@@ -83,12 +83,15 @@ export function BookmarksProvider({ children }: { children: React.ReactNode }) {
     return bookmarks.some((b) => b.verse_key === verseKey);
   };
 
-  const setLastReadPosition = (pos: Omit<LastRead, "updatedAt">) => {
-    setLastRead({
-      ...pos,
-      updatedAt: new Date().toISOString(),
+  const setLastReadPosition = useCallback((pos: Omit<LastRead, "updatedAt">) => {
+    setLastRead((prev) => {
+      if (prev?.verseKey === pos.verseKey) return prev;
+      return {
+        ...pos,
+        updatedAt: new Date().toISOString(),
+      };
     });
-  };
+  }, []);
 
   const clearAllBookmarks = () => {
     setBookmarks([]);
