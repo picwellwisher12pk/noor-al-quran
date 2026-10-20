@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  --background: #07130f;
+  --foreground: #e2ece7;
+  --surface-raised: #0e1f19;
+  --surface-card: #132a22;
+  --card-border: #1b3b30;
+  --border-subtle: #163229;
+  --header-bg: #081612;
+  --modal-bg: #0b1a15;
+  --hover-bg: #17332a;
+  --muted-foreground: #8fa89e;
+  --translation-color: #c4d6cd;
+}
+
+/* Emerald Dark (Default) */
+.theme-emerald.dark,
+:root:not(.theme-monochrome):not(.light) {
+  --background: #07130f;
+  --foreground: #e2ece7;
+  --surface-raised: #0e1f19;
+  --surface-card: #132a22;
+  --card-border: #1b3b30;
+  --border-subtle: #163229;
+  --header-bg: #081612;
+  --modal-bg: #0b1a15;
+  --hover-bg: #17332a;
+  --muted-foreground: #8fa89e;
+  --translation-color: #c4d6cd;
+}
+
+/* Emerald Light */
+.theme-emerald.light,
+:root:not(.theme-monochrome).light {
+  --background: #f7faf8;
+  --foreground: #142820;
+  --surface-raised: #ffffff;
+  --surface-card: #edf4f0;
+  --card-border: #d3e3db;
+  --border-subtle: #e2ede7;
+  --header-bg: #f3f8f5;
+  --modal-bg: #ffffff;
+  --hover-bg: #e7f2ec;
+  --muted-foreground: #4c695e;
+  --translation-color: #264639;
+}
+
+/* Monochrome OLED Dark */
+.theme-monochrome.dark,
+.theme-monochrome:not(.light) {
+  --background: #000000;
+  --foreground: #f4f4f5;
+  --surface-raised: #09090b;
+  --surface-card: #141417;
+  --card-border: #27272a;
+  --border-subtle: #1f1f23;
+  --header-bg: #000000;
+  --modal-bg: #09090b;
+  --hover-bg: #18181b;
+  --muted-foreground: #a1a1aa;
+  --translation-color: #d4d4d8;
+}
+
+/* Monochrome Pure Light */
+.theme-monochrome.light {
+  --background: #ffffff;
+  --foreground: #09090b;
+  --surface-raised: #fafafa;
+  --surface-card: #f4f4f5;
+  --card-border: #e4e4e7;
+  --border-subtle: #ececee;
+  --header-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --hover-bg: #f4f4f5;
+  --muted-foreground: #52525b;
+  --translation-color: #18181b;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-arabic {
+  font-family: var(--font-amiri), "Traditional Arabic", "Scheherazade New", serif;
+  letter-spacing: 0;
+  word-spacing: 2px;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Tafsir html styling */
+.tafsir-html p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+
+.tafsir-html strong {
+  color: #10b981;
+}
