@@ -35,7 +35,14 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
   const { setActiveChapterId, setActiveAyahNumber, readingMode } = useDesktopWorkspace();
-  const { currentVerseKey, currentChapterId, isPlaying } = useAudio();
+  const { currentVerseKey, currentChapterId, isPlaying, updateVersesQueue } = useAudio();
+
+  // Sync loaded verses with audio queue
+  useEffect(() => {
+    if (verses && verses.length > 0) {
+      updateVersesQueue(verses);
+    }
+  }, [verses, updateVersesQueue]);
 
   // Sync active chapter with global workspace
   useEffect(() => {

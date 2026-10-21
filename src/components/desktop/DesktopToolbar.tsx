@@ -10,11 +10,7 @@ import {
   ChevronRight,
   Play,
   Pause,
-  Type,
-  LayoutList,
-  AlignJustify,
-  BookOpen,
-  Sparkles,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,20 +32,15 @@ export function DesktopToolbar({
 }: DesktopToolbarProps) {
   const router = useRouter();
   const {
-    readingMode,
-    setReadingMode,
-    toggleRightInspector,
-    isRightInspectorOpen,
+    setIsSettingsOpen,
   } = useDesktopWorkspace();
 
   const {
     prefs,
     setArabicFontSize,
-    setWbwLanguage,
-    toggleShowWordByWord,
   } = useReadingPreferences();
 
-  const { isPlaying, playVerse, playSurah, togglePlayPause, currentChapterId } = useAudio();
+  const { isPlaying, playSurah, togglePlayPause, currentChapterId } = useAudio();
   const isThisChapterPlaying = isPlaying && currentChapterId === chapterId;
 
   const handleAyahJump = (e: React.FormEvent<HTMLFormElement>) => {
@@ -126,78 +117,7 @@ export function DesktopToolbar({
         </form>
       </div>
 
-      {/* Center: Word-by-Word & Layout Controls */}
-      <div className="flex items-center gap-2">
-        {/* WBW Selector */}
-        <div className="flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[10px]">
-          <span className="px-1.5 py-0.5 text-[var(--muted-foreground,#8e9b94)] font-semibold">
-            WBW:
-          </span>
-          <button
-            type="button"
-            onClick={() => setWbwLanguage("urdu")}
-            className={`px-2 py-0.5 rounded font-urdu ${
-              prefs.showWordByWord && prefs.wbwLanguage === "urdu"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
-            }`}
-          >
-            اردو
-          </button>
-          <button
-            type="button"
-            onClick={() => setWbwLanguage("english")}
-            className={`px-2 py-0.5 rounded ${
-              prefs.showWordByWord && prefs.wbwLanguage === "english"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
-            }`}
-          >
-            Eng
-          </button>
-          <button
-            type="button"
-            onClick={() => setWbwLanguage("both")}
-            className={`px-2 py-0.5 rounded ${
-              prefs.showWordByWord && prefs.wbwLanguage === "both"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
-            }`}
-          >
-            Both
-          </button>
-        </div>
-
-        {/* Layout Mode */}
-        <div className="flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[10px]">
-          <button
-            type="button"
-            onClick={() => setReadingMode("continuous")}
-            className={`px-2 py-0.5 rounded flex items-center gap-1 ${
-              readingMode === "continuous"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
-            }`}
-            title="Continuous Verse Stream"
-          >
-            <LayoutList className="h-3 w-3" /> Cards
-          </button>
-          <button
-            type="button"
-            onClick={() => setReadingMode("compact")}
-            className={`px-2 py-0.5 rounded flex items-center gap-1 ${
-              readingMode === "compact"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
-            }`}
-            title="High Density Compact Mode"
-          >
-            <AlignJustify className="h-3 w-3" /> Compact
-          </button>
-        </div>
-      </div>
-
-      {/* Right: Font Controls & Play Surah */}
+      {/* Right: Font Controls, Preferences & Play Surah */}
       <div className="flex items-center gap-2">
         {/* Font Size A- / A+ */}
         <div className="flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[11px]">
@@ -221,6 +141,17 @@ export function DesktopToolbar({
             A+
           </button>
         </div>
+
+        {/* Preferences Shortcut Button */}
+        <button
+          type="button"
+          onClick={() => setIsSettingsOpen(true)}
+          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] hover:bg-[var(--surface-raised,#1f2924)] border border-[var(--border-subtle,#24362e)] text-[11px] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
+          title="Reading Preferences & Display Settings"
+        >
+          <Settings className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="hidden md:inline">Preferences</span>
+        </button>
 
         {/* Play Surah Button */}
         <button

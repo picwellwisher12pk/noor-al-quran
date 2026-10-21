@@ -4,11 +4,12 @@ import React from "react";
 import { Modal } from "@/components/common/Modal";
 import { useTheme } from "@/context/ThemeContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS, AVAILABLE_TAFSIRS } from "@/services/quranApi";
 import { ArabicFontFamily, ThemeStyle } from "@/types/quran";
 import { APP_CONFIG } from "@/config/version";
-import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers } from "lucide-react";
+import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe } from "lucide-react";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -17,12 +18,14 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { readingMode, setReadingMode } = useDesktopWorkspace();
   const {
     prefs,
     setArabicFontSize,
     setEnglishFontSize,
     setUrduFontSize,
     setArabicFont,
+    setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
     toggleShowWordByWord,
@@ -294,18 +297,100 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         </div>
 
+        {/* Reading Layout Mode (Compact vs Cards) */}
+        <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5">
+              <LayoutList className="h-4 w-4 text-emerald-400" /> Verse Stream Layout
+            </span>
+            <span className="text-xs text-emerald-400 font-mono capitalize">
+              {readingMode === "compact" ? "Compact (Default)" : "Cards Mode"}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setReadingMode("compact")}
+              className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
+                readingMode === "compact"
+                  ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
+                  : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <AlignJustify className="h-3.5 w-3.5" /> Compact (Default)
+            </button>
+            <button
+              type="button"
+              onClick={() => setReadingMode("continuous")}
+              className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
+                readingMode === "continuous"
+                  ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
+                  : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <LayoutList className="h-3.5 w-3.5" /> Cards Mode
+            </button>
+          </div>
+        </div>
+
+        {/* Word-By-Word Language Selector */}
+        <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5">
+              <Globe className="h-4 w-4 text-emerald-400" /> Word-By-Word (WBW) Language
+            </span>
+            <label className="flex items-center gap-1.5 cursor-pointer">
+              <span className="text-xs text-[var(--muted-foreground,#8e9b94)]">Enabled</span>
+              <input
+                type="checkbox"
+                checked={prefs.showWordByWord}
+                onChange={toggleShowWordByWord}
+                className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
+              />
+            </label>
+          </div>
+
+          {prefs.showWordByWord && (
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setWbwLanguage("english")}
+                className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
+                  prefs.wbwLanguage === "english"
+                    ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
+                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                English (Default)
+              </button>
+              <button
+                type="button"
+                onClick={() => setWbwLanguage("urdu")}
+                className={`py-2 rounded-lg text-xs font-semibold font-urdu border transition-all ${
+                  prefs.wbwLanguage === "urdu"
+                    ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
+                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                اردو
+              </button>
+              <button
+                type="button"
+                onClick={() => setWbwLanguage("both")}
+                className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
+                  prefs.wbwLanguage === "both"
+                    ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
+                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                Both (اردو + Eng)
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Display Toggles */}
         <div className="space-y-2">
-          <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] cursor-pointer">
-            <span className="text-xs font-medium">Word-by-word interactive pronunciation</span>
-            <input
-              type="checkbox"
-              checked={prefs.showWordByWord}
-              onChange={toggleShowWordByWord}
-              className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
-            />
-          </label>
-
           <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] cursor-pointer">
             <span className="text-xs font-medium">Auto-scroll to reciting verse</span>
             <input

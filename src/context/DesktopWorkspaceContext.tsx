@@ -63,7 +63,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [isRightInspectorOpen, setRightInspectorOpen] = useState(false);
   const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>("surahs");
   const [activeInspectorTab, setActiveInspectorTab] = useState<InspectorTab>("morphology");
-  const [readingMode, setReadingMode] = useState<ReadingLayoutMode>("continuous");
+  const [readingMode, setReadingMode] = useState<ReadingLayoutMode>("compact");
   const [inspectorWidth, setInspectorWidth] = useState<InspectorWidthMode>("default");
 
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);

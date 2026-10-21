@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS } from "@/services/quranApi";
 import { ArabicFontFamily, ThemeStyle, WbwLanguage } from "@/types/quran";
@@ -18,6 +19,8 @@ import {
   Type,
   Globe,
   Settings,
+  LayoutList,
+  AlignJustify,
 } from "lucide-react";
 
 interface DraggableSettingsPanelProps {
@@ -27,6 +30,7 @@ interface DraggableSettingsPanelProps {
 
 export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPanelProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { readingMode, setReadingMode } = useDesktopWorkspace();
   const {
     prefs,
     setArabicFontSize,
@@ -220,11 +224,47 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
               </div>
             </div>
 
+            {/* Reading Layout Mode (Compact vs Cards) */}
+            <div className="p-2.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5">
+                  <LayoutList className="h-3 w-3 text-emerald-400" /> Verse Stream Layout
+                </span>
+                <span className="text-[10px] text-emerald-400 font-mono capitalize">
+                  {readingMode === "compact" ? "Compact (Default)" : "Cards"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setReadingMode("compact")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border flex items-center justify-center gap-1.5 ${
+                    readingMode === "compact"
+                      ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  <AlignJustify className="h-3 w-3" /> Compact (Default)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReadingMode("continuous")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border flex items-center justify-center gap-1.5 ${
+                    readingMode === "continuous"
+                      ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  <LayoutList className="h-3 w-3" /> Cards
+                </button>
+              </div>
+            </div>
+
             {/* Word-By-Word Language Selector */}
             <div className="p-2.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1">
-                  <Globe className="h-3 w-3 text-emerald-400" /> Word-By-Word Language
+                  <Globe className="h-3 w-3 text-emerald-400" /> Word-By-Word (WBW) Language
                 </span>
                 <label className="flex items-center gap-1 cursor-pointer">
                   <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)]">Show WBW</span>
@@ -238,21 +278,40 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
               </div>
 
               {prefs.showWordByWord && (
-                <div className="grid grid-cols-3 gap-1">
-                  {(["english", "urdu", "both"] as WbwLanguage[]).map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setWbwLanguage(lang)}
-                      className={`py-1 rounded-md text-[11px] font-medium capitalize border transition-all ${
-                        prefs.wbwLanguage === lang
-                          ? "border-emerald-500 bg-emerald-600 text-white"
-                          : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--foreground)]"
-                      }`}
-                    >
-                      {lang}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setWbwLanguage("english")}
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-medium border transition-all ${
+                      prefs.wbwLanguage === "english"
+                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    Eng (Default)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWbwLanguage("urdu")}
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-medium font-urdu border transition-all ${
+                      prefs.wbwLanguage === "urdu"
+                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    اردو
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWbwLanguage("both")}
+                    className={`py-1.5 px-2 rounded-md text-[11px] font-medium border transition-all ${
+                      prefs.wbwLanguage === "both"
+                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    Both
+                  </button>
                 </div>
               )}
             </div>
