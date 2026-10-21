@@ -60,7 +60,7 @@ export function DesktopStatusBar() {
             <Play className="h-3 w-3" />
           )}
           <span className="truncate max-w-[140px] sm:max-w-[200px]">
-            {isPlaying ? `Playing: ${currentVerseKey || "Verse"}` : reciterName.split(" ")[0]}
+            {isPlaying ? `Playing: ${currentVerseKey || "Verse"}` : (reciterName || "Reciter").split(" ")[0]}
           </span>
         </button>
       </div>
