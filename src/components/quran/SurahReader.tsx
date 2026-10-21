@@ -8,6 +8,8 @@ import { TafsirModal } from "@/components/modals/TafsirModal";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
+import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +33,16 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { setLastReadPosition } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
+  const { setActiveChapterId, setActiveAyahNumber, openTafsirInInspector, readingMode } =
+    useDesktopWorkspace();
+
+  // Sync active chapter with global workspace
+  useEffect(() => {
+    setActiveChapterId(chapter.id);
+    if (targetAyah) {
+      setActiveAyahNumber(Number(targetAyah) || 1);
+    }
+  }, [chapter.id, targetAyah, setActiveChapterId, setActiveAyahNumber]);
 
   // Handle jump to ayah on initial load if query param present
   useEffect(() => {
@@ -79,6 +91,8 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   };
 
   const handleOpenTafsir = (verseKey: string, arabicText: string) => {
+    // Open in desktop right inspector
+    openTafsirInInspector(verseKey, arabicText);
     setTafsirAyahKey(verseKey);
     setTafsirArabicText(arabicText);
   };
@@ -91,131 +105,98 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const showBismillah = chapter.id !== 1 && chapter.id !== 9;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
-      {/* Chapter Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-6 md:p-8 text-center shadow-xl mb-8">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
-
-        {/* Previous & Next Navigation */}
-        <div className="flex items-center justify-between mb-4">
-          {chapter.id > 1 ? (
-            <Link
-              href={`/surah/${chapter.id - 1}`}
-              className="flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors px-3 py-1.5 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]"
-            >
-              <ChevronLeft className="h-4 w-4" /> Previous Surah
-            </Link>
-          ) : (
-            <div />
-          )}
-
-          <div className="flex items-center gap-2 text-xs font-medium text-[var(--muted-foreground,#8e9b94)]">
-            <span className="capitalize px-2.5 py-0.5 rounded-full bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
-              {chapter.revelation_place}
-            </span>
-            <span>•</span>
-            <span>{chapter.verses_count} Ayahs</span>
-          </div>
-
-          {chapter.id < 114 ? (
-            <Link
-              href={`/surah/${chapter.id + 1}`}
-              className="flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors px-3 py-1.5 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]"
-            >
-              Next Surah <ChevronRight className="h-4 w-4" />
-            </Link>
-          ) : (
-            <div />
-          )}
-        </div>
-
-        {/* Surah Title */}
-        <h1 className="font-arabic text-4xl md:text-5xl text-[var(--foreground)] mb-3">
-          {chapter.name_arabic}
-        </h1>
-        <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)]">
-          {chapter.name_simple}
-        </h2>
-        <p className="text-sm text-emerald-400 mt-1">
-          {chapter.translated_name.name}
-        </p>
-
-        {/* Khatmah Goal Tracker Pill */}
-        {plan && targetInfo && (
-          <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs text-[var(--muted-foreground,#8e9b94)]">
-            <Calendar className="h-3.5 w-3.5 text-emerald-400" />
-            <span>
-              Khatmah Day <strong className="text-emerald-400">{targetInfo.dayNumber}</strong> of {targetInfo.totalDays} • {targetInfo.percentageCompleted.toFixed(1)}% Completed
-            </span>
-          </div>
-        )}
-
-        {/* Bismillah Decoration */}
-        {showBismillah && (
-          <div className="mt-8 pt-6 border-t border-[var(--border-subtle,#1a2621)]">
-            <div className="font-arabic text-2xl md:text-3xl text-emerald-400/90 leading-relaxed" dir="rtl">
-              بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
-            </div>
-            <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-2">
-              In the Name of Allah—the Most Compassionate, Most Merciful
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Verses List - Compact Vertical Layout */}
-      <div className="space-y-2.5">
-        {verses.map((verse) => (
-          <VerseItem
-            key={verse.verse_key}
-            verse={verse}
-            chapterName={chapter.name_simple}
-            allVersesInSurah={verses}
-            onOpenTafsir={handleOpenTafsir}
-          />
-        ))}
-      </div>
-
-      {/* Pagination / Load More */}
-      {currentPage < totalPages && (
-        <div className="mt-8 text-center">
-          <button
-            type="button"
-            onClick={loadMoreVerses}
-            disabled={loadingMore}
-            className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium text-sm transition-all shadow-md inline-flex items-center gap-2"
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Loading remaining ayahs...
-              </>
-            ) : (
-              `Load More Ayahs (${verses.length} of ${chapter.verses_count})`
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Scroll to Top */}
-      {showScrollTop && (
-        <button
-          type="button"
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-          className="fixed bottom-24 right-6 z-30 p-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl transition-all"
-        >
-          <ArrowUp className="h-5 w-5" />
-        </button>
-      )}
-
-      {/* Tafsir Modal */}
-      <TafsirModal
-        isOpen={!!tafsirAyahKey}
-        onClose={() => setTafsirAyahKey(null)}
-        verseKey={tafsirAyahKey}
-        arabicText={tafsirArabicText}
+    <div className="flex-1 flex flex-col w-full h-full">
+      {/* Desktop Sticky Workspace Toolbar */}
+      <DesktopToolbar
+        chapterId={chapter.id}
+        chapterName={chapter.name_simple}
+        chapterArabic={chapter.name_arabic}
+        totalAyahs={chapter.verses_count}
       />
+
+      {/* Reading Canvas Container */}
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 pb-20 max-w-5xl w-full mx-auto space-y-4">
+        {/* Compact Chapter Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-5 text-center shadow-md">
+          <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+
+          {/* Surah Title Calligraphy & English */}
+          <div className="flex flex-col items-center justify-center space-y-1">
+            <h1 className="font-arabic text-3xl sm:text-4xl text-[var(--foreground)] py-1" dir="rtl">
+              سُورَةُ {chapter.name_arabic}
+            </h1>
+            <h2 className="text-sm sm:text-base font-semibold tracking-tight text-[var(--foreground)]">
+              Surah {chapter.name_simple} &bull;{" "}
+              <span className="text-emerald-400 font-normal">{chapter.translated_name.name}</span>
+            </h2>
+            <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground,#8e9b94)] pt-1">
+              <span className="capitalize px-2 py-0.5 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+                {chapter.revelation_place}
+              </span>
+              <span>&bull;</span>
+              <span>{chapter.verses_count} Ayahs</span>
+              <span>&bull;</span>
+              <span>Juz {chapter.pages?.[0] ? Math.ceil(chapter.pages[0] / 20) : 1}</span>
+            </div>
+          </div>
+
+          {/* Bismillah Decoration */}
+          {showBismillah && (
+            <div className="mt-4 pt-3 border-t border-[var(--border-subtle,#1a2621)]">
+              <div className="font-arabic text-2xl text-emerald-400/90 leading-relaxed" dir="rtl">
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+              </div>
+              <p className="text-[11px] text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+                In the Name of Allah—the Most Compassionate, Most Merciful
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Verses Stream */}
+        <div className={`space-y-2.5 ${readingMode === "compact" ? "space-y-1.5" : "space-y-2.5"}`}>
+          {verses.map((verse) => (
+            <VerseItem
+              key={verse.verse_key}
+              verse={verse}
+              chapterName={chapter.name_simple}
+              allVersesInSurah={verses}
+              onOpenTafsir={handleOpenTafsir}
+            />
+          ))}
+        </div>
+
+        {/* Load More Pagination */}
+        {currentPage < totalPages && (
+          <div className="text-center pt-4">
+            <button
+              type="button"
+              onClick={loadMoreVerses}
+              disabled={loadingMore}
+              className="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-md inline-flex items-center gap-2 disabled:opacity-50"
+            >
+              {loadingMore ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Loading Ayahs...
+                </>
+              ) : (
+                `Load More Ayahs (${verses.length} of ${chapter.verses_count})`
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Floating Tafseer Modal fallback */}
+      {tafsirAyahKey && (
+        <TafsirModal
+          isOpen={!!tafsirAyahKey}
+          onClose={() => setTafsirAyahKey(null)}
+          verseKey={tafsirAyahKey}
+          arabicText={tafsirArabicText}
+        />
+      )}
     </div>
   );
 }

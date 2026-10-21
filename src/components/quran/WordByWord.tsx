@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Word } from "@/types/quran";
 import { useAudio } from "@/context/AudioContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { WordDetailsModal } from "@/components/modals/WordDetailsModal";
 import { Volume2, Info } from "lucide-react";
 
@@ -22,12 +23,18 @@ export function WordByWord({
 }: WordByWordProps) {
   const { playWord } = useAudio();
   const { prefs } = useReadingPreferences();
-  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+  const { openWordInInspector, selectedWord: currentSelectedWord } = useDesktopWorkspace();
+  const [modalWord, setModalWord] = useState<Word | null>(null);
+
+  const handleWordClick = (word: Word) => {
+    // Open in desktop right inspector
+    openWordInInspector(word);
+  };
 
   return (
     <>
       <div
-        className="flex flex-wrap items-start justify-start gap-y-3 gap-x-1.5 my-2 select-text"
+        className="flex flex-wrap items-start justify-start gap-y-2.5 gap-x-1.5 my-1.5 select-text"
         dir="rtl"
       >
         {words.map((word) => {
@@ -46,13 +53,18 @@ export function WordByWord({
 
           const urduText = word.translation_urdu?.text;
           const englishText = word.translation?.text;
+          const isSelectedInInspector = currentSelectedWord?.id === word.id;
 
           return (
             <div
               key={word.id}
-              onClick={() => setSelectedWord(word)}
-              title="Click for Word Roots & Details"
-              className="group relative flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-xl transition-all border border-transparent hover:border-emerald-500/40 hover:bg-emerald-950/25 cursor-pointer"
+              onClick={() => handleWordClick(word)}
+              title="Click to inspect Root, Grammar & Translations in Right Inspector"
+              className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${
+                isSelectedInInspector
+                  ? "border-emerald-500/60 bg-emerald-950/30 shadow-xs"
+                  : "border-transparent hover:border-emerald-500/40 hover:bg-emerald-950/20"
+              }`}
             >
               {/* Arabic Word Token */}
               <span
@@ -102,9 +114,8 @@ export function WordByWord({
                     e.stopPropagation();
                     playWord(word.audio_url!);
                   }}
-                  title="Listen to pronunciation"
-                  aria-label="Play pronunciation"
-                  className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-emerald-600 hover:bg-emerald-500 text-white rounded-full p-1 shadow"
+                  className="absolute -top-1.5 -left-1.5 p-1 rounded-full bg-emerald-600 text-white shadow opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 z-10"
+                  title="Pronounce Word"
                 >
                   <Volume2 className="h-2.5 w-2.5" />
                 </button>
@@ -114,11 +125,11 @@ export function WordByWord({
         })}
       </div>
 
-      {/* Word Details Modal */}
+      {/* Fallback modal if opened explicitly */}
       <WordDetailsModal
-        isOpen={!!selectedWord}
-        onClose={() => setSelectedWord(null)}
-        word={selectedWord}
+        isOpen={!!modalWord}
+        onClose={() => setModalWord(null)}
+        word={modalWord}
         chapterName={chapterName}
       />
     </>

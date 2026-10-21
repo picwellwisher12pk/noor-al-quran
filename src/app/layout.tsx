@@ -7,9 +7,8 @@ import { BookmarksProvider } from "@/context/BookmarksContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext";
 import { KhatmahProvider } from "@/context/KhatmahContext";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { AudioPlayerBar } from "@/components/audio/AudioPlayerBar";
+import { DesktopWorkspaceProvider } from "@/context/DesktopWorkspaceContext";
+import { DesktopShell } from "@/components/desktop/DesktopShell";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -45,7 +44,7 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_CONFIG.name} (${APP_CONFIG.nameArabic}) - Authentic Noble Quran Reader`,
+  title: `${APP_CONFIG.name} (${APP_CONFIG.nameArabic}) - Noble Quran Desktop Workstation`,
   description: APP_CONFIG.description,
   icons: {
     icon: "/favicon.ico",
@@ -62,16 +61,15 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${amiri.variable} ${notoSansArabic.variable} ${scheherazade.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
     >
-      <body className="min-h-screen flex flex-col font-sans">
+      <body className="h-screen w-screen overflow-hidden flex flex-col font-sans select-none bg-[var(--background,#0b100d)] text-[var(--foreground,#f1f5f9)]">
         <ThemeProvider>
           <BookmarksProvider>
             <AudioProvider>
               <ReadingPreferencesProvider>
                 <KhatmahProvider>
-                  <Header />
-                  <main className="flex-1">{children}</main>
-                  <AudioPlayerBar />
-                  <Footer />
+                  <DesktopWorkspaceProvider>
+                    <DesktopShell>{children}</DesktopShell>
+                  </DesktopWorkspaceProvider>
                 </KhatmahProvider>
               </ReadingPreferencesProvider>
             </AudioProvider>

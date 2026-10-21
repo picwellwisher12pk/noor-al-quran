@@ -26,52 +26,58 @@ export default async function HomePage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-8 md:p-12 mb-10 text-center shadow-xl">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-20 space-y-6">
+      {/* Desktop Hub Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-6 md:p-8 text-center shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-amber-500/5 pointer-events-none" />
 
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold mb-4">
-          <Sparkles className="h-3.5 w-3.5" /> Authentic Uthmani Script & Multi-Reciter Audio
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold mb-3">
+          <Sparkles className="h-3.5 w-3.5" /> Authentic Uthmani Script & Multi-Reciter Studio
         </div>
 
-        <h1 className="font-arabic text-4xl sm:text-5xl md:text-6xl text-[var(--foreground)] mb-3 leading-relaxed" dir="rtl">
+        <h1 className="font-arabic text-3xl sm:text-4xl md:text-5xl text-[var(--foreground)] mb-2 leading-relaxed" dir="rtl">
           إِنَّ هَـٰذَا ٱلْقُرْءَانَ يَهْدِى لِلَّتِى هِىَ أَقْوَمُ
         </h1>
-        <p className="text-base sm:text-lg text-[var(--muted-foreground,#8e9b94)] max-w-2xl mx-auto mb-6">
+        <p className="text-sm sm:text-base text-[var(--muted-foreground,#8e9b94)] max-w-2xl mx-auto mb-5 leading-normal">
           &ldquo;Indeed, this Qur&rsquo;an guides to that which is most suitable and gives good tidings to the believers.&rdquo;
-          <span className="block text-xs text-emerald-400 mt-1 font-medium">Surah Al-Isra [17:9]</span>
+          <span className="block text-xs text-emerald-400 mt-0.5 font-medium">Surah Al-Isra [17:9]</span>
         </p>
 
-        {/* Quick Actions */}
+        {/* Quick Launch Actions */}
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/surah/1"
-            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
           >
-            <BookOpen className="h-4 w-4" /> Start with Surah Al-Fatihah
+            <BookOpen className="h-4 w-4" /> Start Reading: Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"
-            className="px-5 py-2.5 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-sm transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
             <Compass className="h-4 w-4 text-emerald-400" /> Read Surah Al-Kahf
           </Link>
+          <Link
+            href="/surah/36"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+          >
+            <Sparkles className="h-4 w-4 text-amber-400" /> Read Surah Ya-Sin
+          </Link>
         </div>
 
-        {/* Authenticity Badges */}
-        <div className="mt-8 pt-6 border-t border-[var(--border-subtle,#1a2621)] flex flex-wrap items-center justify-center gap-6 text-xs text-[var(--muted-foreground,#8e9b94)]">
+        {/* Desktop Quick Specs */}
+        <div className="mt-6 pt-4 border-t border-[var(--border-subtle,#1a2621)] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[var(--muted-foreground,#8e9b94)]">
           <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-4 w-4 text-emerald-400" /> 114 Verified Surahs
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 114 Verified Chapters
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-4 w-4 text-emerald-400" /> 30 Juzs (Parts)
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 30 Juzs (Parts)
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-4 w-4 text-emerald-400" /> Word-by-Word Pronunciation
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Authentic Word Roots & Morphology
           </span>
           <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-4 w-4 text-emerald-400" /> Tafsir Ibn Kathir
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Sunnah 7-Day Minimum Pacing
           </span>
         </div>
       </div>
@@ -87,11 +93,11 @@ export default async function HomePage({
           <KhatmahWidget />
 
           {/* Tabs: Surahs vs Juzs */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="p-1 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex gap-1 shadow-inner">
+          <div className="flex items-center justify-center pt-2">
+            <div className="p-1 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex gap-1 shadow-inner text-xs">
               <Link
                 href="/?tab=surah"
-                className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
+                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
                   currentTab === "surah"
                     ? "bg-emerald-600 text-white shadow"
                     : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
@@ -101,7 +107,7 @@ export default async function HomePage({
               </Link>
               <Link
                 href="/?tab=juz"
-                className={`px-6 py-2 rounded-xl text-sm font-semibold transition-all ${
+                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
                   currentTab === "juz"
                     ? "bg-emerald-600 text-white shadow"
                     : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
