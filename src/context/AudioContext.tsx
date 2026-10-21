@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 import { Reciter, Verse } from "@/types/quran";
 import { fetchReciters, fetchVerseAudioUrl, WBW_CDN_URL } from "@/services/quranApi";
 import { CHAPTER_VERSE_COUNTS } from "@/utils/quranMeta";
+import { offlineStorage } from "@/services/offlineStorage";
 
 export type RepeatMode = "none" | "verse" | "infinite";
 
@@ -165,6 +166,57 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const preloadedNextAudioRef = useRef<{ verseKey: string; url: string; element?: HTMLAudioElement } | null>(null);
+
+  // Proactively buffer & preload the next verse audio to eliminate buffering stutter during continuous Surah play
+  const preloadNextVerse = async (chapterId: number, currentKey: string) => {
+    try {
+      const parts = currentKey.split(":");
+      const chapId = chapterId || Number(parts[0]) || 1;
+      const currentAyah = Number(parts[1]) || 1;
+      const totalAyahs = CHAPTER_VERSE_COUNTS[chapId - 1] || 7;
+
+      let nextKey: string | null = null;
+      if (versesQueueRef.current && versesQueueRef.current.length > 0) {
+        const idx = versesQueueRef.current.findIndex((v) => v.verse_key === currentKey);
+        if (idx !== -1 && idx < versesQueueRef.current.length - 1) {
+          nextKey = versesQueueRef.current[idx + 1].verse_key;
+        }
+      }
+
+      if (!nextKey && currentAyah < totalAyahs) {
+        nextKey = `${chapId}:${currentAyah + 1}`;
+      }
+
+      if (!nextKey) return;
+
+      const reciterId = currentReciterRef.current ? currentReciterRef.current.id : 7;
+
+      // 1. Check if next verse is already cached in offline storage
+      const cachedUrl = await offlineStorage.getVerseAudioUrl(reciterId, nextKey);
+      if (cachedUrl) {
+        preloadedNextAudioRef.current = { verseKey: nextKey, url: cachedUrl };
+        return;
+      }
+
+      // 2. Otherwise fetch the audio URL and buffer it via background Audio instance
+      const audioUrl = await fetchVerseAudioUrl(reciterId, nextKey);
+      if (audioUrl) {
+        const preAudio = new Audio();
+        preAudio.preload = "auto";
+        preAudio.src = audioUrl;
+        preAudio.load();
+        preloadedNextAudioRef.current = { verseKey: nextKey, url: audioUrl, element: preAudio };
+
+        // Cache it in background for future zero-latency playback
+        offlineStorage.cacheVerseAudio(reciterId, nextKey, audioUrl).catch(() => {});
+      }
+    } catch (e) {
+      // Background preload error should never break playback
+      console.warn("Preload next verse audio skipped:", e);
+    }
+  };
+
   const playVerse = async (chapterId: number, verseKey: string, versesList?: Verse[]) => {
     if (versesList && versesList.length > 0) {
       versesQueueRef.current = versesList;
@@ -177,7 +229,19 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     repeatCountRef.current = 0;
 
     const reciterId = currentReciterRef.current ? currentReciterRef.current.id : 7;
-    const audioUrl = await fetchVerseAudioUrl(reciterId, verseKey);
+
+    // Check 1: Offline cached audio
+    let audioUrl: string | null = await offlineStorage.getVerseAudioUrl(reciterId, verseKey);
+
+    // Check 2: Preloaded memory audio
+    if (!audioUrl && preloadedNextAudioRef.current?.verseKey === verseKey && preloadedNextAudioRef.current?.url) {
+      audioUrl = preloadedNextAudioRef.current.url;
+    }
+
+    // Check 3: Fetch online
+    if (!audioUrl) {
+      audioUrl = await fetchVerseAudioUrl(reciterId, verseKey);
+    }
 
     if (!audioUrl || !audioRef.current) {
       setIsLoading(false);
@@ -193,6 +257,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setIsPlaying(true);
       isPlayingRef.current = true;
       setIsLoading(false);
+
+      // Immediately buffer/preload next verse
+      preloadNextVerse(chapterId, verseKey);
     } catch (e) {
       console.error("Playback error:", e);
       setIsLoading(false);
@@ -214,12 +281,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const playWord = (relativeAudioUrl: string) => {
+  const playWord = async (relativeAudioUrl: string) => {
     if (!wordAudioRef.current || !relativeAudioUrl) return;
     try {
-      const fullUrl = relativeAudioUrl.startsWith("http")
-        ? relativeAudioUrl
-        : `${WBW_CDN_URL}/${relativeAudioUrl}`;
+      let fullUrl = await offlineStorage.getWordAudioUrl(relativeAudioUrl);
+      if (!fullUrl) {
+        fullUrl = relativeAudioUrl.startsWith("http")
+          ? relativeAudioUrl
+          : `${WBW_CDN_URL}/${relativeAudioUrl.replace(/^\/+/, "")}`;
+        offlineStorage.cacheWordAudio(relativeAudioUrl).catch(() => {});
+      }
       wordAudioRef.current.src = fullUrl;
       wordAudioRef.current.play().catch(console.error);
     } catch (e) {

@@ -21,6 +21,7 @@ import {
   Settings,
   LayoutList,
   AlignJustify,
+  CloudDownload,
 } from "lucide-react";
 
 interface DraggableSettingsPanelProps {
@@ -30,7 +31,7 @@ interface DraggableSettingsPanelProps {
 
 export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPanelProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
-  const { readingMode, setReadingMode } = useDesktopWorkspace();
+  const { readingMode, setReadingMode, setIsDownloadManagerOpen } = useDesktopWorkspace();
   const {
     prefs,
     setArabicFontSize,
@@ -431,6 +432,21 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Offline Data & Downloads Manager */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  setIsDownloadManagerOpen(true);
+                }}
+                className="w-full py-2 px-3 rounded-xl bg-emerald-600/15 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                <CloudDownload className="h-4 w-4" />
+                <span>Pre-download Quran & Audios for Offline</span>
+              </button>
             </div>
 
             {/* Footer version */}

@@ -8,14 +8,21 @@ import { DesktopRightInspector } from "./DesktopRightInspector";
 import { DesktopStatusBar } from "./DesktopStatusBar";
 import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { SearchModal } from "@/components/modals/SearchModal";
+import { DownloadManagerModal } from "@/components/modals/DownloadManagerModal";
 
 interface DesktopShellProps {
   children: React.ReactNode;
 }
 
 export function DesktopShell({ children }: DesktopShellProps) {
-  const { isSearchOpen, setIsSearchOpen, isSettingsOpen, setIsSettingsOpen } =
-    useDesktopWorkspace();
+  const {
+    isSearchOpen,
+    setIsSearchOpen,
+    isSettingsOpen,
+    setIsSettingsOpen,
+    isDownloadManagerOpen,
+    setIsDownloadManagerOpen,
+  } = useDesktopWorkspace();
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background,#0b100d)] text-[var(--foreground,#f1f5f9)] select-none">
@@ -49,6 +56,12 @@ export function DesktopShell({ children }: DesktopShellProps) {
       <DraggableSettingsPanel
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+      />
+
+      {/* Offline Storage & Pre-download Manager Modal */}
+      <DownloadManagerModal
+        isOpen={isDownloadManagerOpen}
+        onClose={() => setIsDownloadManagerOpen(false)}
       />
     </div>
   );

@@ -9,7 +9,7 @@ import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS, AVAILABLE_TAFSIRS } from "@/services/quranApi";
 import { ArabicFontFamily, ThemeStyle } from "@/types/quran";
 import { APP_CONFIG } from "@/config/version";
-import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe } from "lucide-react";
+import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe, CloudDownload } from "lucide-react";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface SettingsModalProps {
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
-  const { readingMode, setReadingMode } = useDesktopWorkspace();
+  const { readingMode, setReadingMode, setIsDownloadManagerOpen } = useDesktopWorkspace();
   const {
     prefs,
     setArabicFontSize,
@@ -400,6 +400,21 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
             />
           </label>
+        </div>
+
+        {/* Offline Storage & Pre-downloads Button */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              setIsDownloadManagerOpen(true);
+            }}
+            className="w-full py-3 px-4 rounded-xl bg-emerald-600/15 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
+          >
+            <CloudDownload className="h-4 w-4" />
+            <span>Pre-download Quran Data & Audio for Offline Use</span>
+          </button>
         </div>
 
         {/* App Version Info */}

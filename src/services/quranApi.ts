@@ -1,4 +1,5 @@
 import { Chapter, Verse, Reciter, Juz, Tafsir, SearchResultItem, Word } from "@/types/quran";
+import { offlineStorage } from "./offlineStorage";
 
 const BASE_URL = "https://api.quran.com/api/v4";
 export const AUDIO_CDN_URL = "https://verses.quran.com";
@@ -84,6 +85,29 @@ export async function fetchVersesByChapter(
   urduTranslationId = 234 // Fatah Muhammad Jalandhari
 ): Promise<{ verses: Verse[]; pagination: { total_records: number; total_pages: number; current_page: number } }> {
   try {
+    // Check if Surah data is available in offline storage first
+    if (typeof window !== "undefined") {
+      try {
+        const cached = await offlineStorage.getCachedSurahVerses(Number(chapterId));
+        if (cached && cached.length > 0) {
+          const start = (page - 1) * perPage;
+          const pagedVerses = cached.slice(start, start + perPage);
+          if (pagedVerses.length > 0) {
+            return {
+              verses: pagedVerses,
+              pagination: {
+                total_records: cached.length,
+                total_pages: Math.ceil(cached.length / perPage),
+                current_page: page,
+              },
+            };
+          }
+        }
+      } catch {
+        // Fall back to live network fetch
+      }
+    }
+
     const paramsEn = new URLSearchParams({
       language: "en",
       words: "true",

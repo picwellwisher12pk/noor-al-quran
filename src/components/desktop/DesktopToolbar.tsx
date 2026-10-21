@@ -11,6 +11,7 @@ import {
   Play,
   Pause,
   Settings,
+  CloudDownload,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,6 +34,7 @@ export function DesktopToolbar({
   const router = useRouter();
   const {
     setIsSettingsOpen,
+    setIsDownloadManagerOpen,
   } = useDesktopWorkspace();
 
   const {
@@ -141,6 +143,17 @@ export function DesktopToolbar({
             A+
           </button>
         </div>
+
+        {/* Offline / Download Manager Shortcut */}
+        <button
+          type="button"
+          onClick={() => setIsDownloadManagerOpen(true)}
+          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] hover:bg-[var(--surface-raised,#1f2924)] border border-[var(--border-subtle,#24362e)] text-[11px] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
+          title="Offline Storage & Pre-download Manager"
+        >
+          <CloudDownload className="h-3.5 w-3.5 text-emerald-400" />
+          <span className="hidden sm:inline">Offline</span>
+        </button>
 
         {/* Preferences Shortcut Button */}
         <button

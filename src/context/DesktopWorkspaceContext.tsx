@@ -54,6 +54,8 @@ interface DesktopWorkspaceContextType {
   setIsSearchOpen: (open: boolean) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  isDownloadManagerOpen: boolean;
+  setIsDownloadManagerOpen: (open: boolean) => void;
 }
 
 const DesktopWorkspaceContext = createContext<DesktopWorkspaceContextType | undefined>(undefined);
@@ -79,6 +81,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isDownloadManagerOpen, setIsDownloadManagerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // Restore persistent workspace state from localStorage on mount
@@ -248,6 +251,8 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setIsSearchOpen,
         isSettingsOpen,
         setIsSettingsOpen,
+        isDownloadManagerOpen,
+        setIsDownloadManagerOpen,
       }}
     >
       {children}

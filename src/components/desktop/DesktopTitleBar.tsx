@@ -8,6 +8,7 @@ import { APP_CONFIG } from "@/config/version";
 import {
   Search,
   Settings,
+  CloudDownload,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -27,6 +28,7 @@ export function DesktopTitleBar() {
     toggleRightInspector,
     setIsSearchOpen,
     setIsSettingsOpen,
+    setIsDownloadManagerOpen,
     chapters,
     activeChapterId,
     activeAyahNumber,
@@ -170,6 +172,16 @@ export function DesktopTitleBar() {
           title={`Switch Mode (Current: ${themeMode})`}
         >
           {themeMode === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
+        </button>
+
+        {/* Offline Storage & Pre-downloads */}
+        <button
+          type="button"
+          onClick={() => setIsDownloadManagerOpen(true)}
+          className="p-1.5 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+          title="Offline Storage & Pre-downloads"
+        >
+          <CloudDownload className="h-3.5 w-3.5 text-emerald-400" />
         </button>
 
         {/* Live Settings Gear */}
