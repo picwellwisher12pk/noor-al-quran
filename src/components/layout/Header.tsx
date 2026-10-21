@@ -8,7 +8,7 @@ import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { BookmarksModal } from "@/components/modals/BookmarksModal";
-import { SettingsModal } from "@/components/modals/SettingsModal";
+import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { KhatmahModal } from "@/components/modals/KhatmahModal";
 import {
   BookOpen,
@@ -125,10 +125,10 @@ export function Header() {
         </div>
       </header>
 
-      {/* Global Modals */}
+      {/* Global Modals & Floating Draggable Settings */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <BookmarksModal isOpen={isBookmarksOpen} onClose={() => setIsBookmarksOpen(false)} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <DraggableSettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <KhatmahModal isOpen={isKhatmahOpen} onClose={() => setIsKhatmahOpen(false)} />
     </>
   );

@@ -52,7 +52,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       verseNumber: Number(targetAyah) || 1,
       verseKey: `${chapter.id}:${Number(targetAyah) || 1}`,
     });
-  }, [chapter, targetAyah, setLastReadPosition]);
+  }, [chapter.id, chapter.name_simple, targetAyah, setLastReadPosition]);
 
   // Scroll to top button visibility
   useEffect(() => {
@@ -163,8 +163,8 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         )}
       </div>
 
-      {/* Verses List */}
-      <div className="space-y-4">
+      {/* Verses List - Compact Vertical Layout */}
+      <div className="space-y-2.5">
         {verses.map((verse) => (
           <VerseItem
             key={verse.verse_key}

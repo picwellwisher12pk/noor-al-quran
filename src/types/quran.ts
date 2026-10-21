@@ -30,10 +30,17 @@ export interface Word {
     text: string;
     language_name: string;
   };
+  translation_urdu?: {
+    text: string;
+    language_name: string;
+  };
   transliteration?: {
     text: string;
     language_name: string;
   };
+  root?: string;
+  lemma?: string;
+  grammar?: string;
 }
 
 export interface Translation {
@@ -131,11 +138,14 @@ export type ArabicFontFamily = "amiri" | "noto-sans-arabic" | "scheherazade" | "
 export type ThemeStyle = "hadith" | "emerald" | "monochrome";
 export type ThemeMode = "dark" | "light";
 
+export type WbwLanguage = "english" | "urdu" | "both";
+
 export interface ReadingPreferences {
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26
   arabicFont: ArabicFontFamily;
+  wbwLanguage: WbwLanguage;
   showTranslation: boolean;
   showUrduTranslation: boolean;
   showTransliteration: boolean;

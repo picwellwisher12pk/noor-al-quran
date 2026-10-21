@@ -1,4 +1,4 @@
-import { Chapter, Verse, Reciter, Juz, Tafsir, SearchResultItem } from "@/types/quran";
+import { Chapter, Verse, Reciter, Juz, Tafsir, SearchResultItem, Word } from "@/types/quran";
 
 const BASE_URL = "https://api.quran.com/api/v4";
 export const AUDIO_CDN_URL = "https://verses.quran.com";
@@ -95,6 +95,8 @@ export async function fetchVersesByChapter(
     });
 
     const paramsUr = new URLSearchParams({
+      language: "ur",
+      words: "true",
       translations: String(urduTranslationId),
       page: String(page),
       per_page: String(perPage),
@@ -117,14 +119,31 @@ export async function fetchVersesByChapter(
       }
     }
 
-    const mergedVerses: Verse[] = (dataEn.verses || []).map((v: Verse) => {
+    const mergedVerses: Verse[] = (dataEn.verses || []).map((v: Verse, vIdx: number) => {
       const urduTranslation = urduMap.get(v.verse_key);
       const translations = [...(v.translations || [])];
       if (urduTranslation) {
         translations.push(urduTranslation);
       }
+
+      // Merge Urdu word-by-word glosses
+      const urduVerseWords = dataUr.verses?.[vIdx]?.words;
+      const mergedWords = (v.words || []).map((word: Word, wIdx: number) => {
+        const urduWord = urduVerseWords?.[wIdx];
+        return {
+          ...word,
+          translation_urdu: urduWord?.translation
+            ? {
+                text: urduWord.translation.text,
+                language_name: "urdu",
+              }
+            : undefined,
+        };
+      });
+
       return {
         ...v,
+        words: mergedWords,
         translations,
       };
     });

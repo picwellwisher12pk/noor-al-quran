@@ -13,6 +13,7 @@ interface ReadingPreferencesContextType {
   toggleShowUrduTranslation: () => void;
   toggleShowTransliteration: () => void;
   toggleShowWordByWord: () => void;
+  setWbwLanguage: (lang: "english" | "urdu" | "both") => void;
   toggleAutoScroll: () => void;
   setSelectedUrduTranslationId: (id: number) => void;
   setSelectedTafsirId: (id: number) => void;
@@ -24,6 +25,7 @@ const DEFAULT_PREFERENCES: ReadingPreferences = {
   englishFontSize: 16,
   urduFontSize: 20,
   arabicFont: "amiri",
+  wbwLanguage: "english",
   showTranslation: true,
   showUrduTranslation: true,
   showTransliteration: true,
@@ -94,6 +96,10 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, showWordByWord: !prev.showWordByWord }));
   };
 
+  const setWbwLanguage = (lang: "english" | "urdu" | "both") => {
+    setPrefs((prev) => ({ ...prev, wbwLanguage: lang }));
+  };
+
   const toggleAutoScroll = () => {
     setPrefs((prev) => ({ ...prev, autoScroll: !prev.autoScroll }));
   };
@@ -122,6 +128,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         toggleShowUrduTranslation,
         toggleShowTransliteration,
         toggleShowWordByWord,
+        setWbwLanguage,
         toggleAutoScroll,
         setSelectedUrduTranslationId,
         setSelectedTafsirId,
