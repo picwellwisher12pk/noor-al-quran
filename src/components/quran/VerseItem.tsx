@@ -212,10 +212,11 @@ export function VerseItem({
           <button
             type="button"
             onClick={() => onOpenTafsir(verse.verse_key, verse.text_uthmani)}
-            title="Read Commentary (Tafseer)"
-            className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1f2d27)] transition-colors"
+            title="Read Commentary (تفسیر / Tafseer)"
+            className="px-2 py-1 rounded-lg text-emerald-400 bg-emerald-950/40 hover:bg-emerald-600 hover:text-white border border-emerald-800/40 transition-all flex items-center gap-1 text-[11px] font-medium shadow-xs"
           >
-            <BookOpen className="h-3.5 w-3.5" />
+            <BookOpen className="h-3 w-3" />
+            <span>تفسیر / Tafseer</span>
           </button>
 
           {/* Copy */}
