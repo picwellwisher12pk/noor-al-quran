@@ -16,6 +16,66 @@ export const AUDIO_CACHE_NAME = "noor-quran-audio-v1";
 export const DATA_CACHE_NAME = "noor-quran-data-v1";
 const METADATA_KEY = "noor_offline_surahs_meta";
 
+/**
+ * Format bytes into human readable KB, MB, GB format
+ */
+export function formatBytes(bytes: number, decimals: number = 1): string {
+  if (!bytes || bytes <= 0) return "0 B";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const safeI = Math.min(i, sizes.length - 1);
+  return `${parseFloat((bytes / Math.pow(k, safeI)).toFixed(dm))} ${sizes[safeI]}`;
+}
+
+/**
+ * Dynamic authentic size estimation derived from Quran metadata
+ */
+export function estimateSurahBytes(
+  chapterId: number,
+  options: { includeData?: boolean; includeVerseAudio?: boolean; includeWordAudio?: boolean }
+): { textBytes: number; verseAudioBytes: number; wordAudioBytes: number; totalBytes: number } {
+  const ayahs = CHAPTER_VERSE_COUNTS[chapterId - 1] || 7;
+  // Authentic average estimations derived from actual API responses and MP3 bitrates (128kbps):
+  // - Uthmani text, English & Urdu translations, word glosses: ~1.8 KB per ayah
+  // - Verse recitation MP3 (128kbps, average ayah ~12 seconds): ~192 KB per ayah
+  // - Word-by-word pronunciation MP3: average ~11 words per ayah, ~14 KB per word
+  const textBytes = options.includeData ? Math.round(ayahs * 1800) : 0;
+  const verseAudioBytes = options.includeVerseAudio ? Math.round(ayahs * 192000) : 0;
+  const wordAudioBytes = options.includeWordAudio ? Math.round(ayahs * 11 * 14000) : 0;
+  return {
+    textBytes,
+    verseAudioBytes,
+    wordAudioBytes,
+    totalBytes: textBytes + verseAudioBytes + wordAudioBytes,
+  };
+}
+
+export function estimateFullQuranBytes(options: {
+  includeData?: boolean;
+  includeVerseAudio?: boolean;
+  includeWordAudio?: boolean;
+}): { textBytes: number; verseAudioBytes: number; wordAudioBytes: number; totalBytes: number } {
+  let totalText = 0;
+  let totalVerseAudio = 0;
+  let totalWordAudio = 0;
+
+  for (let c = 1; c <= 114; c++) {
+    const s = estimateSurahBytes(c, options);
+    totalText += s.textBytes;
+    totalVerseAudio += s.verseAudioBytes;
+    totalWordAudio += s.wordAudioBytes;
+  }
+
+  return {
+    textBytes: totalText,
+    verseAudioBytes: totalVerseAudio,
+    wordAudioBytes: totalWordAudio,
+    totalBytes: totalText + totalVerseAudio + totalWordAudio,
+  };
+}
+
 export interface OfflineSurahMeta {
   chapterId: number;
   hasText: boolean;
@@ -32,7 +92,9 @@ export interface DownloadProgress {
   totalItems: number;
   completedItems: number;
   totalBytes: number;
+  estimatedTotalBytes?: number;
   currentItemName?: string;
+  currentItemBytes?: number;
   errorMessage?: string;
 }
 
@@ -337,6 +399,7 @@ class OfflineDownloadManager {
     } = options;
 
     const totalAyahs = CHAPTER_VERSE_COUNTS[chapterId - 1] || 7;
+    const est = estimateSurahBytes(chapterId, { includeData, includeVerseAudio, includeWordAudio });
     const estimatedTotal =
       (includeData ? 1 : 0) +
       (includeVerseAudio ? totalAyahs : 0) +
@@ -344,11 +407,12 @@ class OfflineDownloadManager {
 
     this.notify({
       status: "downloading",
-      taskTitle: `Downloading Surah ${chapterId}`,
+      taskTitle: `Downloading Surah ${chapterId} (~${formatBytes(est.totalBytes)})`,
       currentChapterId: chapterId,
       totalItems: estimatedTotal,
       completedItems: 0,
       totalBytes: 0,
+      estimatedTotalBytes: est.totalBytes,
       currentItemName: "Fetching Surah text & translations...",
     });
 
@@ -375,7 +439,8 @@ class OfflineDownloadManager {
         this.notify({
           completedItems: completed,
           totalBytes: bytesSum,
-          currentItemName: `Surah text cached (${fetchedVerses.length} ayahs)`,
+          currentItemBytes: dataBytes,
+          currentItemName: `Surah text & translations cached (${formatBytes(dataBytes)})`,
         });
       }
 
@@ -386,12 +451,13 @@ class OfflineDownloadManager {
 
           const verseKey = `${chapterId}:${a}`;
           this.notify({
-            currentItemName: `Recitation: Ayah ${verseKey}`,
+            currentItemName: `Connecting Ayah ${verseKey}...`,
           });
 
           const audioUrl = await fetchVerseAudioUrl(reciterId, verseKey);
+          let size = 0;
           if (audioUrl) {
-            const size = await this.cacheVerseAudio(reciterId, verseKey, audioUrl);
+            size = await this.cacheVerseAudio(reciterId, verseKey, audioUrl);
             bytesSum += size;
           }
 
@@ -399,6 +465,8 @@ class OfflineDownloadManager {
           this.notify({
             completedItems: completed,
             totalBytes: bytesSum,
+            currentItemBytes: size,
+            currentItemName: `Recitation Ayah ${verseKey} (${formatBytes(size)})`,
           });
         }
       }
@@ -434,15 +502,18 @@ class OfflineDownloadManager {
             })
           );
 
+          let batchSum = 0;
           results.forEach((s) => {
             bytesSum += s;
+            batchSum += s;
             completed += 1;
           });
 
           this.notify({
             completedItems: completed,
             totalBytes: bytesSum,
-            currentItemName: `Word Audio: ${batch[0]?.text_uthmani || "Ayah word"}`,
+            currentItemBytes: batchSum,
+            currentItemName: `Word: ${batch[0]?.text_uthmani || "Pronunciation"} (${formatBytes(batchSum)})`,
           });
         }
       }
@@ -462,10 +533,10 @@ class OfflineDownloadManager {
 
       this.notify({
         status: "completed",
-        taskTitle: `Surah ${chapterId} downloaded successfully`,
+        taskTitle: `Surah ${chapterId} downloaded (${formatBytes(bytesSum)})`,
         completedItems: this.currentProgress.totalItems,
         totalBytes: bytesSum,
-        currentItemName: "Ready for offline playback & reading",
+        currentItemName: `100% Offline Ready (${formatBytes(bytesSum)} stored on disk)`,
       });
     } catch (e: any) {
       console.error(`Download failed for Surah ${chapterId}:`, e);
@@ -495,12 +566,15 @@ class OfflineDownloadManager {
     this.isPaused = false;
     this.isCancelled = false;
 
+    const fullEst = estimateFullQuranBytes(options);
+
     this.notify({
       status: "downloading",
-      taskTitle: "Downloading Complete Noble Quran (114 Surahs)",
+      taskTitle: `Downloading Complete Noble Quran (~${formatBytes(fullEst.totalBytes)})`,
       totalItems: 114,
       completedItems: 0,
       totalBytes: 0,
+      estimatedTotalBytes: fullEst.totalBytes,
       currentItemName: "Initializing full download...",
     });
 
@@ -510,7 +584,7 @@ class OfflineDownloadManager {
       if (!(await this.waitIfPaused())) break;
 
       this.notify({
-        taskTitle: `Downloading Quran: Surah ${c} of 114`,
+        taskTitle: `Downloading Quran: Surah ${c} of 114 (~${formatBytes(fullEst.totalBytes)})`,
         currentChapterId: c,
         currentItemName: `Processing Surah ${c}...`,
       });
@@ -527,10 +601,11 @@ class OfflineDownloadManager {
     if (!this.isCancelled) {
       this.notify({
         status: "completed",
-        taskTitle: "Complete Noble Quran downloaded successfully for offline use",
+        taskTitle: `Complete Quran downloaded (${formatBytes(totalBytesSum)})`,
         completedItems: 114,
         totalItems: 114,
-        currentItemName: "100% Offline Ready",
+        totalBytes: totalBytesSum,
+        currentItemName: `100% Offline Ready (${formatBytes(totalBytesSum)} stored on disk)`,
       });
     }
   }

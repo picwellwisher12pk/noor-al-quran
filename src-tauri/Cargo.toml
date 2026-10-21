@@ -1,6 +1,6 @@
 [package]
 name = "noor-al-quran"
-version = "1.8.0"
+version = "1.8.1"
 description = "Noor Al-Quran (نور القرآن) Desktop Workstation"
 authors = ["Noor Al-Quran Team"]
 edition = "2021"
