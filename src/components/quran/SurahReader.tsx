@@ -33,8 +33,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { setLastReadPosition } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
-  const { setActiveChapterId, setActiveAyahNumber, openTafsirInInspector, readingMode } =
-    useDesktopWorkspace();
+  const { setActiveChapterId, setActiveAyahNumber, readingMode } = useDesktopWorkspace();
 
   // Sync active chapter with global workspace
   useEffect(() => {
@@ -43,6 +42,22 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       setActiveAyahNumber(Number(targetAyah) || 1);
     }
   }, [chapter.id, targetAyah, setActiveChapterId, setActiveAyahNumber]);
+
+  // When selected Urdu translation changes, reload verses with the chosen translation!
+  useEffect(() => {
+    let isCancelled = false;
+    fetchVersesByChapter(chapter.id, 1, 50, 20, prefs.selectedUrduTranslationId)
+      .then((res) => {
+        if (!isCancelled && res.verses?.length > 0) {
+          setVerses(res.verses);
+          setCurrentPage(1);
+        }
+      })
+      .catch(console.error);
+    return () => {
+      isCancelled = true;
+    };
+  }, [chapter.id, prefs.selectedUrduTranslationId]);
 
   // Handle jump to ayah on initial load if query param present
   useEffect(() => {
@@ -90,9 +105,8 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     }
   };
 
+  // Explicitly opens dedicated Tafseer modal WITHOUT touching the right inspector pane!
   const handleOpenTafsir = (verseKey: string, arabicText: string) => {
-    // Open in desktop right inspector
-    openTafsirInInspector(verseKey, arabicText);
     setTafsirAyahKey(verseKey);
     setTafsirArabicText(arabicText);
   };
@@ -103,6 +117,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
 
   // Surah 1 (Al-Fatihah) and Surah 9 (At-Tawbah) bismillah rules
   const showBismillah = chapter.id !== 1 && chapter.id !== 9;
+  const isCompact = readingMode === "compact";
 
   return (
     <div className="flex-1 flex flex-col w-full h-full">
@@ -115,22 +130,35 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       />
 
       {/* Reading Canvas Container */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 pb-20 max-w-5xl w-full mx-auto space-y-4">
+      <div
+        className={`flex-1 overflow-y-auto w-full mx-auto pb-24 ${
+          isCompact ? "max-w-4xl px-2 sm:px-4 py-2 space-y-2" : "max-w-5xl px-3 sm:px-6 py-4 space-y-3"
+        }`}
+      >
         {/* Compact Chapter Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-5 text-center shadow-md">
+        <div
+          className={`relative overflow-hidden bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-center shadow-md ${
+            isCompact ? "rounded-xl p-3 sm:p-4" : "rounded-2xl p-5"
+          }`}
+        >
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
 
           {/* Surah Title Calligraphy & English */}
-          <div className="flex flex-col items-center justify-center space-y-1">
-            <h1 className="font-arabic text-3xl sm:text-4xl text-[var(--foreground)] py-1" dir="rtl">
+          <div className="flex flex-col items-center justify-center space-y-0.5">
+            <h1
+              className={`font-arabic text-[var(--foreground)] py-0.5 ${
+                isCompact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl"
+              }`}
+              dir="rtl"
+            >
               سُورَةُ {chapter.name_arabic}
             </h1>
-            <h2 className="text-sm sm:text-base font-semibold tracking-tight text-[var(--foreground)]">
+            <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[var(--foreground)]">
               Surah {chapter.name_simple} &bull;{" "}
               <span className="text-emerald-400 font-normal">{chapter.translated_name.name}</span>
             </h2>
-            <div className="flex items-center gap-2 text-[11px] text-[var(--muted-foreground,#8e9b94)] pt-1">
-              <span className="capitalize px-2 py-0.5 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground,#8e9b94)] pt-0.5">
+              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
                 {chapter.revelation_place}
               </span>
               <span>&bull;</span>
@@ -142,11 +170,16 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
 
           {/* Bismillah Decoration */}
           {showBismillah && (
-            <div className="mt-4 pt-3 border-t border-[var(--border-subtle,#1a2621)]">
-              <div className="font-arabic text-2xl text-emerald-400/90 leading-relaxed" dir="rtl">
+            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle,#1a2621)]">
+              <div
+                className={`font-arabic text-emerald-400/90 leading-relaxed ${
+                  isCompact ? "text-xl sm:text-2xl" : "text-2xl"
+                }`}
+                dir="rtl"
+              >
                 بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
               </div>
-              <p className="text-[11px] text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+              <p className="text-[10px] text-[var(--muted-foreground,#8e9b94)] mt-0.5">
                 In the Name of Allah—the Most Compassionate, Most Merciful
               </p>
             </div>
@@ -154,7 +187,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         </div>
 
         {/* Verses Stream */}
-        <div className={`space-y-2.5 ${readingMode === "compact" ? "space-y-1.5" : "space-y-2.5"}`}>
+        <div className={`space-y-2 ${isCompact ? "space-y-1.5" : "space-y-3"}`}>
           {verses.map((verse) => (
             <VerseItem
               key={verse.verse_key}
@@ -162,6 +195,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               chapterName={chapter.name_simple}
               allVersesInSurah={verses}
               onOpenTafsir={handleOpenTafsir}
+              readingMode={readingMode}
             />
           ))}
         </div>
@@ -188,7 +222,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         )}
       </div>
 
-      {/* Floating Tafseer Modal fallback */}
+      {/* Dedicated Spacious Tafseer Modal Dialog */}
       {tafsirAyahKey && (
         <TafsirModal
           isOpen={!!tafsirAyahKey}

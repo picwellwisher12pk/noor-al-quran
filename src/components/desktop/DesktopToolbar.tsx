@@ -166,7 +166,7 @@ export function DesktopToolbar({
         </div>
 
         {/* Layout Mode */}
-        <div className="hidden md:flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[10px]">
+        <div className="flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[10px]">
           <button
             type="button"
             onClick={() => setReadingMode("continuous")}

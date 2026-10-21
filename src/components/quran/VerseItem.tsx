@@ -24,6 +24,7 @@ interface VerseItemProps {
   chapterName: string;
   allVersesInSurah: Verse[];
   onOpenTafsir: (verseKey: string, arabicText: string) => void;
+  readingMode?: "continuous" | "compact" | "mushaf";
 }
 
 export function VerseItem({
@@ -31,6 +32,7 @@ export function VerseItem({
   chapterName,
   allVersesInSurah,
   onOpenTafsir,
+  readingMode = "continuous",
 }: VerseItemProps) {
   const { currentVerseKey, isPlaying, playVerse, togglePlayPause } = useAudio();
   const { isBookmarked, addBookmark, removeBookmark, setLastReadPosition } = useBookmarks();
@@ -42,6 +44,7 @@ export function VerseItem({
 
   const isCurrentPlaying = currentVerseKey === verse.verse_key;
   const bookmarked = isBookmarked(verse.verse_key);
+  const isCompact = readingMode === "compact";
 
   const currentAyahAbsIndex = getAbsoluteVerseIndex(verse.chapter_id, verse.verse_number);
   const isReadInKhatmah = plan ? currentAyahAbsIndex <= plan.completedAyahsCount : false;
@@ -103,53 +106,76 @@ export function VerseItem({
         verse_number: verse.verse_number,
         chapter_name: chapterName,
         text_uthmani: verse.text_uthmani,
-        translation_text: urduTranslation?.text || englishTranslation?.text,
+        translation_text: englishTranslation?.text || urduTranslation?.text,
       });
     }
   };
 
-  const handleCopy = async () => {
-    const parts = [verse.text_uthmani];
-    if (urduTranslation?.text) parts.push(urduTranslation.text.replace(/<[^>]+>/g, ""));
-    if (englishTranslation?.text) parts.push(englishTranslation.text.replace(/<[^>]+>/g, ""));
-    parts.push(`[Quran ${verse.verse_key} - ${chapterName}]`);
+  const handleCopy = () => {
+    const textToCopy = [
+      verse.text_uthmani,
+      urduTranslation ? `Urdu: ${urduTranslation.text.replace(/<[^>]+>/g, "")}` : "",
+      englishTranslation ? `English: ${englishTranslation.text.replace(/<[^>]+>/g, "")}` : "",
+      `[Surah ${chapterName} ${verse.verse_key}]`,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
 
-    try {
-      await navigator.clipboard.writeText(parts.join("\n\n"));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
-      console.error("Failed to copy verse:", e);
-    }
+    navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = async () => {
-    const text = `${verse.text_uthmani}\n\n[Surah ${chapterName} ${verse.verse_key}]`;
-    if (typeof navigator !== "undefined" && navigator.share) {
+    const shareData = {
+      title: `Surah ${chapterName} - Ayah ${verse.verse_key}`,
+      text: `${verse.text_uthmani}\n\n${englishTranslation?.text || ""}\n[Surah ${chapterName} ${verse.verse_key}]`,
+      url: typeof window !== "undefined" ? window.location.href : "",
+    };
+
+    if (navigator.share) {
       try {
-        await navigator.share({
-          title: `Quran ${verse.verse_key}`,
-          text: text,
-          url: window.location.href,
-        });
-      } catch {}
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled share
+      }
     } else {
       handleCopy();
     }
   };
 
+  const activeArabicFontSize = isCompact
+    ? Math.max(20, prefs.arabicFontSize - 4)
+    : prefs.arabicFontSize;
+
+  const activeUrduFontSize = isCompact
+    ? Math.max(14, prefs.urduFontSize - 2)
+    : prefs.urduFontSize;
+
+  const activeEnglishFontSize = isCompact
+    ? Math.max(12, prefs.englishFontSize - 2)
+    : prefs.englishFontSize;
+
   return (
     <div
       ref={verseRef}
       id={`ayah-${verse.verse_number}`}
-      className={`relative rounded-2xl p-3.5 sm:p-4 transition-all duration-200 border ${
+      className={`relative transition-all duration-200 border ${
+        isCompact
+          ? "rounded-xl p-2.5 sm:p-3"
+          : "rounded-2xl p-4 sm:p-5 shadow-sm"
+      } ${
         isCurrentPlaying
-          ? "bg-emerald-950/20 border-emerald-500 shadow-md ring-1 ring-emerald-500/40"
+          ? "bg-emerald-950/20 border-emerald-500 ring-1 ring-emerald-500/40"
           : "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/25"
       }`}
     >
-      {/* Sleek Compact Header Bar */}
-      <div className="flex items-center justify-between pb-2 mb-2 border-b border-[var(--border-subtle,#1a2621)]">
+      {/* Header Bar */}
+      <div
+        className={`flex items-center justify-between border-b border-[var(--border-subtle,#1a2621)] ${
+          isCompact ? "pb-1 mb-1.5" : "pb-2 mb-2.5"
+        }`}
+      >
         {/* Verse Badge */}
         <div className="flex items-center gap-1.5">
           <span className="px-2 py-0.5 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-[11px] font-mono font-semibold text-emerald-400">
@@ -162,8 +188,8 @@ export function VerseItem({
           )}
         </div>
 
-        {/* Compact Action Buttons */}
-        <div className="flex items-center gap-0.5">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-1">
           {/* Play Verse */}
           <button
             type="button"
@@ -174,6 +200,7 @@ export function VerseItem({
                 ? "bg-emerald-600 text-white"
                 : "text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1f2d27)]"
             }`}
+            title="Play Audio"
           >
             {isCurrentPlaying && isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
           </button>
@@ -188,6 +215,7 @@ export function VerseItem({
                 ? "text-emerald-400 bg-emerald-950/50"
                 : "text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1f2d27)]"
             }`}
+            title="Bookmark Ayah"
           >
             <BookmarkIcon className={`h-3.5 w-3.5 ${bookmarked ? "fill-emerald-400" : ""}`} />
           </button>
@@ -208,12 +236,12 @@ export function VerseItem({
             </button>
           )}
 
-          {/* Tafsir */}
+          {/* Tafsir Dedicated Button (Opens Modal Directly) */}
           <button
             type="button"
             onClick={() => onOpenTafsir(verse.verse_key, verse.text_uthmani)}
             title="Read Commentary (تفسیر / Tafseer)"
-            className="px-2 py-1 rounded-lg text-emerald-400 bg-emerald-950/40 hover:bg-emerald-600 hover:text-white border border-emerald-800/40 transition-all flex items-center gap-1 text-[11px] font-medium shadow-xs"
+            className="px-2 py-0.5 rounded-lg text-emerald-400 bg-emerald-950/40 hover:bg-emerald-600 hover:text-white border border-emerald-800/40 transition-all flex items-center gap-1 text-[11px] font-medium shadow-xs"
           >
             <BookOpen className="h-3 w-3" />
             <span>تفسیر / Tafseer</span>
@@ -246,14 +274,16 @@ export function VerseItem({
         {prefs.showWordByWord && verse.words && verse.words.length > 0 ? (
           <WordByWord
             words={verse.words}
-            arabicFontSize={prefs.arabicFontSize}
+            arabicFontSize={activeArabicFontSize}
             arabicFontClass={arabicFontClass}
             chapterName={chapterName}
           />
         ) : (
           <p
-            className={`${arabicFontClass} text-[var(--foreground)] leading-[2.0] select-text`}
-            style={{ fontSize: `${prefs.arabicFontSize}px` }}
+            className={`${arabicFontClass} text-[var(--foreground)] ${
+              isCompact ? "leading-[1.7]" : "leading-[2.0]"
+            } select-text`}
+            style={{ fontSize: `${activeArabicFontSize}px` }}
           >
             {verse.text_uthmani}
             <span className="inline-flex items-center justify-center text-emerald-500 font-arabic text-lg px-2 select-none">
@@ -263,23 +293,33 @@ export function VerseItem({
         )}
       </div>
 
-      {/* Compact Urdu Translation */}
+      {/* Urdu Translation */}
       {prefs.showUrduTranslation && urduTranslation && (
-        <div className="mt-2 pt-2 border-t border-[var(--border-subtle,#1a2621)] text-right" dir="rtl">
+        <div
+          className={`${
+            isCompact ? "mt-1.5 pt-1.5" : "mt-2 pt-2"
+          } border-t border-[var(--border-subtle,#1a2621)] text-right`}
+          dir="rtl"
+        >
           <p
             className="font-urdu text-[var(--urdu-color,#e2e8f0)] leading-relaxed select-text"
-            style={{ fontSize: `${prefs.urduFontSize}px` }}
+            style={{ fontSize: `${activeUrduFontSize}px` }}
             dangerouslySetInnerHTML={{ __html: urduTranslation.text }}
           />
         </div>
       )}
 
-      {/* Compact English Translation */}
+      {/* English Translation */}
       {prefs.showTranslation && englishTranslation && (
-        <div className="mt-1.5 pt-1.5 border-t border-[var(--border-subtle,#1a2621)]/50 text-left" dir="ltr">
+        <div
+          className={`${
+            isCompact ? "mt-1 pt-1" : "mt-1.5 pt-1.5"
+          } border-t border-[var(--border-subtle,#1a2621)]/50 text-left`}
+          dir="ltr"
+        >
           <p
             className="text-[var(--translation-color,#cbd5e1)] leading-relaxed select-text"
-            style={{ fontSize: `${prefs.englishFontSize}px` }}
+            style={{ fontSize: `${activeEnglishFontSize}px` }}
             dangerouslySetInnerHTML={{ __html: englishTranslation.text }}
           />
         </div>

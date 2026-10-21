@@ -7,6 +7,7 @@ import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 export type SidebarTab = "surahs" | "juz" | "khatmah" | "bookmarks";
 export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars";
 export type ReadingLayoutMode = "continuous" | "compact" | "mushaf";
+export type InspectorWidthMode = "default" | "expanded" | "maximized";
 
 interface DesktopWorkspaceContextType {
   // Sidebar state
@@ -22,6 +23,9 @@ interface DesktopWorkspaceContextType {
   setRightInspectorOpen: (open: boolean) => void;
   activeInspectorTab: InspectorTab;
   setActiveInspectorTab: (tab: InspectorTab) => void;
+  inspectorWidth: InspectorWidthMode;
+  setInspectorWidth: (width: InspectorWidthMode) => void;
+  toggleExpandInspector: () => void;
 
   // Reading layout mode
   readingMode: ReadingLayoutMode;
@@ -60,6 +64,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>("surahs");
   const [activeInspectorTab, setActiveInspectorTab] = useState<InspectorTab>("morphology");
   const [readingMode, setReadingMode] = useState<ReadingLayoutMode>("continuous");
+  const [inspectorWidth, setInspectorWidth] = useState<InspectorWidthMode>("default");
 
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [selectedAyahKey, setSelectedAyahKey] = useState<string | null>("1:1");
@@ -74,6 +79,54 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Restore persistent workspace state from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedReadingMode = localStorage.getItem("naq_reading_mode") as ReadingLayoutMode;
+      if (savedReadingMode === "continuous" || savedReadingMode === "compact" || savedReadingMode === "mushaf") {
+        setReadingMode(savedReadingMode);
+      }
+
+      const savedSidebar = localStorage.getItem("naq_desktop_sidebar_open");
+      if (savedSidebar !== null) {
+        setLeftSidebarOpen(savedSidebar === "true");
+      }
+
+      const savedInspector = localStorage.getItem("naq_desktop_inspector_open");
+      if (savedInspector !== null) {
+        setRightInspectorOpen(savedInspector === "true");
+      }
+
+      const savedInspectorWidth = localStorage.getItem("naq_desktop_inspector_width") as InspectorWidthMode;
+      if (savedInspectorWidth === "default" || savedInspectorWidth === "expanded" || savedInspectorWidth === "maximized") {
+        setInspectorWidth(savedInspectorWidth);
+      }
+
+      const savedInspectorTab = localStorage.getItem("naq_desktop_inspector_tab") as InspectorTab;
+      if (savedInspectorTab) {
+        setActiveInspectorTab(savedInspectorTab);
+      }
+    } catch (e) {
+      console.error("Error reading saved workspace settings:", e);
+    }
+    setMounted(true);
+  }, []);
+
+  // Save persistent state changes
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem("naq_reading_mode", readingMode);
+      localStorage.setItem("naq_desktop_sidebar_open", String(isLeftSidebarOpen));
+      localStorage.setItem("naq_desktop_inspector_open", String(isRightInspectorOpen));
+      localStorage.setItem("naq_desktop_inspector_width", inspectorWidth);
+      localStorage.setItem("naq_desktop_inspector_tab", activeInspectorTab);
+    } catch (e) {
+      console.error("Error saving workspace settings:", e);
+    }
+  }, [readingMode, isLeftSidebarOpen, isRightInspectorOpen, inspectorWidth, activeInspectorTab, mounted]);
 
   // Load global chapters and juzs on launch
   useEffect(() => {
@@ -111,7 +164,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         e.preventDefault();
         setRightInspectorOpen((prev) => !prev);
       }
-      // Escape closes inspector or search
+      // Escape closes search
       if (e.key === "Escape") {
         if (isSearchOpen) setIsSearchOpen(false);
       }
@@ -123,6 +176,10 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
   const toggleLeftSidebar = () => setLeftSidebarOpen((prev) => !prev);
   const toggleRightInspector = () => setRightInspectorOpen((prev) => !prev);
+
+  const toggleExpandInspector = () => {
+    setInspectorWidth((prev) => (prev === "default" ? "expanded" : prev === "expanded" ? "maximized" : "default"));
+  };
 
   const openWordInInspector = (word: Word) => {
     setSelectedWord(word);
@@ -164,6 +221,9 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setRightInspectorOpen,
         activeInspectorTab,
         setActiveInspectorTab,
+        inspectorWidth,
+        setInspectorWidth,
+        toggleExpandInspector,
 
         readingMode,
         setReadingMode,
