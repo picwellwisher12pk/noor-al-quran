@@ -6,7 +6,7 @@ import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS } from "@/services/quranApi";
-import { ArabicFontFamily, ThemeStyle, WbwLanguage } from "@/types/quran";
+import { ArabicFontFamily, UrduFontFamily, ThemeStyle, WbwLanguage } from "@/types/quran";
 import { APP_CONFIG } from "@/config/version";
 import {
   GripHorizontal,
@@ -38,6 +38,7 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
     setEnglishFontSize,
     setUrduFontSize,
     setArabicFont,
+    setUrduFont,
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
@@ -99,6 +100,13 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
     { id: "noto-sans-arabic", name: "Noto Sans" },
     { id: "scheherazade", name: "Scheherazade" },
     { id: "nastaliq", name: "Nastaliq" },
+  ];
+
+  const urduFontOptions: { id: UrduFontFamily; name: string }[] = [
+    { id: "nastaliq", name: "Nastaliq (Urdu)" },
+    { id: "noto-sans-arabic", name: "Noto Sans" },
+    { id: "scheherazade", name: "Scheherazade" },
+    { id: "amiri", name: "Amiri" },
   ];
 
   const themes: { id: ThemeStyle; name: string }[] = [
@@ -215,6 +223,29 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
                     onClick={() => setArabicFont(f.id)}
                     className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left ${
                       prefs.arabicFont === f.id
+                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--foreground)]"
+                    }`}
+                  >
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Urdu Translation Font Selector */}
+            <div>
+              <span className="block mb-1.5 font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)]">
+                Urdu Translation Font
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                {urduFontOptions.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setUrduFont(f.id)}
+                    className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left ${
+                      (prefs.urduFont || "nastaliq") === f.id
                         ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
                         : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--foreground)]"
                     }`}

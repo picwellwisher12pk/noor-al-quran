@@ -134,6 +134,7 @@ export interface KhatmahPlan {
 }
 
 export type ArabicFontFamily = "amiri" | "noto-sans-arabic" | "scheherazade" | "nastaliq";
+export type UrduFontFamily = "nastaliq" | "noto-sans-arabic" | "scheherazade" | "amiri";
 
 export type ThemeStyle = "hadith" | "emerald" | "monochrome";
 export type ThemeMode = "dark" | "light";
@@ -145,6 +146,7 @@ export interface ReadingPreferences {
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26
   arabicFont: ArabicFontFamily;
+  urduFont: UrduFontFamily;
   wbwLanguage: WbwLanguage;
   showTranslation: boolean;
   showUrduTranslation: boolean;

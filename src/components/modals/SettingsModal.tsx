@@ -7,7 +7,7 @@ import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS, AVAILABLE_TAFSIRS } from "@/services/quranApi";
-import { ArabicFontFamily, ThemeStyle } from "@/types/quran";
+import { ArabicFontFamily, UrduFontFamily, ThemeStyle } from "@/types/quran";
 import { APP_CONFIG } from "@/config/version";
 import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe, CloudDownload } from "lucide-react";
 
@@ -25,6 +25,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setEnglishFontSize,
     setUrduFontSize,
     setArabicFont,
+    setUrduFont,
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
@@ -40,6 +41,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     { id: "noto-sans-arabic", name: "Noto Sans Arabic (Hadith Style)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-noto" },
     { id: "scheherazade", name: "Scheherazade New (Classical)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-scheherazade" },
     { id: "nastaliq", name: "Noto Nastaliq (Indo-Pak / Urdu)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-nastaliq" },
+  ];
+
+  const urduFontOptions: { id: UrduFontFamily; name: string; sample: string; fontClass: string }[] = [
+    { id: "nastaliq", name: "Noto Nastaliq (Classic Calligraphic)", sample: "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے", fontClass: "font-urdu-nastaliq" },
+    { id: "noto-sans-arabic", name: "Noto Sans Arabic (Modern Naskh)", sample: "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے", fontClass: "font-urdu-noto" },
+    { id: "scheherazade", name: "Scheherazade (Classical Script)", sample: "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے", fontClass: "font-urdu-scheherazade" },
+    { id: "amiri", name: "Amiri (Traditional Naskh)", sample: "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے", fontClass: "font-urdu-amiri" },
   ];
 
   const themes: { id: ThemeStyle; name: string; note: string }[] = [
@@ -134,6 +142,38 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     {isSelected && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
                   </div>
                   <div className={`text-right text-lg text-[var(--foreground)] ${f.fontClass}`} dir="rtl">
+                    {f.sample}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Urdu Translation Font Selection */}
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-3">
+            Urdu Translation Font Script (اردو ترجمہ فونٹ)
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {urduFontOptions.map((f) => {
+              const isSelected = (prefs.urduFont || "nastaliq") === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setUrduFont(f.id)}
+                  className={`p-3 rounded-xl border text-left transition-all ${
+                    isSelected
+                      ? "border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500"
+                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] hover:border-emerald-500/40"
+                  }`}
+                >
+                  <div className="text-xs font-semibold text-[var(--foreground)] mb-1 flex items-center justify-between">
+                    <span>{f.name}</span>
+                    {isSelected && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
+                  </div>
+                  <div className={`text-right text-base text-[var(--foreground)] ${f.fontClass}`} dir="rtl">
                     {f.sample}
                   </div>
                 </button>

@@ -161,9 +161,37 @@ body {
   line-height: 2.6;
 }
 
-/* Urdu Typography */
+/* Dynamic Urdu Translation Typography */
+:root {
+  --font-selected-urdu: var(--font-noto-nastaliq-urdu), "Jameel Noori Nastaleeq", serif;
+}
+
+.font-urdu-nastaliq {
+  font-family: var(--font-noto-nastaliq-urdu), "Jameel Noori Nastaleeq", serif;
+  letter-spacing: 0;
+  line-height: 2.3;
+}
+
+.font-urdu-noto {
+  font-family: var(--font-noto-sans-arabic), system-ui, sans-serif;
+  letter-spacing: 0;
+  line-height: 1.9;
+}
+
+.font-urdu-scheherazade {
+  font-family: var(--font-scheherazade), serif;
+  letter-spacing: 0;
+  line-height: 2.0;
+}
+
+.font-urdu-amiri {
+  font-family: var(--font-amiri), "Traditional Arabic", serif;
+  letter-spacing: 0;
+  line-height: 2.0;
+}
+
 .font-urdu {
-  font-family: var(--font-noto-nastaliq-urdu), var(--font-noto-sans-arabic), "Jameel Noori Nastaleeq", "Noto Sans Arabic", serif;
+  font-family: var(--font-selected-urdu);
   letter-spacing: 0;
   line-height: 2.2;
 }

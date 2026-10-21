@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ReadingPreferences, ArabicFontFamily } from "@/types/quran";
+import { ReadingPreferences, ArabicFontFamily, UrduFontFamily } from "@/types/quran";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
@@ -9,6 +9,7 @@ interface ReadingPreferencesContextType {
   setEnglishFontSize: (size: number) => void;
   setUrduFontSize: (size: number) => void;
   setArabicFont: (font: ArabicFontFamily) => void;
+  setUrduFont: (font: UrduFontFamily) => void;
   toggleShowTranslation: () => void;
   toggleShowUrduTranslation: () => void;
   toggleShowTransliteration: () => void;
@@ -25,6 +26,7 @@ const DEFAULT_PREFERENCES: ReadingPreferences = {
   englishFontSize: 16,
   urduFontSize: 20,
   arabicFont: "amiri",
+  urduFont: "nastaliq",
   wbwLanguage: "english",
   showTranslation: true,
   showUrduTranslation: true,
@@ -80,6 +82,25 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, arabicFont: font }));
   };
 
+  const setUrduFont = (font: UrduFontFamily) => {
+    setPrefs((prev) => ({ ...prev, urduFont: font }));
+  };
+
+  // Sync root CSS variable for all .font-urdu elements across the app
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const fontMapping: Record<UrduFontFamily, string> = {
+      nastaliq: 'var(--font-noto-nastaliq-urdu), "Jameel Noori Nastaleeq", serif',
+      "noto-sans-arabic": 'var(--font-noto-sans-arabic), system-ui, sans-serif',
+      scheherazade: 'var(--font-scheherazade), serif',
+      amiri: 'var(--font-amiri), "Traditional Arabic", serif',
+    };
+    document.documentElement.style.setProperty(
+      "--font-selected-urdu",
+      fontMapping[prefs.urduFont || "nastaliq"]
+    );
+  }, [prefs.urduFont]);
+
   const toggleShowTranslation = () => {
     setPrefs((prev) => ({ ...prev, showTranslation: !prev.showTranslation }));
   };
@@ -124,6 +145,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         setEnglishFontSize,
         setUrduFontSize,
         setArabicFont,
+        setUrduFont,
         toggleShowTranslation,
         toggleShowUrduTranslation,
         toggleShowTransliteration,

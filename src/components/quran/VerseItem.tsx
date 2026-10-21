@@ -57,6 +57,13 @@ export function VerseItem({
     nastaliq: "font-arabic-nastaliq",
   }[prefs.arabicFont] || "font-arabic-amiri";
 
+  const urduFontClass = {
+    nastaliq: "font-urdu-nastaliq",
+    "noto-sans-arabic": "font-urdu-noto",
+    scheherazade: "font-urdu-scheherazade",
+    amiri: "font-urdu-amiri",
+  }[prefs.urduFont || "nastaliq"] || "font-urdu-nastaliq";
+
   // Distinguish English and Urdu translations
   const urduTranslation = verse.translations?.find(
     (t) =>
@@ -302,7 +309,7 @@ export function VerseItem({
           dir="rtl"
         >
           <p
-            className="font-urdu text-[var(--urdu-color,#e2e8f0)] leading-relaxed select-text"
+            className={`${urduFontClass} text-[var(--urdu-color,#e2e8f0)] leading-relaxed select-text`}
             style={{ fontSize: `${activeUrduFontSize}px` }}
             dangerouslySetInnerHTML={{ __html: urduTranslation.text }}
           />
