@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Reciter, Verse } from "@/types/quran";
 import { fetchReciters, fetchVerseAudioUrl, WBW_CDN_URL } from "@/services/quranApi";
+import { CHAPTER_VERSE_COUNTS } from "@/utils/quranMeta";
 
 export type RepeatMode = "none" | "verse" | "infinite";
 
@@ -18,6 +19,7 @@ interface AudioContextType {
   playbackRate: number;
   repeatMode: RepeatMode;
   playVerse: (chapterId: number, verseKey: string, versesList?: Verse[]) => Promise<void>;
+  playSurah: (chapterId: number, startAyah?: number, versesList?: Verse[]) => Promise<void>;
   playWord: (audioUrl: string) => void;
   togglePlayPause: () => void;
   playNextVerse: () => void;
@@ -41,7 +43,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playbackRate, setPlaybackRateState] = useState(1);
-  const [repeatMode, setRepeatMode] = useState<RepeatMode>("none");
+  const [repeatMode, setRepeatModeState] = useState<RepeatMode>("none");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const wordAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -120,7 +122,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       repeatCountRef.current = 0;
     }
 
-    // Otherwise play next verse in queue
+    // Automatically play next verse in Surah
     playNextVerse();
   };
 
@@ -155,6 +157,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const playSurah = async (chapterId: number, startAyah: number = 1, versesList?: Verse[]) => {
+    if (versesList && versesList.length > 0) {
+      versesQueueRef.current = versesList;
+    }
+    await playVerse(chapterId, `${chapterId}:${startAyah}`, versesList);
+  };
+
   const playWord = (relativeAudioUrl: string) => {
     if (!wordAudioRef.current || !relativeAudioUrl) return;
     try {
@@ -181,29 +190,60 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   };
 
   const playNextVerse = () => {
-    if (!currentVerseKey || versesQueueRef.current.length === 0) {
+    if (!currentVerseKey) {
       setIsPlaying(false);
       return;
     }
-    const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === currentVerseKey);
-    if (currentIndex !== -1 && currentIndex < versesQueueRef.current.length - 1) {
-      const nextVerse = versesQueueRef.current[currentIndex + 1];
-      if (currentChapterId) {
-        playVerse(currentChapterId, nextVerse.verse_key);
+
+    // 1. If loaded queue has next verse
+    if (versesQueueRef.current && versesQueueRef.current.length > 0) {
+      const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === currentVerseKey);
+      if (currentIndex !== -1 && currentIndex < versesQueueRef.current.length - 1) {
+        const nextVerse = versesQueueRef.current[currentIndex + 1];
+        if (currentChapterId) {
+          playVerse(currentChapterId, nextVerse.verse_key);
+          return;
+        }
       }
+    }
+
+    // 2. Continuous numerical progression for the whole Surah
+    const parts = currentVerseKey.split(":");
+    const chapId = currentChapterId || Number(parts[0]) || 1;
+    const currentAyah = Number(parts[1]) || 1;
+    const totalAyahs = CHAPTER_VERSE_COUNTS[chapId - 1] || 7;
+
+    if (currentAyah < totalAyahs) {
+      const nextKey = `${chapId}:${currentAyah + 1}`;
+      playVerse(chapId, nextKey);
     } else {
+      // Completed full Surah recitation
       setIsPlaying(false);
+      setCurrentVerseKey(null);
     }
   };
 
   const playPreviousVerse = () => {
-    if (!currentVerseKey || versesQueueRef.current.length === 0) return;
-    const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === currentVerseKey);
-    if (currentIndex > 0) {
-      const prevVerse = versesQueueRef.current[currentIndex - 1];
-      if (currentChapterId) {
-        playVerse(currentChapterId, prevVerse.verse_key);
+    if (!currentVerseKey) return;
+
+    if (versesQueueRef.current && versesQueueRef.current.length > 0) {
+      const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === currentVerseKey);
+      if (currentIndex > 0) {
+        const prevVerse = versesQueueRef.current[currentIndex - 1];
+        if (currentChapterId) {
+          playVerse(currentChapterId, prevVerse.verse_key);
+          return;
+        }
       }
+    }
+
+    const parts = currentVerseKey.split(":");
+    const chapId = currentChapterId || Number(parts[0]) || 1;
+    const currentAyah = Number(parts[1]) || 1;
+
+    if (currentAyah > 1) {
+      const prevKey = `${chapId}:${currentAyah - 1}`;
+      playVerse(chapId, prevKey);
     }
   };
 
@@ -229,6 +269,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setRepeatMode = (mode: RepeatMode) => {
+    setRepeatModeState(mode);
+  };
+
   const stopAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -252,6 +296,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         playbackRate,
         repeatMode,
         playVerse,
+        playSurah,
         playWord,
         togglePlayPause,
         playNextVerse,

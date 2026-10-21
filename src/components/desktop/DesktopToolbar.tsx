@@ -4,6 +4,7 @@ import React from "react";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useAudio } from "@/context/AudioContext";
+import { Verse } from "@/types/quran";
 import {
   ChevronLeft,
   ChevronRight,
@@ -23,6 +24,7 @@ interface DesktopToolbarProps {
   chapterName: string;
   chapterArabic: string;
   totalAyahs: number;
+  verses?: Verse[];
 }
 
 export function DesktopToolbar({
@@ -30,6 +32,7 @@ export function DesktopToolbar({
   chapterName,
   chapterArabic,
   totalAyahs,
+  verses,
 }: DesktopToolbarProps) {
   const router = useRouter();
   const {
@@ -46,7 +49,7 @@ export function DesktopToolbar({
     toggleShowWordByWord,
   } = useReadingPreferences();
 
-  const { isPlaying, playVerse, togglePlayPause, currentChapterId } = useAudio();
+  const { isPlaying, playVerse, playSurah, togglePlayPause, currentChapterId } = useAudio();
   const isThisChapterPlaying = isPlaying && currentChapterId === chapterId;
 
   const handleAyahJump = (e: React.FormEvent<HTMLFormElement>) => {
@@ -226,7 +229,7 @@ export function DesktopToolbar({
             if (isThisChapterPlaying) {
               togglePlayPause();
             } else {
-              playVerse(chapterId, `${chapterId}:1`);
+              playSurah(chapterId, 1, verses);
             }
           }}
           className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${

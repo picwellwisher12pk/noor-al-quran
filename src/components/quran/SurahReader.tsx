@@ -9,6 +9,7 @@ import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
+import { useAudio } from "@/context/AudioContext";
 import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
@@ -34,6 +35,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
   const { setActiveChapterId, setActiveAyahNumber, readingMode } = useDesktopWorkspace();
+  const { currentVerseKey, currentChapterId, isPlaying } = useAudio();
 
   // Sync active chapter with global workspace
   useEffect(() => {
@@ -105,6 +107,16 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     }
   };
 
+  // Auto-fetch more verses if audio playback advances near the end of loaded verses
+  useEffect(() => {
+    if (!isPlaying || currentChapterId !== chapter.id || !currentVerseKey) return;
+    const parts = currentVerseKey.split(":");
+    const ayahNum = Number(parts[1]) || 1;
+    if (ayahNum >= verses.length - 2 && currentPage < totalPages && !loadingMore) {
+      loadMoreVerses();
+    }
+  }, [currentVerseKey, currentChapterId, chapter.id, verses.length, currentPage, totalPages, loadingMore]);
+
   // Explicitly opens dedicated Tafseer modal WITHOUT touching the right inspector pane!
   const handleOpenTafsir = (verseKey: string, arabicText: string) => {
     setTafsirAyahKey(verseKey);
@@ -127,6 +139,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         chapterName={chapter.name_simple}
         chapterArabic={chapter.name_arabic}
         totalAyahs={chapter.verses_count}
+        verses={verses}
       />
 
       {/* Reading Canvas Container */}
