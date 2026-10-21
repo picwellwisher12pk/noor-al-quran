@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useAudio } from "@/context/AudioContext";
@@ -34,40 +34,71 @@ export function DesktopTitleBar() {
 
   const { themeMode, toggleThemeMode } = useTheme();
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
+  const [isTauri, setIsTauri] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
+      setIsTauri(true);
+    }
+  }, []);
 
   const activeChapter = chapters.find((c) => c.id === activeChapterId);
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+  // Window Action Handlers (Supports both Native Tauri window and Browser fallback)
+  const handleWindowClose = () => {
+    if (isTauri) {
+      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().close()).catch(() => {});
     } else {
-      document.exitFullscreen().catch(() => {});
+      window.location.href = "/";
+    }
+  };
+
+  const handleWindowMinimize = () => {
+    if (isTauri) {
+      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().minimize()).catch(() => {});
+    } else {
+      toggleLeftSidebar();
+    }
+  };
+
+  const handleWindowMaximize = () => {
+    if (isTauri) {
+      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().toggleMaximize()).catch(() => {});
+    } else {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
     }
   };
 
   return (
-    <header className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised,#141e1a)] border-b border-[var(--border-subtle,#1e2c26)] select-none z-40 text-xs">
+    <header
+      data-tauri-drag-region
+      className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised,#141e1a)] border-b border-[var(--border-subtle,#1e2c26)] select-none z-40 text-xs"
+    >
       {/* Left: Window controls & App Branding */}
-      <div className="flex items-center gap-3">
-        {/* Simulated Window Control Dots */}
+      <div className="flex items-center gap-3" data-tauri-drag-region>
+        {/* Window Control Buttons */}
         <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-subtle,#24362e)]">
           <button
             type="button"
-            onClick={() => (window.location.href = "/")}
+            onClick={handleWindowClose}
             className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm"
-            title="Go to Home"
+            title={isTauri ? "Close Application" : "Go to Home"}
           />
           <button
             type="button"
-            onClick={toggleLeftSidebar}
+            onClick={handleWindowMinimize}
             className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm"
-            title="Toggle Sidebar (Ctrl+B)"
+            title={isTauri ? "Minimize Window" : "Toggle Sidebar"}
           />
           <button
             type="button"
-            onClick={toggleFullscreen}
+            onClick={handleWindowMaximize}
             className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm"
-            title="Toggle Fullscreen"
+            title={isTauri ? "Maximize / Restore Window" : "Toggle Fullscreen"}
           />
         </div>
 
@@ -99,7 +130,7 @@ export function DesktopTitleBar() {
       </div>
 
       {/* Center: Command Search / Quick Jump Pill */}
-      <div className="flex items-center gap-2 max-w-md w-full justify-center px-4">
+      <div className="flex items-center gap-2 max-w-md w-full justify-center px-4" data-tauri-drag-region>
         <button
           type="button"
           onClick={() => setIsSearchOpen(true)}
