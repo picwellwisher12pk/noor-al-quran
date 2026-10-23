@@ -1,0 +1,6 @@
+# Vercel Ignore file
+src-tauri
+target
+.git
+node_modules
+.next
