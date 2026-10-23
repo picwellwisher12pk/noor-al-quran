@@ -46,10 +46,16 @@ export default async function HomePage({
         {/* Quick Launch Actions */}
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/surah/1"
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            href="/learn"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center gap-2"
           >
-            <BookOpen className="h-4 w-4" /> Start Reading: Surah Al-Fatihah
+            <Sparkles className="h-4 w-4 text-amber-300" /> Learn 70% Words & Games
+          </Link>
+          <Link
+            href="/surah/1"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+          >
+            <BookOpen className="h-4 w-4 text-emerald-400" /> Start Reading: Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"

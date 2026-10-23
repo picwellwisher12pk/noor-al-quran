@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useAudio } from "@/context/AudioContext";
+import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
@@ -17,6 +18,9 @@ import {
   BookOpen,
   Sun,
   Moon,
+  Sparkles,
+  Flame,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,6 +40,7 @@ export function DesktopTitleBar() {
 
   const { themeMode, toggleThemeMode } = useTheme();
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
+  const { currentStreak } = useReadingActivity();
   const [isTauri, setIsTauri] = useState(false);
 
   useEffect(() => {
@@ -152,6 +157,39 @@ export function DesktopTitleBar() {
 
       {/* Right: Tools & Toggles */}
       <div className="flex items-center gap-1.5">
+        {/* Reading Streak & Calendar Link */}
+        <Link
+          href="/calendar"
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition-all shadow-sm ${
+            currentStreak > 0
+              ? "bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300"
+              : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-300 hover:text-white"
+          }`}
+          title="Quran Reading Calendar & Daily Streak"
+        >
+          {currentStreak > 0 ? (
+            <>
+              <Flame className="h-3 w-3 text-amber-400 fill-amber-400 animate-pulse" />
+              <span>{currentStreak}d Streak</span>
+            </>
+          ) : (
+            <>
+              <CalendarDays className="h-3 w-3 text-emerald-400" />
+              <span className="hidden sm:inline">Calendar</span>
+            </>
+          )}
+        </Link>
+
+        {/* Learn 70% Quran Words Link */}
+        <Link
+          href="/learn"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition-all shadow-sm"
+          title="Learn 70% Quran Words, Flashcards & Games"
+        >
+          <Sparkles className="h-3 w-3 text-emerald-400" />
+          <span className="hidden sm:inline">Learn Words</span>
+        </Link>
+
         {/* Audio Playing Pill */}
         {isPlaying && (
           <button

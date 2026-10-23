@@ -7,6 +7,7 @@ import { BookmarksProvider } from "@/context/BookmarksContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext";
 import { KhatmahProvider } from "@/context/KhatmahContext";
+import { ReadingActivityProvider } from "@/context/ReadingActivityContext";
 import { DesktopWorkspaceProvider } from "@/context/DesktopWorkspaceContext";
 import { DesktopShell } from "@/components/desktop/DesktopShell";
 
@@ -67,9 +68,11 @@ export default function RootLayout({
             <AudioProvider>
               <ReadingPreferencesProvider>
                 <KhatmahProvider>
-                  <DesktopWorkspaceProvider>
-                    <DesktopShell>{children}</DesktopShell>
-                  </DesktopWorkspaceProvider>
+                  <ReadingActivityProvider>
+                    <DesktopWorkspaceProvider>
+                      <DesktopShell>{children}</DesktopShell>
+                    </DesktopWorkspaceProvider>
+                  </ReadingActivityProvider>
                 </KhatmahProvider>
               </ReadingPreferencesProvider>
             </AudioProvider>

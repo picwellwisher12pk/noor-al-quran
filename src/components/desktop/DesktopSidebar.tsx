@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useDesktopWorkspace, SidebarTab } from "@/context/DesktopWorkspaceContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
+import { useReadingActivity } from "@/context/ReadingActivityContext";
 import {
   BookOpen,
   Layers,
@@ -15,6 +16,8 @@ import {
   Flame,
   Compass,
   PanelLeftClose,
+  GraduationCap,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,6 +39,7 @@ export function DesktopSidebar() {
 
   const { bookmarks, removeBookmark } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
+  const { currentStreak } = useReadingActivity();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [revelationFilter, setRevelationFilter] = useState<"all" | "makkah" | "madinah">("all");
@@ -121,6 +125,28 @@ export function DesktopSidebar() {
         >
           <Bookmark className="h-4 w-4" />
         </button>
+
+        <Link
+          href="/calendar"
+          className="relative p-2 rounded-xl text-[var(--muted-foreground,#8e9b94)] hover:text-amber-400 hover:bg-[var(--surface-card,#182520)] transition-all"
+          title={currentStreak > 0 ? `Reading Streak & Calendar (${currentStreak} Days)` : "Reading Streak & Calendar"}
+        >
+          <CalendarDays className="h-4 w-4" />
+          {currentStreak > 0 && (
+            <span className="absolute top-1 right-1 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+            </span>
+          )}
+        </Link>
+
+        <Link
+          href="/learn"
+          className="p-2 rounded-xl text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--surface-card,#182520)] transition-all"
+          title="Learn 70% Quran Words, Flashcards & Games"
+        >
+          <GraduationCap className="h-4 w-4" />
+        </Link>
       </div>
 
       {/* 2. Explorer Panel Content (268px) - Collapsible */}

@@ -6,6 +6,7 @@ import { useAudio } from "@/context/AudioContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useKhatmah } from "@/context/KhatmahContext";
+import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
 import {
@@ -38,6 +39,7 @@ export function VerseItem({
   const { isBookmarked, addBookmark, removeBookmark, setLastReadPosition } = useBookmarks();
   const { prefs } = useReadingPreferences();
   const { plan, recordReadingProgress } = useKhatmah();
+  const { logVerseRead } = useReadingActivity();
 
   const [copied, setCopied] = useState(false);
   const verseRef = useRef<HTMLDivElement>(null);
@@ -89,11 +91,12 @@ export function VerseItem({
         verseNumber: verse.verse_number,
         verseKey: verse.verse_key,
       });
+      logVerseRead(verse.chapter_id, verse.verse_number);
       if (plan) {
         recordReadingProgress(verse.chapter_id, verse.verse_number);
       }
     }
-  }, [isCurrentPlaying, prefs.autoScroll, verse, chapterName, setLastReadPosition, plan, recordReadingProgress]);
+  }, [isCurrentPlaying, prefs.autoScroll, verse, chapterName, setLastReadPosition, plan, recordReadingProgress, logVerseRead]);
 
   const handlePlayToggle = () => {
     if (isCurrentPlaying) {
@@ -231,7 +234,10 @@ export function VerseItem({
           {plan && (
             <button
               type="button"
-              onClick={() => recordReadingProgress(verse.chapter_id, verse.verse_number)}
+              onClick={() => {
+                logVerseRead(verse.chapter_id, verse.verse_number);
+                recordReadingProgress(verse.chapter_id, verse.verse_number);
+              }}
               title={isReadInKhatmah ? "Completed in your Khatmah plan" : "Mark as read in Khatmah"}
               className={`p-1.5 rounded-lg transition-colors ${
                 isReadInKhatmah
