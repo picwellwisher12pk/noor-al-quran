@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { DesktopTitleBar } from "./DesktopTitleBar";
 import { DesktopSidebar } from "./DesktopSidebar";
@@ -15,6 +16,9 @@ interface DesktopShellProps {
 }
 
 export function DesktopShell({ children }: DesktopShellProps) {
+  const pathname = usePathname();
+  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+
   const {
     isSearchOpen,
     setIsSearchOpen,
@@ -25,7 +29,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
   } = useDesktopWorkspace();
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background,#0b100d)] text-[var(--foreground,#f1f5f9)] select-none">
+    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background)] text-[var(--foreground)] select-none">
       {/* 1. Desktop Window Titlebar (40px) */}
       <DesktopTitleBar />
 
@@ -39,8 +43,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
           {children}
         </main>
 
-        {/* Right Linguistic & Tafseer Inspector (Collapsible) */}
-        <DesktopRightInspector />
+        {/* Right Linguistic & Tafseer Inspector (Collapsible) - Only on Quran reading pages */}
+        {isReadingPage && <DesktopRightInspector />}
       </div>
 
       {/* 3. Bottom Desktop Status Bar (28px) */}

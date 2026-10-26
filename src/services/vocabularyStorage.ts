@@ -6,6 +6,7 @@
  */
 
 import { QURAN_70_VOCABULARY, TOTAL_QURAN_WORDS, QuranVocabWord } from "@/data/quranVocabularyData";
+import { useLearningStore } from "@/store/useLearningStore";
 
 const STORAGE_KEY_MASTERED = "naq_vocab_mastered_ids_v1";
 const STORAGE_KEY_REVIEW = "naq_vocab_review_ids_v1";
@@ -43,6 +44,7 @@ const defaultStats: Record<string, GameStatRecord> = {
   grammarMatch: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
   rootFamily: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
   ayahFill: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
+  matchBlitz: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
 };
 
 function getSafeStorageItem<T>(key: string, fallback: T): T {
@@ -55,27 +57,36 @@ function getSafeStorageItem<T>(key: string, fallback: T): T {
   }
 }
 
-function setSafeStorageItem(key: string, value: unknown): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.error(`Failed to save to localStorage (${key}):`, e);
-  }
-}
-
 export function loadUserVocabProgress(): UserVocabProgress {
-  const mastered = getSafeStorageItem<string[]>(STORAGE_KEY_MASTERED, []);
-  const review = getSafeStorageItem<string[]>(STORAGE_KEY_REVIEW, []);
-  const stats = getSafeStorageItem<Record<string, GameStatRecord>>(STORAGE_KEY_STATS, defaultStats);
-  const langPref = getSafeStorageItem<VocabLangPreference>(STORAGE_KEY_LANG, "bilingual");
+  const store = useLearningStore.getState();
+  let mastered = store.masteredWordIds || [];
+  let review = store.reviewWordIds || [];
+  let stats = store.gameStats || defaultStats;
 
-  // Streak calculation
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const streakData = getSafeStorageItem<{ current: number; lastActiveDate: string }>(STORAGE_KEY_STREAK, {
-    current: 0,
-    lastActiveDate: "",
-  });
+  // Auto-migrate legacy localStorage data into unified Zustand store if needed
+  if (typeof window !== "undefined" && mastered.length === 0 && review.length === 0) {
+    const legacyMastered = getSafeStorageItem<string[]>(STORAGE_KEY_MASTERED, []);
+    const legacyReview = getSafeStorageItem<string[]>(STORAGE_KEY_REVIEW, []);
+    const legacyStats = getSafeStorageItem<Record<string, GameStatRecord>>(STORAGE_KEY_STATS, defaultStats);
+    if (legacyMastered.length > 0 || legacyReview.length > 0) {
+      mastered = legacyMastered;
+      review = legacyReview;
+      stats = legacyStats;
+      useLearningStore.setState({
+        masteredWordIds: legacyMastered,
+        reviewWordIds: legacyReview,
+        gameStats: legacyStats,
+      });
+      try {
+        localStorage.removeItem(STORAGE_KEY_MASTERED);
+        localStorage.removeItem(STORAGE_KEY_REVIEW);
+        localStorage.removeItem(STORAGE_KEY_STATS);
+        localStorage.removeItem(STORAGE_KEY_STREAK);
+      } catch (e) {
+        console.warn("Failed to clean up legacy vocab keys", e);
+      }
+    }
+  }
 
   const wordMap = new Map<string, QuranVocabWord>(QURAN_70_VOCABULARY.map((w) => [w.id, w]));
   let masteredOccurrences = 0;
@@ -100,105 +111,37 @@ export function loadUserVocabProgress(): UserVocabProgress {
     poolTotalOccurrences,
     percentOfQuranUnlocked,
     percentOfPoolMastered,
-    streakDays: streakData.current,
+    streakDays: store.currentStreak,
     gameStats: stats,
-    langPreference: langPref,
+    langPreference: (store.langPreference as VocabLangPreference) || "bilingual",
   };
 }
 
 export function markWordMastered(wordId: string): UserVocabProgress {
-  const mastered = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_MASTERED, []));
-  const review = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_REVIEW, []));
-
-  mastered.add(wordId);
-  review.delete(wordId);
-
-  setSafeStorageItem(STORAGE_KEY_MASTERED, Array.from(mastered));
-  setSafeStorageItem(STORAGE_KEY_REVIEW, Array.from(review));
-  touchActiveStreak();
-
+  useLearningStore.getState().markWordMastered(wordId);
   return loadUserVocabProgress();
 }
 
 export function markWordForReview(wordId: string): UserVocabProgress {
-  const mastered = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_MASTERED, []));
-  const review = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_REVIEW, []));
-
-  review.add(wordId);
-  mastered.delete(wordId);
-
-  setSafeStorageItem(STORAGE_KEY_MASTERED, Array.from(mastered));
-  setSafeStorageItem(STORAGE_KEY_REVIEW, Array.from(review));
-  touchActiveStreak();
-
+  useLearningStore.getState().markWordForReview(wordId);
   return loadUserVocabProgress();
 }
 
 export function resetWordStatus(wordId: string): UserVocabProgress {
-  const mastered = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_MASTERED, []));
-  const review = new Set(getSafeStorageItem<string[]>(STORAGE_KEY_REVIEW, []));
-
-  mastered.delete(wordId);
-  review.delete(wordId);
-
-  setSafeStorageItem(STORAGE_KEY_MASTERED, Array.from(mastered));
-  setSafeStorageItem(STORAGE_KEY_REVIEW, Array.from(review));
-
+  useLearningStore.getState().resetWordStatus(wordId);
   return loadUserVocabProgress();
 }
 
-export function saveGameScore(gameKey: string, score: number, correctCount: number, questionCount: number): UserVocabProgress {
-  const stats = getSafeStorageItem<Record<string, GameStatRecord>>(STORAGE_KEY_STATS, defaultStats);
-  const current = stats[gameKey] || { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" };
-
-  stats[gameKey] = {
-    gamesPlayed: current.gamesPlayed + 1,
-    highScore: Math.max(current.highScore, score),
-    totalCorrect: current.totalCorrect + correctCount,
-    totalQuestions: current.totalQuestions + questionCount,
-    lastPlayed: new Date().toISOString(),
-  };
-
-  setSafeStorageItem(STORAGE_KEY_STATS, stats);
-  touchActiveStreak();
-
+export function saveGameScore(gameKey: string, score: number, correctCount = 0, questionCount = 0): UserVocabProgress {
+  useLearningStore.getState().saveGameScore(gameKey, score, correctCount, questionCount);
   return loadUserVocabProgress();
 }
 
 export function setLanguagePreference(pref: VocabLangPreference): void {
-  setSafeStorageItem(STORAGE_KEY_LANG, pref);
-}
-
-function touchActiveStreak(): void {
-  if (typeof window === "undefined") return;
-  const today = new Date().toISOString().slice(0, 10);
-  const streakData = getSafeStorageItem<{ current: number; lastActiveDate: string }>(STORAGE_KEY_STREAK, {
-    current: 0,
-    lastActiveDate: "",
-  });
-
-  if (streakData.lastActiveDate === today) {
-    return; // Already counted today
-  }
-
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  let newStreak = 1;
-  if (streakData.lastActiveDate === yesterday) {
-    newStreak = (streakData.current || 0) + 1;
-  }
-
-  setSafeStorageItem(STORAGE_KEY_STREAK, {
-    current: newStreak,
-    lastActiveDate: today,
-  });
+  useLearningStore.getState().setLangPreference(pref);
 }
 
 export function resetAllVocabProgress(): UserVocabProgress {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(STORAGE_KEY_MASTERED);
-    localStorage.removeItem(STORAGE_KEY_REVIEW);
-    localStorage.removeItem(STORAGE_KEY_STATS);
-    localStorage.removeItem(STORAGE_KEY_STREAK);
-  }
+  useLearningStore.getState().resetLearningProgress();
   return loadUserVocabProgress();
 }

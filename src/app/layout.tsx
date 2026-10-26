@@ -2,13 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Amiri, Noto_Sans_Arabic, Scheherazade_New, Noto_Nastaliq_Urdu } from "next/font/google";
 import "./globals.css";
 import { APP_CONFIG } from "@/config/version";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { BookmarksProvider } from "@/context/BookmarksContext";
-import { AudioProvider } from "@/context/AudioContext";
-import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext";
-import { KhatmahProvider } from "@/context/KhatmahContext";
-import { ReadingActivityProvider } from "@/context/ReadingActivityContext";
-import { DesktopWorkspaceProvider } from "@/context/DesktopWorkspaceContext";
+import { AppProviders } from "@/context/AppProviders";
 import { DesktopShell } from "@/components/desktop/DesktopShell";
 
 const inter = Inter({
@@ -62,22 +56,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${amiri.variable} ${notoSansArabic.variable} ${scheherazade.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
     >
-      <body className="h-screen w-screen overflow-hidden flex flex-col font-sans select-none bg-[var(--background,#0b100d)] text-[var(--foreground,#f1f5f9)]">
-        <ThemeProvider>
-          <BookmarksProvider>
-            <AudioProvider>
-              <ReadingPreferencesProvider>
-                <KhatmahProvider>
-                  <ReadingActivityProvider>
-                    <DesktopWorkspaceProvider>
-                      <DesktopShell>{children}</DesktopShell>
-                    </DesktopWorkspaceProvider>
-                  </ReadingActivityProvider>
-                </KhatmahProvider>
-              </ReadingPreferencesProvider>
-            </AudioProvider>
-          </BookmarksProvider>
-        </ThemeProvider>
+      <body className="h-screen w-screen overflow-hidden flex flex-col font-sans select-none bg-[var(--background)] text-[var(--foreground)]">
+        <AppProviders>
+          <DesktopShell>{children}</DesktopShell>
+        </AppProviders>
       </body>
     </html>
   );

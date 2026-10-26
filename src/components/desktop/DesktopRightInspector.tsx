@@ -157,10 +157,10 @@ export function DesktopRightInspector() {
   return (
     <>
       <aside
-        className={`${widthClass} h-full flex-none flex flex-col bg-[var(--surface-raised,#141e1a)] border-l border-[var(--border-subtle,#1e2c26)] select-none z-30 transition-all duration-200 overflow-hidden shadow-2xl`}
+        className={`${widthClass} h-full flex-none flex flex-col bg-[var(--surface-raised)] border-l border-[var(--border-subtle)] select-none z-30 transition-all duration-200 overflow-hidden shadow-2xl`}
       >
         {/* Inspector Header */}
-        <div className="p-3 border-b border-[var(--border-subtle,#1e2c26)] flex items-center justify-between">
+        <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-emerald-400" />
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--foreground)]">
@@ -172,7 +172,7 @@ export function DesktopRightInspector() {
             <button
               type="button"
               onClick={toggleExpandInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
               title={
                 inspectorWidth === "default"
                   ? "Expand to Wider View"
@@ -191,7 +191,7 @@ export function DesktopRightInspector() {
             <button
               type="button"
               onClick={closeInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
               title="Close Inspector (Ctrl+\)"
             >
               <X className="h-4 w-4" />
@@ -200,15 +200,15 @@ export function DesktopRightInspector() {
         </div>
 
         {/* Active Token Hero Banner */}
-        <div className="p-3.5 bg-[var(--surface-sunken,#0e1512)] border-b border-[var(--border-subtle,#1e2c26)] text-center relative overflow-hidden">
-          <div className="text-[10px] text-[var(--muted-foreground,#8e9b94)] mb-1">
+        <div className="p-3.5 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] text-center relative overflow-hidden">
+          <div className="text-[10px] text-[var(--muted-foreground)] mb-1">
             {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
           </div>
           <div className="font-arabic text-3xl text-emerald-400 py-0.5 leading-relaxed" dir="rtl">
             {selectedWord?.text_uthmani || selectedWord?.text || selectedAyahArabic || "ٱلْقُرْءَان"}
           </div>
           {selectedWord?.transliteration?.text && (
-            <div className="text-[11px] text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+            <div className="text-[11px] text-[var(--muted-foreground)] mt-0.5">
               {selectedWord.transliteration.text}
             </div>
           )}
@@ -224,14 +224,14 @@ export function DesktopRightInspector() {
         </div>
 
         {/* Inspector Tabs */}
-        <div className="flex items-center p-1 bg-[var(--surface-card,#182520)] border-b border-[var(--border-subtle,#1e2c26)] gap-1 text-[11px] overflow-x-auto">
+        <div className="flex items-center p-1 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] gap-1 text-[11px] overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveInspectorTab("morphology")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
               activeInspectorTab === "morphology"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             <BookOpen className="h-3 w-3" /> Grammar
@@ -243,7 +243,7 @@ export function DesktopRightInspector() {
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
               activeInspectorTab === "translations"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             <Languages className="h-3 w-3" /> Word (7)
@@ -255,7 +255,7 @@ export function DesktopRightInspector() {
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
               activeInspectorTab === "tafseer"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             <ScrollText className="h-3 w-3" /> Tafseer
@@ -267,7 +267,7 @@ export function DesktopRightInspector() {
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
               activeInspectorTab === "scholars"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             <Layers className="h-3 w-3" /> Scholars
@@ -281,15 +281,15 @@ export function DesktopRightInspector() {
             <div className="space-y-3">
               {/* Root summary card */}
               {effectiveRoot && (
-                <div className="p-3 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">3-Letter Arabic Root:</span>
+                    <span className="text-[10px] text-[var(--muted-foreground)] block">3-Letter Arabic Root:</span>
                     <span className="font-arabic text-lg font-bold text-emerald-400" dir="rtl">
                       {effectiveRoot.split("").join(" - ")} ({effectiveRoot})
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Total Quran Count:</span>
+                    <span className="text-[10px] text-[var(--muted-foreground)] block">Total Quran Count:</span>
                     <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/40">
                       {rootInfo?.count || "—"} times
                     </span>
@@ -298,18 +298,18 @@ export function DesktopRightInspector() {
               )}
 
               {loadingMorph ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground,#8e9b94)] animate-pulse">
+                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
                   Parsing morphological segments...
                 </div>
               ) : !morphology || morphology.segments.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground,#8e9b94)] bg-[var(--surface-card,#182520)] rounded-xl">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
                   Click any word in the Quran text to inspect its grammatical segments.
                 </div>
               ) : (
                 morphology.segments.map((seg, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-1.5 text-xs"
+                    className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1.5 text-xs"
                   >
                     <div className="flex items-center justify-between">
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30">
@@ -320,26 +320,26 @@ export function DesktopRightInspector() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-[var(--border-subtle,#24362e)]">
+                    <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-[var(--border-subtle)]">
                       <div>
-                        <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Part of Speech:</span>
+                        <span className="text-[10px] text-[var(--muted-foreground)] block">Part of Speech:</span>
                         <span className="font-medium text-[var(--foreground)]">{seg.posArabic} • {seg.posEnglish}</span>
                       </div>
                       {seg.grammarCase && (
                         <div>
-                          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Case (إعراب):</span>
+                          <span className="text-[10px] text-[var(--muted-foreground)] block">Case (إعراب):</span>
                           <span className="font-medium text-emerald-300">{seg.grammarCase}</span>
                         </div>
                       )}
                       {seg.genderNumber && (
                         <div>
-                          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Gender/Number:</span>
+                          <span className="text-[10px] text-[var(--muted-foreground)] block">Gender/Number:</span>
                           <span className="font-medium text-[var(--foreground)]">{seg.genderNumber}</span>
                         </div>
                       )}
                       {seg.lemma && (
                         <div>
-                          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Lemma:</span>
+                          <span className="text-[10px] text-[var(--muted-foreground)] block">Lemma:</span>
                           <span className="font-arabic text-sm text-[var(--foreground)]" dir="rtl">{seg.lemma}</span>
                         </div>
                       )}
@@ -354,11 +354,11 @@ export function DesktopRightInspector() {
           {activeInspectorTab === "translations" && (
             <div className="space-y-2">
               {loadingLangs ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground,#8e9b94)] animate-pulse">
+                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
                   Loading 7-language word translations...
                 </div>
               ) : multilingual.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground,#8e9b94)] bg-[var(--surface-card,#182520)] rounded-xl">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
                   Click any word in the Quran text to inspect all translations.
                 </div>
               ) : (
@@ -368,7 +368,7 @@ export function DesktopRightInspector() {
                   return (
                     <div
                       key={item.code}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
                     >
                       <div className="space-y-0.5 flex-1 pr-2">
                         <span className="text-[10px] font-semibold text-emerald-400 block">
@@ -378,8 +378,8 @@ export function DesktopRightInspector() {
                           dir={item.direction}
                           className={
                             isRTL
-                              ? "font-urdu text-sm text-[var(--urdu-color,#e2e8f0)] text-right"
-                              : "text-xs text-[var(--translation-color,#cbd5e1)] text-left"
+                              ? "font-urdu text-sm text-[var(--urdu-color)] text-right"
+                              : "text-xs text-[var(--translation-color)] text-left"
                           }
                         >
                           {item.translation}
@@ -388,7 +388,7 @@ export function DesktopRightInspector() {
                       <button
                         type="button"
                         onClick={() => handleCopy(item.translation, item.code)}
-                        className="p-1 rounded text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                        className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                         title="Copy"
                       >
                         {isCopied ? <CheckCircle2 className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
@@ -406,13 +406,13 @@ export function DesktopRightInspector() {
               {/* Tafsir Selector Dropdown & Open in Modal */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[10px] font-semibold text-[var(--muted-foreground,#8e9b94)] uppercase">
+                  <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase">
                     Active Tafseer:
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsFullModalOpen(true)}
-                    className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card,#182520)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle,#24362e)] text-emerald-400 font-medium inline-flex items-center gap-1 transition-colors"
+                    className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-400 font-medium inline-flex items-center gap-1 transition-colors"
                     title="Open in full modal dialog"
                   >
                     <ExternalLink className="h-3 w-3" /> Full Modal
@@ -421,7 +421,7 @@ export function DesktopRightInspector() {
                 <select
                   value={prefs.selectedTafsirId}
                   onChange={(e) => setSelectedTafsirId(Number(e.target.value))}
-                  className="w-full p-2 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs text-[var(--foreground)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  className="w-full p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] focus:outline-none focus:border-emerald-500 cursor-pointer"
                 >
                   {AVAILABLE_TAFSIRS.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -432,12 +432,12 @@ export function DesktopRightInspector() {
               </div>
 
               {loadingTafsir ? (
-                <div className="p-8 text-center text-xs text-[var(--muted-foreground,#8e9b94)] animate-pulse">
+                <div className="p-8 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
                   Fetching authentic Tafseer text...
                 </div>
               ) : (
-                <div className="p-3.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-2 text-xs leading-relaxed">
-                  <div className="flex items-center justify-between border-b border-[var(--border-subtle,#24362e)] pb-1.5 text-[10px] text-[var(--muted-foreground,#8e9b94)]">
+                <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs leading-relaxed">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 text-[10px] text-[var(--muted-foreground)]">
                     <span>Author: {tafsirAuthor || "Scholar"}</span>
                     <span>Ayah {selectedAyahKey}</span>
                   </div>
@@ -454,11 +454,11 @@ export function DesktopRightInspector() {
           {activeInspectorTab === "scholars" && (
             <div className="space-y-2.5">
               {loadingScholars ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground,#8e9b94)] animate-pulse">
+                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
                   Loading comparative translations for Ayah {selectedAyahKey}...
                 </div>
               ) : scholarTranslations.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground,#8e9b94)] bg-[var(--surface-card,#182520)] rounded-xl">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
                   No comparative translations found.
                 </div>
               ) : (
@@ -467,18 +467,18 @@ export function DesktopRightInspector() {
                   return (
                     <div
                       key={idx}
-                      className="p-3 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-1 text-xs"
+                      className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between text-[10px]">
                         <span className="font-semibold text-emerald-400">{item.authorName}</span>
-                        <span className="uppercase text-[var(--muted-foreground,#8e9b94)]">{item.language}</span>
+                        <span className="uppercase text-[var(--muted-foreground)]">{item.language}</span>
                       </div>
                       <div
                         dir={isUrdu ? "rtl" : "ltr"}
                         className={
                           isUrdu
-                            ? "font-urdu text-sm text-[var(--urdu-color,#e2e8f0)] text-right leading-relaxed"
-                            : "text-xs text-[var(--translation-color,#cbd5e1)] text-left leading-relaxed"
+                            ? "font-urdu text-sm text-[var(--urdu-color)] text-right leading-relaxed"
+                            : "text-xs text-[var(--translation-color)] text-left leading-relaxed"
                         }
                       >
                         {item.text}

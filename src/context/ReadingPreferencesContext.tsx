@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ReadingPreferences, ArabicFontFamily, UrduFontFamily } from "@/types/quran";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
@@ -44,6 +45,7 @@ const ReadingPreferencesContext = createContext<ReadingPreferencesContextType | 
 export function ReadingPreferencesProvider({ children }: { children: React.ReactNode }) {
   const [prefs, setPrefs] = useState<ReadingPreferences>(DEFAULT_PREFERENCES);
   const [mounted, setMounted] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     try {
@@ -56,6 +58,33 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     }
     setMounted(true);
   }, []);
+
+  // React to global language changes and synchronize Quran verse display & WBW
+  useEffect(() => {
+    if (!mounted) return;
+    if (language === "urdu") {
+      setPrefs((prev) => ({
+        ...prev,
+        showUrduTranslation: true,
+        showTranslation: false,
+        wbwLanguage: "urdu",
+      }));
+    } else if (language === "english") {
+      setPrefs((prev) => ({
+        ...prev,
+        showTranslation: true,
+        showUrduTranslation: false,
+        wbwLanguage: "english",
+      }));
+    } else if (language === "bilingual") {
+      setPrefs((prev) => ({
+        ...prev,
+        showTranslation: true,
+        showUrduTranslation: true,
+        wbwLanguage: "both",
+      }));
+    }
+  }, [language, mounted]);
 
   useEffect(() => {
     if (!mounted) return;

@@ -35,7 +35,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
               <History className="h-4 w-4" />
               <span>Continue Where You Left Off</span>
             </div>
-            <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+            <span className="text-[11px] text-[var(--muted-foreground)]">
               {new Date(lastRead.updatedAt).toLocaleDateString()}
             </span>
           </div>
@@ -54,7 +54,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
 
       {/* Bookmarks List */}
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)]">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
           Bookmarked Verses ({bookmarks.length})
         </h4>
         {bookmarks.length > 0 && (
@@ -94,7 +94,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
       )}
 
       {bookmarks.length === 0 ? (
-        <div className="text-center py-10 text-[var(--muted-foreground,#8e9b94)] text-sm">
+        <div className="text-center py-10 text-[var(--muted-foreground)] text-sm">
           No bookmarks saved yet. Click the bookmark icon next to any verse while reading to save it here.
         </div>
       ) : (
@@ -102,7 +102,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
           {bookmarks.map((b) => (
             <div
               key={b.verse_key}
-              className="p-4 rounded-xl bg-[var(--surface-raised,#16211d)] border border-[var(--border-subtle,#22332c)] flex flex-col gap-2"
+              className="p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex flex-col gap-2"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-emerald-400">
@@ -133,7 +133,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
 
               {b.translation_text && (
                 <p
-                  className="text-xs text-[var(--muted-foreground,#8e9b94)] line-clamp-2"
+                  className="text-xs text-[var(--muted-foreground)] line-clamp-2"
                   dangerouslySetInnerHTML={{ __html: b.translation_text }}
                 />
               )}

@@ -28,7 +28,7 @@ export default async function HomePage({
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-20 space-y-6">
       {/* Desktop Hub Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-6 md:p-8 text-center shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-6 md:p-8 text-center shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-amber-500/5 pointer-events-none" />
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold mb-3">
@@ -38,7 +38,7 @@ export default async function HomePage({
         <h1 className="font-arabic text-3xl sm:text-4xl md:text-5xl text-[var(--foreground)] mb-2 leading-relaxed" dir="rtl">
           إِنَّ هَـٰذَا ٱلْقُرْءَانَ يَهْدِى لِلَّتِى هِىَ أَقْوَمُ
         </h1>
-        <p className="text-sm sm:text-base text-[var(--muted-foreground,#8e9b94)] max-w-2xl mx-auto mb-5 leading-normal">
+        <p className="text-sm sm:text-base text-[var(--muted-foreground)] max-w-2xl mx-auto mb-5 leading-normal">
           &ldquo;Indeed, this Qur&rsquo;an guides to that which is most suitable and gives good tidings to the believers.&rdquo;
           <span className="block text-xs text-emerald-400 mt-0.5 font-medium">Surah Al-Isra [17:9]</span>
         </p>
@@ -53,26 +53,26 @@ export default async function HomePage({
           </Link>
           <Link
             href="/surah/1"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
             <BookOpen className="h-4 w-4 text-emerald-400" /> Start Reading: Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
             <Compass className="h-4 w-4 text-emerald-400" /> Read Surah Al-Kahf
           </Link>
           <Link
             href="/surah/36"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1c2923)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
             <Sparkles className="h-4 w-4 text-amber-400" /> Read Surah Ya-Sin
           </Link>
         </div>
 
         {/* Desktop Quick Specs */}
-        <div className="mt-6 pt-4 border-t border-[var(--border-subtle,#1a2621)] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+        <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[var(--muted-foreground)]">
           <span className="flex items-center gap-1.5">
             <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 114 Verified Chapters
           </span>
@@ -100,13 +100,13 @@ export default async function HomePage({
 
           {/* Tabs: Surahs vs Juzs */}
           <div className="flex items-center justify-center pt-2">
-            <div className="p-1 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex gap-1 shadow-inner text-xs">
+            <div className="p-1 rounded-xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex gap-1 shadow-inner text-xs">
               <Link
                 href="/?tab=surah"
                 className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
                   currentTab === "surah"
                     ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
                 Surahs (114)
@@ -116,7 +116,7 @@ export default async function HomePage({
                 className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
                   currentTab === "juz"
                     ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
                 Juzs (30)

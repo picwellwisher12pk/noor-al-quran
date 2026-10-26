@@ -95,18 +95,18 @@ export function ReadingMilestonesGrid({ summary }: ReadingMilestonesGridProps) {
   const unlockedCount = milestones.filter((m) => m.isUnlocked).length;
 
   return (
-    <div className="rounded-3xl border border-[var(--card-border,#1e2c26)] bg-[var(--surface-raised,#141e1a)] p-5 sm:p-7 shadow-lg">
+    <div className="rounded-3xl border border-[var(--card-border)] bg-[var(--surface-raised)] p-5 sm:p-7 shadow-lg">
       {/* Header */}
-      <div className="flex items-center justify-between pb-5 border-b border-[var(--border-subtle,#24362e)]">
+      <div className="flex items-center justify-between pb-5 border-b border-[var(--border-subtle)]">
         <div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 mb-1.5">
             <Trophy className="h-3 w-3" />
             <span>Spiritual Milestones</span>
           </div>
-          <h3 className="text-xl font-bold text-[var(--foreground,#f1f5f9)] tracking-tight">
+          <h3 className="text-xl font-bold text-[var(--foreground)] tracking-tight">
             Consistency Achievements
           </h3>
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+          <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
             Badges earned purely through your authentic reading records
           </p>
         </div>
@@ -115,7 +115,7 @@ export function ReadingMilestonesGrid({ summary }: ReadingMilestonesGridProps) {
           <span className="text-sm font-bold text-emerald-400 font-mono">
             {unlockedCount} / {milestones.length}
           </span>
-          <div className="text-[10px] text-[var(--muted-foreground,#8e9b94)]">Unlocked</div>
+          <div className="text-[10px] text-[var(--muted-foreground)]">Unlocked</div>
         </div>
       </div>
 
@@ -127,13 +127,13 @@ export function ReadingMilestonesGrid({ summary }: ReadingMilestonesGridProps) {
               key={m.id}
               className={`relative p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between ${
                 m.isUnlocked
-                  ? "bg-[var(--surface-card,#182520)] border-emerald-500/30 shadow-sm"
-                  : "bg-[var(--surface-card,#182520)]/50 border-[var(--border-subtle,#24362e)] opacity-60"
+                  ? "bg-[var(--surface-card)] border-emerald-500/30 shadow-sm"
+                  : "bg-[var(--surface-card)]/50 border-[var(--border-subtle)] opacity-60"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <div className="p-2.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)]">
+                  <div className="p-2.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
                     {m.icon}
                   </div>
                   {m.isUnlocked ? (
@@ -141,22 +141,22 @@ export function ReadingMilestonesGrid({ summary }: ReadingMilestonesGridProps) {
                       <CheckCircle2 className="h-3 w-3" /> Unlocked
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[var(--surface-raised,#141e1a)] text-[var(--muted-foreground,#8e9b94)] border border-[var(--border-subtle,#24362e)]">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-[var(--surface-raised)] text-[var(--muted-foreground)] border border-[var(--border-subtle)]">
                       <Lock className="h-2.5 w-2.5" /> Locked
                     </span>
                   )}
                 </div>
 
-                <h4 className="text-sm font-bold text-[var(--foreground,#f1f5f9)] mb-1">{m.title}</h4>
-                <p className="text-xs text-[var(--muted-foreground,#8e9b94)] leading-relaxed">
+                <h4 className="text-sm font-bold text-[var(--foreground)] mb-1">{m.title}</h4>
+                <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
                   {m.description}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[var(--border-subtle,#24362e)] flex items-center justify-between text-[11px] font-mono">
-                <span className="text-[var(--muted-foreground,#8e9b94)]">Progress</span>
+              <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] font-mono">
+                <span className="text-[var(--muted-foreground)]">Progress</span>
                 <span
-                  className={m.isUnlocked ? "text-emerald-400 font-bold" : "text-[var(--muted-foreground,#8e9b94)]"}
+                  className={m.isUnlocked ? "text-emerald-400 font-bold" : "text-[var(--muted-foreground)]"}
                 >
                   {m.progressText}
                 </span>

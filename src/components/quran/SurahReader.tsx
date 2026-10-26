@@ -157,7 +157,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       >
         {/* Compact Chapter Banner */}
         <div
-          className={`relative overflow-hidden bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-center shadow-md ${
+          className={`relative overflow-hidden bg-[var(--surface-raised)] border border-[var(--card-border)] text-center shadow-md ${
             isCompact ? "rounded-xl p-3 sm:p-4" : "rounded-2xl p-5"
           }`}
         >
@@ -177,8 +177,8 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               Surah {chapter.name_simple} &bull;{" "}
               <span className="text-emerald-400 font-normal">{chapter.translated_name.name}</span>
             </h2>
-            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground,#8e9b94)] pt-0.5">
-              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground)] pt-0.5">
+              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)]">
                 {chapter.revelation_place}
               </span>
               <span>&bull;</span>
@@ -190,7 +190,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
 
           {/* Bismillah Decoration */}
           {showBismillah && (
-            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle,#1a2621)]">
+            <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)]">
               <div
                 className={`font-arabic text-emerald-400/90 leading-relaxed ${
                   isCompact ? "text-xl sm:text-2xl" : "text-2xl"
@@ -199,7 +199,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               >
                 بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
               </div>
-              <p className="text-[10px] text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+              <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">
                 In the Name of Allah—the Most Compassionate, Most Merciful
               </p>
             </div>

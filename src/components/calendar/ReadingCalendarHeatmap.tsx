@@ -86,16 +86,16 @@ export function ReadingCalendarHeatmap({
   };
 
   return (
-    <div className="rounded-3xl border border-[var(--card-border,#1e2c26)] bg-[var(--surface-raised,#141e1a)] p-5 sm:p-7 shadow-lg">
+    <div className="rounded-3xl border border-[var(--card-border)] bg-[var(--surface-raised)] p-5 sm:p-7 shadow-lg">
       {/* Month Header and Navigation */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle,#24362e)]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 shadow-sm">
             <CalendarIcon className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground,#f1f5f9)] tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)] tracking-tight">
                 {monthName} {currentYear}
               </h2>
               {currentYear === todayYear && currentMonth === todayMonth && (
@@ -104,7 +104,7 @@ export function ReadingCalendarHeatmap({
                 </span>
               )}
             </div>
-            <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
               Click any date to inspect verses, chapters, and study logs
             </p>
           </div>
@@ -115,16 +115,16 @@ export function ReadingCalendarHeatmap({
           <button
             type="button"
             onClick={handleJumpToday}
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1a2621)] text-[var(--foreground,#f1f5f9)] border border-[var(--border-subtle,#24362e)] transition-colors cursor-pointer"
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
           >
             Today
           </button>
-          <div className="flex items-center bg-[var(--surface-card,#182520)] rounded-xl p-0.5 border border-[var(--border-subtle,#24362e)]">
+          <div className="flex items-center bg-[var(--surface-card)] rounded-xl p-0.5 border border-[var(--border-subtle)]">
             <button
               type="button"
               onClick={handlePrevMonth}
               title="Previous Month"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1a2621)] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -132,7 +132,7 @@ export function ReadingCalendarHeatmap({
               type="button"
               onClick={handleNextMonth}
               title="Next Month"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--hover-bg,#1a2621)] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -142,20 +142,20 @@ export function ReadingCalendarHeatmap({
 
       {/* Monthly Summary Badges */}
       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 my-5">
-        <div className="p-3 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-center">
-          <div className="text-xs text-[var(--muted-foreground,#8e9b94)] font-medium">Active Days</div>
+        <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
+          <div className="text-xs text-[var(--muted-foreground)] font-medium">Active Days</div>
           <div className="text-lg sm:text-xl font-bold text-emerald-400 mt-0.5">
-            {monthActiveDays} <span className="text-xs font-normal text-[var(--muted-foreground,#8e9b94)]">/ {totalDaysInMonth}</span>
+            {monthActiveDays} <span className="text-xs font-normal text-[var(--muted-foreground)]">/ {totalDaysInMonth}</span>
           </div>
         </div>
-        <div className="p-3 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-center">
-          <div className="text-xs text-[var(--muted-foreground,#8e9b94)] font-medium">Monthly Ayahs</div>
+        <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
+          <div className="text-xs text-[var(--muted-foreground)] font-medium">Monthly Ayahs</div>
           <div className="text-lg sm:text-xl font-bold text-amber-400 mt-0.5">
             {monthTotalAyahs.toLocaleString()}
           </div>
         </div>
-        <div className="p-3 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-center">
-          <div className="text-xs text-[var(--muted-foreground,#8e9b94)] font-medium">Words Studied</div>
+        <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
+          <div className="text-xs text-[var(--muted-foreground)] font-medium">Words Studied</div>
           <div className="text-lg sm:text-xl font-bold text-teal-300 mt-0.5">
             {monthWordsStudied}
           </div>
@@ -171,7 +171,7 @@ export function ReadingCalendarHeatmap({
           <div
             key={day}
             className={`text-xs font-bold py-1.5 uppercase tracking-wider ${
-              idx === 5 ? "text-amber-400" : "text-[var(--muted-foreground,#8e9b94)]"
+              idx === 5 ? "text-amber-400" : "text-[var(--muted-foreground)]"
             }`}
           >
             {day}
@@ -187,7 +187,7 @@ export function ReadingCalendarHeatmap({
         {Array.from({ length: firstDayOfMonth }).map((_, i) => (
           <div
             key={`empty-${i}`}
-            className="h-16 sm:h-20 rounded-2xl bg-[var(--surface-card,#182520)]/40 border border-transparent opacity-20 pointer-events-none"
+            className="h-16 sm:h-20 rounded-2xl bg-[var(--surface-card)]/40 border border-transparent opacity-20 pointer-events-none"
           />
         ))}
 
@@ -202,7 +202,7 @@ export function ReadingCalendarHeatmap({
           const intensity = getCellIntensity(ayahs, words);
 
           // Emerald gradient intensity tiers matching Noor Al-Quran theme
-          let cellStyle = "bg-[var(--surface-card,#182520)] border-[var(--border-subtle,#24362e)] text-[var(--muted-foreground,#8e9b94)] hover:border-emerald-500/40";
+          let cellStyle = "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:border-emerald-500/40";
           if (intensity === 1) {
             cellStyle = "bg-emerald-950/40 border-emerald-800/40 text-emerald-300 hover:border-emerald-500/50";
           } else if (intensity === 2) {
@@ -219,12 +219,12 @@ export function ReadingCalendarHeatmap({
               type="button"
               onClick={() => onSelectDate(dateStr)}
               className={`group relative h-16 sm:h-20 rounded-2xl p-2 flex flex-col justify-between transition-all duration-150 border text-left cursor-pointer ${cellStyle} ${
-                isToday ? "ring-2 ring-amber-400/80 ring-offset-2 ring-offset-[var(--surface-raised,#141e1a)]" : ""
+                isToday ? "ring-2 ring-amber-400/80 ring-offset-2 ring-offset-[var(--surface-raised)]" : ""
               }`}
             >
               {/* Day Number and Today Marker */}
               <div className="flex items-center justify-between w-full">
-                <span className={`text-xs sm:text-sm font-semibold ${isToday ? "text-amber-400 font-bold" : "text-[var(--foreground,#f1f5f9)]"}`}>
+                <span className={`text-xs sm:text-sm font-semibold ${isToday ? "text-amber-400 font-bold" : "text-[var(--foreground)]"}`}>
                   {dayNumber}
                 </span>
                 {intensity > 0 && (
@@ -238,7 +238,7 @@ export function ReadingCalendarHeatmap({
                   <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
                     intensity === 4
                       ? "bg-black/30 text-emerald-100"
-                      : "bg-[var(--surface-raised,#141e1a)] text-emerald-400 border border-[var(--border-subtle,#24362e)]"
+                      : "bg-[var(--surface-raised)] text-emerald-400 border border-[var(--border-subtle)]"
                   }`}>
                     {ayahs} {ayahs === 1 ? "v" : "vs"}
                   </span>
@@ -246,7 +246,7 @@ export function ReadingCalendarHeatmap({
                   <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
                     intensity === 4
                       ? "bg-black/30 text-amber-200"
-                      : "bg-[var(--surface-raised,#141e1a)] text-amber-300 border border-[var(--border-subtle,#24362e)]"
+                      : "bg-[var(--surface-raised)] text-amber-300 border border-[var(--border-subtle)]"
                   }`}>
                     {words}w
                   </span>
@@ -262,12 +262,12 @@ export function ReadingCalendarHeatmap({
       </div>
 
       {/* Intensity Legend */}
-      <div className="mt-6 pt-4 border-t border-[var(--border-subtle,#24362e)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
         <div className="flex items-center gap-2">
           <span>Recitation Intensity:</span>
           <span className="text-[11px] opacity-75">None</span>
           <div className="flex items-center gap-1.5">
-            <span className="w-3.5 h-3.5 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)]" />
             <span className="w-3.5 h-3.5 rounded-md bg-emerald-950/40 border border-emerald-800/40" />
             <span className="w-3.5 h-3.5 rounded-md bg-emerald-900/45 border border-emerald-700/50" />
             <span className="w-3.5 h-3.5 rounded-md bg-emerald-800/55 border border-emerald-600/60" />

@@ -6,6 +6,7 @@ import { searchQuran } from "@/services/quranApi";
 import { SearchResultItem } from "@/types/quran";
 import { Search, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { sanitizeSearchQuery } from "@/utils/security";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -33,12 +34,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!query.trim()) return;
+    const cleanQuery = sanitizeSearchQuery(query);
+    if (!cleanQuery) return;
 
     setLoading(true);
     setHasSearched(true);
     try {
-      const data = await searchQuran(query.trim());
+      const data = await searchQuran(cleanQuery);
       setResults(data.results);
       setTotalResults(data.total);
     } catch (err) {
@@ -69,9 +71,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search keywords, English translations, topics (e.g. 'patience', 'mercy', 'forgiveness')..."
-            className="w-full rounded-xl bg-[var(--surface-raised,#16211d)] px-4 py-3 pl-11 text-sm text-[var(--foreground)] border border-[var(--border-subtle,#22332c)] focus:outline-none focus:border-emerald-500 placeholder-[var(--muted-foreground,#8e9b94)]"
+            className="w-full rounded-xl bg-[var(--surface-raised)] px-4 py-3 pl-11 text-sm text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 placeholder-[var(--muted-foreground)]"
           />
-          <Search className="absolute left-3.5 h-4 w-4 text-[var(--muted-foreground,#8e9b94)] pointer-events-none" />
+          <Search className="absolute left-3.5 h-4 w-4 text-[var(--muted-foreground)] pointer-events-none" />
           <button
             type="submit"
             disabled={loading || !query.trim()}
@@ -85,19 +87,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <Loader2 className="h-7 w-7 animate-spin text-emerald-500 mb-2" />
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)]">Searching authentic verses...</p>
+          <p className="text-xs text-[var(--muted-foreground)]">Searching authentic verses...</p>
         </div>
       )}
 
       {!loading && hasSearched && results.length === 0 && (
-        <div className="text-center py-12 text-[var(--muted-foreground,#8e9b94)] text-sm">
+        <div className="text-center py-12 text-[var(--muted-foreground)] text-sm">
           No matches found for &quot;{query}&quot;. Try different keywords or spelling.
         </div>
       )}
 
       {!loading && results.length > 0 && (
         <div className="space-y-3">
-          <div className="text-xs text-[var(--muted-foreground,#8e9b94)] pb-1">
+          <div className="text-xs text-[var(--muted-foreground)] pb-1">
             Found {totalResults} authentic verse matches:
           </div>
           <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
@@ -108,7 +110,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   key={res.verse_key}
                   href={`/surah/${surahNum}?ayah=${ayahNum}`}
                   onClick={onClose}
-                  className="block p-4 rounded-xl bg-[var(--surface-raised,#16211d)] border border-[var(--border-subtle,#22332c)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg,#1a2622)] transition-all group"
+                  className="block p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg)] transition-all group"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
@@ -126,7 +128,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </p>
                   {res.translations && res.translations[0] && (
                     <p
-                      className="text-xs text-[var(--muted-foreground,#8e9b94)] line-clamp-3 leading-relaxed"
+                      className="text-xs text-[var(--muted-foreground)] line-clamp-3 leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: res.translations[0].text }}
                     />
                   )}

@@ -9,6 +9,7 @@ import {
 } from "@/data/quranVocabularyData";
 import { saveGameScore, VocabLangPreference } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Sparkles,
   Trophy,
@@ -23,8 +24,8 @@ import {
 } from "lucide-react";
 
 interface RootFamilyGameProps {
-  langPreference: VocabLangPreference;
-  onScoreSaved: () => void;
+  langPreference?: VocabLangPreference;
+  onScoreSaved?: () => void;
 }
 
 interface FamilyRound {
@@ -35,7 +36,12 @@ interface FamilyRound {
 
 const TOTAL_ROUNDS = 5;
 
-export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameProps) {
+export function RootFamilyGame({
+  langPreference: propLangPreference,
+  onScoreSaved,
+}: RootFamilyGameProps = {}) {
+  const { language } = useLanguage();
+  const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
   const { playWord } = useAudio();
   const [rounds, setRounds] = useState<FamilyRound[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -133,7 +139,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
     } else {
       setIsGameOver(true);
       saveGameScore("rootFamily", score, TOTAL_ROUNDS, TOTAL_ROUNDS);
-      onScoreSaved();
+      onScoreSaved?.();
     }
   };
 
@@ -156,7 +162,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
 
   if (rounds.length === 0) {
     return (
-      <div className="p-8 text-center text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
         Loading family matching challenge...
       </div>
     );
@@ -165,7 +171,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
   // GAME OVER SCREEN
   if (isGameOver) {
     return (
-      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-2xl text-center space-y-6">
+      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
@@ -175,12 +181,12 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
             Semantic Groups & Roots
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Word Family Challenge Complete!</h2>
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-1">
+          <p className="text-xs text-[var(--muted-foreground)] mt-1">
             You successfully grouped high-frequency words sharing similar roots and meanings.
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] max-w-xs mx-auto">
+        <div className="p-6 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] max-w-xs mx-auto">
           <span className="text-xs uppercase font-bold text-emerald-400 block mb-1">Total Score</span>
           <span className="text-4xl font-extrabold text-[var(--foreground)]">{score} pts</span>
         </div>
@@ -203,12 +209,12 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Top HUD */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-xs shadow-sm">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
             Round {currentIndex + 1} of {TOTAL_ROUNDS}
           </span>
-          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card,#182520)] overflow-hidden">
+          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
               className="h-full bg-emerald-500 transition-all duration-300"
               style={{ width: `${((currentIndex + 1) / TOTAL_ROUNDS) * 100}%` }}
@@ -227,7 +233,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
       </div>
 
       {/* Target Semantic Cluster Banner */}
-      <div className="p-6 rounded-3xl bg-[var(--surface-raised,#141e1a)] border-2 border-[var(--card-border,#1e2c26)] text-center shadow-lg space-y-2">
+      <div className="p-6 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
           <Layers className="h-3.5 w-3.5" /> Target Meaning Family
         </div>
@@ -237,7 +243,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
         <p className="font-arabic-amiri text-lg text-emerald-400 font-semibold" dir="rtl">
           {currentRound.cluster.titleAr}
         </p>
-        <p className="text-xs text-[var(--muted-foreground,#8e9b94)] max-w-lg mx-auto">
+        <p className="text-xs text-[var(--muted-foreground)] max-w-lg mx-auto">
           {langPreference === "urdu" ? currentRound.cluster.descriptionUrdu : currentRound.cluster.description}
         </p>
         <p className="text-[11px] font-semibold text-emerald-300 pt-1">
@@ -251,7 +257,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
           const isSelected = selectedWordIds.includes(word.id);
           const isCorrect = correctIdSet.has(word.id);
 
-          let chipStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)] text-[var(--foreground)]";
+          let chipStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] text-[var(--foreground)]";
 
           if (isSelected && !isSubmitted) {
             chipStyle = "bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-md";
@@ -265,7 +271,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
             } else if (isCorrect && !isSelected) {
               chipStyle = "border-amber-500/80 bg-amber-950/30 text-amber-300 border-dashed";
             } else {
-              chipStyle = "opacity-35 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              chipStyle = "opacity-35 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -275,12 +281,12 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
               onClick={() => handleToggleSelect(word.id)}
               className={`p-3.5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between select-none relative group ${chipStyle}`}
             >
-              <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground,#8e9b94)] mb-1">
+              <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] mb-1">
                 <span className="font-mono">{word.root ? `Root: ${word.root}` : word.posLabelEn}</span>
                 <button
                   type="button"
                   onClick={(e) => handlePlayAudio(e, word)}
-                  className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 transition-colors"
+                  className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
                   title="Listen"
                 >
                   <Volume2 className="h-3 w-3" />
@@ -294,7 +300,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
                 <span className="text-[11px] text-emerald-400 font-medium block">
                   {word.transliteration}
                 </span>
-                <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block truncate">
+                <span className="text-[10px] text-[var(--muted-foreground)] block truncate">
                   {langPreference === "urdu" ? word.urdu : word.english}
                 </span>
               </div>
@@ -313,7 +319,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
                     className={`w-4 h-4 rounded-md border flex items-center justify-center transition-colors ${
                       isSelected
                         ? "bg-emerald-500 border-emerald-500 text-white"
-                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)]"
+                        : "border-[var(--border-subtle)] bg-[var(--surface-card)]"
                     }`}
                   >
                     {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
@@ -327,7 +333,7 @@ export function RootFamilyGame({ langPreference, onScoreSaved }: RootFamilyGameP
 
       {/* Action Footer */}
       <div className="flex items-center justify-between gap-3 pt-2">
-        <span className="text-xs text-[var(--muted-foreground,#8e9b94)]">
+        <span className="text-xs text-[var(--muted-foreground)]">
           Selected: {selectedWordIds.length} / {currentRound.correctWords.length} target words
         </span>
 

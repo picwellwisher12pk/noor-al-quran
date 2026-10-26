@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDesktopWorkspace, SidebarTab } from "@/context/DesktopWorkspaceContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
@@ -20,10 +20,16 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function DesktopSidebar() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isLearnRoute = pathname.startsWith("/learn");
+  const isCalendarRoute = pathname.startsWith("/calendar");
+
   const {
     isLeftSidebarOpen,
     setLeftSidebarOpen,
@@ -40,11 +46,28 @@ export function DesktopSidebar() {
   const { bookmarks, removeBookmark } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { currentStreak } = useReadingActivity();
+  const { isUrdu } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [revelationFilter, setRevelationFilter] = useState<"all" | "makkah" | "madinah">("all");
 
+  // Automatically collapse the Quran chapters drawer when navigating to Learn or Calendar
+  useEffect(() => {
+    if (!isReadingPage) {
+      setLeftSidebarOpen(false);
+    }
+  }, [pathname, isReadingPage, setLeftSidebarOpen]);
+
   const handleTabClick = (tab: SidebarTab) => {
+    if (!isReadingPage) {
+      // If outside the Quran reader (e.g. on Learn or Calendar), clicking a reader tab
+      // navigates directly to the Quran reading canvas and opens that drawer tab there
+      setActiveSidebarTab(tab);
+      setLeftSidebarOpen(true);
+      router.push("/");
+      return;
+    }
+
     if (activeSidebarTab === tab && isLeftSidebarOpen) {
       setLeftSidebarOpen(false);
     } else {
@@ -68,19 +91,19 @@ export function DesktopSidebar() {
 
   return (
     <aside
-      className={`h-full flex-none flex bg-[var(--surface-raised,#141e1a)] border-r border-[var(--border-subtle,#1e2c26)] select-none z-30 transition-all duration-200 overflow-hidden ${
-        isLeftSidebarOpen ? "w-80" : "w-12"
+      className={`h-full flex-none flex bg-[var(--surface-raised)] border-r border-[var(--border-subtle)] select-none z-30 transition-all duration-200 overflow-hidden ${
+        isReadingPage && isLeftSidebarOpen ? "w-80" : "w-12"
       }`}
     >
       {/* 1. Leftmost Mini Activity Dock (48px / w-12) */}
-      <div className="w-12 h-full flex-none flex flex-col items-center py-3 bg-[var(--surface-sunken,#0e1512)] border-r border-[var(--border-subtle,#1e2c26)] space-y-3">
+      <div className="w-12 h-full flex-none flex flex-col items-center py-3 bg-[var(--surface-sunken)] border-r border-[var(--border-subtle)] space-y-3">
         <button
           type="button"
           onClick={() => handleTabClick("surahs")}
           className={`p-2 rounded-xl transition-all ${
             activeSidebarTab === "surahs" && isLeftSidebarOpen
               ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
           }`}
           title="Surahs Directory (1..114)"
         >
@@ -93,7 +116,7 @@ export function DesktopSidebar() {
           className={`p-2 rounded-xl transition-all ${
             activeSidebarTab === "juz" && isLeftSidebarOpen
               ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
           }`}
           title="Juz / Siparah Directory (1..30)"
         >
@@ -106,7 +129,7 @@ export function DesktopSidebar() {
           className={`p-2 rounded-xl transition-all ${
             activeSidebarTab === "khatmah" && isLeftSidebarOpen
               ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
           }`}
           title="Khatmah Sunnah Goal (7-day minimum)"
         >
@@ -119,7 +142,7 @@ export function DesktopSidebar() {
           className={`p-2 rounded-xl transition-all ${
             activeSidebarTab === "bookmarks" && isLeftSidebarOpen
               ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
           }`}
           title="Bookmarks & Saved Verses"
         >
@@ -128,49 +151,56 @@ export function DesktopSidebar() {
 
         <Link
           href="/calendar"
-          className="relative p-2 rounded-xl text-[var(--muted-foreground,#8e9b94)] hover:text-amber-400 hover:bg-[var(--surface-card,#182520)] transition-all"
+          className={`relative p-2 rounded-xl transition-all ${
+            isCalendarRoute
+              ? "bg-amber-600 text-white shadow-sm shadow-amber-600/30"
+              : "text-[var(--muted-foreground)] hover:text-amber-400 hover:bg-[var(--surface-card)]"
+          }`}
           title={currentStreak > 0 ? `Reading Streak & Calendar (${currentStreak} Days)` : "Reading Streak & Calendar"}
         >
           <CalendarDays className="h-4 w-4" />
-          {currentStreak > 0 && (
+          {currentStreak > 0 && !isCalendarRoute && (
             <span className="absolute top-1 right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+              <span className="inline-flex rounded-full h-2 w-2 bg-amber-400 shadow-sm" />
             </span>
           )}
         </Link>
 
         <Link
           href="/learn"
-          className="p-2 rounded-xl text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 hover:bg-[var(--surface-card,#182520)] transition-all"
+          className={`p-2 rounded-xl transition-all ${
+            isLearnRoute
+              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold"
+              : "text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--surface-card)]"
+          }`}
           title="Learn 70% Quran Words, Flashcards & Games"
         >
           <GraduationCap className="h-4 w-4" />
         </Link>
       </div>
 
-      {/* 2. Explorer Panel Content (268px) - Collapsible */}
-      {isLeftSidebarOpen && (
+      {/* 2. Explorer Panel Content (268px) - Strictly restricted to Quran Reading pages */}
+      {isReadingPage && isLeftSidebarOpen && (
         <div className="w-68 flex-1 h-full flex flex-col overflow-hidden">
           {/* Tab Header & Search */}
-          <div className="p-3 border-b border-[var(--border-subtle,#1e2c26)] space-y-2.5">
+          <div className="p-3 border-b border-[var(--border-subtle)] space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-[var(--foreground)]">
-                {activeSidebarTab === "surahs" && "Surahs (السور)"}
-                {activeSidebarTab === "juz" && "Juz (الأجزاء)"}
-                {activeSidebarTab === "khatmah" && "Khatmah Goal (الختمة)"}
-                {activeSidebarTab === "bookmarks" && "Bookmarks (العلامات)"}
+                {activeSidebarTab === "surahs" && (isUrdu ? "سورتیں (السور)" : "Surahs (السور)")}
+                {activeSidebarTab === "juz" && (isUrdu ? "پارے (الأجزاء)" : "Juz (الأجزاء)")}
+                {activeSidebarTab === "khatmah" && (isUrdu ? "منصوبہ ختمِ قرآن" : "Khatmah Goal (الختمة)")}
+                {activeSidebarTab === "bookmarks" && (isUrdu ? "محفوظ نشانات" : "Bookmarks (العلامات)")}
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)]">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-card)] text-[var(--muted-foreground)]">
                   {activeSidebarTab === "surahs" && `${filteredChapters.length}/114`}
-                  {activeSidebarTab === "juz" && "30 Parts"}
-                  {activeSidebarTab === "bookmarks" && `${bookmarks.length} Saved`}
+                  {activeSidebarTab === "juz" && (isUrdu ? "30 پارے" : "30 Parts")}
+                  {activeSidebarTab === "bookmarks" && (isUrdu ? `${bookmarks.length} محفوظ` : `${bookmarks.length} Saved`)}
                 </span>
                 <button
                   type="button"
                   onClick={toggleLeftSidebar}
-                  className="p-1 rounded text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
+                  className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
                   title="Collapse Sidebar (Ctrl+B)"
                 >
                   <PanelLeftClose className="h-3.5 w-3.5" />
@@ -182,13 +212,13 @@ export function DesktopSidebar() {
             {activeSidebarTab === "surahs" && (
               <div className="space-y-1.5">
                 <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--muted-foreground,#8e9b94)]" />
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--muted-foreground)]" />
                   <input
                     type="text"
                     placeholder="Filter Surah name or number..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
+                    className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
                   />
                 </div>
 
@@ -200,7 +230,7 @@ export function DesktopSidebar() {
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "all"
                         ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
-                        : "text-[var(--muted-foreground,#8e9b94)] hover:bg-[var(--surface-card,#182520)]"
+                        : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
                     All (114)
@@ -211,7 +241,7 @@ export function DesktopSidebar() {
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "makkah"
                         ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
-                        : "text-[var(--muted-foreground,#8e9b94)] hover:bg-[var(--surface-card,#182520)]"
+                        : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
                     Makki (86)
@@ -222,7 +252,7 @@ export function DesktopSidebar() {
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "madinah"
                         ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
-                        : "text-[var(--muted-foreground,#8e9b94)] hover:bg-[var(--surface-card,#182520)]"
+                        : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
                     Madani (28)
@@ -237,11 +267,11 @@ export function DesktopSidebar() {
             {/* TAB 1: SURAHS LIST */}
             {activeSidebarTab === "surahs" && (
               loadingMeta ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground,#8e9b94)] animate-pulse">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
                   Loading Surah catalogue...
                 </div>
               ) : filteredChapters.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground,#8e9b94)]">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)]">
                   No matching Surahs found.
                 </div>
               ) : (
@@ -255,7 +285,7 @@ export function DesktopSidebar() {
                       className={`flex items-center justify-between p-2 rounded-xl transition-all group ${
                         isActive
                           ? "bg-emerald-600/15 border border-emerald-500/40 text-[var(--foreground)] font-semibold shadow-sm"
-                          : "hover:bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] border border-transparent"
+                          : "hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 truncate">
@@ -263,7 +293,7 @@ export function DesktopSidebar() {
                           className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-mono flex-shrink-0 ${
                             isActive
                               ? "bg-emerald-600 text-white font-bold"
-                              : "bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-[var(--muted-foreground,#8e9b94)]"
+                              : "bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--muted-foreground)]"
                           }`}
                         >
                           {chap.id}
@@ -272,7 +302,7 @@ export function DesktopSidebar() {
                           <div className="text-xs truncate font-medium text-[var(--foreground)]">
                             {chap.name_simple}
                           </div>
-                          <div className="text-[10px] text-[var(--muted-foreground,#8e9b94)] truncate">
+                          <div className="text-[10px] text-[var(--muted-foreground)] truncate">
                             {chap.verses_count} Ayahs • {chap.revelation_place}
                           </div>
                         </div>
@@ -294,7 +324,7 @@ export function DesktopSidebar() {
                   return (
                     <div
                       key={juzNum}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
                     >
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-md bg-emerald-600/20 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center">
@@ -304,7 +334,7 @@ export function DesktopSidebar() {
                           <span className="font-medium text-[var(--foreground)] block">
                             Juz {juzNum} (الجزء {juzNum})
                           </span>
-                          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)]">
+                          <span className="text-[10px] text-[var(--muted-foreground)]">
                             Siparah / Para {juzNum}
                           </span>
                         </div>
@@ -330,19 +360,19 @@ export function DesktopSidebar() {
                     <Flame className="h-4 w-4" />
                     <span>Sunnah 7-Day Minimum Pacing</span>
                   </div>
-                  <p className="text-[11px] text-[var(--muted-foreground,#8e9b94)] leading-relaxed">
+                  <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
                     Strictly aligned with Sahih al-Bukhari 5052: &ldquo;Read the Quran in a month, or in seven days, and do not read it in less than three.&rdquo;
                   </p>
 
                   {plan && (
                     <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs">
                       <div>
-                        <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Current Pace:</span>
+                        <span className="text-[10px] text-[var(--muted-foreground)] block">Current Pace:</span>
                         <span className="font-bold text-emerald-300">{plan.targetDays} Days Khatmah</span>
                       </div>
                       {targetInfo && (
                         <div className="text-right">
-                          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)] block">Daily Target:</span>
+                          <span className="text-[10px] text-[var(--muted-foreground)] block">Daily Target:</span>
                           <span className="font-bold text-amber-300">{targetInfo.dailyQuota} Ayahs / Day</span>
                         </div>
                       )}
@@ -352,20 +382,20 @@ export function DesktopSidebar() {
 
                 {/* Progress Summary */}
                 {targetInfo && (
-                  <div className="p-3 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] space-y-2 text-xs">
+                  <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-[var(--muted-foreground,#8e9b94)]">Overall Completion:</span>
+                      <span className="text-[var(--muted-foreground)]">Overall Completion:</span>
                       <span className="font-mono font-bold text-emerald-400">
                         {targetInfo.percentageCompleted.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full bg-[var(--surface-raised,#141e1a)] overflow-hidden">
+                    <div className="w-full h-1.5 rounded-full bg-[var(--surface-raised)] overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-500"
                         style={{ width: `${targetInfo.percentageCompleted}%` }}
                       />
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground,#8e9b94)]">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
                       <span>Day {targetInfo.dayNumber} of {targetInfo.totalDays}</span>
                       <span className="capitalize">{targetInfo.paceStatus.replace("_", " ")}</span>
                     </div>
@@ -378,7 +408,7 @@ export function DesktopSidebar() {
             {activeSidebarTab === "bookmarks" && (
               <div className="space-y-1.5">
                 {bookmarks.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-[var(--muted-foreground,#8e9b94)] space-y-1">
+                  <div className="p-6 text-center text-xs text-[var(--muted-foreground)] space-y-1">
                     <Bookmark className="h-5 w-5 mx-auto text-emerald-400/60 mb-1" />
                     <p className="font-medium text-[var(--foreground)]">No Bookmarks Saved</p>
                     <p className="text-[10px]">Click the bookmark ribbon on any Ayah to save it here.</p>
@@ -387,7 +417,7 @@ export function DesktopSidebar() {
                   bookmarks.map((bm) => (
                     <div
                       key={bm.verse_key}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] hover:border-emerald-500/40 transition-colors space-y-1 text-xs"
+                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between">
                         <Link

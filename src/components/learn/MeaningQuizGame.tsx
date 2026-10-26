@@ -12,6 +12,7 @@ import {
   VocabLangPreference,
 } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Sparkles,
   Trophy,
@@ -26,8 +27,8 @@ import {
 } from "lucide-react";
 
 interface MeaningQuizGameProps {
-  langPreference: VocabLangPreference;
-  onScoreSaved: () => void;
+  langPreference?: VocabLangPreference;
+  onScoreSaved?: () => void;
 }
 
 interface Question {
@@ -39,7 +40,12 @@ interface Question {
 const TOTAL_QUESTIONS_PER_ROUND = 10;
 const SECONDS_PER_QUESTION = 15;
 
-export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGameProps) {
+export function MeaningQuizGame({
+  langPreference: propLangPreference,
+  onScoreSaved,
+}: MeaningQuizGameProps = {}) {
+  const { language } = useLanguage();
+  const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
   const { playWord } = useAudio();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -147,7 +153,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
       setIsGameOver(true);
       const finalCorrect = TOTAL_QUESTIONS_PER_ROUND - missedWords.length;
       saveGameScore("meaningQuiz", score, finalCorrect, TOTAL_QUESTIONS_PER_ROUND);
-      onScoreSaved();
+      onScoreSaved?.();
     }
   };
 
@@ -171,7 +177,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
 
   if (questions.length === 0) {
     return (
-      <div className="p-8 text-center text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
         Loading quiz challenge...
       </div>
     );
@@ -190,7 +196,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
     }
 
     return (
-      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-2xl text-center space-y-6">
+      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-emerald-500/20 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
@@ -200,24 +206,24 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
             {ratingBadge.text}
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Quiz Round Complete!</h2>
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-1">
+          <p className="text-xs text-[var(--muted-foreground)] mt-1">
             You tested your knowledge on authentic high-frequency Quranic words.
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Score</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Accuracy</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
-              {accuracy}% <span className="text-xs text-[var(--muted-foreground,#8e9b94)] font-normal">({correctCount}/{TOTAL_QUESTIONS_PER_ROUND})</span>
+              {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_QUESTIONS_PER_ROUND})</span>
             </span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Best Streak</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-400" /> {maxStreak}
@@ -235,10 +241,10 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
               {missedWords.map((w) => (
                 <span
                   key={w.id}
-                  className="px-2.5 py-1 rounded-xl bg-[var(--surface-card,#182520)] border border-amber-500/20 text-xs text-[var(--foreground)] flex items-center gap-1.5"
+                  className="px-2.5 py-1 rounded-xl bg-[var(--surface-card)] border border-amber-500/20 text-xs text-[var(--foreground)] flex items-center gap-1.5"
                 >
                   <span className="font-arabic font-semibold">{w.arabic}</span>
-                  <span className="text-[var(--muted-foreground,#8e9b94)]">({w.english})</span>
+                  <span className="text-[var(--muted-foreground)]">({w.english})</span>
                 </span>
               ))}
             </div>
@@ -281,13 +287,13 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Quiz Top Hud */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-xs shadow-sm">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         {/* Question Counter */}
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
             Question {currentIndex + 1}/{TOTAL_QUESTIONS_PER_ROUND}
           </span>
-          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card,#182520)] overflow-hidden">
+          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
               className="h-full bg-emerald-500 transition-all duration-300"
               style={{ width: `${((currentIndex + 1) / TOTAL_QUESTIONS_PER_ROUND) * 100}%` }}
@@ -312,7 +318,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
           className={`flex items-center gap-1 font-mono font-bold px-2.5 py-1 rounded-xl border ${
             timeLeft <= 5
               ? "bg-rose-950/60 border-rose-800/50 text-rose-400 animate-pulse"
-              : "bg-[var(--surface-card,#182520)] border-[var(--border-subtle,#24362e)] text-[var(--foreground)]"
+              : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--foreground)]"
           }`}
         >
           <Timer className="h-3.5 w-3.5" />
@@ -321,9 +327,9 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
       </div>
 
       {/* Target Word Card */}
-      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border-2 border-[var(--card-border,#1e2c26)] text-center shadow-lg relative overflow-hidden space-y-3">
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)]">
-          <span className="px-2 py-0.5 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-3">
+        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+          <span className="px-2 py-0.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             {currentQ.targetWord.posLabelAr} ({currentQ.targetWord.posLabelEn})
           </span>
           <span className="px-2 py-0.5 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 font-mono">
@@ -360,7 +366,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
       {/* Multiple Choice Options */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {currentQ.options.map((option, idx) => {
-          let btnStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)] text-[var(--foreground)]";
+          let btnStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] text-[var(--foreground)]";
 
           if (isAnswered) {
             if (idx === currentQ.correctIndex) {
@@ -368,7 +374,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
             } else if (idx === selectedOptionIndex) {
               btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300 font-bold";
             } else {
-              btnStyle = "opacity-40 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -381,7 +387,7 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
               className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between gap-2 shadow-sm ${btnStyle}`}
             >
               <div className="flex items-center gap-3">
-                <span className="w-6 h-6 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] flex items-center justify-center text-[10px] font-bold text-[var(--muted-foreground,#8e9b94)]">
+                <span className="w-6 h-6 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px] font-bold text-[var(--muted-foreground)]">
                   {idx + 1}
                 </span>
                 <div>{renderOptionText(option)}</div>
@@ -400,12 +406,12 @@ export function MeaningQuizGame({ langPreference, onScoreSaved }: MeaningQuizGam
 
       {/* Explanation Banner & Next Question Button */}
       {isAnswered && (
-        <div className="p-4 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
+        <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
             <span className="font-semibold text-emerald-400 block">
               Meaning Group: {currentQ.targetWord.semanticClusterTitle}
             </span>
-            <span className="text-[var(--muted-foreground,#8e9b94)]">
+            <span className="text-[var(--muted-foreground)]">
               Sample: Surah {currentQ.targetWord.sampleAyah.surahName} [{currentQ.targetWord.sampleAyah.surah}:{currentQ.targetWord.sampleAyah.ayah}]
             </span>
           </div>

@@ -22,8 +22,8 @@ import {
 } from "lucide-react";
 
 interface GrammarClassifierGameProps {
-  langPreference: VocabLangPreference;
-  onScoreSaved: () => void;
+  langPreference?: VocabLangPreference;
+  onScoreSaved?: () => void;
 }
 
 interface GrammarQuestion {
@@ -34,7 +34,7 @@ interface GrammarQuestion {
 
 const TOTAL_ROUNDS = 10;
 
-export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGameProps) {
+export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGameProps = {}) {
   const { playWord } = useAudio();
   const [questions, setQuestions] = useState<GrammarQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -111,7 +111,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
       setIsGameOver(true);
       const correctCount = TOTAL_ROUNDS - missedWords.length;
       saveGameScore("grammarMatch", score, correctCount, TOTAL_ROUNDS);
-      onScoreSaved();
+      onScoreSaved?.();
     }
   };
 
@@ -135,7 +135,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
 
   if (questions.length === 0) {
     return (
-      <div className="p-8 text-center text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
         Loading grammar challenges...
       </div>
     );
@@ -147,7 +147,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
     const accuracy = Math.round((correctCount / TOTAL_ROUNDS) * 100);
 
     return (
-      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-2xl text-center space-y-6">
+      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
@@ -157,23 +157,23 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
             Arabic Grammar Mastery
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Grammar Challenge Complete!</h2>
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-1">
+          <p className="text-xs text-[var(--muted-foreground)] mt-1">
             You practiced identifying the three fundamental branches of Quranic words (الاسم، الفعل، الحرف).
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Score</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Accuracy</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
-              {accuracy}% <span className="text-xs text-[var(--muted-foreground,#8e9b94)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
+              {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
             </span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Streak</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-400" /> {maxStreak}
@@ -197,12 +197,12 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Top HUD */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-xs shadow-sm">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
             Word {currentIndex + 1} of {TOTAL_ROUNDS}
           </span>
-          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card,#182520)] overflow-hidden">
+          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
               className="h-full bg-emerald-500 transition-all duration-300"
               style={{ width: `${((currentIndex + 1) / TOTAL_ROUNDS) * 100}%` }}
@@ -221,9 +221,9 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
       </div>
 
       {/* Word Card */}
-      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border-2 border-[var(--card-border,#1e2c26)] text-center shadow-lg relative overflow-hidden space-y-3">
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)]">
-          <span className="px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-3">
+        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+          <span className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             Meaning: {currentQ.word.english} ({currentQ.word.urdu})
           </span>
           <span className="px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 font-mono">
@@ -250,7 +250,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
           </button>
         </div>
 
-        <p className="text-xs text-[var(--muted-foreground,#8e9b94)] pt-2">
+        <p className="text-xs text-[var(--muted-foreground)] pt-2">
           Which part of speech is this word in Quranic Arabic grammar?
         </p>
       </div>
@@ -259,14 +259,14 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {/* ISM (NOUN / PRONOUN) */}
         {(() => {
-          let btnStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)]";
+          let btnStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)]";
           if (isAnswered) {
             if (currentQ.primaryPos === "noun") {
               btnStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-lg shadow-emerald-950/50";
             } else if (selectedPos === "noun") {
               btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300 font-bold";
             } else {
-              btnStyle = "opacity-40 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -281,7 +281,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
                 اِسْم (Ism)
               </span>
               <span className="text-xs font-semibold text-emerald-400">Noun / Pronoun</span>
-              <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+              <span className="text-[11px] text-[var(--muted-foreground)]">
                 Person, place, thing, attribute, or pronoun
               </span>
             </button>
@@ -290,14 +290,14 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
 
         {/* FI'L (VERB) */}
         {(() => {
-          let btnStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)]";
+          let btnStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)]";
           if (isAnswered) {
             if (currentQ.primaryPos === "verb") {
               btnStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-lg shadow-emerald-950/50";
             } else if (selectedPos === "verb") {
               btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300 font-bold";
             } else {
-              btnStyle = "opacity-40 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -312,7 +312,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
                 فِعْل (Fi‘l)
               </span>
               <span className="text-xs font-semibold text-emerald-400">Verb / Action</span>
-              <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+              <span className="text-[11px] text-[var(--muted-foreground)]">
                 Action bounded by time (past, present, imperative)
               </span>
             </button>
@@ -321,14 +321,14 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
 
         {/* HARF (PARTICLE / PREPOSITION) */}
         {(() => {
-          let btnStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)]";
+          let btnStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)]";
           if (isAnswered) {
             if (currentQ.primaryPos === "particle") {
               btnStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-lg shadow-emerald-950/50";
             } else if (selectedPos === "particle") {
               btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300 font-bold";
             } else {
-              btnStyle = "opacity-40 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -343,7 +343,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
                 حَرْف (Ḥarf)
               </span>
               <span className="text-xs font-semibold text-emerald-400">Particle / Preposition</span>
-              <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+              <span className="text-[11px] text-[var(--muted-foreground)]">
                 Prepositions, conjunctions, conditionals, negation
               </span>
             </button>
@@ -353,20 +353,20 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
 
       {/* Grammar Breakdown & Next Button */}
       {isAnswered && (
-        <div className="p-4 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
+        <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-emerald-400">
                 Correct: {currentQ.subCategory} ({currentQ.word.posLabelEn})
               </span>
               {currentQ.word.root && (
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-card,#182520)] font-mono text-[var(--foreground)]">
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-card)] font-mono text-[var(--foreground)]">
                   Root: {currentQ.word.root}
                 </span>
               )}
             </div>
             {currentQ.word.grammarNotes && (
-              <p className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+              <p className="text-[11px] text-[var(--muted-foreground)]">
                 {currentQ.word.grammarNotes}
               </p>
             )}

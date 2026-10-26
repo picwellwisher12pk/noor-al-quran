@@ -87,7 +87,7 @@ export function WordByWord({
               {/* Urdu Translation */}
               {(prefs.wbwLanguage === "urdu" || prefs.wbwLanguage === "both") && urduText && (
                 <span
-                  className="text-[11px] font-urdu text-[var(--urdu-color,#e2e8f0)] group-hover:text-emerald-300 text-center max-w-[85px] truncate mt-0.5"
+                  className="text-[11px] font-urdu text-[var(--urdu-color)] group-hover:text-emerald-300 text-center max-w-[85px] truncate mt-0.5"
                   dir="rtl"
                   title={urduText}
                 >
@@ -98,7 +98,7 @@ export function WordByWord({
               {/* English Translation */}
               {(prefs.wbwLanguage === "english" || prefs.wbwLanguage === "both") && englishText && (
                 <span
-                  className="text-[10px] font-sans text-[var(--muted-foreground,#8e9b94)] group-hover:text-[var(--foreground)] text-center max-w-[85px] truncate mt-0.5 leading-none"
+                  className="text-[10px] font-sans text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] text-center max-w-[85px] truncate mt-0.5 leading-none"
                   dir="ltr"
                   title={englishText}
                 >

@@ -65,18 +65,18 @@ export function Modal({
       {/* Modal Dialog Content */}
       <div
         ref={modalRef}
-        className={`relative w-full ${maxWidthClasses} transform overflow-hidden rounded-2xl bg-[var(--modal-bg,#121816)] border border-[var(--card-border,#1e2925)] shadow-2xl transition-all my-8 z-10 flex flex-col max-h-[90vh]`}
+        className={`relative w-full ${maxWidthClasses} transform overflow-hidden rounded-2xl bg-[var(--modal-bg)] border border-[var(--card-border)] shadow-2xl transition-all my-8 z-10 flex flex-col max-h-[90vh]`}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between border-b border-[var(--border-subtle,#1e2925)] px-6 py-4">
+          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-4">
             <div className="text-lg font-semibold text-[var(--foreground)]">{title}</div>
             {showCloseButton && (
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close modal"
-                className="rounded-lg p-1.5 text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg,#1f2924)] transition-colors focus:outline-none"
+                className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)] transition-colors focus:outline-none"
               >
                 <X className="h-5 w-5" />
               </button>

@@ -62,14 +62,14 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
       }
     >
       {/* Tafsir Selector Dropdown */}
-      <div className="mb-5 p-3.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)]">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5 mb-2">
+      <div className="mb-5 p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1.5 mb-2">
           <Globe className="h-3.5 w-3.5 text-emerald-400" /> Select Authentic Tafseer Commentary
         </label>
         <select
           value={currentTafsirId}
           onChange={(e) => handleTafsirChange(Number(e.target.value))}
-          className="w-full rounded-xl bg-[var(--surface-card,#182520)] px-3.5 py-2.5 text-sm text-[var(--foreground)] border border-[var(--border-subtle,#24362e)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+          className="w-full rounded-xl bg-[var(--surface-card)] px-3.5 py-2.5 text-sm text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 cursor-pointer"
         >
           <optgroup label="English Tafseer">
             {AVAILABLE_TAFSIRS.filter((t) => t.language === "english").map((t) => (
@@ -96,7 +96,7 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
       </div>
 
       {arabicText && (
-        <div className="mb-6 rounded-2xl bg-[var(--surface-card,#182520)] p-4 text-right border border-[var(--border-subtle,#22332c)]">
+        <div className="mb-6 rounded-2xl bg-[var(--surface-card)] p-4 text-right border border-[var(--border-subtle)]">
           <p className="font-arabic text-2xl text-[var(--foreground)] leading-loose" dir="rtl">
             {arabicText}
           </p>
@@ -106,7 +106,7 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500 mb-3" />
-          <p className="text-sm text-[var(--muted-foreground,#8e9b94)]">
+          <p className="text-sm text-[var(--muted-foreground)]">
             Loading {selectedTafsir.name}...
           </p>
         </div>
@@ -120,7 +120,7 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
 
       {!loading && !error && tafsirData && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)] border-b border-[var(--border-subtle,#1e2925)] pb-2">
+          <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] border-b border-[var(--border-subtle)] pb-2">
             <span>Author: {tafsirData.author}</span>
             <span className="capitalize">Language: {selectedTafsir.language}</span>
           </div>

@@ -77,7 +77,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
       {plan && targetInfo ? (
         <div className="space-y-6">
           {/* Active Summary Card */}
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-950/40 via-[var(--surface-raised,#141e1a)] to-emerald-950/20 border border-emerald-800/40 p-5">
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-950/40 via-[var(--surface-raised)] to-emerald-950/20 border border-emerald-800/40 p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
@@ -95,11 +95,11 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
 
             {/* Overall Progress Bar */}
             <div className="mb-4">
-              <div className="flex justify-between text-xs text-[var(--muted-foreground,#8e9b94)] mb-1.5 font-medium">
+              <div className="flex justify-between text-xs text-[var(--muted-foreground)] mb-1.5 font-medium">
                 <span>Progress: {plan.completedAyahsCount} of {TOTAL_QURAN_VERSES} Ayahs</span>
                 <span className="text-emerald-400">{targetInfo.percentageCompleted.toFixed(1)}%</span>
               </div>
-              <div className="h-2.5 w-full bg-[var(--surface-card,#182520)] rounded-full overflow-hidden border border-[var(--border-subtle,#24362e)]">
+              <div className="h-2.5 w-full bg-[var(--surface-card)] rounded-full overflow-hidden border border-[var(--border-subtle)]">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full transition-all duration-500"
                   style={{ width: `${targetInfo.percentageCompleted}%` }}
@@ -108,15 +108,15 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
             </div>
 
             {/* Today's Target Details */}
-            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-[var(--surface-card,#182520)]/80 border border-[var(--border-subtle,#24362e)] text-xs">
+            <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-[var(--surface-card)]/80 border border-[var(--border-subtle)] text-xs">
               <div>
-                <span className="text-[var(--muted-foreground,#8e9b94)] block mb-1">Today&apos;s Target:</span>
+                <span className="text-[var(--muted-foreground)] block mb-1">Today&apos;s Target:</span>
                 <span className="font-semibold text-emerald-400">
                   Surah {targetInfo.targetStart.chapterId}:{targetInfo.targetStart.verseNumber} → {targetInfo.targetEnd.chapterId}:{targetInfo.targetEnd.verseNumber}
                 </span>
               </div>
               <div>
-                <span className="text-[var(--muted-foreground,#8e9b94)] block mb-1">Pace Status:</span>
+                <span className="text-[var(--muted-foreground)] block mb-1">Pace Status:</span>
                 <span className={`font-semibold capitalize ${
                   targetInfo.paceStatus === "ahead" ? "text-emerald-400" : targetInfo.paceStatus === "behind" ? "text-amber-400" : "text-teal-300"
                 }`}>
@@ -167,7 +167,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
               <button
                 type="button"
                 onClick={() => setConfirmReset(true)}
-                className="text-xs text-[var(--muted-foreground,#8e9b94)] hover:text-red-400 flex items-center gap-1 transition-colors"
+                className="text-xs text-[var(--muted-foreground)] hover:text-red-400 flex items-center gap-1 transition-colors"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Reset or Change Plan
               </button>
@@ -183,7 +183,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
               <Award className="h-4 w-4" />
               <span>Prophetic Rule: Minimum 7 Days</span>
             </div>
-            <p className="text-[var(--muted-foreground,#8e9b94)]">
+            <p className="text-[var(--muted-foreground)]">
               Narrated Abdullah ibn Amr: The Prophet (ﷺ) said:
               <em className="text-emerald-300"> &ldquo;Do not finish reading the Quran in less than seven days.&rdquo;</em>
               — <span className="font-mono text-[11px]">Sahih al-Bukhari 5052, Sahih Muslim 1159</span>.
@@ -192,7 +192,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
 
           {/* Preset Buttons */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-3">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-3">
               Choose Target Completion Duration
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -206,14 +206,14 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
                     className={`p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
                       isSelected
                         ? "border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500"
-                        : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] hover:border-emerald-500/40"
+                        : "border-[var(--border-subtle)] bg-[var(--surface-raised)] hover:border-emerald-500/40"
                     }`}
                   >
                     <div className="flex items-center justify-between w-full mb-1">
                       <span className="font-semibold text-sm text-[var(--foreground)]">{p.label}</span>
                       {isSelected && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
                     </div>
-                    <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)] leading-tight">{p.note}</span>
+                    <span className="text-[11px] text-[var(--muted-foreground)] leading-tight">{p.note}</span>
                   </button>
                 );
               })}
@@ -221,7 +221,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
           </div>
 
           {/* Custom Duration Option */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-2">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[var(--foreground)]">Or enter custom days (≥ 7):</span>
               <input
@@ -233,7 +233,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
                   setIsCustom(true);
                   handleCustomChange(e.target.value);
                 }}
-                className="w-24 px-3 py-1.5 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs text-right text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
+                className="w-24 px-3 py-1.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-right text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
               />
             </div>
             {isCustom && selectedDays >= 7 && (

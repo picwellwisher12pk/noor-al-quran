@@ -56,7 +56,7 @@ export function AudioPlayerBar() {
   };
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 bg-[var(--surface-raised,#121a17)]/95 backdrop-blur-md border-t border-[var(--card-border,#1e2b25)] px-4 py-3 shadow-2xl transition-all">
+    <div className="fixed bottom-0 inset-x-0 z-40 bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--card-border)] px-4 py-3 shadow-2xl transition-all">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Left: Info */}
         <div className="flex items-center gap-3 w-full md:w-1/4 min-w-0">
@@ -67,7 +67,7 @@ export function AudioPlayerBar() {
             <div className="text-xs font-semibold text-[var(--foreground)] truncate">
               Ayah {currentVerseKey}
             </div>
-            <div className="text-[11px] text-[var(--muted-foreground,#8e9b94)] truncate">
+            <div className="text-[11px] text-[var(--muted-foreground)] truncate">
               {currentReciter ? currentReciter.reciter_name : "Reciter"}
             </div>
           </div>
@@ -80,7 +80,7 @@ export function AudioPlayerBar() {
               type="button"
               onClick={playPreviousVerse}
               aria-label="Previous verse"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg,#1f2924)] transition-colors"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)] transition-colors"
             >
               <SkipBack className="h-4 w-4" />
             </button>
@@ -105,7 +105,7 @@ export function AudioPlayerBar() {
               type="button"
               onClick={playNextVerse}
               aria-label="Next verse"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg,#1f2924)] transition-colors"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)] transition-colors"
             >
               <SkipForward className="h-4 w-4" />
             </button>
@@ -113,7 +113,7 @@ export function AudioPlayerBar() {
 
           {/* Time Scrubber */}
           <div className="flex items-center gap-2 w-full max-w-md">
-            <span className="text-[10px] font-mono text-[var(--muted-foreground,#8e9b94)] w-8 text-right">
+            <span className="text-[10px] font-mono text-[var(--muted-foreground)] w-8 text-right">
               {formatTime(currentTime)}
             </span>
             <input
@@ -122,9 +122,9 @@ export function AudioPlayerBar() {
               max={duration || 100}
               value={currentTime}
               onChange={(e) => seek(Number(e.target.value))}
-              className="w-full h-1 bg-[var(--card-border,#22332c)] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              className="w-full h-1 bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer accent-emerald-500"
             />
-            <span className="text-[10px] font-mono text-[var(--muted-foreground,#8e9b94)] w-8">
+            <span className="text-[10px] font-mono text-[var(--muted-foreground)] w-8">
               {formatTime(duration)}
             </span>
           </div>
@@ -145,7 +145,7 @@ export function AudioPlayerBar() {
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border transition-colors ${
               repeatMode !== "none"
                 ? "bg-emerald-950/60 border-emerald-500 text-emerald-300"
-                : "border-transparent text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             {repeatMode === "verse" ? (
@@ -167,7 +167,7 @@ export function AudioPlayerBar() {
             type="button"
             onClick={cyclePlaybackRate}
             title="Playback Speed"
-            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
           >
             <Gauge className="h-3.5 w-3.5" />
             <span className="text-[10px] font-mono">{playbackRate}x</span>
@@ -177,7 +177,7 @@ export function AudioPlayerBar() {
             type="button"
             onClick={stopAudio}
             aria-label="Close audio player"
-            className="p-1.5 rounded-lg text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg,#1f2924)] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)] transition-colors"
           >
             <X className="h-4 w-4" />
           </button>

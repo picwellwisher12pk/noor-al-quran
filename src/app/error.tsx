@@ -20,7 +20,7 @@ export default function ErrorBoundary({
         <AlertCircle className="h-8 w-8" />
       </div>
       <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Something went wrong</h2>
-      <p className="text-sm text-[var(--muted-foreground,#8e9b94)] max-w-md mb-8">
+      <p className="text-sm text-[var(--muted-foreground)] max-w-md mb-8">
         We encountered an error loading the authentic data. Please verify your internet connection and try again.
       </p>
       <button

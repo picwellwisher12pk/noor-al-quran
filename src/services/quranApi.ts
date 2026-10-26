@@ -1,5 +1,6 @@
 import { Chapter, Verse, Reciter, Juz, Tafsir, SearchResultItem, Word } from "@/types/quran";
 import { offlineStorage } from "./offlineStorage";
+import { isValidVerseKey, sanitizeSearchQuery } from "@/utils/security";
 
 const BASE_URL = "https://api.quran.com/api/v4";
 export const AUDIO_CDN_URL = "https://verses.quran.com";
@@ -61,11 +62,33 @@ export async function fetchChapters(): Promise<Chapter[]> {
     return cachedChapters;
   }
   try {
-    const res = await fetch(`${BASE_URL}/chapters?language=en`);
-    if (!res.ok) throw new Error(`Failed to fetch chapters: ${res.statusText}`);
-    const data = await res.json();
-    cachedChapters = data.chapters || [];
-    return cachedChapters as Chapter[];
+    const [resEn, resUr] = await Promise.all([
+      fetch(`${BASE_URL}/chapters?language=en`),
+      fetch(`${BASE_URL}/chapters?language=ur`).catch(() => null),
+    ]);
+    if (!resEn.ok) throw new Error(`Failed to fetch chapters: ${resEn.statusText}`);
+    const dataEn = await resEn.json();
+    const chaptersList = (dataEn.chapters || []) as Chapter[];
+
+    if (resUr && resUr.ok) {
+      try {
+        const dataUr = await resUr.json();
+        const urduMap = new Map<number, { language_name: string; name: string }>();
+        for (const c of dataUr.chapters || []) {
+          urduMap.set(c.id, c.translated_name);
+        }
+        for (const chap of chaptersList) {
+          if (urduMap.has(chap.id)) {
+            chap.translated_name_urdu = urduMap.get(chap.id);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to parse Urdu chapter translations:", e);
+      }
+    }
+
+    cachedChapters = chaptersList;
+    return cachedChapters;
   } catch (err) {
     console.error("fetchChapters error:", err);
     throw err;
@@ -211,6 +234,7 @@ export async function fetchChapterAudio(reciterId: number, chapterId: number): P
 }
 
 export async function fetchVerseAudioUrl(reciterId: number, verseKey: string): Promise<string | null> {
+  if (!isValidVerseKey(verseKey)) return null;
   try {
     const res = await fetch(`${BASE_URL}/recitations/${reciterId}/by_ayah/${verseKey}`);
     if (!res.ok) return null;
@@ -250,6 +274,7 @@ export async function fetchTafsirForAyah(
   tafsirId = 169,
   verseKey: string
 ): Promise<{ text: string; author: string; name: string } | null> {
+  if (!isValidVerseKey(verseKey)) return null;
   try {
     const res = await fetch(`${BASE_URL}/tafsirs/${tafsirId}/by_ayah/${verseKey}`);
     if (!res.ok) return null;
@@ -267,10 +292,11 @@ export async function fetchTafsirForAyah(
 }
 
 export async function searchQuran(query: string, page = 1): Promise<{ results: SearchResultItem[]; total: number }> {
-  if (!query.trim()) return { results: [], total: 0 };
+  const sanitized = sanitizeSearchQuery(query);
+  if (!sanitized) return { results: [], total: 0 };
   try {
     const res = await fetch(
-      `${BASE_URL}/search?q=${encodeURIComponent(query)}&size=20&page=${page}&language=en`
+      `${BASE_URL}/search?q=${encodeURIComponent(sanitized)}&size=20&page=${page}&language=en`
     );
     if (!res.ok) throw new Error("Search failed");
     const data = await res.json();

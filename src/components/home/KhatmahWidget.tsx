@@ -13,7 +13,7 @@ export function KhatmahWidget() {
 
   return (
     <>
-      <div className="mb-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] p-6 shadow-md transition-all">
+      <div className="mb-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-6 shadow-md transition-all">
         {plan && targetInfo ? (
           /* Active Khatmah View */
           <div>
@@ -31,7 +31,7 @@ export function KhatmahWidget() {
                       Day {targetInfo.dayNumber} of {targetInfo.totalDays}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--muted-foreground,#8e9b94)]">
+                  <p className="text-xs text-[var(--muted-foreground)]">
                     Target pace: ~{targetInfo.dailyQuota} Ayahs/day • Min. 7-Day Sunnah Rule
                   </p>
                 </div>
@@ -47,7 +47,7 @@ export function KhatmahWidget() {
                   type="button"
                   onClick={() => setIsModalOpen(true)}
                   aria-label="Manage Khatmah settings"
-                  className="p-2 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 transition-colors"
+                  className="p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
                 >
                   <Settings2 className="h-4 w-4" />
                 </button>
@@ -57,14 +57,14 @@ export function KhatmahWidget() {
             {/* Progress Bar */}
             <div className="space-y-1.5 mb-5">
               <div className="flex justify-between text-xs font-medium">
-                <span className="text-[var(--muted-foreground,#8e9b94)]">
+                <span className="text-[var(--muted-foreground)]">
                   Completed {plan.completedAyahsCount} of {TOTAL_QURAN_VERSES} Ayahs
                 </span>
                 <span className="text-emerald-400 font-semibold">
                   {targetInfo.percentageCompleted.toFixed(1)}%
                 </span>
               </div>
-              <div className="h-2.5 w-full bg-[var(--surface-card,#182520)] rounded-full overflow-hidden border border-[var(--border-subtle,#24362e)]">
+              <div className="h-2.5 w-full bg-[var(--surface-card)] rounded-full overflow-hidden border border-[var(--border-subtle)]">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full transition-all duration-500"
                   style={{ width: `${targetInfo.percentageCompleted}%` }}
@@ -73,8 +73,8 @@ export function KhatmahWidget() {
             </div>
 
             {/* Action Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[var(--border-subtle,#1a2621)]">
-              <div className="text-xs text-[var(--muted-foreground,#8e9b94)] w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--muted-foreground)] w-full sm:w-auto">
                 <span className="text-[var(--foreground)] font-semibold">Today&apos;s Portion:</span>{" "}
                 <span className="text-emerald-400 font-medium">
                   Surah {targetInfo.targetStart.chapterId}:{targetInfo.targetStart.verseNumber} → Surah {targetInfo.targetEnd.chapterId}:{targetInfo.targetEnd.verseNumber}
@@ -90,7 +90,7 @@ export function KhatmahWidget() {
                   <button
                     type="button"
                     onClick={markTodayGoalCompleted}
-                    className="px-3 py-1.5 rounded-xl bg-[var(--surface-card,#182520)] hover:bg-emerald-950/40 border border-[var(--border-subtle,#24362e)] text-emerald-400 text-xs font-semibold transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-[var(--surface-card)] hover:bg-emerald-950/40 border border-[var(--border-subtle)] text-emerald-400 text-xs font-semibold transition-colors"
                   >
                     Mark Today Done
                   </button>
@@ -116,7 +116,7 @@ export function KhatmahWidget() {
                 <h3 className="font-bold text-sm sm:text-base text-[var(--foreground)]">
                   Start a Daily Khatmah Reading Plan
                 </h3>
-                <p className="text-xs text-[var(--muted-foreground,#8e9b94)]">
+                <p className="text-xs text-[var(--muted-foreground)]">
                   Complete the Noble Quran at a fixed daily pace (7-day Sunnah minimum, 14-day, or 30-day options).
                 </p>
               </div>

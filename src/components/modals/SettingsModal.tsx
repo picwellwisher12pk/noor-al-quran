@@ -9,7 +9,8 @@ import { useAudio } from "@/context/AudioContext";
 import { AVAILABLE_TRANSLATIONS, AVAILABLE_TAFSIRS } from "@/services/quranApi";
 import { ArabicFontFamily, UrduFontFamily, ThemeStyle } from "@/types/quran";
 import { APP_CONFIG } from "@/config/version";
-import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe, CloudDownload } from "lucide-react";
+import { Settings, Sparkles, Moon, Sun, Type, BookOpen, Layers, LayoutList, AlignJustify, Globe, CloudDownload, Languages } from "lucide-react";
+import { LanguageToggle } from "@/components/common/LanguageToggle";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -73,7 +74,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       <div className="space-y-6">
         {/* Theme Section */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-3">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-3">
             Theme Architecture & Palette
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
@@ -87,14 +88,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
                     active
                       ? "border-emerald-500 bg-emerald-950/40 text-emerald-300 ring-1 ring-emerald-500"
-                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] text-[var(--foreground)] opacity-75 hover:opacity-100"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--foreground)] opacity-75 hover:opacity-100"
                   }`}
                 >
                   <div className="font-semibold text-xs flex items-center gap-1.5 mb-1">
                     <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
                     {t.name}
                   </div>
-                  <div className="text-[10px] text-[var(--muted-foreground,#8e9b94)] leading-tight">
+                  <div className="text-[10px] text-[var(--muted-foreground)] leading-tight">
                     {t.note}
                   </div>
                 </button>
@@ -103,7 +104,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* Light / Dark Mode Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)]">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
             <div className="flex items-center gap-2 text-sm font-medium">
               {themeMode === "dark" ? <Moon className="h-4 w-4 text-emerald-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
               <span>Mode: {themeMode === "dark" ? "Dark Theme" : "Light Theme"}</span>
@@ -111,7 +112,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             <button
               type="button"
               onClick={toggleThemeMode}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] hover:bg-emerald-600 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:bg-emerald-600 hover:text-white transition-colors"
             >
               Switch to {themeMode === "dark" ? "Light" : "Dark"}
             </button>
@@ -120,7 +121,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Arabic Font Selection */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-3">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-3">
             Quranic Arabic Font Script
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -134,7 +135,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   className={`p-3 rounded-xl border text-left transition-all ${
                     isSelected
                       ? "border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500"
-                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] hover:border-emerald-500/40"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-raised)] hover:border-emerald-500/40"
                   }`}
                 >
                   <div className="text-xs font-semibold text-[var(--foreground)] mb-1 flex items-center justify-between">
@@ -152,7 +153,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Urdu Translation Font Selection */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-3">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-3">
             Urdu Translation Font Script (اردو ترجمہ فونٹ)
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -166,7 +167,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   className={`p-3 rounded-xl border text-left transition-all ${
                     isSelected
                       ? "border-emerald-500 bg-emerald-950/40 ring-1 ring-emerald-500"
-                      : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-raised,#141e1a)] hover:border-emerald-500/40"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-raised)] hover:border-emerald-500/40"
                   }`}
                 >
                   <div className="text-xs font-semibold text-[var(--foreground)] mb-1 flex items-center justify-between">
@@ -184,12 +185,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Translation Settings (Urdu & English) */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block">
             Translations & Language Settings
           </label>
 
           {/* Urdu Translation Toggle & Selector */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-3">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-3">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm font-medium">Show Urdu Translation (اردو ترجمہ)</span>
               <input
@@ -201,14 +202,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </label>
 
             {prefs.showUrduTranslation && (
-              <div className="pt-2 border-t border-[var(--border-subtle,#24362e)]">
-                <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)] block mb-1">
+              <div className="pt-2 border-t border-[var(--border-subtle)]">
+                <span className="text-[11px] text-[var(--muted-foreground)] block mb-1">
                   Select Urdu Scholar / Translation:
                 </span>
                 <select
                   value={prefs.selectedUrduTranslationId}
                   onChange={(e) => setSelectedUrduTranslationId(Number(e.target.value))}
-                  className="w-full rounded-xl bg-[var(--surface-card,#182520)] px-3 py-2 text-xs text-[var(--foreground)] border border-[var(--border-subtle,#24362e)] focus:outline-none focus:border-emerald-500"
+                  className="w-full rounded-xl bg-[var(--surface-card)] px-3 py-2 text-xs text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500"
                 >
                   {urduTranslations.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -221,7 +222,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* English Translation Toggle */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-sm font-medium">Show English Translation</span>
               <input
@@ -236,13 +237,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Default Tafsir Preference */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-2">
             Default Tafseer Commentary
           </label>
           <select
             value={prefs.selectedTafsirId}
             onChange={(e) => setSelectedTafsirId(Number(e.target.value))}
-            className="w-full rounded-xl bg-[var(--surface-raised,#141e1a)] px-4 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle,#24362e)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+            className="w-full rounded-xl bg-[var(--surface-raised)] px-4 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 cursor-pointer"
           >
             {AVAILABLE_TAFSIRS.map((t) => (
               <option key={t.id} value={t.id}>
@@ -254,7 +255,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Audio Reciter */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block mb-2">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block mb-2">
             Audio Reciter
           </label>
           <select
@@ -263,7 +264,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               const selected = reciters.find((r) => r.id === Number(e.target.value));
               if (selected) setReciter(selected);
             }}
-            className="w-full rounded-xl bg-[var(--surface-raised,#141e1a)] px-4 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle,#24362e)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+            className="w-full rounded-xl bg-[var(--surface-raised)] px-4 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 cursor-pointer"
           >
             {reciters.map((r) => (
               <option key={r.id} value={r.id}>
@@ -275,12 +276,12 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Font Sizing Controls */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] block">
+          <label className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block">
             Typography Scaling
           </label>
 
           {/* Arabic Font Size */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-1.5">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1.5">
             <div className="flex items-center justify-between text-xs font-medium">
               <span className="flex items-center gap-1.5">
                 <Type className="h-4 w-4 text-emerald-400" /> Arabic Script Size
@@ -299,7 +300,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* Urdu Font Size */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-1.5">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1.5">
             <div className="flex items-center justify-between text-xs font-medium">
               <span className="flex items-center gap-1.5">
                 <Type className="h-4 w-4 text-emerald-400" /> Urdu Translation Size
@@ -318,7 +319,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* English Font Size */}
-          <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-1.5">
+          <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1.5">
             <div className="flex items-center justify-between text-xs font-medium">
               <span className="flex items-center gap-1.5">
                 <Type className="h-4 w-4 text-emerald-400" /> English Translation Size
@@ -338,9 +339,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </div>
 
         {/* Reading Layout Mode (Compact vs Cards) */}
-        <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-2.5">
+        <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1.5">
               <LayoutList className="h-4 w-4 text-emerald-400" /> Verse Stream Layout
             </span>
             <span className="text-xs text-emerald-400 font-mono capitalize">
@@ -354,7 +355,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
                 readingMode === "compact"
                   ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
-                  : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               <AlignJustify className="h-3.5 w-3.5" /> Compact (Default)
@@ -365,7 +366,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
                 readingMode === "continuous"
                   ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
-                  : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               <LayoutList className="h-3.5 w-3.5" /> Cards Mode
@@ -373,14 +374,25 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
         </div>
 
-        {/* Word-By-Word Language Selector */}
-        <div className="p-3.5 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] space-y-2.5">
+        {/* Global Application Language */}
+        <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground,#8e9b94)] flex items-center gap-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1.5">
+              <Languages className="h-4 w-4 text-emerald-400" /> Global App Language
+            </span>
+            <span className="text-xs text-[var(--muted-foreground)]">All App Aspects</span>
+          </div>
+          <LanguageToggle className="w-full justify-center py-1" />
+        </div>
+
+        {/* Word-By-Word Language Selector */}
+        <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1.5">
               <Globe className="h-4 w-4 text-emerald-400" /> Word-By-Word (WBW) Language
             </span>
             <label className="flex items-center gap-1.5 cursor-pointer">
-              <span className="text-xs text-[var(--muted-foreground,#8e9b94)]">Enabled</span>
+              <span className="text-xs text-[var(--muted-foreground)]">Enabled</span>
               <input
                 type="checkbox"
                 checked={prefs.showWordByWord}
@@ -398,7 +410,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
                   prefs.wbwLanguage === "english"
                     ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
-                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
                 English (Default)
@@ -409,7 +421,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className={`py-2 rounded-lg text-xs font-semibold font-urdu border transition-all ${
                   prefs.wbwLanguage === "urdu"
                     ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
-                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
                 اردو
@@ -420,7 +432,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 className={`py-2 rounded-lg text-xs font-semibold border transition-all ${
                   prefs.wbwLanguage === "both"
                     ? "border-emerald-500 bg-emerald-600 text-white shadow-sm"
-                    : "border-[var(--border-subtle,#24362e)] bg-[var(--surface-card,#182520)] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                    : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
               >
                 Both (اردو + Eng)
@@ -431,7 +443,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Display Toggles */}
         <div className="space-y-2">
-          <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] cursor-pointer">
+          <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] cursor-pointer">
             <span className="text-xs font-medium">Auto-scroll to reciting verse</span>
             <input
               type="checkbox"
@@ -458,9 +470,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </div>
 
         {/* App Version Info */}
-        <div className="pt-4 border-t border-[var(--border-subtle,#1e2925)] flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)]">
+        <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span>{APP_CONFIG.name}</span>
-          <span className="px-2 py-0.5 rounded-full bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] font-mono">
+          <span className="px-2 py-0.5 rounded-full bg-[var(--surface-raised)] border border-[var(--border-subtle)] font-mono">
             v{APP_CONFIG.version}
           </span>
         </div>

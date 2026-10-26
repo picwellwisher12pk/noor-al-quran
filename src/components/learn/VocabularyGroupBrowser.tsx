@@ -13,7 +13,9 @@ import {
   markWordMastered,
   resetWordStatus,
   VocabLangPreference,
+  loadUserVocabProgress,
 } from "@/services/vocabularyStorage";
+import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
 import {
   Search,
@@ -27,18 +29,29 @@ import {
 } from "lucide-react";
 
 interface VocabularyGroupBrowserProps {
-  masteredIds: string[];
-  langPreference: VocabLangPreference;
-  onProgressUpdate: () => void;
+  masteredIds?: string[];
+  langPreference?: VocabLangPreference;
+  onProgressUpdate?: () => void;
+  words?: QuranVocabWord[];
 }
 
 type GroupingMode = "semantic_clusters" | "categories" | "frequency_rank";
 
 export function VocabularyGroupBrowser({
-  masteredIds,
-  langPreference,
-  onProgressUpdate,
-}: VocabularyGroupBrowserProps) {
+  masteredIds: propMasteredIds,
+  langPreference: propLangPreference,
+  onProgressUpdate: propOnProgressUpdate,
+}: VocabularyGroupBrowserProps = {}) {
+  const { language } = useLanguage();
+  const langPreference: VocabLangPreference = propLangPreference || language;
+
+  const [internalProgress, setInternalProgress] = useState(() => loadUserVocabProgress());
+  const masteredIds = propMasteredIds || internalProgress.masteredWordIds;
+
+  const onProgressUpdate = () => {
+    setInternalProgress(loadUserVocabProgress());
+    propOnProgressUpdate?.();
+  };
   const { playWord } = useAudio();
   const [searchQuery, setSearchQuery] = useState("");
   const [groupingMode, setGroupingMode] = useState<GroupingMode>("semantic_clusters");
@@ -94,7 +107,7 @@ export function VocabularyGroupBrowser({
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Top Filter & Search Controls */}
-      <div className="p-4 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-sm space-y-3">
+      <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[240px]">
@@ -104,19 +117,19 @@ export function VocabularyGroupBrowser({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search words in Arabic, English, Urdu, or Root..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs text-[var(--foreground)] placeholder-[var(--muted-foreground,#8e9b94)] focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
 
           {/* Grouping View Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-xs">
+          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs">
             <button
               type="button"
               onClick={() => setGroupingMode("semantic_clusters")}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 groupingMode === "semantic_clusters"
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
@@ -128,7 +141,7 @@ export function VocabularyGroupBrowser({
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 groupingMode === "categories"
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               <Filter className="h-3.5 w-3.5" />
@@ -140,7 +153,7 @@ export function VocabularyGroupBrowser({
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
                 groupingMode === "frequency_rank"
                   ? "bg-emerald-600 text-white shadow-sm"
-                  : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)]"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               }`}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
@@ -150,7 +163,7 @@ export function VocabularyGroupBrowser({
         </div>
 
         {/* Quick Filter Pill */}
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)] pt-1">
+        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-1">
           <span>
             Showing <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> words
           </span>
@@ -181,10 +194,10 @@ export function VocabularyGroupBrowser({
             return (
               <div
                 key={cluster.id}
-                className="p-5 md:p-6 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-sm space-y-4"
+                className="p-5 md:p-6 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm space-y-4"
               >
                 {/* Cluster Header */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle,#24362e)]">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
@@ -194,7 +207,7 @@ export function VocabularyGroupBrowser({
                         {cluster.titleAr}
                       </span>
                     </div>
-                    <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+                    <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
                       {langPreference === "urdu" ? cluster.descriptionUrdu : cluster.description}
                     </p>
                   </div>
@@ -235,9 +248,9 @@ export function VocabularyGroupBrowser({
             return (
               <div
                 key={cat.id}
-                className="p-5 md:p-6 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-sm space-y-4"
+                className="p-5 md:p-6 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm space-y-4"
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle,#24362e)]">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
                       {cat.labelEn}
@@ -320,18 +333,18 @@ function WordCard({
       className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between select-none relative group ${
         isMastered
           ? "bg-emerald-950/20 border-emerald-500/40 shadow-sm"
-          : "bg-[var(--surface-card,#182520)] border-[var(--border-subtle,#24362e)] hover:border-emerald-500/30"
+          : "bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/30"
       }`}
     >
       {/* Card Header */}
-      <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground,#8e9b94)] mb-2">
+      <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] mb-2">
         <div className="flex items-center gap-1.5">
           {rank && (
-            <span className="w-5 h-5 rounded-md bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] flex items-center justify-center font-mono font-bold text-emerald-400">
+            <span className="w-5 h-5 rounded-md bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-center font-mono font-bold text-emerald-400">
               #{rank}
             </span>
           )}
-          <span className="px-2 py-0.5 rounded-md bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)]">
+          <span className="px-2 py-0.5 rounded-md bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
             {word.posLabelAr}
           </span>
           {word.root && (
@@ -344,7 +357,7 @@ function WordCard({
         <button
           type="button"
           onClick={onPlayAudio}
-          className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400 transition-colors"
+          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
           title="Play pronunciation"
         >
           <Volume2 className="h-3.5 w-3.5" />
@@ -369,15 +382,15 @@ function WordCard({
           </p>
         )}
         {showUrdu && (
-          <p className="font-urdu-nastaliq text-xs text-[var(--muted-foreground,#8e9b94)] leading-relaxed" dir="rtl">
+          <p className="font-urdu-nastaliq text-xs text-[var(--muted-foreground)] leading-relaxed" dir="rtl">
             {word.urdu}
           </p>
         )}
       </div>
 
       {/* Card Footer: Frequency & Mastered Button */}
-      <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle,#24362e)] text-[10px]">
-        <span className="font-mono text-[var(--muted-foreground,#8e9b94)]">
+      <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[10px]">
+        <span className="font-mono text-[var(--muted-foreground)]">
           {word.frequency.toLocaleString()}x ({percentContribution}%)
         </span>
 
@@ -387,7 +400,7 @@ function WordCard({
           className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border transition-all ${
             isMastered
               ? "bg-emerald-600 text-white border-emerald-500 font-semibold"
-              : "bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)] text-[var(--muted-foreground,#8e9b94)] hover:text-emerald-400"
+              : "bg-[var(--surface-raised)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400"
           }`}
         >
           <CheckCircle2 className="h-3 w-3" />

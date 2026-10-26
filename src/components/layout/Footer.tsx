@@ -7,7 +7,7 @@ import { BookOpen, Heart } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-[var(--card-border,#1e2c26)] bg-[var(--surface-raised,#101715)] py-10 text-xs text-[var(--muted-foreground,#8e9b94)]">
+    <footer className="mt-auto border-t border-[var(--card-border)] bg-[var(--surface-raised)] py-10 text-xs text-[var(--muted-foreground)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Col 1: About */}
@@ -23,7 +23,7 @@ export function Footer() {
               {APP_CONFIG.description} All Quranic text, word-by-word data, recitations, and tafsir are directly powered by the authentic Quran.com API v4.
             </p>
             <div className="pt-1">
-              <span className="px-2 py-0.5 rounded-md bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] font-mono text-[11px] text-emerald-400">
+              <span className="px-2 py-0.5 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] font-mono text-[11px] text-emerald-400">
                 Release v{APP_CONFIG.version}
               </span>
             </div>
@@ -77,9 +77,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="pt-6 border-t border-[var(--border-subtle,#1a2621)] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
+        <div className="pt-6 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
           <p>© 2026 {APP_CONFIG.name}. Built with authentic reverence.</p>
-          <p className="flex items-center gap-1 text-[var(--muted-foreground,#8e9b94)]">
+          <p className="flex items-center gap-1 text-[var(--muted-foreground)]">
             Dedicated for seekers of knowledge and remembrance.
           </p>
         </div>

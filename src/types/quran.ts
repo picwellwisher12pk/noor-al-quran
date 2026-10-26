@@ -12,6 +12,10 @@ export interface Chapter {
     language_name: string;
     name: string;
   };
+  translated_name_urdu?: {
+    language_name: string;
+    name: string;
+  };
 }
 
 export interface Word {

@@ -1,11 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --color-modal-bg: var(--modal-bg);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-card: var(--surface-card);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-card-border: var(--card-border);
+  --color-border-subtle: var(--border-subtle);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
 :root {
   /* Default / Hadith App Theme (Light) */
   --background: oklch(98.43% 0.0096 72.66);
   --foreground: oklch(24.21% 0.0364 55.89);
   --surface-raised: oklch(100% 0 0);
   --surface-card: oklch(97.61% 0.0141 74.43);
+  --surface-sunken: oklch(95.5% 0.012 73.0);
   --card-border: oklch(60.89% 0.1109 221.72 / 0.2);
   --border-subtle: oklch(60.89% 0.1109 221.72 / 0.15);
   --header-bg: oklch(98.43% 0.0096 72.66);
@@ -19,12 +32,14 @@
 }
 
 /* Hadith App Theme (Dark) */
+[data-theme="hadith-dark"],
 .theme-hadith.dark,
-:root:not(.theme-emerald):not(.theme-monochrome):not(.light) {
+:root:not(.theme-emerald):not(.theme-monochrome):not([data-theme^="emerald"]):not([data-theme^="monochrome"]):not(.light):not([data-mode="light"]) {
   --background: oklch(18.98% 0.0274 258.29);
   --foreground: oklch(98.42% 0.0034 247.86);
   --surface-raised: oklch(23.71% 0.0371 257.15);
   --surface-card: oklch(27.95% 0.0368 260.03);
+  --surface-sunken: oklch(15.5% 0.025 258.0);
   --card-border: oklch(79.71% 0.1339 211.53 / 0.25);
   --border-subtle: oklch(79.71% 0.1339 211.53 / 0.15);
   --header-bg: oklch(18.98% 0.0274 258.29);
@@ -38,12 +53,15 @@
 }
 
 /* Hadith App Theme (Light) */
+[data-theme="hadith-light"],
 .theme-hadith.light,
-:root:not(.theme-emerald):not(.theme-monochrome).light {
+:root:not(.theme-emerald):not(.theme-monochrome):not([data-theme^="emerald"]):not([data-theme^="monochrome"]).light,
+:root:not(.theme-emerald):not(.theme-monochrome):not([data-theme^="emerald"]):not([data-theme^="monochrome"])[data-mode="light"] {
   --background: oklch(98.43% 0.0096 72.66);
   --foreground: oklch(24.21% 0.0364 55.89);
   --surface-raised: oklch(100% 0 0);
   --surface-card: oklch(97.61% 0.0141 74.43);
+  --surface-sunken: oklch(95.5% 0.012 73.0);
   --card-border: oklch(60.89% 0.1109 221.72 / 0.2);
   --border-subtle: oklch(60.89% 0.1109 221.72 / 0.15);
   --header-bg: oklch(98.43% 0.0096 72.66);
@@ -57,11 +75,13 @@
 }
 
 /* Emerald Dark */
+[data-theme="emerald-dark"],
 .theme-emerald.dark {
   --background: oklch(17.35% 0.0197 171.13);
   --foreground: oklch(93.41% 0.0126 164.79);
   --surface-raised: oklch(22.2% 0.0259 169.29);
   --surface-card: oklch(26.31% 0.0331 169.16);
+  --surface-sunken: oklch(14.5% 0.018 171.0);
   --card-border: oklch(32.4% 0.0432 169.03);
   --border-subtle: oklch(29.19% 0.0382 170.48);
   --header-bg: oklch(18.57% 0.0215 173.64);
@@ -75,11 +95,13 @@
 }
 
 /* Emerald Light */
+[data-theme="emerald-light"],
 .theme-emerald.light {
   --background: oklch(98.23% 0.0041 157.18);
   --foreground: oklch(25.68% 0.0304 166.56);
   --surface-raised: oklch(100% 0 0);
   --surface-card: oklch(96.08% 0.0091 161.35);
+  --surface-sunken: oklch(94.2% 0.012 159.0);
   --card-border: oklch(90.16% 0.0202 164.54);
   --border-subtle: oklch(93.61% 0.0142 162.46);
   --header-bg: oklch(97.45% 0.0066 160.08);
@@ -93,11 +115,13 @@
 }
 
 /* Monochrome OLED Dark */
+[data-theme="monochrome-dark"],
 .theme-monochrome.dark {
   --background: oklch(0% 0 0);
   --foreground: oklch(96.74% 0.0013 286.38);
   --surface-raised: oklch(14.08% 0.0044 285.82);
   --surface-card: oklch(19.26% 0.006 285.82);
+  --surface-sunken: oklch(5% 0.002 286.0);
   --card-border: oklch(27.39% 0.0055 286.03);
   --border-subtle: oklch(24.1% 0.0076 285.82);
   --header-bg: oklch(0% 0 0);
@@ -111,11 +135,13 @@
 }
 
 /* Monochrome Pure Light */
+[data-theme="monochrome-light"],
 .theme-monochrome.light {
   --background: oklch(100% 0 0);
   --foreground: oklch(14.08% 0.0044 285.82);
   --surface-raised: oklch(98.51% 0 0);
   --surface-card: oklch(96.74% 0.0013 286.38);
+  --surface-sunken: oklch(94% 0.003 286.0);
   --card-border: oklch(91.97% 0.004 286.32);
   --border-subtle: oklch(94.37% 0.0027 286.35);
   --header-bg: oklch(100% 0 0);

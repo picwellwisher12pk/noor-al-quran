@@ -8,7 +8,7 @@ export default function NotFound() {
         <BookOpen className="h-8 w-8" />
       </div>
       <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Page Not Found</h1>
-      <p className="text-sm text-[var(--muted-foreground,#8e9b94)] max-w-md mb-8">
+      <p className="text-sm text-[var(--muted-foreground)] max-w-md mb-8">
         The requested chapter or ayah could not be located. Please check the number or return to the main index.
       </p>
       <Link

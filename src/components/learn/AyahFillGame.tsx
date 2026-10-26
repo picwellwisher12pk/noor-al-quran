@@ -7,6 +7,7 @@ import {
 } from "@/data/quranVocabularyData";
 import { saveGameScore, VocabLangPreference } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   BookOpen,
   Volume2,
@@ -19,8 +20,8 @@ import {
 } from "lucide-react";
 
 interface AyahFillGameProps {
-  langPreference: VocabLangPreference;
-  onScoreSaved: () => void;
+  langPreference?: VocabLangPreference;
+  onScoreSaved?: () => void;
 }
 
 interface AyahQuestion {
@@ -32,7 +33,12 @@ interface AyahQuestion {
 
 const TOTAL_ROUNDS = 8;
 
-export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps) {
+export function AyahFillGame({
+  langPreference: propLangPreference,
+  onScoreSaved,
+}: AyahFillGameProps = {}) {
+  const { language } = useLanguage();
+  const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
   const { playVerse } = useAudio();
   const [questions, setQuestions] = useState<AyahQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -118,7 +124,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
       setIsGameOver(true);
       const correctCount = TOTAL_ROUNDS - missedWords.length;
       saveGameScore("ayahFill", score, correctCount, TOTAL_ROUNDS);
-      onScoreSaved();
+      onScoreSaved?.();
     }
   };
 
@@ -136,7 +142,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
 
   if (questions.length === 0) {
     return (
-      <div className="p-8 text-center text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="p-8 text-center text-xs text-[var(--muted-foreground)]">
         Loading Ayah completion challenges...
       </div>
     );
@@ -148,7 +154,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
     const accuracy = Math.round((correctCount / TOTAL_ROUNDS) * 100);
 
     return (
-      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-2xl text-center space-y-6">
+      <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
@@ -158,23 +164,23 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
             Ayah Verse Completion
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Verse Challenge Complete!</h2>
-          <p className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-1">
+          <p className="text-xs text-[var(--muted-foreground)] mt-1">
             You practiced recognizing high-frequency vocabulary in authentic Quranic verses.
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Score</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Accuracy</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
-              {accuracy}% <span className="text-xs text-[var(--muted-foreground,#8e9b94)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
+              {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
             </span>
           </div>
-          <div className="p-4 rounded-2xl bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)]">
+          <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Best Streak</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-400" /> {maxStreak}
@@ -202,12 +208,12 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       {/* Top HUD */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] text-xs shadow-sm">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
             Ayah {currentIndex + 1} of {TOTAL_ROUNDS}
           </span>
-          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card,#182520)] overflow-hidden">
+          <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
               className="h-full bg-emerald-500 transition-all duration-300"
               style={{ width: `${((currentIndex + 1) / TOTAL_ROUNDS) * 100}%` }}
@@ -226,8 +232,8 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
       </div>
 
       {/* Ayah Card with Blank */}
-      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised,#141e1a)] border-2 border-[var(--card-border,#1e2c26)] text-center shadow-lg relative overflow-hidden space-y-4">
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground,#8e9b94)]">
+      <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-4">
+        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
             <BookOpen className="h-3.5 w-3.5" /> Surah {sample.surahName} [{sample.surah}:{sample.ayah}]
           </span>
@@ -251,14 +257,14 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
         </div>
 
         {/* Translations with Context */}
-        <div className="pt-2 border-t border-[var(--border-subtle,#24362e)] space-y-1.5 text-xs text-left">
+        <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs text-left">
           {showEnglish && (
-            <p className="text-[var(--muted-foreground,#8e9b94)] italic">
+            <p className="text-[var(--muted-foreground)] italic">
               &ldquo;{sample.englishText}&rdquo;
             </p>
           )}
           {showUrdu && (
-            <p className="font-urdu-nastaliq text-[var(--muted-foreground,#8e9b94)] text-right" dir="rtl">
+            <p className="font-urdu-nastaliq text-[var(--muted-foreground)] text-right" dir="rtl">
               {sample.urduText}
             </p>
           )}
@@ -268,7 +274,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
       {/* 4 Candidate Word Options */}
       <div className="grid grid-cols-2 gap-3">
         {currentQ.options.map((option, idx) => {
-          let btnStyle = "bg-[var(--surface-raised,#141e1a)] border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--surface-card,#182520)] text-[var(--foreground)]";
+          let btnStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] text-[var(--foreground)]";
 
           if (isAnswered) {
             if (idx === currentQ.correctIndex) {
@@ -276,7 +282,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
             } else if (idx === selectedOptionIndex) {
               btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300";
             } else {
-              btnStyle = "opacity-40 bg-[var(--surface-raised,#141e1a)] border-[var(--border-subtle,#24362e)]";
+              btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
           }
 
@@ -294,7 +300,7 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
               <span className="text-xs text-emerald-400 font-medium">
                 {option.transliteration}
               </span>
-              <span className="text-[11px] text-[var(--muted-foreground,#8e9b94)]">
+              <span className="text-[11px] text-[var(--muted-foreground)]">
                 {langPreference === "urdu" ? option.urdu : option.english}
               </span>
             </button>
@@ -304,12 +310,12 @@ export function AyahFillGame({ langPreference, onScoreSaved }: AyahFillGameProps
 
       {/* Answer Feedback & Next Button */}
       {isAnswered && (
-        <div className="p-4 rounded-2xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
+        <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
             <span className="font-semibold text-emerald-400 block">
               Word: {currentQ.word.arabic} ({currentQ.word.english})
             </span>
-            <span className="text-[var(--muted-foreground,#8e9b94)]">
+            <span className="text-[var(--muted-foreground)]">
               {currentQ.word.frequency.toLocaleString()} occurrences in Quran &bull; {currentQ.word.posLabelAr}
             </span>
           </div>

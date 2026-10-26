@@ -28,14 +28,14 @@ export function JuzList({ juzs, chapters }: JuzListProps) {
         return (
           <div
             key={juz.juz_number}
-            className="group relative rounded-2xl p-5 bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg,#1a2621)] transition-all flex flex-col justify-between shadow-sm"
+            className="group relative rounded-2xl p-5 bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg)] transition-all flex flex-col justify-between shadow-sm"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="flex items-center justify-center h-8 w-8 rounded-xl bg-emerald-950/50 border border-emerald-800/40 text-xs font-mono font-bold text-emerald-400">
                   {juz.juz_number}
                 </span>
-                <span className="text-xs text-[var(--muted-foreground,#8e9b94)] font-medium">
+                <span className="text-xs text-[var(--muted-foreground)] font-medium">
                   {juz.verses_count} Verses
                 </span>
               </div>
@@ -44,7 +44,7 @@ export function JuzList({ juzs, chapters }: JuzListProps) {
                 Juz {juz.juz_number}
               </h3>
 
-              <div className="text-xs text-[var(--muted-foreground,#8e9b94)] mt-2 space-y-1">
+              <div className="text-xs text-[var(--muted-foreground)] mt-2 space-y-1">
                 <p>
                   Starts at:{" "}
                   <span className="text-emerald-400 font-medium">
@@ -57,7 +57,7 @@ export function JuzList({ juzs, chapters }: JuzListProps) {
               </div>
             </div>
 
-            <div className="pt-4 mt-4 border-t border-[var(--border-subtle,#1a2621)] flex justify-end">
+            <div className="pt-4 mt-4 border-t border-[var(--border-subtle)] flex justify-end">
               <Link
                 href={`/surah/${firstChapterId}?ayah=${startAyah}`}
                 className="px-3 py-1.5 rounded-lg bg-emerald-600/15 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-semibold transition-all flex items-center gap-1.5"

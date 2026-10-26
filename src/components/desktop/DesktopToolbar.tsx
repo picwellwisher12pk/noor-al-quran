@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface DesktopToolbarProps {
   chapterId: number;
@@ -43,6 +44,7 @@ export function DesktopToolbar({
   } = useReadingPreferences();
 
   const { isPlaying, playSurah, togglePlayPause, currentChapterId } = useAudio();
+  const { isUrdu } = useLanguage();
   const isThisChapterPlaying = isPlaying && currentChapterId === chapterId;
 
   const handleAyahJump = (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,14 +60,14 @@ export function DesktopToolbar({
   };
 
   return (
-    <div className="h-11 w-full flex-none flex items-center justify-between px-4 bg-[var(--surface-raised,#141e1a)] border-b border-[var(--border-subtle,#1e2c26)] select-none text-xs z-20">
+    <div className="h-11 w-full flex-none flex items-center justify-between px-4 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none text-xs z-20">
       {/* Left: Previous / Next Surah & Chapter Title */}
       <div className="flex items-center gap-2">
         {/* Prev Surah */}
         {chapterId > 1 ? (
           <Link
             href={`/surah/${chapterId - 1}`}
-            className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+            className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
             title="Previous Surah"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -82,8 +84,8 @@ export function DesktopToolbar({
           <span className="font-arabic text-base text-emerald-400 font-semibold" dir="rtl">
             {chapterArabic}
           </span>
-          <span className="text-[10px] text-[var(--muted-foreground,#8e9b94)]">
-            ({totalAyahs} Ayahs)
+          <span className="text-[10px] text-[var(--muted-foreground)]">
+            ({totalAyahs} {isUrdu ? "آیات" : "Ayahs"})
           </span>
         </div>
 
@@ -91,8 +93,8 @@ export function DesktopToolbar({
         {chapterId < 114 ? (
           <Link
             href={`/surah/${chapterId + 1}`}
-            className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
-            title="Next Surah"
+            className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
+            title={isUrdu ? "اگلی سورت" : "Next Surah"}
           >
             <ChevronRight className="h-4 w-4" />
           </Link>
@@ -108,13 +110,13 @@ export function DesktopToolbar({
             min={1}
             max={totalAyahs}
             placeholder={`1..${totalAyahs}`}
-            className="w-14 px-2 py-0.5 text-[11px] rounded bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono"
+            className="w-14 px-2 py-0.5 text-[11px] rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono"
           />
           <button
             type="submit"
-            className="px-2 py-0.5 rounded bg-[var(--surface-card,#182520)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle,#24362e)] text-[10px] font-semibold text-[var(--muted-foreground,#8e9b94)] transition-colors"
+            className="px-2 py-0.5 rounded bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-[10px] font-semibold text-[var(--muted-foreground)] transition-colors"
           >
-            Jump
+            {isUrdu ? "چھلانگ" : "Jump"}
           </button>
         </form>
       </div>
@@ -122,11 +124,11 @@ export function DesktopToolbar({
       {/* Right: Font Controls, Preferences & Play Surah */}
       <div className="flex items-center gap-2">
         {/* Font Size A- / A+ */}
-        <div className="flex items-center rounded-lg bg-[var(--surface-card,#182520)] p-0.5 border border-[var(--border-subtle,#24362e)] text-[11px]">
+        <div className="flex items-center rounded-lg bg-[var(--surface-card)] p-0.5 border border-[var(--border-subtle)] text-[11px]">
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.max(22, prefs.arabicFontSize - 2))}
-            className="px-2 py-0.5 text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] font-bold"
+            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold"
             title="Decrease Arabic Font Size"
           >
             A-
@@ -137,7 +139,7 @@ export function DesktopToolbar({
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.min(56, prefs.arabicFontSize + 2))}
-            className="px-2 py-0.5 text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] font-bold"
+            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold"
             title="Increase Arabic Font Size"
           >
             A+
@@ -148,22 +150,22 @@ export function DesktopToolbar({
         <button
           type="button"
           onClick={() => setIsDownloadManagerOpen(true)}
-          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] hover:bg-[var(--surface-raised,#1f2924)] border border-[var(--border-subtle,#24362e)] text-[11px] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
+          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
           title="Offline Storage & Pre-download Manager"
         >
           <CloudDownload className="h-3.5 w-3.5 text-emerald-400" />
-          <span className="hidden sm:inline">Offline</span>
+          <span className="hidden sm:inline">{isUrdu ? "آف لائن" : "Offline"}</span>
         </button>
 
         {/* Preferences Shortcut Button */}
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] hover:bg-[var(--surface-raised,#1f2924)] border border-[var(--border-subtle,#24362e)] text-[11px] text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
+          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
           title="Reading Preferences & Display Settings"
         >
           <Settings className="h-3.5 w-3.5 text-emerald-400" />
-          <span className="hidden md:inline">Preferences</span>
+          <span className="hidden md:inline">{isUrdu ? "ترتیبات" : "Preferences"}</span>
         </button>
 
         {/* Play Surah Button */}
@@ -178,12 +180,22 @@ export function DesktopToolbar({
           }}
           className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
             isThisChapterPlaying
-              ? "bg-amber-600 hover:bg-amber-500 text-white animate-pulse"
-              : "bg-emerald-600 hover:bg-emerald-500 text-white"
+              ? "bg-emerald-600 text-white shadow-emerald-900/30"
+              : "bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300"
           }`}
+          title={isThisChapterPlaying ? "Pause Recitation" : "Recite Entire Surah"}
         >
-          {isThisChapterPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-          <span className="hidden sm:inline">{isThisChapterPlaying ? "Pause" : "Play Surah"}</span>
+          {isThisChapterPlaying ? (
+            <>
+              <Pause className="h-3.5 w-3.5" />
+              <span>{isUrdu ? "وقفہ" : "Pause"}</span>
+            </>
+          ) : (
+            <>
+              <Play className="h-3.5 w-3.5" />
+              <span>{isUrdu ? "سورت سنیں" : "Play Surah"}</span>
+            </>
+          )}
         </button>
       </div>
     </div>

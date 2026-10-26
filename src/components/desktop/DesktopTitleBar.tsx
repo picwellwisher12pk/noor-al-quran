@@ -23,8 +23,17 @@ import {
   CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { isTauri as checkIsTauri, safeCloseWindow, safeMinimizeWindow, safeToggleMaximize } from "@/utils/platform";
+import { useLanguage } from "@/context/LanguageContext";
+import { LanguageToggle } from "@/components/common/LanguageToggle";
 
 export function DesktopTitleBar() {
+  const pathname = usePathname();
+  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isLearnRoute = pathname.startsWith("/learn");
+  const isCalendarRoute = pathname.startsWith("/calendar");
+
   const {
     isLeftSidebarOpen,
     toggleLeftSidebar,
@@ -41,54 +50,41 @@ export function DesktopTitleBar() {
   const { themeMode, toggleThemeMode } = useTheme();
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
   const { currentStreak } = useReadingActivity();
+  const { isUrdu } = useLanguage();
   const [isTauri, setIsTauri] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
-      setIsTauri(true);
-    }
+    setIsTauri(checkIsTauri());
   }, []);
 
   const activeChapter = chapters.find((c) => c.id === activeChapterId);
 
   // Window Action Handlers (Supports both Native Tauri window and Browser fallback)
   const handleWindowClose = () => {
-    if (isTauri) {
-      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().close()).catch(() => {});
-    } else {
-      window.location.href = "/";
-    }
+    safeCloseWindow();
   };
 
   const handleWindowMinimize = () => {
     if (isTauri) {
-      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().minimize()).catch(() => {});
+      safeMinimizeWindow();
     } else {
       toggleLeftSidebar();
     }
   };
 
   const handleWindowMaximize = () => {
-    if (isTauri) {
-      import("@tauri-apps/api/window").then((w) => w.getCurrentWindow().toggleMaximize()).catch(() => {});
-    } else {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
-    }
+    safeToggleMaximize();
   };
 
   return (
     <header
       data-tauri-drag-region
-      className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised,#141e1a)] border-b border-[var(--border-subtle,#1e2c26)] select-none z-40 text-xs"
+      className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-40 text-xs"
     >
       {/* Left: Window controls & App Branding */}
       <div className="flex items-center gap-3" data-tauri-drag-region>
         {/* Window Control Buttons */}
-        <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-subtle,#24362e)]">
+        <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-subtle)]">
           <button
             type="button"
             onClick={handleWindowClose}
@@ -113,7 +109,7 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={toggleLeftSidebar}
-          className="p-1 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
           title="Toggle Navigation Sidebar (Ctrl+B)"
         >
           {isLeftSidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
@@ -141,15 +137,15 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="flex items-center justify-between w-64 md:w-80 px-2.5 py-1 rounded-lg bg-[var(--surface-card,#182520)] border border-[var(--border-subtle,#24362e)] hover:border-emerald-500/40 text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] transition-all shadow-inner text-xs"
+          className="flex items-center justify-between w-64 md:w-80 px-2.5 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all shadow-inner text-xs"
         >
           <div className="flex items-center gap-2 truncate">
             <Search className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
             <span className="truncate">
-              {activeChapter ? `${activeChapter.id}. ${activeChapter.name_simple} (${activeChapter.name_arabic})` : "Search Surah, Ayah or Word..."}
+              {activeChapter ? `${activeChapter.id}. ${activeChapter.name_simple} (${activeChapter.name_arabic})` : (isUrdu ? "سورت، آیت یا لفظ تلاش کریں..." : "Search Surah, Ayah or Word...")}
             </span>
           </div>
-          <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-raised,#141e1a)] border border-[var(--border-subtle,#24362e)] text-[var(--muted-foreground,#8e9b94)]">
+          <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--muted-foreground)]">
             Ctrl+K
           </kbd>
         </button>
@@ -157,38 +153,41 @@ export function DesktopTitleBar() {
 
       {/* Right: Tools & Toggles */}
       <div className="flex items-center gap-1.5">
-        {/* Reading Streak & Calendar Link */}
-        <Link
-          href="/calendar"
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition-all shadow-sm ${
-            currentStreak > 0
-              ? "bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300"
-              : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-300 hover:text-white"
-          }`}
-          title="Quran Reading Calendar & Daily Streak"
-        >
-          {currentStreak > 0 ? (
-            <>
-              <Flame className="h-3 w-3 text-amber-400 fill-amber-400 animate-pulse" />
-              <span>{currentStreak}d Streak</span>
-            </>
-          ) : (
-            <>
-              <CalendarDays className="h-3 w-3 text-emerald-400" />
-              <span className="hidden sm:inline">Calendar</span>
-            </>
-          )}
-        </Link>
+        {/* Active Streak Badge (Only visible when active streak > 0 and not already on calendar) */}
+        {currentStreak > 0 && !isCalendarRoute && (
+          <Link
+            href="/calendar"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-[11px] font-semibold transition-all shadow-sm"
+            title="Quran Reading Calendar & Daily Streak"
+          >
+            <Flame className="h-3 w-3 text-amber-400 fill-amber-400" />
+            <span>{currentStreak}d</span>
+          </Link>
+        )}
 
-        {/* Learn 70% Quran Words Link */}
-        <Link
-          href="/learn"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition-all shadow-sm"
-          title="Learn 70% Quran Words, Flashcards & Games"
-        >
-          <Sparkles className="h-3 w-3 text-emerald-400" />
-          <span className="hidden sm:inline">Learn Words</span>
-        </Link>
+        {/* Contextual Primary Module Switch */}
+        {isLearnRoute || isCalendarRoute ? (
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] text-[11px] font-semibold transition-all shadow-sm"
+            title="Return to Noble Quran Reader Workstation"
+          >
+            <BookOpen className="h-3 w-3 text-emerald-500" />
+            <span className="hidden sm:inline">{isUrdu ? "مصحف قرآن" : "Holy Quran"}</span>
+          </Link>
+        ) : (
+          <Link
+            href="/learn"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold transition-all shadow-sm"
+            title="Learn 70% Quran Words, Flashcards & Games"
+          >
+            <Sparkles className="h-3 w-3 text-emerald-400" />
+            <span className="hidden sm:inline">{isUrdu ? "الفاظ سیکھیں" : "Learn Words"}</span>
+          </Link>
+        )}
+
+        {/* Global Language Toggle */}
+        <LanguageToggle />
 
         {/* Audio Playing Pill */}
         {isPlaying && (
@@ -206,7 +205,7 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={toggleThemeMode}
-          className="p-1.5 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
           title={`Switch Mode (Current: ${themeMode})`}
         >
           {themeMode === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
@@ -216,7 +215,7 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={() => setIsDownloadManagerOpen(true)}
-          className="p-1.5 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
           title="Offline Storage & Pre-downloads"
         >
           <CloudDownload className="h-3.5 w-3.5 text-emerald-400" />
@@ -226,25 +225,27 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="p-1.5 rounded-md text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)] transition-colors"
+          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
           title="Open Settings Panel"
         >
           <Settings className="h-3.5 w-3.5" />
         </button>
 
-        {/* Right Inspector Toggle */}
-        <button
-          type="button"
-          onClick={toggleRightInspector}
-          className={`p-1.5 rounded-md transition-colors ${
-            isRightInspectorOpen
-              ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
-              : "text-[var(--muted-foreground,#8e9b94)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card,#182520)]"
-          }`}
-          title="Toggle Linguistic & Tafseer Inspector (Ctrl+\)"
-        >
-          {isRightInspectorOpen ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
-        </button>
+        {/* Right Inspector Toggle (Only visible on Quran reading pages) */}
+        {isReadingPage && (
+          <button
+            type="button"
+            onClick={toggleRightInspector}
+            className={`p-1.5 rounded-md transition-colors ${
+              isRightInspectorOpen
+                ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+            }`}
+            title="Toggle Linguistic & Tafseer Inspector (Ctrl+\)"
+          >
+            {isRightInspectorOpen ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
+          </button>
+        )}
       </div>
     </header>
   );

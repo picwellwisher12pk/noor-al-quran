@@ -47,6 +47,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.remove("theme-hadith", "theme-emerald", "theme-monochrome", "dark", "light");
     root.classList.add(`theme-${themeStyle}`);
     root.classList.add(themeMode);
+    root.dataset.theme = `${themeStyle}-${themeMode}`;
+    root.dataset.themeStyle = themeStyle;
+    root.dataset.mode = themeMode;
   }, [themeStyle, themeMode, mounted]);
 
   const toggleThemeMode = () => {

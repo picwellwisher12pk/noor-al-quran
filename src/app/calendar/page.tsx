@@ -24,20 +24,20 @@ export default function CalendarPage() {
   const selectedRecord = inspectDate ? records[inspectDate] || null : null;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-5 pb-24 space-y-6 text-[var(--foreground,#f1f5f9)]">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-5 pb-24 space-y-6 text-[var(--foreground)]">
       {/* 1. COMPACT CALENDAR NAVBAR */}
-      <div className="p-3.5 sm:p-4 rounded-3xl bg-[var(--surface-raised,#141e1a)] border border-[var(--card-border,#1e2c26)] shadow-md flex flex-wrap items-center justify-between gap-3">
+      <div className="p-3.5 sm:p-4 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-md flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="p-2 sm:p-2.5 rounded-2xl bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1a2621)] text-[var(--foreground,#f1f5f9)] transition-colors border border-[var(--border-subtle,#24362e)]"
+            className="p-2 sm:p-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors border border-[var(--border-subtle)]"
             title="Return to Quran Reader"
           >
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-[var(--foreground,#f1f5f9)]">
+              <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-[var(--foreground)]">
                 Reading Calendar &amp; Streak
               </h1>
               <span className="font-arabic text-xs sm:text-sm text-emerald-400 font-semibold hidden sm:inline" dir="rtl">
@@ -50,7 +50,7 @@ export default function CalendarPage() {
                 </div>
               )}
             </div>
-            <p className="text-[11px] sm:text-xs text-[var(--muted-foreground,#8e9b94)] mt-0.5">
+            <p className="text-[11px] sm:text-xs text-[var(--muted-foreground)] mt-0.5">
               Daily consistency, verses read across calendar dates, and devotion infographics
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function CalendarPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/learn"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--surface-card,#182520)] hover:bg-[var(--hover-bg,#1a2621)] text-emerald-400 border border-[var(--border-subtle,#24362e)] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-emerald-400 border border-[var(--border-subtle)] transition-colors"
           >
             <GraduationCap className="h-3.5 w-3.5" />
             <span>Learn Studio</span>
