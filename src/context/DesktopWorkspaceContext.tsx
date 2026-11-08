@@ -56,6 +56,14 @@ interface DesktopWorkspaceContextType {
   setIsSettingsOpen: (open: boolean) => void;
   isDownloadManagerOpen: boolean;
   setIsDownloadManagerOpen: (open: boolean) => void;
+
+  // Mobile specific drawers & sheets
+  isMobileSurahDrawerOpen: boolean;
+  setIsMobileSurahDrawerOpen: (open: boolean) => void;
+  isMobileInspectorOpen: boolean;
+  setIsMobileInspectorOpen: (open: boolean) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 const DesktopWorkspaceContext = createContext<DesktopWorkspaceContextType | undefined>(undefined);
@@ -82,19 +90,30 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDownloadManagerOpen, setIsDownloadManagerOpen] = useState(false);
+
+  // Mobile drawer states
+  const [isMobileSurahDrawerOpen, setIsMobileSurahDrawerOpen] = useState(false);
+  const [isMobileInspectorOpen, setIsMobileInspectorOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const [mounted, setMounted] = useState(false);
 
   // Restore persistent workspace state from localStorage on mount
   useEffect(() => {
+    const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 1024;
     try {
       const savedReadingMode = localStorage.getItem("naq_reading_mode") as ReadingLayoutMode;
       if (savedReadingMode === "continuous" || savedReadingMode === "compact" || savedReadingMode === "mushaf") {
         setReadingMode(savedReadingMode);
       }
 
-      const savedSidebar = localStorage.getItem("naq_desktop_sidebar_open");
-      if (savedSidebar !== null) {
-        setLeftSidebarOpen(savedSidebar === "true");
+      if (isMobileViewport) {
+        setLeftSidebarOpen(false);
+      } else {
+        const savedSidebar = localStorage.getItem("naq_desktop_sidebar_open");
+        if (savedSidebar !== null) {
+          setLeftSidebarOpen(savedSidebar === "true");
+        }
       }
 
       const savedInspector = localStorage.getItem("naq_desktop_inspector_open");
@@ -190,6 +209,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahArabic(word.text_uthmani || word.text);
     setActiveInspectorTab("morphology");
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const openTafsirInInspector = (verseKey: string, arabicText: string) => {
@@ -197,6 +217,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahArabic(arabicText);
     setActiveInspectorTab("tafseer");
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const openAyahInInspector = (verseKey: string, arabicText: string) => {
@@ -204,10 +225,12 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahArabic(arabicText);
     setActiveInspectorTab("scholars");
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const closeInspector = () => {
     setRightInspectorOpen(false);
+    setIsMobileInspectorOpen(false);
   };
 
   return (
@@ -253,6 +276,13 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setIsSettingsOpen,
         isDownloadManagerOpen,
         setIsDownloadManagerOpen,
+
+        isMobileSurahDrawerOpen,
+        setIsMobileSurahDrawerOpen,
+        isMobileInspectorOpen,
+        setIsMobileInspectorOpen,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
       }}
     >
       {children}

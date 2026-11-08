@@ -25,6 +25,7 @@ import {
   Languages,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface DraggableSettingsPanelProps {
   isOpen: boolean;
@@ -49,6 +50,7 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
     setSelectedUrduTranslationId,
   } = useReadingPreferences();
   const { reciters, currentReciter, setReciter } = useAudio();
+  const isMobile = useIsMobile();
 
   const [isMinimized, setIsMinimized] = useState(false);
   const [position, setPosition] = useState({ x: 20, y: 80 });
@@ -120,33 +122,58 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
   const urduTranslations = AVAILABLE_TRANSLATIONS.filter((t) => t.language === "urdu");
 
   return (
-    <aside
-      aria-label="Interactive reading settings panel"
-      className="fixed z-50 transition-shadow select-none"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: isMinimized ? "auto" : "360px",
-      }}
-    >
-      {/* Container with Frosted Glass Styling */}
-      <div className="rounded-2xl bg-[var(--surface-raised)]/95 backdrop-blur-md border border-[var(--card-border)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        {/* Drag Handle & Header */}
+    <>
+      {/* Mobile Backdrop */}
+      {isMobile && (
         <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          className={`flex items-center justify-between px-3.5 py-2.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] cursor-grab active:cursor-grabbing ${
-            isDragging ? "bg-emerald-950/40" : ""
+          onClick={onClose}
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
+        />
+      )}
+
+      <aside
+        aria-label="Interactive reading settings panel"
+        className={`fixed z-50 select-none ${
+          isMobile
+            ? "inset-x-0 bottom-0 max-h-[85vh] w-full"
+            : "transition-shadow"
+        }`}
+        style={
+          isMobile
+            ? undefined
+            : {
+                left: `${position.x}px`,
+                top: `${position.y}px`,
+                width: isMinimized ? "auto" : "360px",
+              }
+        }
+      >
+        {/* Container with Frosted Glass Styling */}
+        <div
+          className={`bg-[var(--surface-raised)]/95 backdrop-blur-md border border-[var(--card-border)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${
+            isMobile
+              ? "rounded-t-3xl border-b-0 pb-[env(safe-area-inset-bottom,0px)]"
+              : "rounded-2xl"
           }`}
         >
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
-            <GripHorizontal className="h-4 w-4 text-[var(--muted-foreground)]" />
-            <Settings className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Live Settings (Drag Me)</span>
-          </div>
+          {/* Drag Handle & Header */}
+          <div
+            onPointerDown={!isMobile ? handlePointerDown : undefined}
+            onPointerMove={!isMobile ? handlePointerMove : undefined}
+            onPointerUp={!isMobile ? handlePointerUp : undefined}
+            className={`flex items-center justify-between px-3.5 py-2.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] ${
+              !isMobile
+                ? "cursor-grab active:cursor-grabbing"
+                : ""
+            } ${isDragging ? "bg-emerald-950/40" : ""}`}
+          >
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
+              {!isMobile && <GripHorizontal className="h-4 w-4 text-[var(--muted-foreground)]" />}
+              <Settings className="h-3.5 w-3.5 text-emerald-400" />
+              <span>{isMobile ? "Reading & Display Settings" : "Live Settings (Drag Me)"}</span>
+            </div>
 
-          <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => setIsMinimized(!isMinimized)}
@@ -513,5 +540,6 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
         )}
       </div>
     </aside>
+  </>
   );
 }

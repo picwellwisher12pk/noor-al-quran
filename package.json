@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +10,11 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+    "tauri:android:init": "tauri android init",
+    "tauri:android:dev": "tauri android dev",
+    "tauri:android:build": "tauri android build",
+    "tauri:ios:init": "tauri ios init",
+    "tauri:ios:dev": "tauri ios dev",
     "seed:learning": "bun run scripts/seed-quran-learning.ts",
     "test:engine": "bun run scripts/test-quiz-engine.ts"
   },

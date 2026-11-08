@@ -75,14 +75,14 @@ export function DesktopToolbar({
         )}
 
         {/* Current Surah Title */}
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-sm text-[var(--foreground)]">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <span className="font-bold text-xs sm:text-sm text-[var(--foreground)] truncate max-w-[100px] sm:max-w-none">
             {chapterId}. {chapterName}
           </span>
-          <span className="font-arabic text-base text-emerald-400 font-semibold" dir="rtl">
+          <span className="font-arabic text-sm sm:text-base text-emerald-600 dark:text-emerald-400 font-semibold hidden sm:inline" dir="rtl">
             {chapterArabic}
           </span>
-          <span className="text-[10px] text-[var(--muted-foreground)]">
+          <span className="text-[10px] text-[var(--muted-foreground)] hidden md:inline">
             ({totalAyahs} {isUrdu ? "آیات" : "Ayahs"})
           </span>
         </div>
@@ -176,12 +176,12 @@ export function DesktopToolbar({
           {isThisChapterPlaying ? (
             <>
               <Pause className="h-3.5 w-3.5" />
-              <span>{isUrdu ? "وقفہ" : "Pause"}</span>
+              <span className="hidden sm:inline">{isUrdu ? "وقفہ" : "Pause"}</span>
             </>
           ) : (
             <>
               <Play className="h-3.5 w-3.5" />
-              <span>{isUrdu ? "سورت سنیں" : "Play Surah"}</span>
+              <span className="hidden sm:inline">{isUrdu ? "سورت سنیں" : "Play Surah"}</span>
             </>
           )}
         </button>
