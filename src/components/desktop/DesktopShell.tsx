@@ -3,6 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { DesktopTitleBar } from "./DesktopTitleBar";
 import { DesktopSidebar } from "./DesktopSidebar";
 import { DesktopRightInspector } from "./DesktopRightInspector";
@@ -24,6 +25,7 @@ interface DesktopShellProps {
 export function DesktopShell({ children }: DesktopShellProps) {
   const pathname = usePathname();
   const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isMobile = useIsMobile();
 
   const {
     isSearchOpen,
@@ -38,62 +40,61 @@ export function DesktopShell({ children }: DesktopShellProps) {
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background)] text-[var(--foreground)] select-none">
-      {/* 1. TOP BARS */}
-      {/* Desktop Window Titlebar (40px) - Desktop only (>= 1024px) */}
-      <div className="hidden lg:block w-full flex-none">
-        <DesktopTitleBar />
-      </div>
+      {/* Dynamic Layout Branching: Strictly isolate Desktop and Mobile navigation */}
+      {isMobile ? (
+        /* ================= MOBILE PHONE VIEWPORT (< 768px) ================= */
+        <>
+          {/* 1. Mobile Top App Header */}
+          <MobileHeader />
 
-      {/* Mobile Top Header (52px + safe-area-inset-top) - Mobile only (< 1024px) */}
-      <MobileHeader />
+          {/* 2. Main Mobile Canvas */}
+          <main className="flex-1 h-full overflow-y-auto relative flex flex-col select-text pb-20">
+            {children}
+          </main>
 
-      {/* 2. MAIN WORKSPACE / CANVAS */}
-      <div className="flex-1 w-full flex overflow-hidden relative">
-        {/* Desktop Left Navigation Rail & Explorer (Collapsible) - Desktop only */}
-        <div className="hidden lg:flex h-full flex-none">
-          <DesktopSidebar />
-        </div>
+          {/* 3. Mobile Docked Audio Player */}
+          <MobileAudioBar />
 
-        {/* Center Primary Reading & App Canvas */}
-        <main className="flex-1 h-full overflow-y-auto relative flex flex-col select-text pb-14 lg:pb-0">
-          {children}
-        </main>
+          {/* 4. Mobile Bottom Tab Bar */}
+          <MobileBottomNav />
 
-        {/* Desktop Right Linguistic & Tafseer Inspector (Collapsible) - Desktop only on reading pages */}
-        {isReadingPage && (
-          <div className="hidden lg:flex h-full flex-none">
-            <DesktopRightInspector />
+          {/* 5. Mobile Drawers & Sheets */}
+          <MobileSurahDrawer />
+          <MobileInspectorSheet />
+        </>
+      ) : (
+        /* ================= DESKTOP / TABLET VIEWPORT (>= 768px) ================= */
+        <>
+          {/* 1. Desktop Window Titlebar (40px) */}
+          <DesktopTitleBar />
+
+          {/* 2. Desktop Workspace / Canvas */}
+          <div className="flex-1 w-full flex overflow-hidden relative">
+            {/* Desktop Left Rail & Explorer (Collapsible) */}
+            <DesktopSidebar />
+
+            {/* Center Primary Reading & App Canvas */}
+            <main className="flex-1 h-full overflow-y-auto relative flex flex-col select-text">
+              {children}
+            </main>
+
+            {/* Desktop Right Linguistic & Tafseer Inspector (Collapsible) */}
+            {isReadingPage && <DesktopRightInspector />}
           </div>
-        )}
-      </div>
 
-      {/* 3. MOBILE AUDIO PLAYER (Docked right above bottom nav) */}
-      <MobileAudioBar />
+          {/* 3. Desktop Bottom Status Bar (28px) */}
+          <DesktopStatusBar />
+        </>
+      )}
 
-      {/* 4. BOTTOM BARS */}
-      {/* Mobile Bottom Navigation (56px + safe-area-inset-bottom) - Mobile only (< 1024px) */}
-      <MobileBottomNav />
-
-      {/* Desktop Bottom Status Bar (28px) - Desktop only (>= 1024px) */}
-      <div className="hidden lg:block w-full flex-none">
-        <DesktopStatusBar />
-      </div>
-
-      {/* 5. MOBILE DRAWERS & SHEETS */}
-      {/* Mobile Surahs, Juz & Bookmarks Drawer */}
-      <MobileSurahDrawer />
-
-      {/* Mobile Linguistic & Tafseer Bottom Sheet */}
-      <MobileInspectorSheet />
-
-      {/* Full App Menu Drawer (For Profile, Google Drive Sync, Age Tier) */}
+      {/* ================= SHARED GLOBAL MODALS & DRAWERS ================= */}
+      {/* App Menu Drawer (Profile, Google Drive Sync, Age Tier, Keyboard Shortcuts) */}
       <AppMenuDrawer
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      {/* 6. GLOBAL DIALOGS & MODALS */}
-      {/* Global Command Search Palette (Ctrl+K) */}
+      {/* Global Command Palette / Search Modal (Ctrl+K) */}
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}

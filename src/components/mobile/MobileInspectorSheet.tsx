@@ -142,7 +142,7 @@ export function MobileInspectorSheet() {
     <div
       role="dialog"
       aria-modal="true"
-      className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end"
+      className="md:hidden fixed inset-0 z-50 flex flex-col justify-end"
     >
       {/* Backdrop */}
       <div

@@ -66,7 +66,7 @@ export function MobileAudioBar() {
   return (
     <>
       {/* 1. Collapsed Mini Player Bar */}
-      <div className="lg:hidden fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px))] inset-x-0 z-30 bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-lg select-none">
+      <div className="md:hidden fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px))] inset-x-0 z-30 bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-lg select-none">
         {/* Progress Line */}
         <div className="w-full h-1 bg-[var(--surface-card)] overflow-hidden">
           <div
@@ -157,7 +157,7 @@ export function MobileAudioBar() {
         <div
           role="dialog"
           aria-modal="true"
-          className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end"
+          className="md:hidden fixed inset-0 z-50 flex flex-col justify-end"
         >
           {/* Backdrop */}
           <div

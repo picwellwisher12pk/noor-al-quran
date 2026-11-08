@@ -29,12 +29,12 @@ export function MobileBottomNav() {
   const isCalendarActive = pathname.startsWith("/calendar");
 
   return (
-    <nav className="lg:hidden w-full flex-none bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
-      <div className="h-14 grid grid-cols-5 items-center px-1">
+    <nav className="w-full flex-none bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
+      <div className="h-14 flex items-center justify-around px-1 w-full">
         {/* 1. Read / Surah Reader */}
         <Link
           href={activeChapterId ? `/surah/${activeChapterId}` : "/"}
-          className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isReadingActive
               ? "text-emerald-600 dark:text-emerald-400 font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -55,7 +55,7 @@ export function MobileBottomNav() {
         <button
           type="button"
           onClick={() => setIsMobileSurahDrawerOpen(true)}
-          className="flex flex-col items-center justify-center py-1 rounded-xl text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+          className="flex-1 flex flex-col items-center justify-center py-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
         >
           <Layers className="h-5 w-5" />
           <span className="text-[10px] mt-1 truncate">
@@ -66,7 +66,7 @@ export function MobileBottomNav() {
         {/* 3. Learn Quranic Arabic */}
         <Link
           href="/learn"
-          className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isLearnActive
               ? "text-emerald-600 dark:text-emerald-400 font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -86,7 +86,7 @@ export function MobileBottomNav() {
         {/* 4. Calendar & Streak */}
         <Link
           href="/calendar"
-          className={`flex flex-col items-center justify-center py-1 rounded-xl transition-all ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isCalendarActive
               ? "text-emerald-600 dark:text-emerald-400 font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -112,7 +112,7 @@ export function MobileBottomNav() {
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="flex flex-col items-center justify-center py-1 rounded-xl text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
+          className="flex-1 flex flex-col items-center justify-center py-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all"
         >
           <Settings className="h-5 w-5" />
           <span className="text-[10px] mt-1 truncate">

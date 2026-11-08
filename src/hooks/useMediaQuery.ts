@@ -1,50 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
- * SSR-safe hook to evaluate responsive CSS media queries.
+ * SSR-safe hook using React 19's useSyncExternalStore to evaluate media queries.
  *
- * @param query CSS media query string, e.g. "(max-width: 1023px)"
+ * @param query CSS media query string, e.g. "(max-width: 767px)"
  * @returns boolean indicating if query matches
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const mediaQueryList = window.matchMedia(query);
-    setMatches(mediaQueryList.matches);
-
-    const listener = (event: MediaQueryListEvent) => {
-      setMatches(event.matches);
-    };
-
-    if (mediaQueryList.addEventListener) {
-      mediaQueryList.addEventListener("change", listener);
-    } else {
-      // Legacy fallback
-      mediaQueryList.addListener(listener);
-    }
-
-    return () => {
-      if (mediaQueryList.removeEventListener) {
-        mediaQueryList.removeEventListener("change", listener);
-      } else {
-        mediaQueryList.removeListener(listener);
-      }
-    };
-  }, [query]);
-
-  return matches;
+  return useSyncExternalStore(
+    (callback) => {
+      if (typeof window === "undefined") return () => {};
+      const mediaQueryList = window.matchMedia(query);
+      mediaQueryList.addEventListener("change", callback);
+      return () => mediaQueryList.removeEventListener("change", callback);
+    },
+    () => (typeof window !== "undefined" ? window.matchMedia(query).matches : false),
+    () => false // server snapshot
+  );
 }
 
 /**
- * Convenient shorthand to check if current viewport is mobile/tablet (< 1024px).
+ * Convenient shorthand to check if current viewport is a mobile device (< 768px).
  */
 export function useIsMobile(): boolean {
-  return useMediaQuery("(max-width: 1023px)");
+  return useMediaQuery("(max-width: 767px)");
+}
+
+/**
+ * Convenient shorthand to check if current viewport is desktop/tablet (>= 768px).
+ */
+export function useIsDesktop(): boolean {
+  return useMediaQuery("(min-width: 768px)");
 }
 
 /**

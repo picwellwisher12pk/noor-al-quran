@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.28.0",
+  "version": "1.28.2",
   "private": true,
   "scripts": {
     "dev": "next dev",

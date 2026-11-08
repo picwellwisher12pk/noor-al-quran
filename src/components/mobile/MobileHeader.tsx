@@ -35,7 +35,7 @@ export function MobileHeader() {
     : null;
 
   return (
-    <header className="lg:hidden w-full flex-none bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none shadow-xs pt-[env(safe-area-inset-top,0px)]">
+    <header className="w-full flex-none bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none shadow-xs pt-[env(safe-area-inset-top,0px)]">
       <div className="h-13 px-3.5 flex items-center justify-between gap-2">
         {/* Left: Brand or Current Surah */}
         <div className="flex items-center gap-2.5 min-w-0 flex-1">

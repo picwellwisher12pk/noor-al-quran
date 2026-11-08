@@ -100,7 +100,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
   // Restore persistent workspace state from localStorage on mount
   useEffect(() => {
-    const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 1024;
+    const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 768;
     try {
       const savedReadingMode = localStorage.getItem("naq_reading_mode") as ReadingLayoutMode;
       if (savedReadingMode === "continuous" || savedReadingMode === "compact" || savedReadingMode === "mushaf") {
