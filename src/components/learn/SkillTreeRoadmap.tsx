@@ -21,6 +21,7 @@ import {
   Trophy,
   Star
 } from "lucide-react";
+import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
 import {
   CURRICULUM_PHASES,
@@ -60,6 +61,10 @@ export function SkillTreeRoadmap() {
   } = useLearningStore();
 
   const allNodes = React.useMemo(() => getAllSkillNodes(), []);
+  const [lockedNodeDetails, setLockedNodeDetails] = React.useState<{
+    node: SkillNode;
+    prereq: SkillNode | null;
+  } | null>(null);
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-4 space-y-16">
@@ -141,10 +146,12 @@ export function SkillTreeRoadmap() {
                 {/* Nodes Layout (Vertical Flow) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {unit.nodes.map((node) => {
-                    const isCompleted = completedNodeIds.includes(node.id);
-                    const isUnlocked = unlockedNodeIds.includes(node.id) || isCompleted;
-                    const isActive = node.id === activeNodeId && !isCompleted;
-                    const stars = nodeStars[node.id] || 0;
+                    const safeCompletedNodeIds = Array.isArray(completedNodeIds) ? completedNodeIds : [];
+                    const safeUnlockedNodeIds = Array.isArray(unlockedNodeIds) ? unlockedNodeIds : [];
+                    const isCompleted = safeCompletedNodeIds.includes(node.id);
+                    const isUnlocked = isCompleted || node.id === "s1_u1_n1" || node.id === activeNodeId || safeUnlockedNodeIds.includes(node.id);
+                    const isActive = (node.id === activeNodeId || (!activeNodeId && node.id === "s1_u1_n1")) && !isCompleted;
+                    const stars = (nodeStars && nodeStars[node.id]) || 0;
                     const IconComponent = ICON_MAP[node.iconName] || BookOpen;
                     const isBoss = node.nodeType === "boss_gate";
                     const isCheckpoint = node.nodeType === "checkpoint";
@@ -155,19 +162,33 @@ export function SkillTreeRoadmap() {
                     return (
                       <div
                         key={node.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => {
                           if (isUnlocked) {
                             openModeSelector(node);
+                          } else {
+                            setLockedNodeDetails({ node, prereq: prereqNode || null });
                           }
                         }}
-                        className={`group relative p-5 rounded-3xl border transition-all duration-300 text-left ${
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            if (isUnlocked) {
+                              openModeSelector(node);
+                            } else {
+                              setLockedNodeDetails({ node, prereq: prereqNode || null });
+                            }
+                          }
+                        }}
+                        className={`group relative p-5 rounded-3xl border transition-all duration-300 text-left select-none cursor-pointer ${
                           !isUnlocked
-                            ? "bg-[var(--surface-card)]/40 border-[var(--border-subtle)]/40 opacity-50 cursor-not-allowed"
+                            ? "bg-[var(--surface-card)]/40 border-[var(--border-subtle)]/40 opacity-70 hover:opacity-90 hover:border-amber-500/40 hover:scale-[1.01] active:scale-[0.99]"
                             : isCompleted
-                            ? "bg-gradient-to-br from-amber-500/10 to-yellow-500/5 dark:from-amber-950/20 dark:to-yellow-950/10 border-amber-500/40 hover:border-amber-500 shadow-sm cursor-pointer"
+                            ? "bg-gradient-to-br from-amber-500/10 to-yellow-500/5 dark:from-amber-950/20 dark:to-yellow-950/10 border-amber-500/40 hover:border-amber-500 shadow-sm hover:scale-[1.01] active:scale-[0.99]"
                             : isActive
-                            ? "bg-gradient-to-br from-emerald-500/15 to-teal-500/10 dark:from-emerald-950/40 dark:to-teal-950/20 border-emerald-500 shadow-lg shadow-emerald-500/15 ring-2 ring-emerald-500/30 cursor-pointer"
-                            : "bg-[var(--surface-raised)] hover:bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/40 cursor-pointer shadow-sm"
+                            ? "bg-gradient-to-br from-emerald-500/15 to-teal-500/10 dark:from-emerald-950/40 dark:to-teal-950/20 border-emerald-500 shadow-lg shadow-emerald-500/15 ring-2 ring-emerald-500/30 hover:scale-[1.01] active:scale-[0.99]"
+                            : "bg-[var(--surface-raised)] hover:bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/40 shadow-sm hover:scale-[1.01] active:scale-[0.99]"
                         }`}
                       >
                         {/* Status Beacon / Icon */}
@@ -294,6 +315,118 @@ export function SkillTreeRoadmap() {
           </div>
         </section>
       ))}
+
+      {/* Locked Milestone Guidance Modal */}
+      {lockedNodeDetails && (
+        <Modal
+          isOpen={Boolean(lockedNodeDetails)}
+          onClose={() => setLockedNodeDetails(null)}
+          maxWidth="md"
+          title={
+            <div className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-amber-500" />
+              <span>
+                {langPreference === "urdu" ? "مقفل سبق کی تفصیلات" : "Locked Milestone"}
+              </span>
+            </div>
+          }
+        >
+          <div className="space-y-5 text-left">
+            <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2">
+              <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400">
+                <span>
+                  {langPreference === "urdu"
+                    ? `مرحلہ ${lockedNodeDetails.node.phaseNumber}`
+                    : `Stage ${lockedNodeDetails.node.phaseNumber}`}
+                </span>
+                <span className="font-mono text-[var(--muted-foreground)]">
+                  ~{lockedNodeDetails.node.estimatedMinutes} mins
+                </span>
+              </div>
+
+              <h3 className="text-lg font-bold text-[var(--foreground)]">
+                {langPreference === "urdu"
+                  ? lockedNodeDetails.node.titleUrdu || lockedNodeDetails.node.title
+                  : lockedNodeDetails.node.title}
+              </h3>
+
+              {lockedNodeDetails.node.titleArabic && (
+                <p
+                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                  style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
+                  dir="rtl"
+                >
+                  {lockedNodeDetails.node.titleArabic}
+                </p>
+              )}
+
+              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed pt-1">
+                {langPreference === "urdu"
+                  ? lockedNodeDetails.node.descriptionUrdu || lockedNodeDetails.node.description
+                  : lockedNodeDetails.node.description}
+              </p>
+            </div>
+
+            {/* Requirement / Prerequisite Info */}
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2 text-xs">
+              <div className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                <Lock className="w-4 h-4 shrink-0 text-amber-500" />
+                <span>
+                  {langPreference === "urdu" ? "کھولنے کی شرط (Prerequisite)" : "Unlock Requirement"}
+                </span>
+              </div>
+              <p className="text-[var(--foreground)]">
+                {lockedNodeDetails.prereq ? (
+                  langPreference === "urdu" ? (
+                    <>
+                      اس سبق کو ان لاک کرنے کے لیے پہلے{" "}
+                      <strong>&quot;{lockedNodeDetails.prereq.titleUrdu || lockedNodeDetails.prereq.title}&quot;</strong>{" "}
+                      مکمل کریں۔
+                    </>
+                  ) : (
+                    <>
+                      To unlock this milestone, please first complete{" "}
+                      <strong>&quot;{lockedNodeDetails.prereq.title}&quot;</strong>.
+                    </>
+                  )
+                ) : (
+                  langPreference === "urdu"
+                    ? "اس مرحلے تک پہنچنے کے لیے سابقہ اسباق مکمل کریں۔"
+                    : "Complete preceding milestones in sequence to access this lesson."
+                )}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-2">
+              {lockedNodeDetails.prereq && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prereq = lockedNodeDetails.prereq;
+                    setLockedNodeDetails(null);
+                    if (prereq) {
+                      openModeSelector(prereq);
+                    }
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                >
+                  {langPreference === "urdu"
+                    ? `بنیادی سبق شروع کریں: ${lockedNodeDetails.prereq.titleUrdu || lockedNodeDetails.prereq.title}`
+                    : `Start: ${lockedNodeDetails.prereq.title}`}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setLockedNodeDetails(null)}
+                className="px-4 py-3 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs transition-colors cursor-pointer"
+              >
+                {langPreference === "urdu" ? "سمجھ گیا" : "Dismiss"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

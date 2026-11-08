@@ -155,12 +155,12 @@ export function AyahFillGame({
 
     return (
       <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-md">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-500 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
 
         <div>
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-950/60 border-emerald-800/40 text-emerald-400 mb-2">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 mb-2">
             Ayah Verse Completion
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Verse Challenge Complete!</h2>
@@ -171,19 +171,19 @@ export function AyahFillGame({
 
         <div className="grid grid-cols-3 gap-3">
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Score</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Score</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Accuracy</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
               {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Best Streak</span>
+            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">Best Streak</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
-              <Flame className="h-4 w-4 text-amber-400" /> {maxStreak}
+              <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
             </span>
           </div>
         </div>
@@ -192,7 +192,7 @@ export function AyahFillGame({
           <button
             type="button"
             onClick={generateRounds}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
             <RotateCcw className="h-4 w-4" /> Play Again
           </button>
@@ -223,24 +223,24 @@ export function AyahFillGame({
 
         <div className="flex items-center gap-4">
           {streak > 1 && (
-            <span className="flex items-center gap-1 font-bold text-amber-400 text-xs animate-pulse">
+            <span className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 text-xs animate-pulse">
               <Flame className="h-3.5 w-3.5" /> {streak}x
             </span>
           )}
-          <span className="font-mono font-bold text-emerald-400 text-sm">{score} pts</span>
+          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm">{score} pts</span>
         </div>
       </div>
 
       {/* Ayah Card with Blank */}
       <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-4">
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
-          <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
+          <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
             <BookOpen className="h-3.5 w-3.5" /> Surah {sample.surahName} [{sample.surah}:{sample.ayah}]
           </span>
           <button
             type="button"
             onClick={handlePlayAyahRecitation}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm cursor-pointer"
           >
             <Volume2 className="h-3.5 w-3.5" /> Listen Ayah Recitation
           </button>
@@ -278,9 +278,9 @@ export function AyahFillGame({
 
           if (isAnswered) {
             if (idx === currentQ.correctIndex) {
-              btnStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-md shadow-emerald-950/50";
+              btnStyle = "bg-emerald-500/20 dark:bg-emerald-600/30 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold shadow-md";
             } else if (idx === selectedOptionIndex) {
-              btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300";
+              btnStyle = "bg-rose-500/15 dark:bg-rose-950/50 border-rose-500 text-rose-800 dark:text-rose-300 font-bold";
             } else {
               btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
@@ -297,7 +297,7 @@ export function AyahFillGame({
               <span className="font-arabic-amiri text-2xl md:text-3xl font-bold" dir="rtl">
                 {option.arabic}
               </span>
-              <span className="text-xs text-emerald-400 font-medium">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                 {option.transliteration}
               </span>
               <span className="text-[11px] text-[var(--muted-foreground)]">
@@ -312,7 +312,7 @@ export function AyahFillGame({
       {isAnswered && (
         <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
-            <span className="font-semibold text-emerald-400 block">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400 block">
               Word: {currentQ.word.arabic} ({currentQ.word.english})
             </span>
             <span className="text-[var(--muted-foreground)]">

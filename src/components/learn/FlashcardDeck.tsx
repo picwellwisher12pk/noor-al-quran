@@ -15,6 +15,7 @@ import {
   VocabLangPreference,
   loadUserVocabProgress,
 } from "@/services/vocabularyStorage";
+import { useLearningStore } from "@/store/useLearningStore";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
@@ -50,10 +51,16 @@ export function FlashcardDeck({
   const { language } = useLanguage();
   const langPreference: VocabLangPreference = propLangPreference || language;
 
+  const storeMasteredIds = useLearningStore((s) => s.masteredWordIds);
+  const storeReviewIds = useLearningStore((s) => s.reviewWordIds);
+  const storeMarkMastered = useLearningStore((s) => s.markWordMastered);
+  const storeMarkReview = useLearningStore((s) => s.markWordForReview);
+  const storeResetStatus = useLearningStore((s) => s.resetWordStatus);
+
   const [internalProgress, setInternalProgress] = useState(() => loadUserVocabProgress());
 
-  const masteredIds = propMasteredIds || internalProgress.masteredWordIds;
-  const reviewIds = propReviewIds || internalProgress.reviewWordIds;
+  const masteredIds = propMasteredIds || (Array.isArray(storeMasteredIds) && storeMasteredIds.length > 0 ? storeMasteredIds : internalProgress.masteredWordIds);
+  const reviewIds = propReviewIds || (Array.isArray(storeReviewIds) && storeReviewIds.length > 0 ? storeReviewIds : internalProgress.reviewWordIds);
 
   const onProgressUpdate = () => {
     setInternalProgress(loadUserVocabProgress());
@@ -113,8 +120,12 @@ export function FlashcardDeck({
 
   const { logVocabularyStudy } = useReadingActivity();
 
-  const handleMarkMastered = () => {
+  const handleMarkMastered = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!currentWord) return;
+    try {
+      storeMarkMastered(currentWord.id);
+    } catch {}
     markWordMastered(currentWord.id);
     logVocabularyStudy(1);
     onProgressUpdate();
@@ -124,8 +135,12 @@ export function FlashcardDeck({
     }
   };
 
-  const handleMarkReview = () => {
+  const handleMarkReview = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!currentWord) return;
+    try {
+      storeMarkReview(currentWord.id);
+    } catch {}
     markWordForReview(currentWord.id);
     logVocabularyStudy(1);
     onProgressUpdate();
@@ -135,11 +150,18 @@ export function FlashcardDeck({
     }
   };
 
-  const handleToggleStatus = () => {
+  const handleToggleStatus = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!currentWord) return;
     if (isMastered) {
+      try {
+        storeResetStatus(currentWord.id);
+      } catch {}
       resetWordStatus(currentWord.id);
     } else {
+      try {
+        storeMarkMastered(currentWord.id);
+      } catch {}
       markWordMastered(currentWord.id);
     }
     onProgressUpdate();
@@ -358,18 +380,18 @@ export function FlashcardDeck({
           <span className="font-semibold text-[var(--foreground)]">
             Card {safeIndex + 1} of {deck.length}
           </span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-950/70 border border-emerald-800/40 text-emerald-400">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400">
             {currentWord.frequency.toLocaleString()} occurrences in Quran
           </span>
         </div>
         <div className="flex items-center gap-2">
           {isMastered && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
               <Check className="h-3.5 w-3.5" /> Mastered
             </span>
           )}
           {isReview && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400">
               <RotateCw className="h-3 w-3" /> Due for Review
             </span>
           )}
@@ -404,6 +426,7 @@ export function FlashcardDeck({
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(0deg)",
+              pointerEvents: isFlipped ? "none" : "auto",
             }}
           >
             {/* Subtle glow */}
@@ -412,7 +435,7 @@ export function FlashcardDeck({
             {/* Front Header */}
             <div className="flex items-start justify-between relative z-10">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
+                <span className="px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                   {currentWord.posLabelAr} ({currentWord.posLabelEn})
                 </span>
                 {currentWord.root && (
@@ -426,18 +449,15 @@ export function FlashcardDeck({
                 <button
                   type="button"
                   onClick={handlePlayAudio}
-                  className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 transition-all shadow-sm"
+                  className="p-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 transition-all shadow-sm cursor-pointer"
                   title="Pronounce Arabic Word"
                 >
                   <Volume2 className="h-4 w-4" />
                 </button>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleStatus();
-                  }}
-                  className={`p-2 rounded-xl border transition-all ${
+                  onClick={(e) => handleToggleStatus(e)}
+                  className={`p-2 rounded-xl border transition-all cursor-pointer ${
                     isMastered
                       ? "bg-emerald-600 text-white border-emerald-500 shadow-sm"
                       : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400"
@@ -457,13 +477,21 @@ export function FlashcardDeck({
               >
                 {currentWord.arabic}
               </h2>
-              <p className="text-base sm:text-lg text-emerald-400 font-medium tracking-wide">
+              <p className="text-base sm:text-lg text-emerald-600 dark:text-emerald-400 font-medium tracking-wide">
                 {currentWord.transliteration}
               </p>
               <div className="pt-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors">
-                  <RotateCw className="h-3 w-3 text-emerald-400" /> Click or press Space to reveal meaning
-                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFlip();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all cursor-pointer shadow-sm hover:scale-102 active:scale-98"
+                >
+                  <RotateCw className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                  <span>Click or press Space to reveal meaning</span>
+                </button>
               </div>
             </div>
 
@@ -481,6 +509,7 @@ export function FlashcardDeck({
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
+              pointerEvents: isFlipped ? "auto" : "none",
             }}
           >
             {/* Subtle glow */}
@@ -489,7 +518,7 @@ export function FlashcardDeck({
             {/* Back Header */}
             <div className="flex items-center justify-between pb-2.5 border-b border-[var(--border-subtle)] relative z-10">
               <div className="flex items-center gap-2">
-                <span className="font-arabic-amiri text-2xl sm:text-3xl text-emerald-400 font-bold" dir="rtl">
+                <span className="font-arabic-amiri text-2xl sm:text-3xl text-emerald-600 dark:text-emerald-400 font-bold" dir="rtl">
                   {currentWord.arabic}
                 </span>
                 <span className="text-xs text-[var(--muted-foreground)] font-mono">
@@ -501,7 +530,7 @@ export function FlashcardDeck({
                 <button
                   type="button"
                   onClick={handlePlayAudio}
-                  className="p-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 transition-all shadow-sm"
+                  className="p-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 transition-all shadow-sm cursor-pointer"
                   title="Pronounce Arabic Word"
                 >
                   <Volume2 className="h-3.5 w-3.5" />
@@ -515,7 +544,7 @@ export function FlashcardDeck({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {showEnglish && (
                   <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block mb-0.5">
                       English Meaning
                     </span>
                     <p className="text-sm font-semibold text-[var(--foreground)]">
@@ -525,7 +554,7 @@ export function FlashcardDeck({
                 )}
                 {showUrdu && (
                   <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-right">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block mb-0.5">
                       اردو ترجمہ
                     </span>
                     <p className="font-urdu-nastaliq text-base text-[var(--foreground)] leading-relaxed" dir="rtl">
@@ -536,9 +565,9 @@ export function FlashcardDeck({
               </div>
 
               {/* Semantic Group & Grammar Notes */}
-              <div className="p-2.5 rounded-2xl bg-emerald-950/30 border border-emerald-800/40 flex items-center justify-between text-xs gap-2">
+              <div className="p-2.5 rounded-2xl bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 dark:border-emerald-800/40 flex items-center justify-between text-xs gap-2">
                 <div>
-                  <span className="text-[10px] text-emerald-400 font-semibold block">
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold block">
                     Similar Meaning Cluster:
                   </span>
                   <span className="font-medium text-[var(--foreground)]">
@@ -556,7 +585,7 @@ export function FlashcardDeck({
               {/* Authentic Sample Verse */}
               <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <BookOpen className="h-3.5 w-3.5" /> Sample Verse: Surah {currentWord.sampleAyah.surahName} [{currentWord.sampleAyah.surah}:{currentWord.sampleAyah.ayah}]
                   </span>
                   <span className="font-arabic text-xs text-[var(--muted-foreground)]" dir="rtl">
@@ -574,9 +603,16 @@ export function FlashcardDeck({
 
             {/* Back Footer */}
             <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] relative z-10">
-              <span className="flex items-center gap-1 text-emerald-400">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFlip();
+                }}
+                className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-medium cursor-pointer"
+              >
                 <RotateCw className="h-3 w-3" /> Click or press Space to rotate back
-              </span>
+              </button>
               <span className="font-arabic" dir="rtl">{currentWord.categoryLabelAr}</span>
             </div>
           </div>
@@ -588,7 +624,7 @@ export function FlashcardDeck({
         <button
           type="button"
           onClick={handlePrev}
-          className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:bg-[var(--surface-card)] text-[var(--foreground)] transition-colors shadow-sm"
+          className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:bg-[var(--surface-card)] text-[var(--foreground)] transition-colors shadow-sm cursor-pointer active:scale-95"
           title="Previous Card (Left Arrow)"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -598,8 +634,8 @@ export function FlashcardDeck({
           {/* Review Later Button */}
           <button
             type="button"
-            onClick={handleMarkReview}
-            className="flex-1 py-3 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-semibold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2"
+            onClick={(e) => handleMarkReview(e)}
+            className="flex-1 py-3 px-4 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-700 dark:text-amber-300 font-semibold text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <HelpCircle className="h-4 w-4" />
             <span>Review Later (1)</span>
@@ -608,8 +644,8 @@ export function FlashcardDeck({
           {/* Mastered Button */}
           <button
             type="button"
-            onClick={handleMarkMastered}
-            className="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center justify-center gap-2"
+            onClick={(e) => handleMarkMastered(e)}
+            className="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
             <CheckCircle className="h-4 w-4" />
             <span>I Know This! (2)</span>
@@ -619,7 +655,7 @@ export function FlashcardDeck({
         <button
           type="button"
           onClick={handleNext}
-          className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:bg-[var(--surface-card)] text-[var(--foreground)] transition-colors shadow-sm"
+          className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:bg-[var(--surface-card)] text-[var(--foreground)] transition-colors shadow-sm cursor-pointer active:scale-95"
           title="Next Card (Right Arrow)"
         >
           <ChevronRight className="h-5 w-5" />

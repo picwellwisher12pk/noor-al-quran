@@ -120,7 +120,11 @@ export function SoundSniperGame({
               : "Tap to Listen Again"}
           </span>
           <span className="text-[11px] text-[var(--muted-foreground)] block">
-            {isUrdu
+            {payload.mode === "letter"
+              ? isUrdu
+                ? "مستند صوتی تلفظ و مخارج"
+                : "Authentic Letter Pronunciation & Makhraj"
+              : isUrdu
               ? "قرآن پاک کی مستند صوتی تلاوت (Quran CDN)"
               : "Authentic Qari recitation from Quran CDN"}
           </span>
@@ -130,7 +134,7 @@ export function SoundSniperGame({
       {/* Instruction Banner */}
       <p className="text-xs text-center text-[var(--muted-foreground)] font-medium">
         {isUrdu
-          ? (payload.instructionUrdu || "تلفظ کو غور سے سنیں اور درست قرآنی لفظ کا انتخاب کریں")
+          ? (payload.instructionUrdu || (payload.mode === "letter" ? "تلفظ کو غور سے سنیں اور درست قرآنی حرف کا انتخاب کریں" : "تلفظ کو غور سے سنیں اور درست قرآنی لفظ کا انتخاب کریں"))
           : payload.instruction}
       </p>
 

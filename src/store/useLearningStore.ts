@@ -13,6 +13,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { SkillNode, getAllSkillNodes } from "../data/learning/curriculumData";
 import { WordSRSRecord, MasteryLevel, SRSRecallGrade, LearningLanguagePreference } from "../types/learning";
+import { LearnerProfile, LearnerAgeGroup, DEFAULT_LEARNER_PROFILE } from "../types/learnerProfile";
 import { LearningSession, generateSession } from "../lib/quiz-engine";
 
 export interface HeartsState {
@@ -34,6 +35,7 @@ export const DEFAULT_GAME_STATS: Record<string, GameStatRecord> = {
   grammarMatch: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
   rootFamily: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
   ayahFill: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
+  matchBlitz: { gamesPlayed: 0, highScore: 0, totalCorrect: 0, totalQuestions: 0, lastPlayed: "" },
 };
 
 export interface LearningStoreState {
@@ -61,6 +63,11 @@ export interface LearningStoreState {
   // Language Preference (Bilingual English+Urdu, Urdu first, or English)
   langPreference: LearningLanguagePreference;
   setLangPreference: (pref: LearningLanguagePreference) => void;
+
+  // Learner Age & Terminology Profile
+  learnerProfile: LearnerProfile;
+  setLearnerAgeGroup: (ageGroup: LearnerAgeGroup) => void;
+  setLearnerProfile: (profile: Partial<LearnerProfile>) => void;
 
   // Modal & Drawer UI State
   selectedNode: SkillNode | null;
@@ -98,26 +105,33 @@ export interface LearningStoreState {
 
 const HEART_REGEN_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes per heart
 
-function calculateRegeneratedHearts(hearts: HeartsState): HeartsState {
-  if (hearts.current >= hearts.max) {
-    return { ...hearts, current: hearts.max };
+function calculateRegeneratedHearts(hearts?: HeartsState): HeartsState {
+  if (!hearts || typeof hearts !== "object") {
+    return { current: 5, max: 5, lastRegenTimestamp: Date.now() };
+  }
+  const max = hearts.max || 5;
+  const current = typeof hearts.current === "number" ? hearts.current : max;
+  const lastRegen = typeof hearts.lastRegenTimestamp === "number" ? hearts.lastRegenTimestamp : Date.now();
+
+  if (current >= max) {
+    return { current: max, max: 5, lastRegenTimestamp: lastRegen };
   }
 
   const now = Date.now();
-  const elapsed = now - hearts.lastRegenTimestamp;
+  const elapsed = Math.max(0, now - lastRegen);
   const heartsToGain = Math.floor(elapsed / HEART_REGEN_INTERVAL_MS);
 
   if (heartsToGain > 0) {
-    const newCurrent = Math.min(hearts.max, hearts.current + heartsToGain);
+    const newCurrent = Math.min(max, current + heartsToGain);
     const remainderMs = elapsed % HEART_REGEN_INTERVAL_MS;
     return {
       current: newCurrent,
-      max: hearts.max,
+      max: 5,
       lastRegenTimestamp: now - remainderMs
     };
   }
 
-  return hearts;
+  return { current, max: 5, lastRegenTimestamp: lastRegen };
 }
 
 export const useLearningStore = create<LearningStoreState>()(
@@ -126,6 +140,22 @@ export const useLearningStore = create<LearningStoreState>()(
       // Default state
       langPreference: "bilingual",
       setLangPreference: (pref: LearningLanguagePreference) => set({ langPreference: pref }),
+
+      learnerProfile: DEFAULT_LEARNER_PROFILE,
+      setLearnerAgeGroup: (ageGroup: LearnerAgeGroup) =>
+        set((state) => ({
+          learnerProfile: {
+            ...(state.learnerProfile || DEFAULT_LEARNER_PROFILE),
+            ageGroup,
+          },
+        })),
+      setLearnerProfile: (profile: Partial<LearnerProfile>) =>
+        set((state) => ({
+          learnerProfile: {
+            ...(state.learnerProfile || DEFAULT_LEARNER_PROFILE),
+            ...profile,
+          },
+        })),
       totalXP: 0,
       barakahGems: 0,
       currentStreak: 0,
@@ -157,20 +187,26 @@ export const useLearningStore = create<LearningStoreState>()(
 
       // --- Computed Getters ---
       getWeakWords: () => {
-        const words = Object.values(get().srsWords);
+        const srs = get().srsWords;
+        if (!srs || typeof srs !== "object") return [];
+        const words = Object.values(srs);
         const now = new Date().toISOString();
         return words.filter(
-          (w) => w.masteryLevel <= 2 || w.nextReviewAt <= now
+          (w) => w && (w.masteryLevel <= 2 || (w.nextReviewAt && w.nextReviewAt <= now))
         );
       },
 
       getHeartCount: () => {
-        return calculateRegeneratedHearts(get().hearts).current;
+        const hearts = get().hearts;
+        if (!hearts) return 5;
+        return calculateRegeneratedHearts(hearts).current ?? 5;
       },
 
       syncHearts: () => {
-        const updated = calculateRegeneratedHearts(get().hearts);
-        if (updated.current !== get().hearts.current) {
+        const hearts = get().hearts;
+        if (!hearts) return;
+        const updated = calculateRegeneratedHearts(hearts);
+        if (updated.current !== hearts.current) {
           set({ hearts: updated });
         }
       },
@@ -393,10 +429,13 @@ export const useLearningStore = create<LearningStoreState>()(
           }
         };
 
-        const earnedXP = Math.max(10, score * 5);
+        const earnedXP = correctCount > 0
+          ? Math.min(50, Math.max(10, correctCount * 4))
+          : Math.min(50, Math.max(10, Math.round(score / 30)));
+
         set({
           gameStats: updatedStats,
-          totalXP: state.totalXP + earnedXP
+          ...(gameKey !== "matchBlitz" ? { totalXP: state.totalXP + earnedXP } : {})
         });
         get().touchStreak();
       },
@@ -463,7 +502,9 @@ export const useLearningStore = create<LearningStoreState>()(
         srsWords: state.srsWords,
         masteredWordIds: state.masteredWordIds,
         reviewWordIds: state.reviewWordIds,
-        gameStats: state.gameStats
+        gameStats: state.gameStats,
+        langPreference: state.langPreference,
+        learnerProfile: state.learnerProfile
       })
     }
   )

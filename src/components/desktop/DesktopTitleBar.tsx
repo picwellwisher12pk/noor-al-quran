@@ -9,7 +9,6 @@ import { APP_CONFIG } from "@/config/version";
 import {
   Search,
   Settings,
-  CloudDownload,
   PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
@@ -21,12 +20,16 @@ import {
   Sparkles,
   Flame,
   CalendarDays,
+  Menu,
+  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isTauri as checkIsTauri, safeCloseWindow, safeMinimizeWindow, safeToggleMaximize } from "@/utils/platform";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useGoogleAuth } from "@/context/GoogleAuthContext";
+import { AppMenuDrawer } from "./AppMenuDrawer";
 
 export function DesktopTitleBar() {
   const pathname = usePathname();
@@ -41,7 +44,6 @@ export function DesktopTitleBar() {
     toggleRightInspector,
     setIsSearchOpen,
     setIsSettingsOpen,
-    setIsDownloadManagerOpen,
     chapters,
     activeChapterId,
     activeAyahNumber,
@@ -51,7 +53,9 @@ export function DesktopTitleBar() {
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
+  const { user, isSignedIn, isSyncing } = useGoogleAuth();
   const [isTauri, setIsTauri] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsTauri(checkIsTauri());
@@ -78,29 +82,28 @@ export function DesktopTitleBar() {
 
   return (
     <header
-      data-tauri-drag-region
       className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-40 text-xs"
     >
       {/* Left: Window controls & App Branding */}
-      <div className="flex items-center gap-3" data-tauri-drag-region>
+      <div className="flex items-center gap-3 shrink-0">
         {/* Window Control Buttons */}
         <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-subtle)]">
           <button
             type="button"
             onClick={handleWindowClose}
-            className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm"
+            className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm cursor-pointer"
             title={isTauri ? "Close Application" : "Go to Home"}
           />
           <button
             type="button"
             onClick={handleWindowMinimize}
-            className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm"
+            className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm cursor-pointer"
             title={isTauri ? "Minimize Window" : "Toggle Sidebar"}
           />
           <button
             type="button"
             onClick={handleWindowMaximize}
-            className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm"
+            className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm cursor-pointer"
             title={isTauri ? "Maximize / Restore Window" : "Toggle Fullscreen"}
           />
         </div>
@@ -109,14 +112,14 @@ export function DesktopTitleBar() {
         <button
           type="button"
           onClick={toggleLeftSidebar}
-          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
+          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
           title="Toggle Navigation Sidebar (Ctrl+B)"
         >
           {isLeftSidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
         </button>
 
         {/* App Title & Version Pill */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
           <div className="w-5 h-5 rounded-md bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
             <BookOpen className="h-3 w-3" />
           </div>
@@ -132,12 +135,15 @@ export function DesktopTitleBar() {
         </Link>
       </div>
 
+      {/* Draggable spacer between left branding and center search */}
+      <div className="flex-1 h-full min-w-4 cursor-default" data-tauri-drag-region />
+
       {/* Center: Command Search / Quick Jump Pill */}
-      <div className="flex items-center gap-2 max-w-md w-full justify-center px-4" data-tauri-drag-region>
+      <div className="flex items-center gap-2 max-w-md w-full justify-center px-2 shrink-0">
         <button
           type="button"
           onClick={() => setIsSearchOpen(true)}
-          className="flex items-center justify-between w-64 md:w-80 px-2.5 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all shadow-inner text-xs"
+          className="flex items-center justify-between w-64 md:w-80 px-2.5 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-all shadow-inner text-xs cursor-pointer"
         >
           <div className="flex items-center gap-2 truncate">
             <Search className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
@@ -151,92 +157,33 @@ export function DesktopTitleBar() {
         </button>
       </div>
 
+      {/* Draggable spacer between center search and right tools */}
+      <div className="flex-1 h-full min-w-4 cursor-default" data-tauri-drag-region />
+
       {/* Right: Tools & Toggles */}
-      <div className="flex items-center gap-1.5">
-        {/* Active Streak Badge (Only visible when active streak > 0 and not already on calendar) */}
-        {currentStreak > 0 && !isCalendarRoute && (
-          <Link
-            href="/calendar"
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-[11px] font-semibold transition-all shadow-sm"
-            title="Quran Reading Calendar & Daily Streak"
-          >
-            <Flame className="h-3 w-3 text-amber-400 fill-amber-400" />
-            <span>{currentStreak}d</span>
-          </Link>
-        )}
-
-        {/* Contextual Primary Module Switch */}
-        {isLearnRoute || isCalendarRoute ? (
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] text-[11px] font-semibold transition-all shadow-sm"
-            title="Return to Noble Quran Reader Workstation"
-          >
-            <BookOpen className="h-3 w-3 text-emerald-500" />
-            <span className="hidden sm:inline">{isUrdu ? "مصحف قرآن" : "Holy Quran"}</span>
-          </Link>
-        ) : (
-          <Link
-            href="/learn"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 text-[11px] font-semibold transition-all shadow-sm"
-            title="Learn 70% Quran Words, Flashcards & Games"
-          >
-            <Sparkles className="h-3 w-3 text-emerald-400" />
-            <span className="hidden sm:inline">{isUrdu ? "الفاظ سیکھیں" : "Learn Words"}</span>
-          </Link>
-        )}
-
-        {/* Global Language Toggle */}
-        <LanguageToggle />
-
-        {/* Audio Playing Pill */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        {/* Audio Playing Pill (only while audio is active) */}
         {isPlaying && (
           <button
             type="button"
             onClick={togglePlayPause}
-            className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium animate-pulse"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium animate-pulse cursor-pointer shadow-sm"
+            title="Pause recitation"
           >
             <Volume2 className="h-3 w-3" />
             <span>Ayah {currentVerseKey || ""}</span>
           </button>
         )}
 
-        {/* Theme Toggle */}
-        <button
-          type="button"
-          onClick={toggleThemeMode}
-          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
-          title={`Switch Mode (Current: ${themeMode})`}
-        >
-          {themeMode === "dark" ? <Sun className="h-3.5 w-3.5 text-amber-400" /> : <Moon className="h-3.5 w-3.5" />}
-        </button>
-
-        {/* Offline Storage & Pre-downloads */}
-        <button
-          type="button"
-          onClick={() => setIsDownloadManagerOpen(true)}
-          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
-          title="Offline Storage & Pre-downloads"
-        >
-          <CloudDownload className="h-3.5 w-3.5 text-emerald-400" />
-        </button>
-
-        {/* Live Settings Gear */}
-        <button
-          type="button"
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-1.5 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
-          title="Open Settings Panel"
-        >
-          <Settings className="h-3.5 w-3.5" />
-        </button>
+        {/* Global Language Toggle Pill */}
+        <LanguageToggle compact={true} />
 
         {/* Right Inspector Toggle (Only visible on Quran reading pages) */}
         {isReadingPage && (
           <button
             type="button"
             onClick={toggleRightInspector}
-            className={`p-1.5 rounded-md transition-colors ${
+            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
               isRightInspectorOpen
                 ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
@@ -246,7 +193,45 @@ export function DesktopTitleBar() {
             {isRightInspectorOpen ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
           </button>
         )}
+
+        {/* Application Menu & User Profile Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsMenuOpen(true)}
+          className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--foreground)] text-xs font-semibold transition-all shadow-sm cursor-pointer active:scale-98"
+          title="Open Noor Al-Quran Hub & Menu (Backup, Themes, Navigation & Settings)"
+        >
+          {isSignedIn && user ? (
+            <div className="flex items-center gap-1.5">
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="w-5 h-5 rounded-full border border-emerald-500/50"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span className="hidden md:inline max-w-[80px] truncate">{user.name.split(" ")[0]}</span>
+              {isSyncing ? (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              ) : (
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <LayoutGrid className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="hidden sm:inline font-bold">{isUrdu ? "مینو" : "Menu"}</span>
+            </div>
+          )}
+        </button>
       </div>
+
+      {/* Centralized Application Hub & Menu Drawer */}
+      <AppMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </header>
   );
 }

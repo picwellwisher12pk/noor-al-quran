@@ -177,7 +177,7 @@ export function RootFamilyGame({
         </div>
 
         <div>
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-950/60 border-emerald-800/40 text-emerald-400 mb-2">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 mb-2">
             Semantic Groups & Roots
           </span>
           <h2 className="text-2xl font-bold text-[var(--foreground)]">Word Family Challenge Complete!</h2>
@@ -187,7 +187,7 @@ export function RootFamilyGame({
         </div>
 
         <div className="p-6 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] max-w-xs mx-auto">
-          <span className="text-xs uppercase font-bold text-emerald-400 block mb-1">Total Score</span>
+          <span className="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Total Score</span>
           <span className="text-4xl font-extrabold text-[var(--foreground)]">{score} pts</span>
         </div>
 
@@ -195,7 +195,7 @@ export function RootFamilyGame({
           <button
             type="button"
             onClick={generateRounds}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
             <RotateCcw className="h-4 w-4" /> Play Another Match
           </button>
@@ -224,29 +224,29 @@ export function RootFamilyGame({
 
         <div className="flex items-center gap-4">
           {streak > 1 && (
-            <span className="flex items-center gap-1 font-bold text-amber-400 text-xs animate-pulse">
+            <span className="flex items-center gap-1 font-bold text-amber-500 text-xs animate-pulse">
               <Flame className="h-3.5 w-3.5" /> {streak}x
             </span>
           )}
-          <span className="font-mono font-bold text-emerald-400 text-sm">{score} pts</span>
+          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">{score} pts</span>
         </div>
       </div>
 
       {/* Target Semantic Cluster Banner */}
       <div className="p-6 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
           <Layers className="h-3.5 w-3.5" /> Target Meaning Family
         </div>
         <h3 className="text-xl md:text-2xl font-bold text-[var(--foreground)]">
           {currentRound.cluster.title}
         </h3>
-        <p className="font-arabic-amiri text-lg text-emerald-400 font-semibold" dir="rtl">
+        <p className="font-arabic-amiri text-lg text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
           {currentRound.cluster.titleAr}
         </p>
         <p className="text-xs text-[var(--muted-foreground)] max-w-lg mx-auto">
           {langPreference === "urdu" ? currentRound.cluster.descriptionUrdu : currentRound.cluster.description}
         </p>
-        <p className="text-[11px] font-semibold text-emerald-300 pt-1">
+        <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 pt-1">
           Select all {currentRound.correctWords.length} words below that belong to this family:
         </p>
       </div>
@@ -260,16 +260,16 @@ export function RootFamilyGame({
           let chipStyle = "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] text-[var(--foreground)]";
 
           if (isSelected && !isSubmitted) {
-            chipStyle = "bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-md";
+            chipStyle = "bg-emerald-500/15 border-emerald-500 text-emerald-800 dark:text-emerald-300 shadow-md";
           }
 
           if (isSubmitted) {
             if (isCorrect && isSelected) {
-              chipStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-md shadow-emerald-950/50";
+              chipStyle = "bg-emerald-500/20 dark:bg-emerald-600/30 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold shadow-md";
             } else if (!isCorrect && isSelected) {
-              chipStyle = "bg-rose-950/50 border-rose-600 text-rose-300";
+              chipStyle = "bg-rose-500/15 dark:bg-rose-950/50 border-rose-500 text-rose-800 dark:text-rose-300";
             } else if (isCorrect && !isSelected) {
-              chipStyle = "border-amber-500/80 bg-amber-950/30 text-amber-300 border-dashed";
+              chipStyle = "border-amber-500/80 bg-amber-500/15 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 border-dashed";
             } else {
               chipStyle = "opacity-35 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
@@ -297,7 +297,7 @@ export function RootFamilyGame({
                 <span className="font-arabic-amiri text-2xl font-bold block" dir="rtl">
                   {word.arabic}
                 </span>
-                <span className="text-[11px] text-emerald-400 font-medium block">
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium block">
                   {word.transliteration}
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)] block truncate">
@@ -308,11 +308,11 @@ export function RootFamilyGame({
               <div className="flex items-center justify-end mt-1">
                 {isSubmitted ? (
                   isCorrect && isSelected ? (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   ) : !isCorrect && isSelected ? (
-                    <XCircle className="h-4 w-4 text-rose-400" />
+                    <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   ) : isCorrect && !isSelected ? (
-                    <span className="text-[10px] text-amber-400 font-semibold">Missed</span>
+                    <span className="text-[10px] text-amber-700 dark:text-amber-300 font-semibold">Missed</span>
                   ) : null
                 ) : (
                   <div

@@ -137,7 +137,7 @@ export function VocabMatchBlitz({
     setFinalXpEarned(finalXP);
 
     // Save score and award rewards
-    saveGameScore("matchBlitz", score + finalXP);
+    saveGameScore("matchBlitz", score, matched, totalAttempts);
     addXP(finalXP);
     if (accuracy >= 80) {
       addGems(3);

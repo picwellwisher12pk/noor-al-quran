@@ -478,18 +478,30 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
               </select>
             </div>
 
-            {/* Offline Data & Downloads Manager */}
-            <div className="pt-1">
+            {/* Offline Audio & Downloads Feature Card */}
+            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-card)] to-teal-500/5 border border-emerald-500/25 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
+                  <CloudDownload className="h-4 w-4 text-emerald-500" />
+                  <span>Offline Audios & Storage</span>
+                </div>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-bold">
+                  Offline Mode
+                </span>
+              </div>
+              <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                Pre-download complete Surah audio recitations and Quran text to listen and study without an active internet connection.
+              </p>
               <button
                 type="button"
                 onClick={() => {
                   onClose();
                   setIsDownloadManagerOpen(true);
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-emerald-600/15 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
+                className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-98"
               >
-                <CloudDownload className="h-4 w-4" />
-                <span>Pre-download Quran & Audios for Offline</span>
+                <CloudDownload className="h-3.5 w-3.5" />
+                <span>Download Audio & Surahs</span>
               </button>
             </div>
 

@@ -29,6 +29,9 @@ import {
 interface MeaningQuizGameProps {
   langPreference?: VocabLangPreference;
   onScoreSaved?: () => void;
+  wordPool?: QuranVocabWord[];
+  customTitle?: string;
+  rangeLimit?: number;
 }
 
 interface Question {
@@ -43,10 +46,24 @@ const SECONDS_PER_QUESTION = 15;
 export function MeaningQuizGame({
   langPreference: propLangPreference,
   onScoreSaved,
+  wordPool,
+  customTitle,
+  rangeLimit,
 }: MeaningQuizGameProps = {}) {
   const { language } = useLanguage();
   const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
   const { playWord } = useAudio();
+
+  const activePool = useMemo(() => {
+    if (wordPool && wordPool.length > 0) return wordPool;
+    if (rangeLimit && rangeLimit > 0) {
+      return [...QURAN_70_VOCABULARY]
+        .sort((a, b) => b.frequency - a.frequency)
+        .slice(0, rangeLimit);
+    }
+    return QURAN_70_VOCABULARY;
+  }, [wordPool, rangeLimit]);
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
@@ -61,12 +78,13 @@ export function MeaningQuizGame({
 
   // Generate a 10-question round
   const generateNewRound = useCallback(() => {
-    const shuffledPool = [...QURAN_70_VOCABULARY].sort(() => Math.random() - 0.5);
-    const selectedTargets = shuffledPool.slice(0, TOTAL_QUESTIONS_PER_ROUND);
+    const shuffledPool = [...activePool].sort(() => Math.random() - 0.5);
+    const selectedTargets = shuffledPool.slice(0, Math.min(TOTAL_QUESTIONS_PER_ROUND, activePool.length));
 
     const generatedQuestions: Question[] = selectedTargets.map((target) => {
-      // Pick 3 unique distractors
-      const poolWithoutTarget = QURAN_70_VOCABULARY.filter((w) => w.id !== target.id);
+      // Pick 3 unique distractors from activePool (or full pool if activePool < 4)
+      const distractorPool = activePool.length >= 4 ? activePool : QURAN_70_VOCABULARY;
+      const poolWithoutTarget = distractorPool.filter((w) => w.id !== target.id);
       const distractors = poolWithoutTarget
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
@@ -91,7 +109,7 @@ export function MeaningQuizGame({
     setTimeLeft(SECONDS_PER_QUESTION);
     setIsGameOver(false);
     setMissedWords([]);
-  }, []);
+  }, [activePool]);
 
   useEffect(() => {
     generateNewRound();
@@ -188,16 +206,16 @@ export function MeaningQuizGame({
     const correctCount = TOTAL_QUESTIONS_PER_ROUND - missedWords.length;
     const accuracy = Math.round((correctCount / TOTAL_QUESTIONS_PER_ROUND) * 100);
 
-    let ratingBadge = { text: "Mumtāz! (ممتاز)", color: "text-emerald-400 bg-emerald-950/60 border-emerald-800/40" };
+    let ratingBadge = { text: "Mumtāz! (ممتاز)", color: "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40" };
     if (accuracy < 60) {
-      ratingBadge = { text: "Keep Practicing! (استمر)", color: "text-amber-400 bg-amber-950/60 border-amber-800/40" };
+      ratingBadge = { text: "Keep Practicing! (استمر)", color: "text-amber-700 dark:text-amber-300 bg-amber-500/15 dark:bg-amber-950/60 border-amber-500/30 dark:border-amber-800/40" };
     } else if (accuracy < 90) {
-      ratingBadge = { text: "Jayyid Jiddan! (جيد جداً)", color: "text-teal-400 bg-teal-950/60 border-teal-800/40" };
+      ratingBadge = { text: "Jayyid Jiddan! (جيد جداً)", color: "text-teal-700 dark:text-teal-300 bg-teal-500/15 dark:bg-teal-950/60 border-teal-500/30 dark:border-teal-800/40" };
     }
 
     return (
       <div className="max-w-2xl mx-auto p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl text-center space-y-6">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-emerald-500/20 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400 shadow-md">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-emerald-500/20 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-500 shadow-md">
           <Trophy className="h-8 w-8" />
         </div>
 
@@ -214,27 +232,27 @@ export function MeaningQuizGame({
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3">
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Score</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Score</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-400 block mb-1">Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Accuracy</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
               {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_QUESTIONS_PER_ROUND})</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Best Streak</span>
+            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">Best Streak</span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
-              <Flame className="h-4 w-4 text-amber-400" /> {maxStreak}
+              <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
             </span>
           </div>
         </div>
 
         {/* Missed Words Summary */}
         {missedWords.length > 0 && (
-          <div className="text-left p-4 rounded-2xl bg-amber-950/20 border border-amber-800/30 space-y-2">
-            <span className="text-xs font-semibold text-amber-400 block">
+          <div className="text-left p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+            <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 block">
               Words to Review ({missedWords.length}):
             </span>
             <div className="flex flex-wrap gap-2">
@@ -272,7 +290,7 @@ export function MeaningQuizGame({
       return (
         <span className="flex flex-col text-left">
           <span className="font-semibold text-xs sm:text-sm">{word.english}</span>
-          <span className="font-urdu-nastaliq text-xs text-emerald-400" dir="rtl">{word.urdu}</span>
+          <span className="font-urdu-nastaliq text-xs text-emerald-700 dark:text-emerald-400" dir="rtl">{word.urdu}</span>
         </span>
       );
     } else {
@@ -285,7 +303,20 @@ export function MeaningQuizGame({
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-2xl mx-auto space-y-4">
+      {/* Mode / Range Badge */}
+      {(customTitle || rangeLimit) && (
+        <div className="flex items-center justify-between px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
+          <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-300">
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>{customTitle || `Top ${rangeLimit} Most Frequent Words Challenge`}</span>
+          </div>
+          <span className="font-mono text-[11px] text-[var(--muted-foreground)]">
+            Pool: {activePool.length} words
+          </span>
+        </div>
+      )}
+
       {/* Quiz Top Hud */}
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         {/* Question Counter */}
@@ -304,22 +335,21 @@ export function MeaningQuizGame({
         {/* Score & Streak */}
         <div className="flex items-center gap-4">
           {streak > 1 && (
-            <span className="flex items-center gap-1 font-bold text-amber-400 animate-pulse text-xs">
+            <span className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400 animate-pulse text-xs">
               <Flame className="h-3.5 w-3.5" /> {streak}x Combo!
             </span>
           )}
-          <span className="font-mono font-bold text-emerald-400 text-sm">
+          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 text-sm">
             {score} pts
           </span>
         </div>
 
         {/* Timer */}
         <div
-          className={`flex items-center gap-1 font-mono font-bold px-2.5 py-1 rounded-xl border ${
-            timeLeft <= 5
-              ? "bg-rose-950/60 border-rose-800/50 text-rose-400 animate-pulse"
+          className={`flex items-center gap-1 font-mono font-bold px-2.5 py-1 rounded-xl border ${timeLeft <= 5
+              ? "bg-rose-500/15 dark:bg-rose-950/60 border-rose-500/30 dark:border-rose-800/50 text-rose-700 dark:text-rose-400 animate-pulse"
               : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--foreground)]"
-          }`}
+            }`}
         >
           <Timer className="h-3.5 w-3.5" />
           <span>{timeLeft}s</span>
@@ -332,7 +362,7 @@ export function MeaningQuizGame({
           <span className="px-2 py-0.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             {currentQ.targetWord.posLabelAr} ({currentQ.targetWord.posLabelEn})
           </span>
-          <span className="px-2 py-0.5 rounded-lg bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 font-mono">
+          <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 font-mono">
             {currentQ.targetWord.frequency.toLocaleString()}x in Quran
           </span>
         </div>
@@ -347,7 +377,7 @@ export function MeaningQuizGame({
               {langPreference === "urdu" ? currentQ.targetWord.urdu : currentQ.targetWord.english}
             </h3>
           )}
-          <p className="text-sm text-emerald-400 font-medium mt-1">
+          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
             {currentQ.targetWord.transliteration}
           </p>
         </div>
@@ -356,7 +386,7 @@ export function MeaningQuizGame({
           <button
             type="button"
             onClick={handlePlayAudio}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm cursor-pointer"
           >
             <Volume2 className="h-3.5 w-3.5" /> Listen Pronunciation
           </button>
@@ -370,9 +400,9 @@ export function MeaningQuizGame({
 
           if (isAnswered) {
             if (idx === currentQ.correctIndex) {
-              btnStyle = "bg-emerald-600/30 border-emerald-500 text-emerald-200 font-bold shadow-md shadow-emerald-950/50";
+              btnStyle = "bg-emerald-500/20 dark:bg-emerald-600/30 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold shadow-md";
             } else if (idx === selectedOptionIndex) {
-              btnStyle = "bg-rose-950/50 border-rose-600 text-rose-300 font-bold";
+              btnStyle = "bg-rose-500/15 dark:bg-rose-950/50 border-rose-500 text-rose-800 dark:text-rose-300 font-bold";
             } else {
               btnStyle = "opacity-40 bg-[var(--surface-raised)] border-[var(--border-subtle)]";
             }
@@ -384,7 +414,7 @@ export function MeaningQuizGame({
               type="button"
               disabled={isAnswered}
               onClick={() => handleAnswer(idx)}
-              className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between gap-2 shadow-sm ${btnStyle}`}
+              className={`p-4 rounded-2xl border-2 transition-all duration-200 text-left flex items-center justify-between gap-2 shadow-sm cursor-pointer ${btnStyle}`}
             >
               <div className="flex items-center gap-3">
                 <span className="w-6 h-6 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px] font-bold text-[var(--muted-foreground)]">
@@ -394,10 +424,10 @@ export function MeaningQuizGame({
               </div>
 
               {isAnswered && idx === currentQ.correctIndex && (
-                <CheckCircle2 className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                <CheckCircle2 className="h-5 w-5 text-emerald-500 flex-shrink-0" />
               )}
               {isAnswered && idx === selectedOptionIndex && idx !== currentQ.correctIndex && (
-                <XCircle className="h-5 w-5 text-rose-400 flex-shrink-0" />
+                <XCircle className="h-5 w-5 text-rose-500 flex-shrink-0" />
               )}
             </button>
           );
@@ -408,7 +438,7 @@ export function MeaningQuizGame({
       {isAnswered && (
         <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
-            <span className="font-semibold text-emerald-400 block">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400 block">
               Meaning Group: {currentQ.targetWord.semanticClusterTitle}
             </span>
             <span className="text-[var(--muted-foreground)]">

@@ -358,6 +358,7 @@ export interface SoundSniperPayload {
   promptAudioUrl: string;
   instruction: string;
   instructionUrdu?: string;
+  mode?: "letter" | "word";
   target: {
     id: string;
     textArabic: string;
@@ -583,7 +584,9 @@ export function generateSoundSniper(levelData?: {
       id: `sniper_letter_${target.id}_${Date.now()}`,
       type: "sound_sniper",
       promptAudioUrl: target.audioUrl,
-      instruction: "Listen to the Qari pronunciation and snipe the matching Arabic letter.",
+      instruction: "Listen to the letter pronunciation and snipe the matching Arabic letter.",
+      instructionUrdu: "تلفظ کو غور سے سنیں اور درست قرآنی حرف کا انتخاب کریں",
+      mode: "letter",
       target: {
         id: target.id,
         textArabic: target.letter,
@@ -591,7 +594,8 @@ export function generateSoundSniper(levelData?: {
         makhraj: target.makhrajCategory
       },
       options,
-      explanation: `The letter '${target.letter}' (${target.name}) is articulated from ${target.makhrajCategory}. Notice the crisp phonetic distinction from similar letters.`
+      explanation: `The letter '${target.letter}' (${target.name}) is articulated from ${target.makhrajCategory}. Notice the crisp phonetic distinction from similar letters.`,
+      explanationUrdu: `یہ حرف '${target.letter}' (${target.nameArabic || target.name}) ہے۔ اس کا مخرج ${target.makhrajCategory} سے ادا ہوتا ہے۔`
     };
   }
 
@@ -638,7 +642,8 @@ export function generateSoundSniper(levelData?: {
     type: "sound_sniper",
     promptAudioUrl: targetWord.audioUrl,
     instruction: "Listen carefully to the word pronunciation and select the exact Quranic word.",
-    instructionUrdu: "تلفظ کو غور سے سنیں اور درست قرآنی لفظ کا انتخاب کریں۔",
+    instructionUrdu: "تلفظ کو غور سے سنیں اور درست قرآنی لفظ کا انتخاب کریں",
+    mode: "word",
     target: {
       id: targetWord.id,
       textArabic: targetWord.textUthmani,
@@ -957,12 +962,20 @@ export function generateSession(
   // If user has weak SRS words, prioritize them in practice mode
   const weakWords = options.targetWeakWordIds || [];
 
+  const isAlphabetUnit = unitId === "u1_alphabet_makharij" || unitId.includes("alphabet");
+
   for (let i = 0; i < count; i++) {
+    if (isAlphabetUnit) {
+      // In the Alphabet & Makharij foundation unit, every question tests isolated letters
+      questions.push(generateSoundSniper({ mode: "letter" }));
+      continue;
+    }
+
     const cycle = i % 4;
     if (cycle === 0) {
-      // Sound Sniper (Letter or Word)
+      // Sound Sniper (Quranic Vocabulary Words)
       const targetWeakId = mode === "practice" && weakWords.length > 0 ? getRandomItem(weakWords) : undefined;
-      questions.push(generateSoundSniper({ targetId: targetWeakId }));
+      questions.push(generateSoundSniper({ mode: "word", targetId: targetWeakId }));
     } else if (cycle === 1) {
       // Root Radar (Sarf Derivation)
       questions.push(generateRootRadar());

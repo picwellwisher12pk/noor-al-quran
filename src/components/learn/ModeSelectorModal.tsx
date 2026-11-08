@@ -2,20 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  X,
   Compass,
   Trophy,
   Zap,
-  Clock,
-  Heart,
-  HelpCircle,
-  ShieldCheck,
-  Sparkles,
   ArrowRight,
   BookOpen
 } from "lucide-react";
+import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
-import { SkillNode } from "../../data/learning/curriculumData";
 
 export function ModeSelectorModal() {
   const {
@@ -32,8 +26,7 @@ export function ModeSelectorModal() {
 
   if (!isModeSelectorOpen || !selectedNode) return null;
 
-  const currentHearts = getHeartCount();
-  const stars = nodeStars[selectedNode.id] || 0;
+  const currentHearts = typeof getHeartCount === "function" ? getHeartCount() : 5;
   const isTestDisabled = currentHearts <= 0;
 
   const handleLaunch = () => {
@@ -44,53 +37,74 @@ export function ModeSelectorModal() {
   const isBilingual = langPreference === "bilingual";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-xl rounded-3xl bg-[var(--modal-bg)] border border-[var(--card-border)] p-6 sm:p-8 shadow-2xl space-y-6 text-left transition-colors">
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={closeModeSelector}
-          className="absolute top-5 right-5 p-2 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
+    <Modal
+      isOpen={isModeSelectorOpen}
+      onClose={closeModeSelector}
+      maxWidth="xl"
+      title={
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-emerald-500" />
+          <span className="font-bold">
+            {isUrdu ? "طریقۂ کار کا انتخاب" : "Choose Learning Mode"}
+          </span>
+        </div>
+      }
+    >
+      <div className="space-y-6 text-left">
         {/* Node Header Banner */}
-        <div className="space-y-1 pr-10">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+        <div className="space-y-1.5 p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               {isUrdu ? `مرحلہ ${selectedNode.phaseNumber}` : `Stage ${selectedNode.phaseNumber}`}
             </span>
-            <span className="text-[var(--muted-foreground)]/40">•</span>
-            <span className="text-xs text-[var(--muted-foreground)] font-mono">~{selectedNode.estimatedMinutes}m</span>
+            <span className="text-xs text-[var(--muted-foreground)] font-mono">
+              ~{selectedNode.estimatedMinutes}m
+            </span>
           </div>
-          <h2 className="text-2xl font-black text-[var(--foreground)] tracking-tight">
+
+          <h2 className="text-xl sm:text-2xl font-black text-[var(--foreground)] tracking-tight">
             {isUrdu ? (selectedNode.titleUrdu || selectedNode.title) : selectedNode.title}
           </h2>
-          {isBilingual && selectedNode.titleUrdu && (
-            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">
-              {selectedNode.titleUrdu}
-            </p>
-          )}
-          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            {isUrdu ? (selectedNode.descriptionUrdu || selectedNode.description) : selectedNode.description}
+
+          <div className="flex items-center justify-between gap-2">
+            {selectedNode.titleArabic && (
+              <span
+                className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
+                dir="rtl"
+              >
+                {selectedNode.titleArabic}
+              </span>
+            )}
+            {isBilingual && selectedNode.titleUrdu && (
+              <p className="text-xs font-bold text-[var(--muted-foreground)]" dir="rtl">
+                {selectedNode.titleUrdu}
+              </p>
+            )}
+          </div>
+
+          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed pt-1">
+            {isUrdu
+              ? (selectedNode.descriptionUrdu || selectedNode.description)
+              : selectedNode.description}
           </p>
         </div>
 
         {/* 3 Play Modes Selection Cards */}
         <div className="space-y-3">
           {/* Option 1: Practice Mode (Sandbox) */}
-          <div
+          <button
+            type="button"
             onClick={() => setSelectedMode("practice")}
-            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+            className={`w-full text-left p-4 rounded-2xl border-2 transition-all cursor-pointer ${
               selectedMode === "practice"
-                ? "bg-emerald-500/10 border-emerald-500 text-[var(--foreground)] shadow-sm"
-                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--foreground)]"
+                ? "bg-emerald-500/10 border-emerald-500 shadow-sm"
+                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)]"
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <Compass className="w-5 h-5" />
                 </div>
                 <div>
@@ -104,26 +118,28 @@ export function ModeSelectorModal() {
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-bold font-mono text-emerald-700 dark:text-emerald-400">1x XP</span>
+              <span className="text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400 shrink-0 pl-2">
+                1x XP
+              </span>
             </div>
-          </div>
+          </button>
 
           {/* Option 2: Test Mode (Arena) */}
-          <div
-            onClick={() => {
-              if (!isTestDisabled) setSelectedMode("test");
-            }}
-            className={`p-4 rounded-2xl border-2 transition-all ${
+          <button
+            type="button"
+            disabled={isTestDisabled}
+            onClick={() => setSelectedMode("test")}
+            className={`w-full text-left p-4 rounded-2xl border-2 transition-all ${
               isTestDisabled
                 ? "opacity-40 cursor-not-allowed bg-[var(--surface-card)] border-[var(--border-subtle)]"
                 : selectedMode === "test"
-                ? "bg-amber-500/10 border-amber-500 text-[var(--foreground)] shadow-sm cursor-pointer"
-                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--foreground)] cursor-pointer"
+                ? "bg-amber-500/10 border-amber-500 shadow-sm cursor-pointer"
+                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] cursor-pointer"
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
                   <Trophy className="w-5 h-5" />
                 </div>
                 <div>
@@ -144,22 +160,25 @@ export function ModeSelectorModal() {
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-bold font-mono text-amber-700 dark:text-amber-400">3x XP</span>
+              <span className="text-xs font-bold font-mono text-amber-600 dark:text-amber-400 shrink-0 pl-2">
+                3x XP
+              </span>
             </div>
-          </div>
+          </button>
 
           {/* Option 3: SRS Weak-Word Blitz */}
-          <div
+          <button
+            type="button"
             onClick={() => setSelectedMode("blitz")}
-            className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+            className={`w-full text-left p-4 rounded-2xl border-2 transition-all cursor-pointer ${
               selectedMode === "blitz"
-                ? "bg-purple-500/10 border-purple-500 text-[var(--foreground)] shadow-sm"
-                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--foreground)]"
+                ? "bg-purple-500/10 border-purple-500 shadow-sm"
+                : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)]"
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-700 dark:text-purple-400">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
@@ -173,9 +192,11 @@ export function ModeSelectorModal() {
                   </p>
                 </div>
               </div>
-              <span className="text-xs font-bold font-mono text-purple-700 dark:text-purple-400">2x XP</span>
+              <span className="text-xs font-bold font-mono text-purple-600 dark:text-purple-400 shrink-0 pl-2">
+                2x XP
+              </span>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Action Button */}
@@ -183,7 +204,7 @@ export function ModeSelectorModal() {
           <button
             type="button"
             onClick={handleLaunch}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm tracking-wide shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
+            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm tracking-wide shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
           >
             <span>
               {isUrdu
@@ -198,6 +219,6 @@ export function ModeSelectorModal() {
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

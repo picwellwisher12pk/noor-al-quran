@@ -78,22 +78,22 @@ export function AyahPuzzleBuilder({
   return (
     <div className="w-full max-w-xl mx-auto space-y-5 animate-in fade-in duration-200 text-left">
       {/* Header Context & Audio Trigger */}
-      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/5 border border-white/10">
+      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
         <div className="space-y-0.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
             {payload.surahNameEn} ({payload.surahNameAr}) • Ayah {payload.verseKey}
           </span>
           {payload.fullTranslationUrdu && (langPreference === "urdu" || langPreference === "bilingual") ? (
-            <p className="text-xs text-white/90 font-medium line-clamp-1" dir="rtl">
+            <p className="text-xs text-[var(--foreground)] font-medium line-clamp-1" dir="rtl">
               "{payload.fullTranslationUrdu}"
             </p>
           ) : (
-            <p className="text-xs text-white/70 font-medium line-clamp-1">
+            <p className="text-xs text-[var(--muted-foreground)] font-medium line-clamp-1">
               "{payload.fullTranslationEn}"
             </p>
           )}
           {langPreference === "bilingual" && payload.fullTranslationUrdu && (
-            <p className="text-[10px] text-white/50 font-medium line-clamp-1">
+            <p className="text-[10px] text-[var(--muted-foreground)] font-medium line-clamp-1">
               {payload.fullTranslationEn}
             </p>
           )}
@@ -105,7 +105,7 @@ export function AyahPuzzleBuilder({
           className={`p-2 rounded-xl border transition-all cursor-pointer ${
             isAudioPlaying
               ? "bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-500/30 animate-pulse"
-              : "bg-white/5 hover:bg-white/10 border-white/10 text-emerald-400"
+              : "bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-emerald-600 dark:text-emerald-400"
           }`}
           title="Listen to Verse Recitation"
         >
@@ -115,19 +115,19 @@ export function AyahPuzzleBuilder({
 
       {/* Mode Switcher: Arabic Assembly (RTL) vs Urdu (RTL) vs English (LTR) */}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider">
+        <span className="text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider">
           {langPreference === "urdu"
             ? `ترتیب شدہ الفاظ (${placedBlockIds.length}/${totalRequired}):`
             : `Assembled Ayah (${placedBlockIds.length}/${totalRequired} words):`}
         </span>
-        <div className="flex items-center gap-1 p-0.5 rounded-xl bg-black/40 border border-white/5 text-[10px] font-bold">
+        <div className="flex items-center gap-1 p-0.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[10px] font-bold">
           <button
             type="button"
             onClick={() => setMode("arabic")}
             className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "arabic"
-                ? "bg-emerald-600 text-white"
-                : "text-white/50 hover:text-white"
+                ? "bg-emerald-600 text-white font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             عربی (RTL)
@@ -137,8 +137,8 @@ export function AyahPuzzleBuilder({
             onClick={() => setMode("urdu")}
             className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "urdu"
-                ? "bg-emerald-600 text-white"
-                : "text-white/50 hover:text-white"
+                ? "bg-emerald-600 text-white font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             اردو (RTL)
@@ -148,8 +148,8 @@ export function AyahPuzzleBuilder({
             onClick={() => setMode("english")}
             className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
               mode === "english"
-                ? "bg-emerald-600 text-white"
-                : "text-white/50 hover:text-white"
+                ? "bg-emerald-600 text-white font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
             English
@@ -162,12 +162,12 @@ export function AyahPuzzleBuilder({
         className={`min-h-[110px] p-4 rounded-3xl border-2 border-dashed transition-all flex flex-wrap items-center gap-2 relative ${
           placedBlockIds.length === totalRequired
             ? "bg-emerald-500/10 border-emerald-500/50"
-            : "bg-white/5 border-white/15"
+            : "bg-[var(--surface-card)]/50 border-[var(--border-subtle)]"
         }`}
         dir={mode === "english" ? "ltr" : "rtl"}
       >
         {placedBlockIds.length === 0 ? (
-          <div className="w-full text-center py-4 text-xs text-white/40 font-medium">
+          <div className="w-full text-center py-4 text-xs text-[var(--muted-foreground)] font-medium">
             {langPreference === "urdu"
               ? "نیچے موجود قرآنی الفاظ کے کارڈز کو صحیح ترتیب میں ٹیپ کریں"
               : "Tap available word blocks below in correct grammatical sequence"}
@@ -183,7 +183,7 @@ export function AyahPuzzleBuilder({
                 type="button"
                 disabled={disabled || hasSubmitted}
                 onClick={() => handleBlockRemove(blockId)}
-                className="px-3.5 py-2 rounded-2xl bg-gradient-to-b from-white/15 to-white/10 hover:from-rose-500/20 hover:to-rose-500/30 border border-white/20 hover:border-rose-400 text-white transition-all cursor-pointer active:scale-95 text-center shadow-md group"
+                className="px-3.5 py-2 rounded-2xl bg-[var(--surface-raised)] hover:bg-rose-500/15 border border-[var(--border-subtle)] hover:border-rose-400 text-[var(--foreground)] transition-all cursor-pointer active:scale-95 text-center shadow-md group"
               >
                 {mode === "arabic" ? (
                   <span
@@ -193,15 +193,15 @@ export function AyahPuzzleBuilder({
                     {block.text}
                   </span>
                 ) : mode === "urdu" ? (
-                  <span className="text-sm font-bold block text-emerald-300">
+                  <span className="text-sm font-bold block text-emerald-700 dark:text-emerald-300">
                     {block.translationUrdu || block.translation}
                   </span>
                 ) : (
-                  <span className="text-xs font-semibold block text-emerald-300">
+                  <span className="text-xs font-semibold block text-emerald-700 dark:text-emerald-300">
                     {block.translation}
                   </span>
                 )}
-                <span className="text-[9px] text-white/40 block group-hover:text-rose-300 transition-colors">
+                <span className="text-[9px] text-[var(--muted-foreground)] block group-hover:text-rose-500 dark:group-hover:text-rose-300 transition-colors">
                   #{index + 1} • tap to remove
                 </span>
               </button>
@@ -212,17 +212,17 @@ export function AyahPuzzleBuilder({
 
       {/* Word Bank Scrambled Tiles */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-[11px] font-bold text-white/50 uppercase tracking-wider">
+        <div className="flex items-center justify-between text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider">
           <span>{langPreference === "urdu" ? "دستیاب الفاظ:" : "Available Word Tiles:"}</span>
           {hintsAllowed && (
-            <span className="text-emerald-400 lowercase font-normal">
+            <span className="text-emerald-600 dark:text-emerald-400 lowercase font-normal">
               {langPreference === "urdu" ? "درست تلفظ سننے کے لیے لفظ دبائیں" : "tap to hear authentic audio"}
             </span>
           )}
         </div>
 
         <div
-          className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-white/5 border border-white/10"
+          className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]"
           dir={mode === "english" ? "ltr" : "rtl"}
         >
           {availableBlocks.map((block) => (
@@ -231,7 +231,7 @@ export function AyahPuzzleBuilder({
               type="button"
               disabled={disabled || hasSubmitted}
               onClick={() => handleBlockSelect(block.id)}
-              className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-emerald-500/20 border border-white/15 hover:border-emerald-400/50 text-white transition-all cursor-pointer active:scale-95 text-center shadow-md hover:scale-105"
+              className="px-4 py-2.5 rounded-2xl bg-[var(--surface-raised)] hover:bg-emerald-500/15 border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--foreground)] transition-all cursor-pointer active:scale-95 text-center shadow-md hover:scale-105"
             >
               {mode === "arabic" ? (
                 <>
@@ -242,22 +242,22 @@ export function AyahPuzzleBuilder({
                     {block.text}
                   </span>
                   {(langPreference === "urdu" || langPreference === "bilingual") && block.translationUrdu ? (
-                    <span className="text-[10px] text-emerald-300/80 block mt-0.5">
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-300 block mt-0.5">
                       {block.translationUrdu}
                     </span>
                   ) : (
-                    <span className="text-[10px] text-white/50 block mt-0.5">
+                    <span className="text-[10px] text-[var(--muted-foreground)] block mt-0.5">
                       {block.translation}
                     </span>
                   )}
                 </>
               ) : mode === "urdu" ? (
                 <>
-                  <span className="text-sm font-bold block text-emerald-300">
+                  <span className="text-sm font-bold block text-emerald-700 dark:text-emerald-300">
                     {block.translationUrdu || block.translation}
                   </span>
                   <span
-                    className="text-xs text-white/50 block mt-0.5"
+                    className="text-xs text-[var(--muted-foreground)] block mt-0.5"
                     style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
                   >
                     {block.text}
@@ -265,11 +265,11 @@ export function AyahPuzzleBuilder({
                 </>
               ) : (
                 <>
-                  <span className="text-xs font-semibold block text-emerald-300">
+                  <span className="text-xs font-semibold block text-emerald-700 dark:text-emerald-300">
                     {block.translation}
                   </span>
                   <span
-                    className="text-xs text-white/50 block mt-0.5"
+                    className="text-xs text-[var(--muted-foreground)] block mt-0.5"
                     style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
                   >
                     {block.text}
@@ -287,7 +287,7 @@ export function AyahPuzzleBuilder({
           type="button"
           disabled={placedBlockIds.length === 0 || disabled || hasSubmitted}
           onClick={handleReset}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/10 transition-all cursor-pointer disabled:opacity-40"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)] transition-all cursor-pointer disabled:opacity-40"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           {langPreference === "urdu" ? "دوبارہ ترتیب دیں" : "Reset Blocks"}

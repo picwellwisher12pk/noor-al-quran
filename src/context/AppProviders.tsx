@@ -9,6 +9,7 @@ import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext"
 import { KhatmahProvider } from "@/context/KhatmahContext";
 import { ReadingActivityProvider } from "@/context/ReadingActivityContext";
 import { DesktopWorkspaceProvider } from "@/context/DesktopWorkspaceContext";
+import { GoogleAuthProvider } from "@/context/GoogleAuthContext";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ interface AppProvidersProps {
 /**
  * Consolidated top-level application context providers.
  * Encapsulates theme, language, audio, reading preferences, bookmarks,
- * activity tracking, and desktop workspace layout state.
+ * activity tracking, desktop workspace layout, and Google Drive cloud sync state.
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
@@ -29,7 +30,9 @@ export function AppProviders({ children }: AppProvidersProps) {
               <KhatmahProvider>
                 <ReadingActivityProvider>
                   <DesktopWorkspaceProvider>
-                    {children}
+                    <GoogleAuthProvider>
+                      {children}
+                    </GoogleAuthProvider>
                   </DesktopWorkspaceProvider>
                 </ReadingActivityProvider>
               </KhatmahProvider>

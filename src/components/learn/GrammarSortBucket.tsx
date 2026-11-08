@@ -56,12 +56,12 @@ export function GrammarSortBucket({
     <div className="w-full max-w-xl mx-auto space-y-6 animate-in fade-in duration-200 text-left">
       {/* Verse Context Quote if available */}
       {payload.verseText && (
-        <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-center space-y-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block">
+        <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">
             {langPreference === "urdu" ? `قرآنی آیت کا سیاق (${payload.verseKey})` : `Quranic Context (${payload.verseKey})`}
           </span>
           <p
-            className="text-xl sm:text-2xl font-bold text-white tracking-wide leading-relaxed"
+            className="text-xl sm:text-2xl font-bold text-[var(--foreground)] tracking-wide leading-relaxed"
             style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
             dir="rtl"
           >
@@ -72,14 +72,14 @@ export function GrammarSortBucket({
 
       {/* Active Token Card Showcase */}
       {currentToken && !hasSubmitted && (
-        <div className="p-5 rounded-3xl bg-gradient-to-b from-white/10 to-white/5 border border-white/15 text-center space-y-2 shadow-xl">
-          <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
+        <div className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-center space-y-2 shadow-sm">
+          <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
             {langPreference === "urdu"
               ? `کلمہ ${activeTokenIndex + 1} از ${tokens.length}`
               : `Token ${activeTokenIndex + 1} of ${tokens.length}`}
           </span>
           <div
-            className="text-3xl sm:text-4xl font-black text-white tracking-wide"
+            className="text-3xl sm:text-4xl font-black text-[var(--foreground)] tracking-wide"
             style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
             dir="rtl"
           >
@@ -88,12 +88,12 @@ export function GrammarSortBucket({
 
           <div className="space-y-0.5">
             {(langPreference === "urdu" || langPreference === "bilingual") && currentToken.translationUrdu ? (
-              <p className="text-sm text-emerald-300 font-bold" dir="rtl">
+              <p className="text-sm text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
                 "{currentToken.translationUrdu}"
               </p>
             ) : null}
             {langPreference !== "urdu" && (
-              <p className="text-xs text-white/70 font-medium">
+              <p className="text-xs text-[var(--muted-foreground)] font-medium">
                 "{currentToken.translationEn || currentToken.transliteration}"
               </p>
             )}
@@ -110,11 +110,11 @@ export function GrammarSortBucket({
           onClick={() => handleAssignCurrent("ism")}
           className={`p-4 rounded-2xl border-2 transition-all text-center space-y-1.5 cursor-pointer active:scale-95 ${
             currentToken && assignments[currentToken.id] === "ism"
-              ? "bg-blue-600/30 border-blue-400 text-blue-200 shadow-lg shadow-blue-500/20 scale-102"
-              : "bg-blue-950/20 hover:bg-blue-950/40 border-blue-500/30 text-blue-300"
+              ? "bg-blue-500/20 border-blue-500 text-blue-800 dark:text-blue-200 shadow-md shadow-blue-500/20 scale-102 font-bold"
+              : "bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/30 text-blue-700 dark:text-blue-300"
           }`}
         >
-          <Layers className="w-5 h-5 mx-auto text-blue-400" />
+          <Layers className="w-5 h-5 mx-auto text-blue-500" />
           <span
             className="text-lg font-bold block"
             style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
@@ -124,7 +124,7 @@ export function GrammarSortBucket({
           <span className="text-xs font-bold block">
             {langPreference === "urdu" ? "اسم (Ism)" : "Ism (Noun)"}
           </span>
-          <span className="text-[10px] text-white/40 block leading-tight">
+          <span className="text-[10px] text-[var(--muted-foreground)] block leading-tight">
             {langPreference === "urdu"
               ? "شخص، جگہ، چیز یا صفت"
               : langPreference === "bilingual"
@@ -140,11 +140,11 @@ export function GrammarSortBucket({
           onClick={() => handleAssignCurrent("fil")}
           className={`p-4 rounded-2xl border-2 transition-all text-center space-y-1.5 cursor-pointer active:scale-95 ${
             currentToken && assignments[currentToken.id] === "fil"
-              ? "bg-emerald-600/30 border-emerald-400 text-emerald-200 shadow-lg shadow-emerald-500/20 scale-102"
-              : "bg-emerald-950/20 hover:bg-emerald-950/40 border-emerald-500/30 text-emerald-300"
+              ? "bg-emerald-500/20 border-emerald-500 text-emerald-800 dark:text-emerald-200 shadow-md shadow-emerald-500/20 scale-102 font-bold"
+              : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
           }`}
         >
-          <Zap className="w-5 h-5 mx-auto text-emerald-400" />
+          <Zap className="w-5 h-5 mx-auto text-emerald-500" />
           <span
             className="text-lg font-bold block"
             style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
@@ -154,7 +154,7 @@ export function GrammarSortBucket({
           <span className="text-xs font-bold block">
             {langPreference === "urdu" ? "فعل (Fi'l)" : "Fi'l (Verb)"}
           </span>
-          <span className="text-[10px] text-white/40 block leading-tight">
+          <span className="text-[10px] text-[var(--muted-foreground)] block leading-tight">
             {langPreference === "urdu"
               ? "زمانہ سے جڑا کام یا عمل"
               : langPreference === "bilingual"
@@ -170,11 +170,11 @@ export function GrammarSortBucket({
           onClick={() => handleAssignCurrent("harf")}
           className={`p-4 rounded-2xl border-2 transition-all text-center space-y-1.5 cursor-pointer active:scale-95 ${
             currentToken && assignments[currentToken.id] === "harf"
-              ? "bg-rose-600/30 border-rose-400 text-rose-200 shadow-lg shadow-rose-500/20 scale-102"
-              : "bg-rose-950/20 hover:bg-rose-950/40 border-rose-500/30 text-rose-300"
+              ? "bg-rose-500/20 border-rose-500 text-rose-800 dark:text-rose-200 shadow-md shadow-rose-500/20 scale-102 font-bold"
+              : "bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30 text-rose-700 dark:text-rose-300"
           }`}
         >
-          <Compass className="w-5 h-5 mx-auto text-rose-400" />
+          <Compass className="w-5 h-5 mx-auto text-rose-500" />
           <span
             className="text-lg font-bold block"
             style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
@@ -184,7 +184,7 @@ export function GrammarSortBucket({
           <span className="text-xs font-bold block">
             {langPreference === "urdu" ? "حرف (Harf)" : "Harf (Particle)"}
           </span>
-          <span className="text-[10px] text-white/40 block leading-tight">
+          <span className="text-[10px] text-[var(--muted-foreground)] block leading-tight">
             {langPreference === "urdu"
               ? "حرفِ جر، عطف یا ربط"
               : langPreference === "bilingual"
@@ -196,7 +196,7 @@ export function GrammarSortBucket({
 
       {/* Tokens Review List */}
       <div className="space-y-2">
-        <span className="text-[11px] font-bold text-white/50 uppercase tracking-wider block">
+        <span className="text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider block">
           {langPreference === "urdu" ? "آیت کے کلمات کی درجہ بندی:" : "Tokens Classification:"}
         </span>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -204,10 +204,10 @@ export function GrammarSortBucket({
             const assigned = assignments[token.id];
             const isTarget = idx === activeTokenIndex && !hasSubmitted;
 
-            let badgeColor = "bg-white/5 border-white/10 text-white/40";
-            if (assigned === "ism") badgeColor = "bg-blue-500/20 border-blue-400 text-blue-300";
-            if (assigned === "fil") badgeColor = "bg-emerald-500/20 border-emerald-400 text-emerald-300";
-            if (assigned === "harf") badgeColor = "bg-rose-500/20 border-rose-400 text-rose-300";
+            let badgeColor = "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)]";
+            if (assigned === "ism") badgeColor = "bg-blue-500/15 border-blue-400 text-blue-700 dark:text-blue-300 font-bold";
+            if (assigned === "fil") badgeColor = "bg-emerald-500/15 border-emerald-400 text-emerald-700 dark:text-emerald-300 font-bold";
+            if (assigned === "harf") badgeColor = "bg-rose-500/15 border-rose-400 text-rose-700 dark:text-rose-300 font-bold";
 
             return (
               <button
@@ -216,11 +216,11 @@ export function GrammarSortBucket({
                 disabled={hasSubmitted || disabled}
                 onClick={() => setActiveTokenIndex(idx)}
                 className={`p-2.5 rounded-xl border flex items-center justify-between text-xs transition-all cursor-pointer ${badgeColor} ${
-                  isTarget ? "ring-2 ring-emerald-400 scale-102" : ""
+                  isTarget ? "ring-2 ring-emerald-500 scale-102 shadow-sm" : ""
                 }`}
               >
                 <span
-                  className="font-bold text-sm"
+                  className="font-bold text-sm text-[var(--foreground)]"
                   style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
                   dir="rtl"
                 >

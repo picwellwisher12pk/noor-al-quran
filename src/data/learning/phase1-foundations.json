@@ -140,7 +140,7 @@
         "medial": "ـا",
         "final": "ـا"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/001_001_002.mp3"
+      "audioUrl": "/audio/alphabet/alif.mp3"
     },
     {
       "id": "baa",
@@ -155,7 +155,7 @@
         "medial": "ـبـ",
         "final": "ـب"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/001_001_001.mp3"
+      "audioUrl": "/audio/alphabet/baa.mp3"
     },
     {
       "id": "taa",
@@ -170,7 +170,7 @@
         "medial": "ـتـ",
         "final": "ـت"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/111_001_001.mp3"
+      "audioUrl": "/audio/alphabet/taa.mp3"
     },
     {
       "id": "thaa",
@@ -185,7 +185,7 @@
         "medial": "ـثـ",
         "final": "ـث"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/102_004_001.mp3"
+      "audioUrl": "/audio/alphabet/thaa.mp3"
     },
     {
       "id": "jeem",
@@ -200,7 +200,7 @@
         "medial": "ـجـ",
         "final": "ـج"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/110_001_002.mp3"
+      "audioUrl": "/audio/alphabet/jeem.mp3"
     },
     {
       "id": "haa_throat",
@@ -215,7 +215,7 @@
         "medial": "ـحـ",
         "final": "ـح"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/001_002_001.mp3"
+      "audioUrl": "/audio/alphabet/haa_throat.mp3"
     },
     {
       "id": "khaa",
@@ -230,7 +230,7 @@
         "medial": "ـخـ",
         "final": "ـخ"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/096_001_003.mp3"
+      "audioUrl": "/audio/alphabet/khaa.mp3"
     },
     {
       "id": "daal",
@@ -245,7 +245,7 @@
         "medial": "ـد",
         "final": "ـد"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/112_001_004.mp3"
+      "audioUrl": "/audio/alphabet/daal.mp3"
     },
     {
       "id": "dhaal",
@@ -260,7 +260,7 @@
         "medial": "ـذ",
         "final": "ـذ"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/107_001_002.mp3"
+      "audioUrl": "/audio/alphabet/dhaal.mp3"
     },
     {
       "id": "raa",
@@ -275,7 +275,7 @@
         "medial": "ـر",
         "final": "ـر"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/001_001_003.mp3"
+      "audioUrl": "/audio/alphabet/raa.mp3"
     },
     {
       "id": "zaay",
@@ -290,7 +290,7 @@
         "medial": "ـز",
         "final": "ـز"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/099_001_001.mp3"
+      "audioUrl": "/audio/alphabet/zaay.mp3"
     },
     {
       "id": "seen",
@@ -305,7 +305,7 @@
         "medial": "ـسـ",
         "final": "ـس"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/114_001_004.mp3"
+      "audioUrl": "/audio/alphabet/seen.mp3"
     },
     {
       "id": "sheen",
@@ -320,7 +320,7 @@
         "medial": "ـشـ",
         "final": "ـش"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/091_001_001.mp3"
+      "audioUrl": "/audio/alphabet/sheen.mp3"
     },
     {
       "id": "saad",
@@ -335,7 +335,7 @@
         "medial": "ـصـ",
         "final": "ـص"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/103_001_001.mp3"
+      "audioUrl": "/audio/alphabet/saad.mp3"
     },
     {
       "id": "daad",
@@ -350,7 +350,7 @@
         "medial": "ـضـ",
         "final": "ـض"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/093_001_001.mp3"
+      "audioUrl": "/audio/alphabet/daad.mp3"
     },
     {
       "id": "taa_heavy",
@@ -365,7 +365,7 @@
         "medial": "ـطـ",
         "final": "ـط"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/106_004_001.mp3"
+      "audioUrl": "/audio/alphabet/taa_heavy.mp3"
     },
     {
       "id": "dhaa_heavy",
@@ -380,7 +380,7 @@
         "medial": "ـظـ",
         "final": "ـظ"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/090_001_001.mp3"
+      "audioUrl": "/audio/alphabet/dhaa_heavy.mp3"
     },
     {
       "id": "ayn",
@@ -395,7 +395,7 @@
         "medial": "ـعـ",
         "final": "ـع"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/103_001_001.mp3"
+      "audioUrl": "/audio/alphabet/ayn.mp3"
     },
     {
       "id": "ghayn",
@@ -410,7 +410,7 @@
         "medial": "ـغـ",
         "final": "ـغ"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/113_003_002.mp3"
+      "audioUrl": "/audio/alphabet/ghayn.mp3"
     },
     {
       "id": "faa",
@@ -425,7 +425,7 @@
         "medial": "ـفـ",
         "final": "ـف"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/106_003_001.mp3"
+      "audioUrl": "/audio/alphabet/faa.mp3"
     },
     {
       "id": "qaaf",
@@ -440,7 +440,7 @@
         "medial": "ـقـ",
         "final": "ـق"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/112_001_001.mp3"
+      "audioUrl": "/audio/alphabet/qaaf.mp3"
     },
     {
       "id": "kaaf",
@@ -455,7 +455,7 @@
         "medial": "ـكـ",
         "final": "ـك"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/108_001_002.mp3"
+      "audioUrl": "/audio/alphabet/kaaf.mp3"
     },
     {
       "id": "laam",
@@ -470,7 +470,7 @@
         "medial": "ـلـ",
         "final": "ـل"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/112_002_001.mp3"
+      "audioUrl": "/audio/alphabet/laam.mp3"
     },
     {
       "id": "meem",
@@ -485,7 +485,7 @@
         "medial": "ـمـ",
         "final": "ـم"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/001_002_002.mp3"
+      "audioUrl": "/audio/alphabet/meem.mp3"
     },
     {
       "id": "noon",
@@ -500,7 +500,7 @@
         "medial": "ـنـ",
         "final": "ـن"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/114_001_004.mp3"
+      "audioUrl": "/audio/alphabet/noon.mp3"
     },
     {
       "id": "haa_chest",
@@ -515,7 +515,7 @@
         "medial": "ـهـ",
         "final": "ـه"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/112_001_002.mp3"
+      "audioUrl": "/audio/alphabet/haa_chest.mp3"
     },
     {
       "id": "waaw",
@@ -530,7 +530,7 @@
         "medial": "ـو",
         "final": "ـو"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/103_001_001.mp3"
+      "audioUrl": "/audio/alphabet/waaw.mp3"
     },
     {
       "id": "yaa",
@@ -545,7 +545,7 @@
         "medial": "ـيـ",
         "final": "ـي"
       },
-      "audioUrl": "https://audio.qurancdn.com/wbw/107_001_004.mp3"
+      "audioUrl": "/audio/alphabet/yaa.mp3"
     }
   ],
   "harakatAndTashkeel": [

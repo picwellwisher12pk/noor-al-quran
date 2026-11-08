@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  X,
   ShieldAlert,
   Volume2,
   Zap,
@@ -11,6 +10,7 @@ import {
   Sparkles,
   BookOpen
 } from "lucide-react";
+import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
 import phase1Foundations from "../../data/learning/phase1-foundations.json";
 import { getWordUrduGloss } from "../../lib/quiz-engine";
@@ -36,10 +36,10 @@ export function ReviewVaultModal() {
     phase1Foundations.top30ParticlesAndPronouns.map((p) => [p.id, p])
   );
 
-  const wordRecords = Object.values(srsWords);
+  const wordRecords = Object.values(srsWords || {});
   const now = new Date().toISOString();
   const weakWords = wordRecords.filter(
-    (w) => w.masteryLevel <= 2 || w.nextReviewAt <= now
+    (w) => w && (w.masteryLevel <= 2 || (w.nextReviewAt && w.nextReviewAt <= now))
   );
 
   const handlePlayAudio = (audioUrl: string | null, id: string) => {
@@ -56,130 +56,120 @@ export function ReviewVaultModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[85vh] rounded-3xl bg-[var(--modal-bg)] border border-[var(--card-border)] p-6 sm:p-8 shadow-2xl flex flex-col space-y-5 text-left transition-colors">
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={() => toggleReviewVault(false)}
-          className="absolute top-5 right-5 p-2 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Header */}
-        <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] pb-4">
-          <div className="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 flex items-center justify-center shadow-sm">
-            <ShieldAlert className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-xl font-black text-[var(--foreground)] tracking-tight flex items-center gap-2">
-              <span>{isUrdu ? "سپیسڈ ریپیٹیشن والٹ" : "Spaced Repetition Review Vault"}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 font-mono font-bold">
-                {weakWords.length} {isUrdu ? "زیرِ نظر" : "Due"}
-              </span>
-            </h2>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
-              {isUrdu
-                ? "سوپر میمو SM-2 الگورتھم: جو الفاظ آپ سے چھوٹ جاتے ہیں، وہ پختہ یادداشت تک ترجیحی بنیاد پر دہرائے جاتے ہیں۔"
-                : "SuperMemo SM-2 interval scheduling: words you miss recur with priority until permanently mastered."}
-            </p>
-          </div>
+    <Modal
+      isOpen={isReviewVaultOpen}
+      onClose={() => toggleReviewVault(false)}
+      maxWidth="2xl"
+      title={
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="w-5 h-5 text-amber-500" />
+          <span className="font-bold">
+            {isUrdu ? "سپیسڈ ریپیٹیشن والٹ" : "Spaced Repetition Review Vault"}
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 font-mono font-bold">
+            {weakWords.length} {isUrdu ? "زیرِ نظر" : "Due"}
+          </span>
         </div>
+      }
+    >
+      <div className="space-y-5 text-left">
+        <p className="text-xs text-[var(--muted-foreground)]">
+          {isUrdu
+            ? "سوپر میمو SM-2 الگورتھم: جو الفاظ آپ سے چھوٹ جاتے ہیں، وہ پختہ یادداشت تک ترجیحی بنیاد پر دہرائے جاتے ہیں۔"
+            : "SuperMemo SM-2 interval scheduling: words you miss recur with priority until permanently mastered."}
+        </p>
 
         {/* Quick Action Banner */}
         {weakWords.length > 0 && (
           <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-emerald-500/10 border border-amber-500/30 flex items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <span className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 fill-amber-500" />
-                {isUrdu ? "کمزور الفاظ کا بلٹز ٹیسٹ دستیاب ہے" : "Weak-Word Blitz Available"}
-              </span>
-              <p className="text-[11px] text-[var(--muted-foreground)]">
+              <h4 className="text-sm font-bold text-[var(--foreground)]">
+                {isUrdu ? "فوری ۵ سوالی جائزہ (SRS Blitz)" : "Launch 5-Question SRS Blitz"}
+              </h4>
+              <p className="text-xs text-[var(--muted-foreground)]">
                 {isUrdu
-                  ? `آپ کے پاس ${weakWords.length} الفاظ ہیں جن کی دہرائی ضروری ہے۔`
-                  : `You have ${weakWords.length} words needing memory reinforcement.`}
+                  ? "صرف انہی الفاظ پر مشتمل تیز رفتار چیلنج تاکہ آپ کی کمزوری دور ہو"
+                  : "Target strictly due & weak words to refresh memory intervals"}
               </p>
             </div>
             <button
               type="button"
               onClick={handleStartBlitz}
-              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold shadow-sm transition-all cursor-pointer whitespace-nowrap"
+              className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
             >
-              {isUrdu ? "۵ الفاظ کا بلٹز شروع کریں" : "Start 5-Word Blitz"}
+              <Zap className="w-3.5 h-3.5 fill-black" />
+              <span>{isUrdu ? "بلٹز شروع کریں" : "Start Blitz"}</span>
             </button>
           </div>
         )}
 
         {/* Word List Scroll Container */}
-        <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[48vh] custom-scrollbar">
-          {wordRecords.length === 0 ? (
-            <div className="py-12 text-center text-[var(--muted-foreground)] space-y-2">
-              <BookOpen className="w-8 h-8 mx-auto opacity-30" />
-              <p className="text-xs">
-                {isUrdu
-                  ? "آپ کا والٹ فی الحال خالی ہے! اسباق مکمل کر کے قرآنی الفاظ شامل کریں۔"
-                  : "Your review vault is currently clear! Complete lessons to register vocabulary."}
-              </p>
+        <div className="space-y-2.5 max-h-[50vh] overflow-y-auto pr-1">
+          {weakWords.length === 0 ? (
+            <div className="py-12 text-center space-y-3">
+              <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-base font-bold text-[var(--foreground)]">
+                  {isUrdu ? "والٹ بالکل صاف ہے!" : "Review Vault is Clear!"}
+                </h4>
+                <p className="text-xs text-[var(--muted-foreground)] max-w-sm mx-auto">
+                  {isUrdu
+                    ? "ماشاء اللہ! آپ کے تمام سیکھے ہوئے الفاظ مستحکم ہیں۔ نئے اسباق یا ٹیسٹ کھیلیں تاکہ مزید ذخیرہ الفاظ والٹ میں شامل ہو۔"
+                    : "All studied vocabulary items are currently fresh in memory. Continue playing arcade modes or lessons to expand your deck."}
+                </p>
+              </div>
             </div>
           ) : (
-            wordRecords.map((record) => {
+            weakWords.map((record) => {
               const particle = particlesMap.get(record.wordId);
               const arabicText = particle?.textUthmani || record.wordId;
-              const transliteration = particle?.transliteration || "";
-              const translationEn = particle?.translationEn || "Quranic vocabulary";
-              const translationUrdu = particle?.translationUrdu || getWordUrduGloss(arabicText);
-              const isDue = record.masteryLevel <= 2 || record.nextReviewAt <= now;
+              const englishMeaning = particle?.translationEn || "Quranic Word";
+              const urduMeaning = particle?.translationUrdu || getWordUrduGloss(arabicText);
+              const safeAudio = buildSafeWordAudioUrl(record.wordId);
+              const isPlaying = playingAudioId === record.wordId;
 
               return (
                 <div
                   key={record.wordId}
-                  className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                    isDue
-                      ? "bg-amber-500/10 border-amber-500/30 text-[var(--foreground)]"
-                      : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--foreground)]"
-                  }`}
+                  className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 hover:border-emerald-500/30 transition-colors"
                 >
+                  {/* Left: Arabic & Audio */}
                   <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      disabled={!particle?.id}
-                      onClick={() => handlePlayAudio(particle ? buildSafeWordAudioUrl(particle.id) : null, record.wordId)}
-                      className="p-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 transition-colors"
-                      title="Pronounce Word"
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </button>
+                    {safeAudio && (
+                      <button
+                        type="button"
+                        onClick={() => handlePlayAudio(safeAudio, record.wordId)}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                          isPlaying
+                            ? "bg-emerald-600 text-white animate-pulse"
+                            : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] border border-[var(--border-subtle)]"
+                        }`}
+                        title="Play Authentic Audio"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                    )}
 
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-baseline gap-2">
                         <span
-                          className="text-lg font-bold"
+                          className="text-lg font-bold text-emerald-700 dark:text-emerald-300"
                           style={{ fontFamily: "Amiri, Scheherazade, Arial, serif" }}
                           dir="rtl"
                         >
                           {arabicText}
                         </span>
-                        {transliteration && (
-                          <span className="text-xs text-[var(--muted-foreground)] font-mono">
-                            ({transliteration})
-                          </span>
-                        )}
+                        <span className="text-xs font-semibold text-[var(--foreground)]">
+                          {isUrdu ? urduMeaning : englishMeaning}
+                        </span>
                       </div>
-
-                      {/* Translations in Urdu and/or English */}
-                      <div className="flex items-center gap-2 text-xs">
-                        {translationUrdu && (isUrdu || isBilingual) && (
-                          <span className="font-bold text-emerald-700 dark:text-emerald-400" dir="rtl">
-                            {translationUrdu}
-                          </span>
-                        )}
-                        {!isUrdu && (
-                          <span className="text-[var(--muted-foreground)]">
-                            {translationEn}
-                          </span>
-                        )}
-                      </div>
+                      {isBilingual && (
+                        <span className="text-[11px] text-[var(--muted-foreground)]" dir="rtl">
+                          {urduMeaning}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -207,6 +197,6 @@ export function ReviewVaultModal() {
           )}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

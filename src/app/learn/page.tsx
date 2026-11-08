@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Target,
   GraduationCap,
+  BookMarked,
 } from "lucide-react";
 import { useLearningStore } from "@/store/useLearningStore";
 import { useLanguage } from "@/context/LanguageContext";
@@ -93,7 +94,10 @@ export default function LearnDashboardPage() {
       {/* 2. TOP ACTION ROW: CONTINUE LEARNING CTA & DAILY GOAL */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Next Lesson Spotlight Card */}
-        <div className="lg:col-span-2 p-6 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm flex flex-col justify-between gap-6 transition-colors">
+        <div
+          onClick={() => openModeSelector(activeNode)}
+          className="lg:col-span-2 p-6 rounded-3xl bg-[var(--surface-raised)] hover:bg-[var(--surface-card)] border border-[var(--card-border)] hover:border-emerald-500/50 shadow-sm flex flex-col justify-between gap-6 transition-all cursor-pointer group"
+        >
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
@@ -105,7 +109,7 @@ export default function LearnDashboardPage() {
             </div>
 
             <div>
-              <h3 className="text-lg sm:text-xl font-bold text-[var(--foreground)]">
+              <h3 className="text-lg sm:text-xl font-bold text-[var(--foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                 {isUrdu ? activeNode.titleUrdu || activeNode.title : activeNode.title}
               </h3>
               <p className="text-xs text-[var(--muted-foreground)] mt-1 line-clamp-2">
@@ -129,7 +133,7 @@ export default function LearnDashboardPage() {
               <span>~{activeNode.estimatedMinutes} mins</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => openModeSelector(activeNode)}
@@ -254,7 +258,7 @@ export default function LearnDashboardPage() {
           {isUrdu ? "تعلیمی شعبے" : "Learning Portals"}
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {/* 1. My Path (Sirat) */}
           <Link
             href="/learn/sirat"
@@ -317,8 +321,8 @@ export default function LearnDashboardPage() {
               </h4>
               <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
                 {isUrdu
-                  ? "معانی کوئیز، گرامر میچ، روٹ فیملیز، اور آیت فل چیلنجز۔"
-                  : "4 fast-paced arcade challenges to test your recall under pressure."}
+                  ? "معانی کوئیز، گرامر میچ، روٹ فیملیز، آیت فل اور اسپیڈ بلٹز چیلنجز۔"
+                  : "5 fast-paced arcade challenges to test your recall under pressure."}
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-bold text-purple-600 dark:text-purple-400 pt-2 border-t border-[var(--border-subtle)]">
@@ -341,12 +345,36 @@ export default function LearnDashboardPage() {
               </h4>
               <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
                 {isUrdu
-                  ? "۳۷۵ قرآنی الفاظ کو تھیمز، اقسام، اور کثرتِ استعمال کے لحاظ سے تلاش کریں۔"
-                  : "Browse 375 high-frequency words grouped by semantic themes and grammatical role."}
+                  ? "۳۷۵ قرآنی الفاظ، کثرت کا بصری گراف (Frequency Graph)، اور کوئزز دیکھیں۔"
+                  : "Interactive frequency graph, Pareto curve, and quizzes for 375 high-frequency words."}
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400 pt-2 border-t border-[var(--border-subtle)]">
               <span>{isUrdu ? "الفاظ دیکھیں" : "Browse Words"}</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          {/* 5. Grammar & Verbs Studio */}
+          <Link
+            href="/learn/grammar"
+            className="group p-5 rounded-3xl bg-[var(--surface-raised)] hover:bg-[var(--surface-card)] border border-[var(--card-border)] hover:border-blue-500/50 shadow-sm transition-all flex flex-col justify-between gap-4 cursor-pointer"
+          >
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform">
+                <BookMarked className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-[var(--foreground)] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {isUrdu ? "قواعد و صرف سٹوڈیو" : "Grammar Studio"}
+              </h4>
+              <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+                {isUrdu
+                  ? "۱۰ قرآنی ابواب (Sarf)، اعراب، مرکبات اور ان کے انٹرایکٹو ٹیسٹس۔"
+                  : "Explore the 10 Verb Forms (Awzān), I'rab case rules, and syntax quizzes."}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 pt-2 border-t border-[var(--border-subtle)]">
+              <span>{isUrdu ? "قواعد سیکھیں" : "Study Grammar"}</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </Link>

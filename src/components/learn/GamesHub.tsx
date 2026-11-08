@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { VocabLangPreference, GameStatRecord, loadUserVocabProgress } from "@/services/vocabularyStorage";
 import { useLanguage } from "@/context/LanguageContext";
-import { MeaningQuizGame } from "./MeaningQuizGame";
-import { GrammarClassifierGame } from "./GrammarClassifierGame";
-import { RootFamilyGame } from "./RootFamilyGame";
-import { AyahFillGame } from "./AyahFillGame";
-import { VocabMatchBlitz } from "./VocabMatchBlitz";
 import {
   Gamepad2,
   Trophy,
@@ -16,10 +12,7 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
-  ChevronLeft,
   Flame,
-  CheckCircle2,
-  Clock,
 } from "lucide-react";
 
 interface GamesHubProps {
@@ -27,8 +20,6 @@ interface GamesHubProps {
   gameStats?: Record<string, GameStatRecord>;
   onScoreSaved?: () => void;
 }
-
-type ActiveGame = null | "meaning_quiz" | "grammar_match" | "root_family" | "ayah_fill" | "match_blitz";
 
 export function GamesHub({
   langPreference: propLangPreference,
@@ -48,83 +39,6 @@ export function GamesHub({
 
   const gameStats = propGameStats || internalStats;
 
-  const [activeGame, setActiveGame] = useState<ActiveGame>(null);
-
-  if (activeGame === "meaning_quiz") {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setActiveGame(null)}
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back to Games Arcade
-        </button>
-        <MeaningQuizGame langPreference={langPreference} onScoreSaved={onScoreSaved} />
-      </div>
-    );
-  }
-
-  if (activeGame === "grammar_match") {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setActiveGame(null)}
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back to Games Arcade
-        </button>
-        <GrammarClassifierGame langPreference={langPreference} onScoreSaved={onScoreSaved} />
-      </div>
-    );
-  }
-
-  if (activeGame === "root_family") {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setActiveGame(null)}
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back to Games Arcade
-        </button>
-        <RootFamilyGame langPreference={langPreference} onScoreSaved={onScoreSaved} />
-      </div>
-    );
-  }
-
-  if (activeGame === "ayah_fill") {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setActiveGame(null)}
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back to Games Arcade
-        </button>
-        <AyahFillGame langPreference={langPreference} onScoreSaved={onScoreSaved} />
-      </div>
-    );
-  }
-
-  if (activeGame === "match_blitz") {
-    return (
-      <div className="space-y-4">
-        <button
-          type="button"
-          onClick={() => setActiveGame(null)}
-          className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4" /> Back to Games Arcade
-        </button>
-        <VocabMatchBlitz onScoreSaved={onScoreSaved} />
-      </div>
-    );
-  }
-
   const meaningHighScore = gameStats?.meaningQuiz?.highScore || 0;
   const grammarHighScore = gameStats?.grammarMatch?.highScore || 0;
   const rootHighScore = gameStats?.rootFamily?.highScore || 0;
@@ -135,8 +49,8 @@ export function GamesHub({
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Arcade Header */}
       <div className="text-center space-y-1.5">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
-          <Gamepad2 className="h-3.5 w-3.5 text-emerald-400" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
+          <Gamepad2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>Interactive Learning Arena</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
@@ -147,11 +61,11 @@ export function GamesHub({
         </p>
       </div>
 
-      {/* 4 Clean Game Cards Grid */}
+      {/* 5 Clean Game Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Game 1: Meaning Quiz */}
-        <div
-          onClick={() => setActiveGame("meaning_quiz")}
+        <Link
+          href="/learn/arcade/meaning-quiz"
           className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
         >
           <div className="space-y-3">
@@ -181,11 +95,11 @@ export function GamesHub({
             <span>Play Quiz (10 Questions)</span>
             <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Game 2: Grammar Classifier */}
-        <div
-          onClick={() => setActiveGame("grammar_match")}
+        <Link
+          href="/learn/arcade/grammar-classifier"
           className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-teal-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
         >
           <div className="space-y-3">
@@ -215,11 +129,11 @@ export function GamesHub({
             <span>Classify Words (10 Rounds)</span>
             <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Game 3: Root & Word Families */}
-        <div
-          onClick={() => setActiveGame("root_family")}
+        <Link
+          href="/learn/arcade/word-families"
           className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-amber-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
         >
           <div className="space-y-3">
@@ -249,11 +163,11 @@ export function GamesHub({
             <span>Group Words (5 Families)</span>
             <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Game 4: Ayah Verse Completion */}
-        <div
-          onClick={() => setActiveGame("ayah_fill")}
+        <Link
+          href="/learn/arcade/ayah-fill"
           className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-cyan-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
         >
           <div className="space-y-3">
@@ -271,7 +185,7 @@ export function GamesHub({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-base text-[var(--foreground)]">Ayah Verse Completion</h3>
-                <span className="font-arabic text-xs text-cyan-400 font-semibold" dir="rtl">إكمال الآيات القرآنية</span>
+                <span className="font-arabic text-xs text-cyan-600 dark:text-cyan-400 font-semibold" dir="rtl">إكمال الآيات القرآنية</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
                 Fill in the missing high-frequency word in authentic Quranic verses with full recitation audio.
@@ -283,11 +197,11 @@ export function GamesHub({
             <span>Complete Verses (8 Ayahs)</span>
             <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
 
         {/* Game 5: Speed Match Blitz */}
-        <div
-          onClick={() => setActiveGame("match_blitz")}
+        <Link
+          href="/learn/arcade/match-blitz"
           className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-rose-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden md:col-span-2"
         >
           <div className="space-y-3">
@@ -317,7 +231,7 @@ export function GamesHub({
             <span>Play Speed Blitz (30s Timer)</span>
             <ArrowRight className="h-4 w-4" />
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

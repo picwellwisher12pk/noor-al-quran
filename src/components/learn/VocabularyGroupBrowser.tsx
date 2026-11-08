@@ -26,23 +26,27 @@ import {
   BookOpen,
   ArrowUpDown,
   Filter,
+  BarChart3,
 } from "lucide-react";
+import { FrequencyGraphView } from "@/components/learn/FrequencyGraphView";
 
 interface VocabularyGroupBrowserProps {
   masteredIds?: string[];
   langPreference?: VocabLangPreference;
   onProgressUpdate?: () => void;
   words?: QuranVocabWord[];
+  initialMode?: GroupingMode;
 }
 
-type GroupingMode = "semantic_clusters" | "categories" | "frequency_rank";
+export type GroupingMode = "semantic_clusters" | "categories" | "frequency_rank" | "frequency_graph";
 
 export function VocabularyGroupBrowser({
   masteredIds: propMasteredIds,
   langPreference: propLangPreference,
   onProgressUpdate: propOnProgressUpdate,
+  initialMode = "frequency_graph",
 }: VocabularyGroupBrowserProps = {}) {
-  const { language } = useLanguage();
+  const { language, isUrdu } = useLanguage();
   const langPreference: VocabLangPreference = propLangPreference || language;
 
   const [internalProgress, setInternalProgress] = useState(() => loadUserVocabProgress());
@@ -54,7 +58,7 @@ export function VocabularyGroupBrowser({
   };
   const { playWord } = useAudio();
   const [searchQuery, setSearchQuery] = useState("");
-  const [groupingMode, setGroupingMode] = useState<GroupingMode>("semantic_clusters");
+  const [groupingMode, setGroupingMode] = useState<GroupingMode>(initialMode);
   const [filterMasteredOnly, setFilterMasteredOnly] = useState(false);
 
   // Search filter
@@ -109,79 +113,102 @@ export function VocabularyGroupBrowser({
       {/* Top Filter & Search Controls */}
       <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search words in Arabic, English, Urdu, or Root..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:border-emerald-500 transition-colors"
-            />
-          </div>
-
           {/* Grouping View Switcher */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs">
+          <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs">
+            <button
+              type="button"
+              onClick={() => setGroupingMode("frequency_graph")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "frequency_graph"
+                  ? "bg-emerald-600 text-white shadow-sm font-bold"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                }`}
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              <span>{isUrdu ? "تکرار کا گراف" : "Frequency Graph"}</span>
+            </button>
             <button
               type="button"
               onClick={() => setGroupingMode("semantic_clusters")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupingMode === "semantic_clusters"
-                  ? "bg-emerald-600 text-white shadow-sm"
+              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "semantic_clusters"
+                  ? "bg-emerald-600 text-white shadow-sm font-bold"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
+                }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              <span>Meaning Groups</span>
+              <span>{isUrdu ? "معنوی گروہ" : "Meaning Groups"}</span>
             </button>
             <button
               type="button"
               onClick={() => setGroupingMode("categories")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupingMode === "categories"
-                  ? "bg-emerald-600 text-white shadow-sm"
+              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "categories"
+                  ? "bg-emerald-600 text-white shadow-sm font-bold"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
+                }`}
             >
               <Filter className="h-3.5 w-3.5" />
-              <span>Grammar Classes</span>
+              <span>{isUrdu ? "قواعدی اقسام" : "Grammar Classes"}</span>
             </button>
             <button
               type="button"
               onClick={() => setGroupingMode("frequency_rank")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 ${
-                groupingMode === "frequency_rank"
-                  ? "bg-emerald-600 text-white shadow-sm"
+              className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "frequency_rank"
+                  ? "bg-emerald-600 text-white shadow-sm font-bold"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
+                }`}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
-              <span>Frequency Rank</span>
+              <span>{isUrdu ? "کارڈز بلحاظ کثرت" : "Ranked Cards"}</span>
             </button>
           </div>
+
+          {groupingMode !== "frequency_graph" && (
+            /* Search Input */
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  isUrdu
+                    ? "عربی، اردو، انگریزی یا روٹ سے تلاش کریں..."
+                    : "Search words in Arabic, English, Urdu, or Root..."
+                }
+                className="w-full pl-10 pr-4 py-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:border-emerald-500 transition-colors"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Quick Filter Pill */}
-        <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-1">
-          <span>
-            Showing <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> words
-          </span>
+        {groupingMode !== "frequency_graph" && (
+          /* Quick Filter Pill */
+          <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-1">
+            <span>
+              Showing <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> words
+            </span>
 
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={filterMasteredOnly}
-              onChange={(e) => setFilterMasteredOnly(e.target.checked)}
-              className="rounded accent-emerald-500 cursor-pointer"
-            />
-            <span>Show Mastered Words Only</span>
-          </label>
-        </div>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filterMasteredOnly}
+                onChange={(e) => setFilterMasteredOnly(e.target.checked)}
+                className="rounded accent-emerald-500 cursor-pointer"
+              />
+              <span>{isUrdu ? "صرف حفظ شدہ الفاظ دکھائیں" : "Show Mastered Words Only"}</span>
+            </label>
+          </div>
+        )}
       </div>
 
       {/* CONTENT STAGE ACCORDING TO GROUPING MODE */}
-      {groupingMode === "semantic_clusters" ? (
+      {groupingMode === "frequency_graph" ? (
+        /* NEW: VISUAL FREQUENCY GRAPH & ANALYTICS */
+        <FrequencyGraphView
+          masteredIds={masteredIds}
+          langPreference={langPreference}
+          onProgressUpdate={onProgressUpdate}
+        />
+      ) : groupingMode === "semantic_clusters" ? (
         /* 1. SEMANTIC MEANING CLUSTERS (Similar words with same meaning grouped) */
         <div className="space-y-6">
           {SEMANTIC_CLUSTERS.map((cluster) => {
@@ -203,7 +230,7 @@ export function VocabularyGroupBrowser({
                       <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
                         {cluster.title}
                       </span>
-                      <span className="font-arabic text-sm text-emerald-400 font-semibold" dir="rtl">
+                      <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
                         {cluster.titleAr}
                       </span>
                     </div>
@@ -212,7 +239,7 @@ export function VocabularyGroupBrowser({
                     </p>
                   </div>
 
-                  <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                     {totalOccurrences.toLocaleString()} occurrences ({clusterPercent}% of Quran)
                   </span>
                 </div>
@@ -255,12 +282,12 @@ export function VocabularyGroupBrowser({
                     <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
                       {cat.labelEn}
                     </span>
-                    <span className="font-arabic text-sm text-emerald-400 font-semibold" dir="rtl">
+                    <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
                       {cat.labelAr}
                     </span>
                   </div>
 
-                  <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-950/70 border border-emerald-800/40 text-emerald-300">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
                     {totalOccurrences.toLocaleString()} occurrences ({catPercent}% of Quran)
                   </span>
                 </div>
@@ -330,17 +357,16 @@ function WordCard({
 
   return (
     <div
-      className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between select-none relative group ${
-        isMastered
-          ? "bg-emerald-950/20 border-emerald-500/40 shadow-sm"
+      className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between select-none relative group ${isMastered
+          ? "bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/40 shadow-sm"
           : "bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/30"
-      }`}
+        }`}
     >
       {/* Card Header */}
       <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] mb-2">
         <div className="flex items-center gap-1.5">
           {rank && (
-            <span className="w-5 h-5 rounded-md bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-center font-mono font-bold text-emerald-400">
+            <span className="w-5 h-5 rounded-md bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-center font-mono font-bold text-emerald-600 dark:text-emerald-400">
               #{rank}
             </span>
           )}
@@ -357,7 +383,7 @@ function WordCard({
         <button
           type="button"
           onClick={onPlayAudio}
-          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+          className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           title="Play pronunciation"
         >
           <Volume2 className="h-3.5 w-3.5" />
@@ -369,7 +395,7 @@ function WordCard({
         <h4 className="font-arabic-amiri text-3xl font-bold text-[var(--foreground)]" dir="rtl">
           {word.arabic}
         </h4>
-        <p className="text-xs text-emerald-400 font-medium">
+        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
           {word.transliteration}
         </p>
       </div>
@@ -397,11 +423,10 @@ function WordCard({
         <button
           type="button"
           onClick={onToggleMastered}
-          className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border transition-all ${
-            isMastered
+          className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border transition-all ${isMastered
               ? "bg-emerald-600 text-white border-emerald-500 font-semibold"
-              : "bg-[var(--surface-raised)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400"
-          }`}
+              : "bg-[var(--surface-raised)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400"
+            }`}
         >
           <CheckCircle2 className="h-3 w-3" />
           <span>{isMastered ? "Mastered" : "Learn"}</span>

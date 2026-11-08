@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { X, Heart, Clock, HelpCircle, ArrowRight, BookOpen, AlertTriangle } from "lucide-react";
+import { X, Heart, Clock, HelpCircle, ArrowRight, BookOpen, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useLearningStore } from "../../store/useLearningStore";
 import {
   SoundSniperPayload,
@@ -21,6 +21,8 @@ export function SessionRunner() {
     endSession,
     consumeHeart,
     completeNode,
+    addXP,
+    addGems,
     recordWordReview,
     selectedNode,
     startSession,
@@ -34,6 +36,7 @@ export function SessionRunner() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isLastAnswerCorrect, setIsLastAnswerCorrect] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [sessionPassed, setSessionPassed] = useState(false);
   const [nodeUnlocked, setNodeUnlocked] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
@@ -70,6 +73,7 @@ export function SessionRunner() {
       setShowFeedback(false);
       setIsLastAnswerCorrect(false);
       setIsCompleted(false);
+      setSessionPassed(false);
       setNodeUnlocked(false);
       setMissedWords([]);
       setSelectedRadarIds([]);
@@ -127,7 +131,8 @@ export function SessionRunner() {
     return () => clearInterval(timer);
   }, [activeSession, isTest, showFeedback, isCompleted, showQuitConfirm, handleTimeExpired]);
 
-  if (!activeSession || !currentQuestion || total === 0) return null;
+  if (!activeSession) return null;
+  if (!isCompleted && (!currentQuestion || total === 0)) return null;
 
   const handleSoundSniperAnswer = (correct: boolean, selectedId: string) => {
     const q = currentQuestion as SoundSniperPayload;
@@ -212,28 +217,39 @@ export function SessionRunner() {
     if (currentIndex + 1 < total) {
       setCurrentIndex((i) => i + 1);
     } else {
-      const accuracy = (userScore + (isLastAnswerCorrect ? 1 : 0)) / total;
-      const passed = !isTest || (hearts > 0 && accuracy >= 0.85);
+      const accuracyPct = total > 0 ? Math.round((userScore / total) * 100) : 0;
+      const passed = !isTest || (hearts > 0 && accuracyPct >= 85);
       finishSession(passed);
     }
   };
 
   const finishSession = (passed: boolean) => {
     setIsCompleted(true);
+    setSessionPassed(passed);
+    const xp = passed ? ((selectedNode?.xpReward || 30) * (isTest ? 3 : 1)) : 0;
+    const gems = passed ? ((selectedNode?.gemReward || 5) * (isTest ? 2 : 1)) : 0;
+
     if (selectedNode && passed) {
-      const accuracy = userScore / total;
-      const stars = accuracy >= 0.9 ? 3 : accuracy >= 0.7 ? 2 : 1;
+      const accuracyPct = total > 0 ? Math.round((userScore / total) * 100) : 0;
+      const stars = accuracyPct >= 90 ? 3 : accuracyPct >= 70 ? 2 : 1;
       completeNode(selectedNode.id, stars as 1 | 2 | 3, activeSession.mode);
       setNodeUnlocked(true);
+    } else if (!selectedNode && passed) {
+      addXP(xp);
+      addGems(gems);
     }
   };
 
-  const xpEarned = isTest
-    ? (selectedNode?.xpReward || 30) * 3
-    : (selectedNode?.xpReward || 30);
-  const gemsEarned = isTest
-    ? (selectedNode?.gemReward || 5) * 2
-    : (selectedNode?.gemReward || 5);
+  const xpEarned = sessionPassed
+    ? isTest
+      ? (selectedNode?.xpReward || 30) * 3
+      : (selectedNode?.xpReward || 30)
+    : 0;
+  const gemsEarned = sessionPassed
+    ? isTest
+      ? (selectedNode?.gemReward || 5) * 2
+      : (selectedNode?.gemReward || 5)
+    : 0;
 
   if (isCompleted) {
     return (
@@ -246,6 +262,7 @@ export function SessionRunner() {
         gemsEarned={gemsEarned}
         missedWords={missedWords}
         nodeUnlocked={nodeUnlocked}
+        isPassed={sessionPassed}
         onContinue={endSession}
         onRetry={() => {
           endSession();
@@ -380,6 +397,20 @@ export function SessionRunner() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {(currentQuestion as RootRadarPayload).options.map((opt) => {
                     const isSelected = selectedRadarIds.includes(opt.id);
+                    let chipStyle = isSelected
+                      ? "bg-purple-500/25 border-purple-500 text-[var(--foreground)] shadow-md shadow-purple-500/10"
+                      : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--foreground)]";
+
+                    if (showFeedback) {
+                      if (opt.isDerivative) {
+                        chipStyle = "bg-emerald-500/20 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-bold shadow-sm";
+                      } else if (isSelected && !opt.isDerivative) {
+                        chipStyle = "bg-rose-500/20 border-rose-500 text-rose-800 dark:text-rose-200 shadow-sm";
+                      } else {
+                        chipStyle = "opacity-40 bg-[var(--surface-card)] border-[var(--border-subtle)]";
+                      }
+                    }
+
                     return (
                       <button
                         key={opt.id}
@@ -392,11 +423,7 @@ export function SessionRunner() {
                             setSelectedRadarIds((prev) => [...prev, opt.id]);
                           }
                         }}
-                        className={`p-3.5 rounded-2xl border transition-all text-left flex items-center justify-between gap-3 cursor-pointer ${
-                          isSelected
-                            ? "bg-purple-500/25 border-purple-500 text-[var(--foreground)] shadow-md shadow-purple-500/10"
-                            : "bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--foreground)]"
-                        }`}
+                        className={`p-3.5 rounded-2xl border transition-all text-left flex items-center justify-between gap-3 cursor-pointer ${chipStyle}`}
                       >
                         <div>
                           <span
@@ -452,17 +479,46 @@ export function SessionRunner() {
             )}
 
             {/* Hint Box in Practice Mode */}
-            {!isTest && showHint && (
+            {!isTest && showHint && !showFeedback && (
               <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-[var(--foreground)] flex items-start gap-2.5 animate-in fade-in">
                 <HelpCircle className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                 <p>{currentQuestion.explanation}</p>
+              </div>
+            )}
+
+            {/* Answer Result Banner */}
+            {showFeedback && (
+              <div
+                className={`p-3.5 rounded-2xl border text-xs flex items-start gap-2.5 animate-in fade-in duration-150 ${
+                  isLastAnswerCorrect
+                    ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-800 dark:text-emerald-200"
+                    : "bg-rose-500/15 border-rose-500/30 text-rose-800 dark:text-rose-200"
+                }`}
+              >
+                {isLastAnswerCorrect ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <X className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                )}
+                <div className="space-y-0.5 flex-1">
+                  <span className="font-bold block">
+                    {isLastAnswerCorrect
+                      ? (isUrdu ? "ماشاء الله! درست جواب" : "Correct! Excellent recall.")
+                      : (isUrdu ? "غلط جواب — دہرائی کے لیے والٹ میں شامل کر دیا گیا" : "Incorrect — queued for spaced repetition review.")}
+                  </span>
+                  {currentQuestion.explanation && (
+                    <p className="text-[11px] opacity-90 leading-relaxed pt-0.5">
+                      {currentQuestion.explanation}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
           {/* Bottom Feedback / Continue Bar */}
           <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3">
-            {!isTest && (
+            {!isTest && !showFeedback && (
               <button
                 type="button"
                 onClick={() => setShowHint(!showHint)}

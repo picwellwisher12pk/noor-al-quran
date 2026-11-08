@@ -454,18 +454,30 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </label>
         </div>
 
-        {/* Offline Storage & Pre-downloads Button */}
-        <div>
+        {/* Offline Audio & Storage Settings Card */}
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-raised)] to-teal-500/5 border border-emerald-500/30 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold text-[var(--foreground)]">
+              <CloudDownload className="h-5 w-5 text-emerald-500" />
+              <span>Offline Audio & Storage</span>
+            </div>
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-bold">
+              Offline Ready
+            </span>
+          </div>
+          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            Download full Surah recitations and word-by-word Quran data to your device for offline reading and listening without an active internet connection.
+          </p>
           <button
             type="button"
             onClick={() => {
               onClose();
               setIsDownloadManagerOpen(true);
             }}
-            className="w-full py-3 px-4 rounded-xl bg-emerald-600/15 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm"
+            className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-950/20 cursor-pointer active:scale-98"
           >
             <CloudDownload className="h-4 w-4" />
-            <span>Pre-download Quran Data & Audio for Offline Use</span>
+            <span>Manage Offline Audios & Downloads</span>
           </button>
         </div>
 

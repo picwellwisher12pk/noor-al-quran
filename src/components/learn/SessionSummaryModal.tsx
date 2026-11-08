@@ -23,6 +23,7 @@ export interface SessionSummaryModalProps {
   gemsEarned: number;
   missedWords: Array<{ id: string; textArabic: string; translationEn: string; translationUrdu?: string }>;
   nodeUnlocked?: boolean;
+  isPassed?: boolean;
   onContinue: () => void;
   onRetry: () => void;
 }
@@ -36,12 +37,15 @@ export function SessionSummaryModal({
   gemsEarned,
   missedWords,
   nodeUnlocked = false,
+  isPassed: propIsPassed,
   onContinue,
   onRetry
 }: SessionSummaryModalProps) {
   const { currentStreak, langPreference } = useLearningStore();
   const accuracyPct = total > 0 ? Math.round((score / total) * 100) : 0;
-  const isPassed = !isTestMode || (heartsRemaining > 0 && accuracyPct >= 85);
+  const isPassed = propIsPassed !== undefined
+    ? propIsPassed
+    : !isTestMode || (heartsRemaining > 0 && accuracyPct >= 85);
   const isUrdu = langPreference === "urdu";
 
   return (
@@ -60,7 +64,7 @@ export function SessionSummaryModal({
 
         {/* Title & Feedback */}
         <div className="space-y-1">
-          <h2 className="text-2xl font-black text-white tracking-tight">
+          <h2 className="text-2xl font-black text-[var(--foreground)] tracking-tight">
             {isPassed
               ? isUrdu
                 ? "ماشاء الله! سیشن مکمل ہوا"
@@ -85,33 +89,33 @@ export function SessionSummaryModal({
         </div>
 
         {/* Score & Rewards Matrix */}
-        <div className="grid grid-cols-3 gap-2 p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+        <div className="grid grid-cols-3 gap-2 p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
           <div>
-            <span className="text-[10px] font-bold text-white/40 uppercase block">
+            <span className="text-[10px] font-bold text-[var(--muted-foreground)] uppercase block">
               {isUrdu ? "درستگی" : "Accuracy"}
             </span>
-            <span className="text-xl font-black text-white font-mono">{accuracyPct}%</span>
+            <span className="text-xl font-black text-[var(--foreground)] font-mono">{accuracyPct}%</span>
           </div>
 
-          <div className="border-x border-white/10">
-            <span className="text-[10px] font-bold text-white/40 uppercase block">
+          <div className="border-x border-[var(--border-subtle)]">
+            <span className="text-[10px] font-bold text-[var(--muted-foreground)] uppercase block">
               {isUrdu ? "حاصل شدہ XP" : "Total XP"}
             </span>
-            <span className="text-xl font-black text-purple-400 font-mono">+{xpEarned}</span>
+            <span className="text-xl font-black text-purple-600 dark:text-purple-400 font-mono">+{isPassed ? xpEarned : 0}</span>
           </div>
 
           <div>
-            <span className="text-[10px] font-bold text-white/40 uppercase block">
+            <span className="text-[10px] font-bold text-[var(--muted-foreground)] uppercase block">
               {isUrdu ? "جواہرات" : "Gems"}
             </span>
-            <span className="text-xl font-black text-blue-400 font-mono">+{gemsEarned}</span>
+            <span className="text-xl font-black text-blue-600 dark:text-blue-400 font-mono">+{isPassed ? gemsEarned : 0}</span>
           </div>
         </div>
 
         {/* Missed Words / SRS Warning */}
         {missedWords.length > 0 && (
           <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-300">
               <ShieldAlert className="w-4 h-4" />
               <span>{isUrdu ? "کمزور الفاظ ریویو والٹ میں محفوظ:" : "Missed Words (Added to Review Vault):"}</span>
             </div>
@@ -119,10 +123,10 @@ export function SessionSummaryModal({
               {missedWords.map((w) => (
                 <span
                   key={w.id}
-                  className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-white flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--foreground)] flex items-center gap-1"
                 >
                   <span style={{ fontFamily: "Amiri, Scheherazade, serif" }}>{w.textArabic}</span>
-                  <span className="text-[10px] text-white/40 font-normal">
+                  <span className="text-[10px] text-[var(--muted-foreground)] font-normal">
                     ({w.translationUrdu || w.translationEn})
                   </span>
                 </span>
@@ -133,7 +137,7 @@ export function SessionSummaryModal({
 
         {/* Next Unlocked Node Celebration */}
         {nodeUnlocked && isPassed && (
-          <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center gap-2 text-xs font-bold text-emerald-300 animate-pulse">
+          <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 animate-pulse">
             <CheckCircle2 className="w-4 h-4" />
             <span>{isUrdu ? "اگلا قرآنی سبق انلاک ہو گیا!" : "Next Node Unlocked on the Path of Light!"}</span>
           </div>
@@ -145,7 +149,7 @@ export function SessionSummaryModal({
             <button
               type="button"
               onClick={onRetry}
-              className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-5 py-3 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>{isUrdu ? "دوبارہ کوشش کریں" : "Retry Round"}</span>

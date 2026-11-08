@@ -29,15 +29,32 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const savedGlobal = localStorage.getItem(GLOBAL_LANG_STORAGE_KEY) as AppLanguage | null;
       if (savedGlobal && (savedGlobal === "bilingual" || savedGlobal === "urdu" || savedGlobal === "english")) {
         setLanguageState(savedGlobal);
-        useLearningStore.getState().setLangPreference(savedGlobal);
-        setVocabStorageLang(savedGlobal as VocabLangPreference);
+        try {
+          useLearningStore.getState()?.setLangPreference?.(savedGlobal);
+        } catch {}
+        try {
+          setVocabStorageLang(savedGlobal as VocabLangPreference);
+        } catch {}
       } else {
         // Fallback to learning store or vocab storage if previously set
-        const savedVocab = localStorage.getItem("naq_vocab_lang_pref_v1");
-        if (savedVocab) {
-          const parsed = JSON.parse(savedVocab) as AppLanguage;
-          if (parsed === "bilingual" || parsed === "urdu" || parsed === "english") {
-            setLanguageState(parsed);
+        const storePref = useLearningStore.getState()?.langPreference;
+        if (storePref && (storePref === "bilingual" || storePref === "urdu" || storePref === "english")) {
+          setLanguageState(storePref);
+          try {
+            localStorage.setItem(GLOBAL_LANG_STORAGE_KEY, storePref);
+          } catch {}
+          setVocabStorageLang(storePref as VocabLangPreference);
+        } else {
+          const savedVocab = localStorage.getItem("naq_vocab_lang_pref_v1");
+          if (savedVocab) {
+            const parsed = JSON.parse(savedVocab) as AppLanguage;
+            if (parsed === "bilingual" || parsed === "urdu" || parsed === "english") {
+              setLanguageState(parsed);
+              try {
+                localStorage.setItem(GLOBAL_LANG_STORAGE_KEY, parsed);
+              } catch {}
+              useLearningStore.getState()?.setLangPreference(parsed);
+            }
           }
         }
       }
@@ -55,11 +72,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       console.error("Failed to persist global language preference:", e);
     }
 
-    // Sync with Learning Store
-    useLearningStore.getState().setLangPreference(newLang);
+    // Sync with Learning Store safely
+    try {
+      const learningStore = useLearningStore.getState();
+      if (learningStore && typeof learningStore.setLangPreference === "function") {
+        learningStore.setLangPreference(newLang);
+      }
+    } catch (e) {
+      console.warn("Could not sync language with learning store:", e);
+    }
 
-    // Sync with Vocabulary Storage
-    setVocabStorageLang(newLang as VocabLangPreference);
+    // Sync with Vocabulary Storage safely
+    try {
+      setVocabStorageLang(newLang as VocabLangPreference);
+    } catch (e) {
+      console.warn("Could not sync language with vocab storage:", e);
+    }
 
     // Broadcast change for multi-window / tabs
     if (typeof window !== "undefined") {
@@ -83,8 +111,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         const val = e.newValue as AppLanguage;
         if (val === "bilingual" || val === "urdu" || val === "english") {
           setLanguageState(val);
-          useLearningStore.getState().setLangPreference(val);
-          setVocabStorageLang(val as VocabLangPreference);
+          try {
+            useLearningStore.getState()?.setLangPreference?.(val);
+          } catch {}
+          try {
+            setVocabStorageLang(val as VocabLangPreference);
+          } catch {}
         }
       }
     };
