@@ -8,6 +8,9 @@
 import vocabAudioMap from "@/data/quranVocabAudioMap.json";
 import particlesAudioMap from "@/data/particlesAudioMap.json";
 import verbExamplesAudioMap from "@/data/verbExamplesAudioMap.json";
+import type { Word } from "@/types/quran";
+import type { QuranVocabWord } from "@/data/quranVocabularyData";
+import type { QuranicVerbExample } from "@/data/learning/quranGrammarData";
 
 export const WBW_CDN_URL = "https://audio.qurancdn.com";
 export const VERSES_CDN_URL = "https://verses.quran.com";
@@ -48,11 +51,33 @@ export function normalizeAudioUrl(rawUrl?: string | null): string | null {
   return `${WBW_CDN_URL}/wbw/${trimmed.replace(/^\/+/, "")}`;
 }
 
+export type ResolvableWordItem =
+  | Word
+  | QuranVocabWord
+  | QuranicVerbExample
+  | {
+      id?: string | number;
+      word_id?: string | number;
+      audioUrl?: string;
+      audio_url?: string;
+      audio?: { url?: string };
+      verse_key?: string;
+      position?: number;
+      arabic?: string;
+      textArabic?: string;
+      text_uthmani?: string;
+      verseKey?: string;
+      location?: string;
+      surah?: number;
+      ayah?: number;
+      sampleAyah?: { surah: number; ayah: number };
+    };
+
 /**
  * Resolves the authentic word pronunciation audio URL for any vocabulary word,
  * particle, or Quranic word token.
  */
-export function getWordAudioUrl(itemOrId?: any): string | null {
+export function getWordAudioUrl(itemOrId?: string | ResolvableWordItem | null): string | null {
   if (!itemOrId) return null;
 
   // 1. If passed an ID directly (string)
@@ -64,32 +89,35 @@ export function getWordAudioUrl(itemOrId?: any): string | null {
     return normalizeAudioUrl(id);
   }
 
+  const item = itemOrId as Record<string, unknown>;
+
   // 2. Direct audioUrl or audio_url property on object
-  if (itemOrId.audioUrl) {
-    const norm = normalizeAudioUrl(itemOrId.audioUrl);
+  if (typeof item.audioUrl === "string") {
+    const norm = normalizeAudioUrl(item.audioUrl);
     if (norm) return norm;
   }
-  if (itemOrId.audio_url) {
-    const norm = normalizeAudioUrl(itemOrId.audio_url);
+  if (typeof item.audio_url === "string") {
+    const norm = normalizeAudioUrl(item.audio_url);
     if (norm) return norm;
   }
 
   // 3. Lookup by word ID or arabic in verified authentic maps
-  if (itemOrId.id) {
-    if (typedVocabMap[itemOrId.id]) return typedVocabMap[itemOrId.id];
-    if (typedParticlesMap[itemOrId.id]) return typedParticlesMap[itemOrId.id];
+  if (typeof item.id === "string" || typeof item.id === "number") {
+    const idStr = String(item.id);
+    if (typedVocabMap[idStr]) return typedVocabMap[idStr];
+    if (typedParticlesMap[idStr]) return typedParticlesMap[idStr];
   }
-  if (itemOrId.arabic) {
-    if (typedVerbMap[itemOrId.arabic]) return typedVerbMap[itemOrId.arabic];
+  if (typeof item.arabic === "string") {
+    if (typedVerbMap[item.arabic]) return typedVerbMap[item.arabic];
   }
-  if (itemOrId.surah && itemOrId.ayah && itemOrId.arabic) {
-    const key = `${itemOrId.surah}_${itemOrId.ayah}_${itemOrId.arabic}`;
+  if (item.surah && item.ayah && typeof item.arabic === "string") {
+    const key = `${item.surah}_${item.ayah}_${item.arabic}`;
     if (typedVerbMap[key]) return typedVerbMap[key];
   }
 
   // 4. Location string (e.g. "2:255:50")
-  if (itemOrId.location && typeof itemOrId.location === "string") {
-    const parts = itemOrId.location.split(":");
+  if (typeof item.location === "string") {
+    const parts = item.location.split(":");
     if (parts.length >= 3) {
       const s = String(Number(parts[0])).padStart(3, "0");
       const a = String(Number(parts[1])).padStart(3, "0");
@@ -99,22 +127,25 @@ export function getWordAudioUrl(itemOrId?: any): string | null {
   }
 
   // 5. VerseKey and word position
-  if (itemOrId.verseKey && itemOrId.position) {
-    const parts = String(itemOrId.verseKey).split(":");
+  const vKey = typeof item.verseKey === "string" ? item.verseKey : (typeof item.verse_key === "string" ? item.verse_key : null);
+  if (vKey && item.position) {
+    const parts = vKey.split(":");
     if (parts.length >= 2) {
       const s = String(Number(parts[0])).padStart(3, "0");
       const a = String(Number(parts[1])).padStart(3, "0");
-      const w = String(Number(itemOrId.position)).padStart(3, "0");
+      const w = String(Number(item.position)).padStart(3, "0");
       return `${WBW_CDN_URL}/wbw/${s}_${a}_${w}.mp3`;
     }
   }
 
   // 6. SampleAyah fallback: if item has sampleAyah but no explicit word position
-  if (itemOrId.sampleAyah) {
-    const { surah, ayah } = itemOrId.sampleAyah;
-    const s = String(Number(surah)).padStart(3, "0");
-    const a = String(Number(ayah)).padStart(3, "0");
-    return `${WBW_CDN_URL}/wbw/${s}_${a}_001.mp3`;
+  if (item.sampleAyah && typeof item.sampleAyah === "object") {
+    const sample = item.sampleAyah as { surah?: number; ayah?: number };
+    if (sample.surah && sample.ayah) {
+      const s = String(Number(sample.surah)).padStart(3, "0");
+      const a = String(Number(sample.ayah)).padStart(3, "0");
+      return `${WBW_CDN_URL}/wbw/${s}_${a}_001.mp3`;
+    }
   }
 
   return null;
