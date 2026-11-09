@@ -61,11 +61,10 @@ export function WordByWord({
               key={word.id}
               onClick={() => handleWordClick(word)}
               title="Click to inspect Root, Grammar & Translations in Right Inspector"
-              className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${
-                isSelectedInInspector
+              className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${isSelectedInInspector
                   ? "border-emerald-500/60 bg-emerald-950/30 shadow-xs"
                   : "border-transparent hover:border-emerald-500/40 hover:bg-emerald-950/20"
-              }`}
+                }`}
             >
               {/* Arabic Word Token */}
               <span

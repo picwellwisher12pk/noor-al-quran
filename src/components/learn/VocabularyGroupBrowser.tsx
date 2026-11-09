@@ -113,8 +113,8 @@ export function VocabularyGroupBrowser({
               type="button"
               onClick={() => setGroupingMode("frequency_graph")}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "frequency_graph"
-                  ? "bg-emerald-600 text-white shadow-sm font-bold"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                ? "bg-emerald-600 text-white shadow-sm font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
             >
               <BarChart3 className="h-3.5 w-3.5" />
@@ -124,8 +124,8 @@ export function VocabularyGroupBrowser({
               type="button"
               onClick={() => setGroupingMode("semantic_clusters")}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "semantic_clusters"
-                  ? "bg-emerald-600 text-white shadow-sm font-bold"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                ? "bg-emerald-600 text-white shadow-sm font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
             >
               <Layers className="h-3.5 w-3.5" />
@@ -135,8 +135,8 @@ export function VocabularyGroupBrowser({
               type="button"
               onClick={() => setGroupingMode("categories")}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "categories"
-                  ? "bg-emerald-600 text-white shadow-sm font-bold"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                ? "bg-emerald-600 text-white shadow-sm font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
             >
               <Filter className="h-3.5 w-3.5" />
@@ -146,8 +146,8 @@ export function VocabularyGroupBrowser({
               type="button"
               onClick={() => setGroupingMode("frequency_rank")}
               className={`px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5 cursor-pointer ${groupingMode === "frequency_rank"
-                  ? "bg-emerald-600 text-white shadow-sm font-bold"
-                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                ? "bg-emerald-600 text-white shadow-sm font-bold"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 }`}
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
@@ -352,8 +352,8 @@ function WordCard({
   return (
     <div
       className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between select-none relative group ${isMastered
-          ? "bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/40 shadow-sm"
-          : "bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/30"
+        ? "bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/40 shadow-sm"
+        : "bg-[var(--surface-card)] border-[var(--border-subtle)] hover:border-emerald-500/30"
         }`}
     >
       {/* Card Header */}
@@ -418,8 +418,8 @@ function WordCard({
           type="button"
           onClick={onToggleMastered}
           className={`flex items-center gap-1 px-2 py-0.5 rounded-lg border transition-all ${isMastered
-              ? "bg-emerald-600 text-white border-emerald-500 font-semibold"
-              : "bg-[var(--surface-raised)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400"
+            ? "bg-emerald-600 text-white border-emerald-500 font-semibold"
+            : "bg-[var(--surface-raised)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400"
             }`}
         >
           <CheckCircle2 className="h-3 w-3" />

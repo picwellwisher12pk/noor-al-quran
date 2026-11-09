@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Volume2, VolumeX, CheckCircle2, AlertCircle, HelpCircle, Sparkles } from "lucide-react";
 import { SoundSniperPayload } from "../../lib/quiz-engine";
 import { useLearningStore } from "../../store/useLearningStore";
+import { normalizeAudioUrl } from "@/utils/audioResolver";
 
 export interface SoundSniperGameProps {
   payload: SoundSniperPayload;
@@ -35,7 +36,8 @@ export function SoundSniperGame({
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
       }
-      const audio = new Audio(payload.promptAudioUrl);
+      const resolvedUrl = normalizeAudioUrl(payload.promptAudioUrl) || payload.promptAudioUrl;
+      const audio = new Audio(resolvedUrl);
       audioRef.current = audio;
       setIsPlaying(true);
       setAudioError(false);
