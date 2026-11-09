@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { getWordMorphology, WordMorphology } from "@/services/morphologyService";
 import { getWordRoot, getRootByName, WordRootInfo } from "@/services/rootService";
 import {
@@ -36,7 +37,7 @@ export function MobileInspectorSheet() {
   } = useDesktopWorkspace();
 
   const { prefs, setSelectedTafsirId } = useReadingPreferences();
-  const { playWord } = useAudio();
+  const { playWord, playVerse } = useAudio();
 
   // Data states
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -202,16 +203,35 @@ export function MobileInspectorSheet() {
             )}
           </div>
 
-          {selectedWord?.audio_url && (
+          {selectedWord ? (
             <button
               type="button"
-              onClick={() => playWord(selectedWord.audio_url!)}
+              onClick={() => {
+                const audio = getWordAudioUrl(selectedWord);
+                if (audio) {
+                  playWord(audio);
+                } else {
+                  playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
+                }
+              }}
               aria-label="Play pronunciation"
-              className="p-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-transform active:scale-95"
+              className="p-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-transform active:scale-95 cursor-pointer"
             >
               <Volume2 className="h-4 w-4" />
             </button>
-          )}
+          ) : selectedAyahKey ? (
+            <button
+              type="button"
+              onClick={() => {
+                const [s] = selectedAyahKey.split(":");
+                playVerse(Number(s) || 1, selectedAyahKey);
+              }}
+              aria-label="Play ayah recitation"
+              className="p-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-transform active:scale-95 cursor-pointer"
+            >
+              <Volume2 className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
 
         {/* Tabs */}

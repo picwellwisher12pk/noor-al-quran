@@ -16,6 +16,7 @@ import {
 } from "@/services/vocabularyStorage";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLearningStore } from "@/store/useLearningStore";
 import { LearnerTierSwitcher } from "./LearnerTierSwitcher";
 import { getPosLabel } from "@/services/terminologyService";
@@ -142,18 +143,11 @@ export function FrequencyGraphView({
 
   const handlePlayAudio = (e: React.MouseEvent, word: QuranVocabWord) => {
     e.stopPropagation();
-    const { surah, ayah } = word.sampleAyah;
-    const sStr = String(surah).padStart(3, "0");
-    const aStr = String(ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
-    try {
+    const audioUrl = getWordAudioUrl(word);
+    if (audioUrl) {
       playWord(audioUrl);
-    } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(word.arabic);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+    } else {
+      playAudioSafely(undefined, word.arabic);
     }
   };
 

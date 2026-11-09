@@ -28,6 +28,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 
 export function DesktopRightInspector() {
   const {
@@ -43,7 +45,8 @@ export function DesktopRightInspector() {
   } = useDesktopWorkspace();
 
   const { prefs, setSelectedTafsirId } = useReadingPreferences();
-  const { playWord } = useAudio();
+  const { playWord, playVerse } = useAudio();
+  const { isUrdu } = useLanguage();
 
   // Inspector Data States
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -212,15 +215,33 @@ export function DesktopRightInspector() {
               {selectedWord.transliteration.text}
             </div>
           )}
-          {selectedWord?.audio_url && (
+          {selectedWord ? (
             <button
               type="button"
-              onClick={() => playWord(selectedWord.audio_url!)}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors"
+              onClick={() => {
+                const audio = getWordAudioUrl(selectedWord);
+                if (audio) {
+                  playWord(audio);
+                } else {
+                  playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
+                }
+              }}
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Volume2 className="h-3 w-3" /> Listen
+              <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
             </button>
-          )}
+          ) : selectedAyahKey ? (
+            <button
+              type="button"
+              onClick={() => {
+                const [s] = selectedAyahKey.split(":");
+                playVerse(Number(s) || 1, selectedAyahKey);
+              }}
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Volume2 className="h-3 w-3" /> {isUrdu ? "مکمل آیت سنیں" : "Recite Ayah"}
+            </button>
+          ) : null}
         </div>
 
         {/* Inspector Tabs */}

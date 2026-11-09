@@ -12,6 +12,7 @@ import {
   VocabLangPreference,
 } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   Sparkles,
@@ -178,18 +179,11 @@ export function MeaningQuizGame({
   const handlePlayAudio = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentQ) return;
-    const { surah, ayah } = currentQ.targetWord.sampleAyah;
-    const sStr = String(surah).padStart(3, "0");
-    const aStr = String(ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
-    try {
+    const audioUrl = getWordAudioUrl(currentQ.targetWord);
+    if (audioUrl) {
       playWord(audioUrl);
-    } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(currentQ.targetWord.arabic);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+    } else {
+      playAudioSafely(undefined, currentQ.targetWord.arabic);
     }
   };
 

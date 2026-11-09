@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Volume2, CheckCircle2, AlertCircle, RotateCcw, ArrowRight } from "lucide-react";
 import { AyahPuzzlePayload } from "../../lib/quiz-engine";
 import { useLearningStore } from "../../store/useLearningStore";
+import { getVerseAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 
 export interface AyahPuzzleBuilderProps {
   payload: AyahPuzzlePayload;
@@ -28,18 +29,13 @@ export function AyahPuzzleBuilder({
   const blocksMap = new Map(payload.scrambledBlocks.map((b) => [b.id, b]));
 
   const playRecitation = () => {
-    if (!payload.audioRecitationUrl) return;
+    const url = payload.audioRecitationUrl || getVerseAudioUrl(payload.verseKey);
     setIsAudioPlaying(true);
-    const audio = new Audio(payload.audioRecitationUrl);
-    audio.play().catch(() => setIsAudioPlaying(false));
-    audio.onended = () => setIsAudioPlaying(false);
-    audio.onerror = () => setIsAudioPlaying(false);
+    playAudioSafely(url, payload.fullTextUthmani).finally(() => setIsAudioPlaying(false));
   };
 
-  const playWordAudio = (url?: string) => {
-    if (!url) return;
-    const a = new Audio(url);
-    a.play().catch(() => {});
+  const playWordAudio = (url?: string, arabicText?: string) => {
+    playAudioSafely(url, arabicText);
   };
 
   const handleBlockSelect = (blockId: string) => {

@@ -9,6 +9,7 @@ import {
 } from "@/data/learning/quranGrammarData";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLearningStore } from "@/store/useLearningStore";
 import { LearnerTierSwitcher } from "../LearnerTierSwitcher";
 import { getVerbFormLabel } from "@/services/terminologyService";
@@ -43,17 +44,11 @@ export function VerbFormsMatrix({ onStartQuiz }: VerbFormsMatrixProps) {
 
   const handlePlayAudio = (e: React.MouseEvent, ex: QuranicVerbExample) => {
     e.stopPropagation();
-    const sStr = String(ex.surah).padStart(3, "0");
-    const aStr = String(ex.ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
-    try {
+    const audioUrl = getWordAudioUrl(ex);
+    if (audioUrl) {
       playWord(audioUrl);
-    } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(ex.arabic);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+    } else {
+      playAudioSafely(undefined, ex.arabic);
     }
   };
 

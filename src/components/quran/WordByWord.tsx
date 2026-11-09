@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Word } from "@/types/quran";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { WordDetailsModal } from "@/components/modals/WordDetailsModal";
@@ -107,19 +108,22 @@ export function WordByWord({
               )}
 
               {/* Hover Controls: Audio Pronunciation */}
-              {word.audio_url && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    playWord(word.audio_url!);
-                  }}
-                  className="absolute -top-1.5 -left-1.5 p-1 rounded-full bg-emerald-600 text-white shadow opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 z-10"
-                  title="Pronounce Word"
-                >
-                  <Volume2 className="h-2.5 w-2.5" />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const audio = getWordAudioUrl(word);
+                  if (audio) {
+                    playWord(audio);
+                  } else {
+                    playAudioSafely(undefined, word.text_uthmani || word.text);
+                  }
+                }}
+                className="absolute -top-1.5 -left-1.5 p-1 rounded-full bg-emerald-600 text-white shadow opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 z-10 cursor-pointer"
+                title="Pronounce Word"
+              >
+                <Volume2 className="h-2.5 w-2.5" />
+              </button>
             </div>
           );
         })}

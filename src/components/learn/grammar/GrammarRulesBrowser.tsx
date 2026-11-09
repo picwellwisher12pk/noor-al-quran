@@ -9,6 +9,7 @@ import {
 } from "@/data/learning/quranGrammarData";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
+import { getVerseAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLearningStore } from "@/store/useLearningStore";
 import { LearnerTierSwitcher } from "../LearnerTierSwitcher";
 import {
@@ -33,7 +34,7 @@ interface GrammarRulesBrowserProps {
 
 export function GrammarRulesBrowser({ onStartQuiz }: GrammarRulesBrowserProps) {
   const { isUrdu } = useLanguage();
-  const { playWord } = useAudio();
+  const { playVerse } = useAudio();
   const { learnerProfile } = useLearningStore();
   const ageGroup = learnerProfile?.ageGroup || "standard";
 
@@ -53,17 +54,11 @@ export function GrammarRulesBrowser({ onStartQuiz }: GrammarRulesBrowserProps) {
 
   const handlePlayAudio = (e: React.MouseEvent, ayah: GrammarSampleAyah) => {
     e.stopPropagation();
-    const sStr = String(ayah.surah).padStart(3, "0");
-    const aStr = String(ayah.ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
+    const verseKey = `${ayah.surah}:${ayah.ayah}`;
     try {
-      playWord(audioUrl);
+      playVerse(ayah.surah, verseKey);
     } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(ayah.verseText);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+      playAudioSafely(getVerseAudioUrl(ayah.surah, ayah.ayah), ayah.verseText);
     }
   };
 

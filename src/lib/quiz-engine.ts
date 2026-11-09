@@ -916,7 +916,12 @@ export function generateAyahPuzzle(customVerse?: any): AyahPuzzlePayload {
     surahNameAr: surahObj.nameAr,
     fullTextUthmani: verseObj.textUthmani,
     fullTranslationEn: wbwPairs.map((p) => p.english).join(" "),
-    audioRecitationUrl: `https://verses.quran.com/Mishari/${verseObj.verseKey.replace(":", "")}.mp3`,
+    audioRecitationUrl: (() => {
+      const [s, a] = verseObj.verseKey.split(":");
+      const sPad = String(Number(s) || 1).padStart(3, "0");
+      const aPad = String(Number(a) || 1).padStart(3, "0");
+      return `https://verses.quran.com/Alafasy/mp3/${sPad}${aPad}.mp3`;
+    })(),
     scrambledBlocks,
     correctSequenceWordIds,
     wbwPairs

@@ -8,6 +8,7 @@ import {
 } from "@/data/quranVocabularyData";
 import { saveGameScore, VocabLangPreference } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import {
   Sparkles,
   Trophy,
@@ -118,18 +119,11 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
   const handlePlayAudio = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentQ) return;
-    const { surah, ayah } = currentQ.word.sampleAyah;
-    const sStr = String(surah).padStart(3, "0");
-    const aStr = String(ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
-    try {
+    const audioUrl = getWordAudioUrl(currentQ.word);
+    if (audioUrl) {
       playWord(audioUrl);
-    } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(currentQ.word.arabic);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+    } else {
+      playAudioSafely(undefined, currentQ.word.arabic);
     }
   };
 
