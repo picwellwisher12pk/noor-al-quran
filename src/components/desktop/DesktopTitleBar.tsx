@@ -200,7 +200,7 @@ export function DesktopTitleBar() {
             onClick={toggleRightInspector}
             className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
               isRightInspectorOpen
-                ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
+                ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
             }`}
             title="Toggle Linguistic & Tafseer Inspector (Ctrl+\)"

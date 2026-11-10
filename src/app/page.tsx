@@ -32,7 +32,7 @@ export default async function HomePage() {
         </h1>
         <p className="text-sm sm:text-base text-[var(--muted-foreground)] max-w-2xl mx-auto mb-5 leading-normal">
           &ldquo;Indeed, this Qur&rsquo;an guides to that which is most suitable and gives good tidings to the believers.&rdquo;
-          <span className="block text-xs text-emerald-400 mt-0.5 font-medium">Surah Al-Isra [17:9]</span>
+          <span className="block text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 font-bold">Surah Al-Isra [17:9]</span>
         </p>
 
         {/* Quick Launch Actions */}
@@ -47,35 +47,35 @@ export default async function HomePage() {
             href="/surah/1"
             className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
-            <BookOpen className="h-4 w-4 text-emerald-400" /> Start Reading: Surah Al-Fatihah
+            <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Start Reading: Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"
             className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
-            <Compass className="h-4 w-4 text-emerald-400" /> Read Surah Al-Kahf
+            <Compass className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Read Surah Al-Kahf
           </Link>
           <Link
             href="/surah/36"
             className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
           >
-            <Sparkles className="h-4 w-4 text-amber-400" /> Read Surah Ya-Sin
+            <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Read Surah Ya-Sin
           </Link>
         </div>
 
         {/* Desktop Quick Specs */}
         <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[var(--muted-foreground)]">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 114 Verified Chapters
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> 114 Verified Chapters
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 30 Juzs (Parts)
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> 30 Juzs (Parts)
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Authentic Word Roots & Morphology
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Authentic Word Roots & Morphology
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Sunnah 7-Day Minimum Pacing
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Sunnah 7-Day Minimum Pacing
           </span>
         </div>
       </div>

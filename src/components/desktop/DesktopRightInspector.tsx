@@ -256,11 +256,11 @@ export function DesktopRightInspector() {
               </span>
             )}
           </div>
-          <div className="font-arabic text-3xl text-emerald-500 dark:text-emerald-400 py-0.5 leading-relaxed" dir="rtl">
+          <div className="font-arabic text-3xl font-bold text-emerald-700 dark:text-emerald-300 py-0.5 leading-relaxed" dir="rtl">
             {selectedWord?.text_uthmani || selectedWord?.text || selectedAyahArabic || "ٱلْقُرْءَان"}
           </div>
           {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
-            <div className="text-[11px] text-[var(--muted-foreground)] mt-0.5">
+            <div className="text-[11px] text-[var(--muted-foreground)] font-medium mt-0.5">
               {selectedWord.transliteration.text}
             </div>
           )}
@@ -275,7 +275,7 @@ export function DesktopRightInspector() {
                   playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
                 }
               }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30"
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
             >
               <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
             </button>
@@ -286,7 +286,7 @@ export function DesktopRightInspector() {
                 const [s] = selectedAyahKey.split(":");
                 playVerse(Number(s) || 1, selectedAyahKey);
               }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30"
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
             >
               <Volume2 className="h-3 w-3" /> {isUrdu ? "مکمل آیت سنیں" : "Recite Ayah"}
             </button>
@@ -375,24 +375,24 @@ export function DesktopRightInspector() {
             <div className="space-y-3">
               {/* Root summary card */}
               {effectiveRoot && (
-                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between shadow-xs">
                   <div>
-                    <span className="text-[10px] text-[var(--muted-foreground)] block">
+                    <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                       {isKids
                         ? (isUrdu ? "حروف کی فیملی / جڑ 🌳" : "Word Family Letters 🌳")
                         : (isUrdu ? "۳ حروفی مادہ (Root):" : "3-Letter Arabic Root:")}
                     </span>
-                    <span className="font-arabic text-lg font-bold text-emerald-500 dark:text-emerald-400" dir="rtl">
+                    <span className="font-arabic text-xl font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">
                       {effectiveRoot.split("").join(" - ")} ({effectiveRoot})
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-[var(--muted-foreground)] block">
+                    <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                       {isKids
                         ? (isUrdu ? "قرآن میں آیا ⭐" : "Appears in Quran ⭐")
                         : (isUrdu ? "قرآن میں تکرار:" : "Total Quran Count:")}
                     </span>
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30">
                       {rootInfo?.count || "—"} {isUrdu ? "مرتبہ" : "times"}
                     </span>
                   </div>
@@ -400,11 +400,11 @@ export function DesktopRightInspector() {
               )}
 
               {loadingMorph ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
+                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] font-medium animate-pulse">
                   {isUrdu ? "گرامر کے اجزاء کا تجزیہ ہو رہا ہے..." : "Parsing morphological segments..."}
                 </div>
               ) : !morphology || morphology.segments.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
+                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl font-medium">
                   {isUrdu
                     ? "کسی بھی قرآنی لفظ پر کلک کریں تاکہ اس کے گرامر کے حصے سامنے آئیں۔"
                     : "Click any word in the Quran text to inspect its grammatical segments."}
@@ -418,36 +418,36 @@ export function DesktopRightInspector() {
                   return (
                     <div
                       key={idx}
-                      className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1.5 text-xs shadow-xs"
+                      className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs shadow-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30">
                           {isKids
                             ? `${isUrdu ? "ٹکڑا" : "Word Part"} ${idx + 1} • ${seg.isPrefix ? (isUrdu ? "شروع کا حصہ" : "Front Helper") : seg.isSuffix ? (isUrdu ? "آخر کا حصہ" : "End Helper") : (isUrdu ? "اصل لفظ" : "Core Word")}`
                             : `Segment ${idx + 1} • ${seg.isPrefix ? "Prefix" : seg.isSuffix ? "Suffix" : "Stem"}`}
                         </span>
-                        <span className="font-arabic text-xl text-emerald-500 dark:text-emerald-400 font-bold" dir="rtl">
+                        <span className="font-arabic text-2xl text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
                           {seg.arabic}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-[var(--border-subtle)]">
+                      <div className="grid grid-cols-2 gap-2 pt-1.5 text-[11px] border-t border-[var(--border-subtle)]">
                         <div>
-                          <span className="text-[10px] text-[var(--muted-foreground)] block">
+                          <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                             {isKids ? (isUrdu ? "کس قسم کا لفظ ہے؟" : "What kind of word?") : (isUrdu ? "کلمہ کی قسم:" : "Part of Speech:")}
                           </span>
-                          <span className="font-semibold text-[var(--foreground)]">{adaptedPos.label}</span>
+                          <span className="font-bold text-[var(--foreground)]">{adaptedPos.label}</span>
                           {adaptedPos.subLabel && (
-                            <span className="text-[9px] text-[var(--muted-foreground)] block">{adaptedPos.subLabel}</span>
+                            <span className="text-[10px] text-[var(--muted-foreground)] block font-medium">{adaptedPos.subLabel}</span>
                           )}
                         </div>
 
                         {seg.grammarCase && (
                           <div>
-                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                            <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                               {isKids ? (isUrdu ? "حرکت کا راز (اعراب):" : "Vowel Magic (Case):") : (isUrdu ? "حالتِ اعراب:" : "Case (إعراب):")}
                             </span>
-                            <span className="font-medium text-emerald-600 dark:text-emerald-300">
+                            <span className="font-bold text-emerald-700 dark:text-emerald-300">
                               {adaptedCase ? adaptedCase.label : seg.grammarCase}
                             </span>
                           </div>
@@ -455,27 +455,27 @@ export function DesktopRightInspector() {
 
                         {seg.genderNumber && (
                           <div>
-                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                            <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                               {isUrdu ? "جنس وتعداد:" : "Gender/Number:"}
                             </span>
-                            <span className="font-medium text-[var(--foreground)]">{seg.genderNumber}</span>
+                            <span className="font-semibold text-[var(--foreground)]">{seg.genderNumber}</span>
                           </div>
                         )}
 
                         {seg.lemma && (
                           <div>
-                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                            <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                               {isKids ? (isUrdu ? "اصل بنیادی لفظ:" : "Base Dictionary Word:") : (isUrdu ? "لغوی مادہ (Lemma):" : "Lemma:")}
                             </span>
-                            <span className="font-arabic text-sm text-[var(--foreground)] font-bold" dir="rtl">{seg.lemma}</span>
+                            <span className="font-arabic text-base text-[var(--foreground)] font-bold" dir="rtl">{seg.lemma}</span>
                           </div>
                         )}
                       </div>
 
                       {/* Kids Friendly Tip from Terminology Service */}
                       {isKids && adaptedPos.helpingTip && (
-                        <div className="mt-1 pt-1 border-t border-[var(--border-subtle)]/50 text-[10px] text-amber-800 dark:text-amber-300 bg-amber-500/10 p-1.5 rounded-lg">
-                          <span className="font-bold">{isUrdu ? "نصیحت / ٹپ: " : "Detective Tip: "}</span>
+                        <div className="mt-2 pt-2 border-t border-[var(--border-subtle)]/50 text-[11px] text-amber-950 dark:text-amber-100 bg-amber-500/15 dark:bg-amber-950/50 border border-amber-500/30 dark:border-amber-700/40 p-2.5 rounded-lg leading-relaxed shadow-xs">
+                          <span className="font-bold text-amber-900 dark:text-amber-200">{isUrdu ? "نصیحت / ٹپ: " : "Detective Tip: "}</span>
                           {adaptedPos.helpingTip}
                         </div>
                       )}
@@ -523,10 +523,10 @@ export function DesktopRightInspector() {
               <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-card)] to-teal-500/5 border border-emerald-500/30 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--foreground)]">
-                    <Sparkles className="h-4 w-4 text-emerald-500" />
+                    <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>{isKids ? (isUrdu ? "اس لفظ کے تمام ممکنہ معانی" : "All Possible Meanings") : (isUrdu ? "تمام لغوی معانی ومفاہیم" : "All Possible Lexical Meanings")}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-bold border border-emerald-500/30">
                     Lexicon Senses
                   </span>
                 </div>
@@ -570,7 +570,7 @@ export function DesktopRightInspector() {
                 {/* Root Concept Explanation */}
                 {comprehensiveMeanings.primaryRootConceptEn && (
                   <div className="mt-2 pt-2 border-t border-emerald-500/20 text-[11px] text-[var(--muted-foreground)] leading-relaxed">
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400 block mb-0.5">
+                    <span className="font-bold text-emerald-700 dark:text-emerald-300 block mb-0.5">
                       {isUrdu ? "بنیادی مادہ ومفہوم:" : "Primary Root Concept:"}
                     </span>
                     <p>{isUrdu && comprehensiveMeanings.primaryRootConceptUr ? comprehensiveMeanings.primaryRootConceptUr : comprehensiveMeanings.primaryRootConceptEn}</p>
@@ -581,19 +581,19 @@ export function DesktopRightInspector() {
               {/* 3. Kids Detective Box (if young person) */}
               {isKids && comprehensiveMeanings.kidsDetective && (
                 <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
-                  <div className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-300">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-200">
                     <Sparkles className="h-4 w-4" />
                     <span>{isUrdu ? comprehensiveMeanings.kidsDetective.friendlyTitleUr : comprehensiveMeanings.kidsDetective.friendlyTitle}</span>
                   </div>
                   <p className="text-[var(--foreground)] leading-relaxed">
                     {isUrdu ? comprehensiveMeanings.kidsDetective.simpleMeaningUr : comprehensiveMeanings.kidsDetective.simpleMeaning}
                   </p>
-                  <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200">
-                    <span className="font-bold block mb-0.5">{isUrdu ? "ہماری روزمرہ زندگی میں:" : "In our daily life:"}</span>
+                  <div className="p-2.5 rounded-lg bg-[var(--surface-raised)] border border-amber-500/30 text-[11px] text-amber-950 dark:text-amber-100 font-medium">
+                    <span className="font-bold block mb-0.5 text-amber-900 dark:text-amber-200">{isUrdu ? "ہماری روزمرہ زندگی میں:" : "In our daily life:"}</span>
                     {isUrdu ? comprehensiveMeanings.kidsDetective.whatItMeansDailyUr : comprehensiveMeanings.kidsDetective.whatItMeansDaily}
                   </div>
                   {comprehensiveMeanings.kidsDetective.funFact && (
-                    <div className="text-[10px] text-[var(--muted-foreground)] italic">
+                    <div className="text-[10px] text-[var(--muted-foreground)] italic font-medium">
                       ⭐ {isUrdu ? comprehensiveMeanings.kidsDetective.funFactUr : comprehensiveMeanings.kidsDetective.funFact}
                     </div>
                   )}
@@ -602,7 +602,7 @@ export function DesktopRightInspector() {
 
               {/* 4. Quranic Word Family / Derivatives */}
               {comprehensiveMeanings.derivativeFamily.length > 0 && (
-                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 shadow-xs">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block">
                     {isKids ? (isUrdu ? "اس لفظ کے خاندان کے دیگر قرآنی الفاظ 🌳" : "Related Family Words in Quran 🌳") : (isUrdu ? "قرآن میں اسی مادے سے مشتق الفاظ" : "Quranic Derivative Family")}
                   </span>
@@ -613,9 +613,9 @@ export function DesktopRightInspector() {
                         className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-between text-xs"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="font-arabic text-base font-bold text-emerald-500 dark:text-emerald-400" dir="rtl">{item.arabic}</span>
+                          <span className="font-arabic text-base font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">{item.arabic}</span>
                           <span className="text-[10px] font-mono text-[var(--muted-foreground)]">({item.transliteration})</span>
-                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30 font-semibold">
                             {item.formOrType}
                           </span>
                         </div>
@@ -693,7 +693,7 @@ export function DesktopRightInspector() {
                   <button
                     type="button"
                     onClick={() => setIsFullModalOpen(true)}
-                    className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-400 font-medium inline-flex items-center gap-1 transition-colors"
+                    className="text-[11px] px-2.5 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-700 dark:text-emerald-300 font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer"
                     title="Open in full modal dialog"
                   >
                     <ExternalLink className="h-3 w-3" /> Full Modal
@@ -751,8 +751,8 @@ export function DesktopRightInspector() {
                       className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-semibold text-emerald-400">{item.authorName}</span>
-                        <span className="uppercase text-[var(--muted-foreground)]">{item.language}</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{item.authorName}</span>
+                        <span className="uppercase text-[var(--muted-foreground)] font-semibold">{item.language}</span>
                       </div>
                       <div
                         dir={isUrdu ? "rtl" : "ltr"}

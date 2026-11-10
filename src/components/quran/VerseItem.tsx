@@ -192,11 +192,11 @@ export function VerseItem({
       >
         {/* Verse Badge */}
         <div className="flex items-center gap-1.5 flex-none">
-          <span className="px-2 py-0.5 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[11px] font-mono font-semibold text-emerald-400">
+          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
             {verse.verse_key}
           </span>
           {verse.juz_number && (
-            <span className="hidden sm:inline-block text-[10px] text-[var(--muted-foreground)] px-1.5 py-0.5 rounded bg-[var(--surface-card)]">
+            <span className="hidden sm:inline-block text-[10px] text-[var(--muted-foreground)] px-1.5 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] font-medium">
               Juz {verse.juz_number}
             </span>
           )}
@@ -209,10 +209,10 @@ export function VerseItem({
             type="button"
             onClick={handlePlayToggle}
             aria-label={isCurrentPlaying && isPlaying ? "Pause verse" : "Play verse audio"}
-            className={`p-2 sm:p-1.5 rounded-lg transition-colors ${
+            className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
               isCurrentPlaying && isPlaying
                 ? "bg-emerald-600 text-white"
-                : "text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
             }`}
             title="Play Audio"
           >
@@ -224,14 +224,14 @@ export function VerseItem({
             type="button"
             onClick={handleBookmarkToggle}
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark verse"}
-            className={`p-2 sm:p-1.5 rounded-lg transition-colors ${
+            className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
               bookmarked
-                ? "text-emerald-400 bg-emerald-950/50"
-                : "text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                ? "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/50 border border-emerald-500/30"
+                : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
             }`}
             title="Bookmark Ayah"
           >
-            <BookmarkIcon className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${bookmarked ? "fill-emerald-400" : ""}`} />
+            <BookmarkIcon className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${bookmarked ? "fill-emerald-600 dark:fill-emerald-400" : ""}`} />
           </button>
 
           {/* Khatmah Progress Toggle */}
@@ -243,13 +243,13 @@ export function VerseItem({
                 recordReadingProgress(verse.chapter_id, verse.verse_number);
               }}
               title={isReadInKhatmah ? "Completed in your Khatmah plan" : "Mark as read in Khatmah"}
-              className={`p-2 sm:p-1.5 rounded-lg transition-colors ${
+              className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isReadInKhatmah
-                  ? "text-emerald-400 bg-emerald-950/40"
-                  : "text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                  ? "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/40 border border-emerald-500/30"
+                  : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
               }`}
             >
-              <CheckCircle2 className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isReadInKhatmah ? "fill-emerald-400/20" : ""}`} />
+              <CheckCircle2 className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isReadInKhatmah ? "fill-emerald-500/20" : ""}`} />
             </button>
           )}
 
@@ -258,9 +258,9 @@ export function VerseItem({
             type="button"
             onClick={() => onOpenTafsir(verse.verse_key, verse.text_uthmani)}
             title="Read Commentary (تفسیر / Tafseer)"
-            className="px-2 py-1 sm:py-0.5 rounded-lg text-emerald-400 bg-emerald-950/40 hover:bg-emerald-600 hover:text-white border border-emerald-800/40 transition-all flex items-center gap-1 text-[11px] font-medium shadow-xs"
+            className="px-2.5 py-1 sm:py-0.5 rounded-lg text-emerald-800 dark:text-emerald-200 bg-emerald-500/15 dark:bg-emerald-950/60 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white border border-emerald-500/30 dark:border-emerald-700/50 transition-all flex items-center gap-1.5 text-[11px] font-semibold shadow-xs cursor-pointer"
           >
-            <BookOpen className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+            <BookOpen className="h-3.5 w-3.5 sm:h-3 sm:w-3 text-emerald-700 dark:text-emerald-300" />
             <span>تفسیر / Tafseer</span>
           </button>
 
@@ -269,9 +269,9 @@ export function VerseItem({
             type="button"
             onClick={handleCopy}
             title={copied ? "Copied to clipboard!" : "Copy verse"}
-            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors"
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
-            {copied ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-emerald-400" /> : <Copy className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
+            {copied ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
           </button>
 
           {/* Share */}
@@ -279,7 +279,7 @@ export function VerseItem({
             type="button"
             onClick={handleShare}
             title="Share verse"
-            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors"
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
             <Share2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>

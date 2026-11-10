@@ -175,10 +175,10 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
             </h1>
             <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[var(--foreground)]">
               Surah {chapter.name_simple} &bull;{" "}
-              <span className="text-emerald-400 font-normal">{chapter.translated_name.name}</span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-medium">{chapter.translated_name.name}</span>
             </h2>
             <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground)] pt-0.5">
-              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] font-medium">
                 {chapter.revelation_place}
               </span>
               <span>&bull;</span>
@@ -192,7 +192,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           {showBismillah && (
             <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)]">
               <div
-                className={`font-arabic text-emerald-400/90 leading-relaxed ${
+                className={`font-arabic text-emerald-800 dark:text-emerald-300 font-bold leading-relaxed ${
                   isCompact ? "text-xl sm:text-2xl" : "text-2xl"
                 }`}
                 dir="rtl"

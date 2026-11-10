@@ -51,3 +51,4 @@ if (fs.existsSync(cargoTomlPath)) {
 if (!modified) {
   console.log(`[sync-version] All configuration files already in sync at v${version}`);
 }
+

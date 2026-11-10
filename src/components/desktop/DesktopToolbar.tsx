@@ -126,18 +126,18 @@ export function DesktopToolbar({
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.max(22, prefs.arabicFontSize - 2))}
-            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold"
+            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
             title="Decrease Arabic Font Size"
           >
             A-
           </button>
-          <span className="px-1 font-mono text-[10px] text-emerald-400">
+          <span className="px-1.5 font-mono text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
             {prefs.arabicFontSize}px
           </span>
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.min(56, prefs.arabicFontSize + 2))}
-            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold"
+            className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
             title="Increase Arabic Font Size"
           >
             A+
@@ -149,11 +149,11 @@ export function DesktopToolbar({
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors"
+          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors cursor-pointer"
           title="Reading Preferences & Display Settings"
         >
-          <Settings className="h-3.5 w-3.5 text-emerald-400" />
-          <span className="hidden md:inline">{isUrdu ? "ترتیبات" : "Preferences"}</span>
+          <Settings className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span className="hidden md:inline font-medium">{isUrdu ? "ترتیبات" : "Preferences"}</span>
         </button>
 
         {/* Play Surah Button */}
@@ -166,10 +166,10 @@ export function DesktopToolbar({
               playSurah(chapterId, 1, verses);
             }
           }}
-          className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
+          className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer ${
             isThisChapterPlaying
               ? "bg-emerald-600 text-white shadow-emerald-900/30"
-              : "bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-400 hover:text-emerald-300"
+              : "bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 hover:text-emerald-900 dark:hover:text-emerald-100"
           }`}
           title={isThisChapterPlaying ? "Pause Recitation" : "Recite Entire Surah"}
         >
