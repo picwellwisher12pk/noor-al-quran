@@ -169,8 +169,14 @@ body {
   word-spacing: 2px;
 }
 
-.font-arabic-noto {
-  font-family: var(--font-noto-sans-arabic), system-ui, sans-serif;
+.font-arabic-amiri-quran {
+  font-family: var(--font-amiri-quran), var(--font-amiri), "Traditional Arabic", serif;
+  letter-spacing: 0;
+  word-spacing: 2px;
+}
+
+.font-arabic-noto-naskh {
+  font-family: var(--font-noto-naskh-arabic), serif;
   letter-spacing: 0;
   word-spacing: 2px;
 }
@@ -179,6 +185,24 @@ body {
   font-family: var(--font-scheherazade), serif;
   letter-spacing: 0;
   word-spacing: 3px;
+}
+
+.font-arabic-lateef {
+  font-family: var(--font-lateef), "Al Qalam Quran", serif;
+  letter-spacing: 0;
+  word-spacing: 2px;
+}
+
+.font-arabic-noto {
+  font-family: var(--font-noto-sans-arabic), system-ui, sans-serif;
+  letter-spacing: 0;
+  word-spacing: 2px;
+}
+
+.font-arabic-cairo {
+  font-family: var(--font-cairo), sans-serif;
+  letter-spacing: 0;
+  word-spacing: 1.5px;
 }
 
 .font-arabic-nastaliq {

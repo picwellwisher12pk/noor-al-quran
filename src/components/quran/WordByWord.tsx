@@ -74,8 +74,8 @@ export function WordByWord({
                 {word.text_uthmani || word.text}
               </span>
 
-              {/* Transliteration */}
-              {prefs.showTransliteration && word.transliteration?.text && (
+              {/* Transliteration (Hidden when English Translation is disabled) */}
+              {prefs.showTransliteration && prefs.showTranslation && word.transliteration?.text && (
                 <span
                   className="text-[10px] font-sans text-emerald-400/80 group-hover:text-emerald-300 mt-0.5 leading-none"
                   dir="ltr"

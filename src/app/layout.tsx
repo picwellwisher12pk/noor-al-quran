@@ -1,5 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Amiri, Noto_Sans_Arabic, Scheherazade_New, Noto_Nastaliq_Urdu } from "next/font/google";
+import {
+  Inter,
+  Amiri,
+  Amiri_Quran,
+  Noto_Naskh_Arabic,
+  Scheherazade_New,
+  Lateef,
+  Noto_Sans_Arabic,
+  Cairo,
+  Noto_Nastaliq_Urdu,
+} from "next/font/google";
 import "./globals.css";
 import { APP_CONFIG } from "@/config/version";
 import { AppProviders } from "@/context/AppProviders";
@@ -23,6 +33,34 @@ const amiri = Amiri({
   variable: "--font-amiri",
   subsets: ["arabic", "latin"],
   weight: ["400", "700"],
+  display: "swap",
+});
+
+const amiriQuran = Amiri_Quran({
+  variable: "--font-amiri-quran",
+  subsets: ["arabic"],
+  weight: ["400"],
+  display: "swap",
+});
+
+const notoNaskhArabic = Noto_Naskh_Arabic({
+  variable: "--font-noto-naskh-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
+
+const lateef = Lateef({
+  variable: "--font-lateef",
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
+  display: "swap",
+});
+
+const cairo = Cairo({
+  variable: "--font-cairo",
+  subsets: ["arabic"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
@@ -68,7 +106,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${amiri.variable} ${notoSansArabic.variable} ${scheherazade.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
+      className={`${inter.variable} ${amiri.variable} ${amiriQuran.variable} ${notoNaskhArabic.variable} ${scheherazade.variable} ${lateef.variable} ${notoSansArabic.variable} ${cairo.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
     >
       <body className="h-screen w-screen overflow-hidden flex flex-col font-sans select-none bg-[var(--background)] text-[var(--foreground)] overscroll-none">
         <AppProviders>

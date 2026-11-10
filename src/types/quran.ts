@@ -137,7 +137,15 @@ export interface KhatmahPlan {
   isCompleted: boolean;
 }
 
-export type ArabicFontFamily = "amiri" | "noto-sans-arabic" | "scheherazade" | "nastaliq";
+export type ArabicFontFamily =
+  | "amiri"
+  | "amiri-quran"
+  | "noto-naskh-arabic"
+  | "scheherazade"
+  | "lateef"
+  | "noto-sans-arabic"
+  | "cairo"
+  | "nastaliq";
 export type UrduFontFamily = "nastaliq" | "noto-sans-arabic" | "scheherazade" | "amiri";
 
 export type ThemeStyle = "hadith" | "emerald" | "monochrome";

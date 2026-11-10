@@ -54,8 +54,12 @@ export function VerseItem({
   // Font class mapping
   const arabicFontClass = {
     amiri: "font-arabic-amiri",
-    "noto-sans-arabic": "font-arabic-noto",
+    "amiri-quran": "font-arabic-amiri-quran",
+    "noto-naskh-arabic": "font-arabic-noto-naskh",
     scheherazade: "font-arabic-scheherazade",
+    lateef: "font-arabic-lateef",
+    "noto-sans-arabic": "font-arabic-noto",
+    cairo: "font-arabic-cairo",
     nastaliq: "font-arabic-nastaliq",
   }[prefs.arabicFont] || "font-arabic-amiri";
 

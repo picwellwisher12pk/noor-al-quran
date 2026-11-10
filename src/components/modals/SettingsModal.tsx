@@ -30,6 +30,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
+    toggleShowTransliteration,
     toggleShowWordByWord,
     toggleAutoScroll,
     setSelectedUrduTranslationId,
@@ -39,9 +40,13 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   const fontOptions: { id: ArabicFontFamily; name: string; sample: string; fontClass: string }[] = [
     { id: "amiri", name: "Amiri (Medina Calligraphy)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-amiri" },
-    { id: "noto-sans-arabic", name: "Noto Sans Arabic (Hadith Style)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-noto" },
-    { id: "scheherazade", name: "Scheherazade New (Classical)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-scheherazade" },
-    { id: "nastaliq", name: "Noto Nastaliq (Indo-Pak / Urdu)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-nastaliq" },
+    { id: "amiri-quran", name: "Amiri Quran (Authentic Uthmani Script)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-amiri-quran" },
+    { id: "noto-naskh-arabic", name: "Noto Naskh Arabic (Standard Quranic)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-noto-naskh" },
+    { id: "lateef", name: "Lateef (Easy Read / South Asian Style)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-lateef" },
+    { id: "scheherazade", name: "Scheherazade New (Classical Islamic)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-scheherazade" },
+    { id: "noto-sans-arabic", name: "Noto Sans Arabic (Clean & Clear)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-noto" },
+    { id: "cairo", name: "Cairo (Geometric Modern Arabic)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-cairo" },
+    { id: "nastaliq", name: "Noto Nastaliq (Indo-Pak / Persian)", sample: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ", fontClass: "font-arabic-nastaliq" },
   ];
 
   const urduFontOptions: { id: UrduFontFamily; name: string; sample: string; fontClass: string }[] = [
@@ -443,6 +448,28 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {/* Display Toggles */}
         <div className="space-y-2">
+          <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] cursor-pointer">
+            <span className="text-xs font-medium">Show English Translation</span>
+            <input
+              type="checkbox"
+              checked={prefs.showTranslation}
+              onChange={toggleShowTranslation}
+              className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
+            />
+          </label>
+
+          {prefs.showTranslation && (
+            <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] cursor-pointer pl-6">
+              <span className="text-xs text-[var(--muted-foreground)]">Include English Transliteration</span>
+              <input
+                type="checkbox"
+                checked={prefs.showTransliteration}
+                onChange={toggleShowTransliteration}
+                className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
+              />
+            </label>
+          )}
+
           <label className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] cursor-pointer">
             <span className="text-xs font-medium">Auto-scroll to reciting verse</span>
             <input

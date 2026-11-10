@@ -23,7 +23,7 @@ export default async function HomePage() {
       <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-6 md:p-8 text-center shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-amber-500/5 pointer-events-none" />
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 dark:bg-emerald-950/60 border border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold mb-3">
           <Sparkles className="h-3.5 w-3.5" /> Authentic Uthmani Script & Multi-Reciter Studio
         </div>
 

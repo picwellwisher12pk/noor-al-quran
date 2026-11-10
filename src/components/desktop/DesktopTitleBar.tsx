@@ -129,7 +129,7 @@ export function DesktopTitleBar() {
           <span className="font-arabic text-xs text-emerald-400 opacity-90" dir="rtl">
             {APP_CONFIG.nameArabic}
           </span>
-          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800/40">
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-800/40 font-semibold">
             v{APP_CONFIG.version}
           </span>
         </Link>
@@ -177,6 +177,21 @@ export function DesktopTitleBar() {
 
         {/* Global Language Toggle Pill */}
         <LanguageToggle compact={true} />
+
+        {/* Desktop Theme Mode Toggle (Light / Dark) */}
+        <button
+          type="button"
+          onClick={toggleThemeMode}
+          className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
+          title={themeMode === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+          aria-label="Toggle dark / light theme"
+        >
+          {themeMode === "dark" ? (
+            <Sun className="h-3.5 w-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
+          ) : (
+            <Moon className="h-3.5 w-3.5 text-slate-700 hover:text-slate-900 transition-colors" />
+          )}
+        </button>
 
         {/* Right Inspector Toggle (Only visible on Quran reading pages) */}
         {isReadingPage && (

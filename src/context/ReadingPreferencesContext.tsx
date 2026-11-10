@@ -67,6 +67,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         ...prev,
         showUrduTranslation: true,
         showTranslation: false,
+        showTransliteration: false,
         wbwLanguage: "urdu",
       }));
     } else if (language === "english") {
@@ -131,7 +132,15 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
   }, [prefs.urduFont]);
 
   const toggleShowTranslation = () => {
-    setPrefs((prev) => ({ ...prev, showTranslation: !prev.showTranslation }));
+    setPrefs((prev) => {
+      const nextShow = !prev.showTranslation;
+      return {
+        ...prev,
+        showTranslation: nextShow,
+        // When hiding English translation, also hide transliteration along with it
+        showTransliteration: nextShow ? prev.showTransliteration : false,
+      };
+    });
   };
 
   const toggleShowUrduTranslation = () => {

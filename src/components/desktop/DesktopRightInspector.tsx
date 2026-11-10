@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDesktopWorkspace, InspectorTab } from "@/context/DesktopWorkspaceContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { getWordMorphology, WordMorphology } from "@/services/morphologyService";
@@ -30,6 +30,29 @@ import {
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
+import { useLearningStore } from "@/store/useLearningStore";
+import { getPosLabel, getCaseEndingExplanation } from "@/services/terminologyService";
+import { getWordComprehensiveMeanings } from "@/services/quranLexiconService";
+
+function normalizePosClass(posClass?: string): "noun" | "verb" | "particle" | "pronoun" | "preposition" | "demonstrative" {
+  if (!posClass) return "noun";
+  const upper = posClass.toUpperCase();
+  if (upper === "V") return "verb";
+  if (upper === "P") return "preposition";
+  if (upper === "PRON") return "pronoun";
+  if (upper === "DEM") return "demonstrative";
+  if (["CONJ", "DET", "NEG", "INTG", "SUB", "COND", "VOC", "RES", "EMPH"].includes(upper)) return "particle";
+  return "noun";
+}
+
+function normalizeCaseType(caseStr?: string): "raf" | "nasb" | "jarr" | null {
+  if (!caseStr) return null;
+  const lower = caseStr.toLowerCase();
+  if (lower.includes("nom") || lower.includes("مرفوع")) return "raf";
+  if (lower.includes("acc") || lower.includes("منصوب")) return "nasb";
+  if (lower.includes("gen") || lower.includes("مجرور")) return "jarr";
+  return null;
+}
 
 export function DesktopRightInspector() {
   const {
@@ -149,7 +172,24 @@ export function DesktopRightInspector() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const { learnerProfile } = useLearningStore();
+  const ageGroup = learnerProfile?.ageGroup || "standard";
+  const isKids = ageGroup === "kids";
+  const isAdv = ageGroup === "advanced";
+
   const effectiveRoot = morphology?.root || rootInfo?.root;
+
+  const effectiveWordText = selectedWord?.text_uthmani || selectedWord?.text || selectedAyahArabic || "";
+  const comprehensiveMeanings = useMemo(() => {
+    return getWordComprehensiveMeanings(
+      effectiveWordText,
+      effectiveRoot || undefined,
+      morphology?.lemma,
+      selectedWord?.translation?.text,
+      selectedWord?.translation_urdu?.text,
+      ageGroup
+    );
+  }, [effectiveWordText, effectiveRoot, morphology?.lemma, selectedWord?.translation?.text, selectedWord?.translation_urdu?.text, ageGroup]);
 
   const widthClass = {
     default: "w-96",
@@ -167,7 +207,11 @@ export function DesktopRightInspector() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-emerald-400" />
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--foreground)]">
-              Linguistic & Tafseer Inspector
+              {isKids
+                ? (isUrdu ? "ننھے متلاشی انسپکٹر 🚀" : "Young Explorer Inspector 🚀")
+                : isAdv
+                ? (isUrdu ? "تحقیق صرفی ولغوی" : "Linguistic & Tafseer Lexicon")
+                : (isUrdu ? "تحقیقِ الفاظ وتفسیر" : "Linguistic & Tafseer Inspector")}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -175,7 +219,7 @@ export function DesktopRightInspector() {
             <button
               type="button"
               onClick={toggleExpandInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
               title={
                 inspectorWidth === "default"
                   ? "Expand to Wider View"
@@ -194,7 +238,7 @@ export function DesktopRightInspector() {
             <button
               type="button"
               onClick={closeInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
               title="Close Inspector (Ctrl+\)"
             >
               <X className="h-4 w-4" />
@@ -204,13 +248,18 @@ export function DesktopRightInspector() {
 
         {/* Active Token Hero Banner */}
         <div className="p-3.5 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] text-center relative overflow-hidden">
-          <div className="text-[10px] text-[var(--muted-foreground)] mb-1">
-            {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
+          <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2">
+            <span>{selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}</span>
+            {isKids && (
+              <span className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[9px] font-bold">
+                {isUrdu ? "متلاشی موڈ ⭐" : "Explorer Mode ⭐"}
+              </span>
+            )}
           </div>
-          <div className="font-arabic text-3xl text-emerald-400 py-0.5 leading-relaxed" dir="rtl">
+          <div className="font-arabic text-3xl text-emerald-500 dark:text-emerald-400 py-0.5 leading-relaxed" dir="rtl">
             {selectedWord?.text_uthmani || selectedWord?.text || selectedAyahArabic || "ٱلْقُرْءَان"}
           </div>
-          {selectedWord?.transliteration?.text && (
+          {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
             <div className="text-[11px] text-[var(--muted-foreground)] mt-0.5">
               {selectedWord.transliteration.text}
             </div>
@@ -226,7 +275,7 @@ export function DesktopRightInspector() {
                   playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
                 }
               }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30"
             >
               <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
             </button>
@@ -237,7 +286,7 @@ export function DesktopRightInspector() {
                 const [s] = selectedAyahKey.split(":");
                 playVerse(Number(s) || 1, selectedAyahKey);
               }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="mt-2 px-3 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white text-[11px] font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30"
             >
               <Volume2 className="h-3 w-3" /> {isUrdu ? "مکمل آیت سنیں" : "Recite Ayah"}
             </button>
@@ -249,49 +298,73 @@ export function DesktopRightInspector() {
           <button
             type="button"
             onClick={() => setActiveInspectorTab("morphology")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "morphology"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
-            <BookOpen className="h-3 w-3" /> Grammar
+            <BookOpen className="h-3 w-3" />
+            <span>
+              {isKids
+                ? (isUrdu ? "لفظ کی کھوج 🔍" : "Word Detective 🔍")
+                : isAdv
+                ? (isUrdu ? "صرف ونحو" : "Morphology")
+                : (isUrdu ? "صرف وگرامر" : "Grammar")}
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveInspectorTab("translations")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "translations"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
-            <Languages className="h-3 w-3" /> Word (7)
+            <Languages className="h-3 w-3" />
+            <span>
+              {isKids
+                ? (isUrdu ? "تمام معانی 💡" : "All Meanings 💡")
+                : isAdv
+                ? (isUrdu ? "معانی ومترادفات" : "Lexicon Senses")
+                : (isUrdu ? "تمام معانی (معانی)" : "All Meanings")}
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveInspectorTab("tafseer")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "tafseer"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
-            <ScrollText className="h-3 w-3" /> Tafseer
+            <ScrollText className="h-3 w-3" />
+            <span>
+              {isKids
+                ? (isUrdu ? "پیارا سبق 📖" : "Story & Lesson 📖")
+                : (isUrdu ? "تفسیر" : "Tafseer")}
+            </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveInspectorTab("scholars")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "scholars"
                 ? "bg-emerald-600 text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
-            <Layers className="h-3 w-3" /> Scholars
+            <Layers className="h-3 w-3" />
+            <span>
+              {isKids
+                ? (isUrdu ? "اساتذہ 🎓" : "Wise Teachers 🎓")
+                : (isUrdu ? "مترجمین" : "Scholars")}
+            </span>
           </button>
         </div>
 
@@ -304,15 +377,23 @@ export function DesktopRightInspector() {
               {effectiveRoot && (
                 <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-[var(--muted-foreground)] block">3-Letter Arabic Root:</span>
-                    <span className="font-arabic text-lg font-bold text-emerald-400" dir="rtl">
+                    <span className="text-[10px] text-[var(--muted-foreground)] block">
+                      {isKids
+                        ? (isUrdu ? "حروف کی فیملی / جڑ 🌳" : "Word Family Letters 🌳")
+                        : (isUrdu ? "۳ حروفی مادہ (Root):" : "3-Letter Arabic Root:")}
+                    </span>
+                    <span className="font-arabic text-lg font-bold text-emerald-500 dark:text-emerald-400" dir="rtl">
                       {effectiveRoot.split("").join(" - ")} ({effectiveRoot})
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[10px] text-[var(--muted-foreground)] block">Total Quran Count:</span>
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/40">
-                      {rootInfo?.count || "—"} times
+                    <span className="text-[10px] text-[var(--muted-foreground)] block">
+                      {isKids
+                        ? (isUrdu ? "قرآن میں آیا ⭐" : "Appears in Quran ⭐")
+                        : (isUrdu ? "قرآن میں تکرار:" : "Total Quran Count:")}
+                    </span>
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                      {rootInfo?.count || "—"} {isUrdu ? "مرتبہ" : "times"}
                     </span>
                   </div>
                 </div>
@@ -320,104 +401,283 @@ export function DesktopRightInspector() {
 
               {loadingMorph ? (
                 <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
-                  Parsing morphological segments...
+                  {isUrdu ? "گرامر کے اجزاء کا تجزیہ ہو رہا ہے..." : "Parsing morphological segments..."}
                 </div>
               ) : !morphology || morphology.segments.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
-                  Click any word in the Quran text to inspect its grammatical segments.
+                  {isUrdu
+                    ? "کسی بھی قرآنی لفظ پر کلک کریں تاکہ اس کے گرامر کے حصے سامنے آئیں۔"
+                    : "Click any word in the Quran text to inspect its grammatical segments."}
                 </div>
               ) : (
-                morphology.segments.map((seg, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1.5 text-xs"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30">
-                        Segment {idx + 1} • {seg.isPrefix ? "Prefix" : seg.isSuffix ? "Suffix" : "Stem"}
-                      </span>
-                      <span className="font-arabic text-xl text-emerald-400" dir="rtl">
-                        {seg.arabic}
-                      </span>
-                    </div>
+                morphology.segments.map((seg, idx) => {
+                  const adaptedPos = getPosLabel(normalizePosClass(seg.posClass), ageGroup, isUrdu);
+                  const caseNormalized = normalizeCaseType(seg.grammarCase);
+                  const adaptedCase = caseNormalized ? getCaseEndingExplanation(caseNormalized, ageGroup, isUrdu) : null;
 
-                    <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-[var(--border-subtle)]">
-                      <div>
-                        <span className="text-[10px] text-[var(--muted-foreground)] block">Part of Speech:</span>
-                        <span className="font-medium text-[var(--foreground)]">{seg.posArabic} • {seg.posEnglish}</span>
-                      </div>
-                      {seg.grammarCase && (
-                        <div>
-                          <span className="text-[10px] text-[var(--muted-foreground)] block">Case (إعراب):</span>
-                          <span className="font-medium text-emerald-300">{seg.grammarCase}</span>
-                        </div>
-                      )}
-                      {seg.genderNumber && (
-                        <div>
-                          <span className="text-[10px] text-[var(--muted-foreground)] block">Gender/Number:</span>
-                          <span className="font-medium text-[var(--foreground)]">{seg.genderNumber}</span>
-                        </div>
-                      )}
-                      {seg.lemma && (
-                        <div>
-                          <span className="text-[10px] text-[var(--muted-foreground)] block">Lemma:</span>
-                          <span className="font-arabic text-sm text-[var(--foreground)]" dir="rtl">{seg.lemma}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* TAB 2: WORD MULTILINGUAL TRANSLATIONS */}
-          {activeInspectorTab === "translations" && (
-            <div className="space-y-2">
-              {loadingLangs ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
-                  Loading 7-language word translations...
-                </div>
-              ) : multilingual.length === 0 ? (
-                <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">
-                  Click any word in the Quran text to inspect all translations.
-                </div>
-              ) : (
-                multilingual.map((item) => {
-                  const isRTL = item.direction === "rtl";
-                  const isCopied = copiedId === item.code;
                   return (
                     <div
-                      key={item.code}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                      key={idx}
+                      className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1.5 text-xs shadow-xs"
                     >
-                      <div className="space-y-0.5 flex-1 pr-2">
-                        <span className="text-[10px] font-semibold text-emerald-400 block">
-                          {item.nativeName} ({item.languageName})
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-600/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                          {isKids
+                            ? `${isUrdu ? "ٹکڑا" : "Word Part"} ${idx + 1} • ${seg.isPrefix ? (isUrdu ? "شروع کا حصہ" : "Front Helper") : seg.isSuffix ? (isUrdu ? "آخر کا حصہ" : "End Helper") : (isUrdu ? "اصل لفظ" : "Core Word")}`
+                            : `Segment ${idx + 1} • ${seg.isPrefix ? "Prefix" : seg.isSuffix ? "Suffix" : "Stem"}`}
                         </span>
-                        <div
-                          dir={item.direction}
-                          className={
-                            isRTL
-                              ? "font-urdu text-sm text-[var(--urdu-color)] text-right"
-                              : "text-xs text-[var(--translation-color)] text-left"
-                          }
-                        >
-                          {item.translation}
-                        </div>
+                        <span className="font-arabic text-xl text-emerald-500 dark:text-emerald-400 font-bold" dir="rtl">
+                          {seg.arabic}
+                        </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(item.translation, item.code)}
-                        className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                        title="Copy"
-                      >
-                        {isCopied ? <CheckCircle2 className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                      </button>
+
+                      <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px] border-t border-[var(--border-subtle)]">
+                        <div>
+                          <span className="text-[10px] text-[var(--muted-foreground)] block">
+                            {isKids ? (isUrdu ? "کس قسم کا لفظ ہے؟" : "What kind of word?") : (isUrdu ? "کلمہ کی قسم:" : "Part of Speech:")}
+                          </span>
+                          <span className="font-semibold text-[var(--foreground)]">{adaptedPos.label}</span>
+                          {adaptedPos.subLabel && (
+                            <span className="text-[9px] text-[var(--muted-foreground)] block">{adaptedPos.subLabel}</span>
+                          )}
+                        </div>
+
+                        {seg.grammarCase && (
+                          <div>
+                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                              {isKids ? (isUrdu ? "حرکت کا راز (اعراب):" : "Vowel Magic (Case):") : (isUrdu ? "حالتِ اعراب:" : "Case (إعراب):")}
+                            </span>
+                            <span className="font-medium text-emerald-600 dark:text-emerald-300">
+                              {adaptedCase ? adaptedCase.label : seg.grammarCase}
+                            </span>
+                          </div>
+                        )}
+
+                        {seg.genderNumber && (
+                          <div>
+                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                              {isUrdu ? "جنس وتعداد:" : "Gender/Number:"}
+                            </span>
+                            <span className="font-medium text-[var(--foreground)]">{seg.genderNumber}</span>
+                          </div>
+                        )}
+
+                        {seg.lemma && (
+                          <div>
+                            <span className="text-[10px] text-[var(--muted-foreground)] block">
+                              {isKids ? (isUrdu ? "اصل بنیادی لفظ:" : "Base Dictionary Word:") : (isUrdu ? "لغوی مادہ (Lemma):" : "Lemma:")}
+                            </span>
+                            <span className="font-arabic text-sm text-[var(--foreground)] font-bold" dir="rtl">{seg.lemma}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Kids Friendly Tip from Terminology Service */}
+                      {isKids && adaptedPos.helpingTip && (
+                        <div className="mt-1 pt-1 border-t border-[var(--border-subtle)]/50 text-[10px] text-amber-800 dark:text-amber-300 bg-amber-500/10 p-1.5 rounded-lg">
+                          <span className="font-bold">{isUrdu ? "نصیحت / ٹپ: " : "Detective Tip: "}</span>
+                          {adaptedPos.helpingTip}
+                        </div>
+                      )}
                     </div>
                   );
                 })
               )}
+            </div>
+          )}
+
+          {/* TAB 2: ALL POSSIBLE MEANINGS & LEXICON */}
+          {activeInspectorTab === "translations" && (
+            <div className="space-y-3">
+              {/* 1. Contextual Verse Meaning */}
+              <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
+                  <span className="font-semibold uppercase tracking-wider">
+                    {isKids ? (isUrdu ? "اس آیت میں مطلب" : "Meaning in this Ayah") : (isUrdu ? "سیاق وسباق کا مفہوم" : "Contextual Verse Translation")}
+                  </span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">1:1 Verse Context</span>
+                </div>
+
+                {/* Urdu Translation */}
+                {selectedWord?.translation_urdu?.text && (
+                  <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-right">
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block mb-0.5">اردو لفظی ترجمہ:</span>
+                    <p className="font-urdu text-base text-[var(--urdu-color)] leading-relaxed">
+                      {selectedWord.translation_urdu.text}
+                    </p>
+                  </div>
+                )}
+
+                {/* English Translation */}
+                {prefs.showTranslation && selectedWord?.translation?.text && (
+                  <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-left">
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block mb-0.5">English Translation:</span>
+                    <p className="text-xs text-[var(--translation-color)] font-medium">
+                      {selectedWord.translation.text}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. All Possible Lexical Meanings & Senses */}
+              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-card)] to-teal-500/5 border border-emerald-500/30 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--foreground)]">
+                    <Sparkles className="h-4 w-4 text-emerald-500" />
+                    <span>{isKids ? (isUrdu ? "اس لفظ کے تمام ممکنہ معانی" : "All Possible Meanings") : (isUrdu ? "تمام لغوی معانی ومفاہیم" : "All Possible Lexical Meanings")}</span>
+                  </div>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30">
+                    Lexicon Senses
+                  </span>
+                </div>
+
+                {/* Meanings List (Urdu) */}
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-semibold text-[var(--foreground)] mb-1">
+                    {isUrdu ? "اردو لغت کے مفاہیم:" : "Urdu Lexical Senses:"}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5" dir="rtl">
+                    {comprehensiveMeanings.allMeaningsUr.map((m, i) => (
+                      <span
+                        key={i}
+                        className="px-2.5 py-1 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] font-urdu text-[var(--urdu-color)] shadow-xs font-medium"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Meanings List (English) */}
+                  {prefs.showTranslation && (
+                    <>
+                      <div className="text-[11px] font-semibold text-[var(--foreground)] mt-2 mb-1">
+                        English Lexical Definitions:
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {comprehensiveMeanings.allMeaningsEn.map((m, i) => (
+                          <span
+                            key={i}
+                            className="px-2.5 py-1 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--foreground)] shadow-xs font-medium"
+                          >
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Root Concept Explanation */}
+                {comprehensiveMeanings.primaryRootConceptEn && (
+                  <div className="mt-2 pt-2 border-t border-emerald-500/20 text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400 block mb-0.5">
+                      {isUrdu ? "بنیادی مادہ ومفہوم:" : "Primary Root Concept:"}
+                    </span>
+                    <p>{isUrdu && comprehensiveMeanings.primaryRootConceptUr ? comprehensiveMeanings.primaryRootConceptUr : comprehensiveMeanings.primaryRootConceptEn}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Kids Detective Box (if young person) */}
+              {isKids && comprehensiveMeanings.kidsDetective && (
+                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-2">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-300">
+                    <Sparkles className="h-4 w-4" />
+                    <span>{isUrdu ? comprehensiveMeanings.kidsDetective.friendlyTitleUr : comprehensiveMeanings.kidsDetective.friendlyTitle}</span>
+                  </div>
+                  <p className="text-[var(--foreground)] leading-relaxed">
+                    {isUrdu ? comprehensiveMeanings.kidsDetective.simpleMeaningUr : comprehensiveMeanings.kidsDetective.simpleMeaning}
+                  </p>
+                  <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200">
+                    <span className="font-bold block mb-0.5">{isUrdu ? "ہماری روزمرہ زندگی میں:" : "In our daily life:"}</span>
+                    {isUrdu ? comprehensiveMeanings.kidsDetective.whatItMeansDailyUr : comprehensiveMeanings.kidsDetective.whatItMeansDaily}
+                  </div>
+                  {comprehensiveMeanings.kidsDetective.funFact && (
+                    <div className="text-[10px] text-[var(--muted-foreground)] italic">
+                      ⭐ {isUrdu ? comprehensiveMeanings.kidsDetective.funFactUr : comprehensiveMeanings.kidsDetective.funFact}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 4. Quranic Word Family / Derivatives */}
+              {comprehensiveMeanings.derivativeFamily.length > 0 && (
+                <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block">
+                    {isKids ? (isUrdu ? "اس لفظ کے خاندان کے دیگر قرآنی الفاظ 🌳" : "Related Family Words in Quran 🌳") : (isUrdu ? "قرآن میں اسی مادے سے مشتق الفاظ" : "Quranic Derivative Family")}
+                  </span>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {comprehensiveMeanings.derivativeFamily.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-between text-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-arabic text-base font-bold text-emerald-500 dark:text-emerald-400" dir="rtl">{item.arabic}</span>
+                          <span className="text-[10px] font-mono text-[var(--muted-foreground)]">({item.transliteration})</span>
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            {item.formOrType}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-medium text-[var(--foreground)] text-right">
+                          {isUrdu ? item.meaningUr : item.meaningEn}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Multilingual Translations Across 7 World Languages */}
+              <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)] block">
+                  {isUrdu ? "عالمی زبانوں میں تراجم (7 زبانیں)" : "Global Word Translations (7 Languages)"}
+                </span>
+                {loadingLangs ? (
+                  <div className="p-4 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
+                    Loading multilingual translations...
+                  </div>
+                ) : multilingual.length === 0 ? (
+                  <div className="p-2 text-center text-xs text-[var(--muted-foreground)]">
+                    Click any word in the Quran text to inspect all translations.
+                  </div>
+                ) : (
+                  multilingual.map((item) => {
+                    const isRTL = item.direction === "rtl";
+                    const isCopied = copiedId === item.code;
+                    return (
+                      <div
+                        key={item.code}
+                        className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                      >
+                        <div className="space-y-0.5 flex-1 pr-2">
+                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block">
+                            {item.nativeName} ({item.languageName})
+                          </span>
+                          <div
+                            dir={item.direction}
+                            className={
+                              isRTL
+                                ? "font-urdu text-sm text-[var(--urdu-color)] text-right"
+                                : "text-xs text-[var(--translation-color)] text-left"
+                            }
+                          >
+                            {item.translation}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(item.translation, item.code)}
+                          className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
+                          title="Copy"
+                        >
+                          {isCopied ? <CheckCircle2 className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           )}
 

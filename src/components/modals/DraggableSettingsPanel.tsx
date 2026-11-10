@@ -45,6 +45,7 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
+    toggleShowTransliteration,
     toggleShowWordByWord,
     toggleAutoScroll,
     setSelectedUrduTranslationId,
@@ -100,10 +101,14 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
   if (!isOpen) return null;
 
   const fontOptions: { id: ArabicFontFamily; name: string }[] = [
-    { id: "amiri", name: "Amiri" },
-    { id: "noto-sans-arabic", name: "Noto Sans" },
-    { id: "scheherazade", name: "Scheherazade" },
-    { id: "nastaliq", name: "Nastaliq" },
+    { id: "amiri", name: "Amiri (Classical)" },
+    { id: "amiri-quran", name: "Amiri Quran (Uthmani)" },
+    { id: "noto-naskh-arabic", name: "Noto Naskh (Standard)" },
+    { id: "lateef", name: "Lateef (Easy Read)" },
+    { id: "scheherazade", name: "Scheherazade (Tradition)" },
+    { id: "noto-sans-arabic", name: "Noto Sans (Clean)" },
+    { id: "cairo", name: "Cairo (Geometric)" },
+    { id: "nastaliq", name: "Nastaliq (Indo-Pak)" },
   ];
 
   const urduFontOptions: { id: UrduFontFamily; name: string }[] = [
@@ -484,6 +489,18 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
                   className="h-3.5 w-3.5 accent-emerald-500 rounded"
                 />
               </label>
+
+              {prefs.showTranslation && (
+                <label className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] cursor-pointer pl-4">
+                  <span className="text-[11px] text-[var(--muted-foreground)]">Include English Transliteration</span>
+                  <input
+                    type="checkbox"
+                    checked={prefs.showTransliteration}
+                    onChange={toggleShowTransliteration}
+                    className="h-3.5 w-3.5 accent-emerald-500 rounded"
+                  />
+                </label>
+              )}
             </div>
 
             {/* Audio Reciter */}

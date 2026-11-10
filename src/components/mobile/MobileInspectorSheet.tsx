@@ -187,8 +187,8 @@ export function MobileInspectorSheet() {
                   {selectedWord.text_uthmani || selectedWord.text}
                 </span>
                 <span className="text-xs text-[var(--muted-foreground)] line-clamp-1">
-                  {selectedWord.translation?.text || ""}
-                  {selectedWord.translation_urdu?.text ? ` • ${selectedWord.translation_urdu.text}` : ""}
+                  {selectedWord.translation_urdu?.text || ""}
+                  {prefs.showTranslation && selectedWord.translation?.text ? ` • ${selectedWord.translation.text}` : ""}
                 </span>
               </div>
             ) : (
