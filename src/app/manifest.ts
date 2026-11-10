@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { APP_CONFIG } from "@/config/version";
 
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${APP_CONFIG.name} (${APP_CONFIG.nameArabic})`,

@@ -1,19 +1,11 @@
 import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 import { Chapter, Juz } from "@/types/quran";
-import { SurahList } from "@/components/home/SurahList";
-import { JuzList } from "@/components/home/JuzList";
+import { QuranDirectoryTabs } from "@/components/home/QuranDirectoryTabs";
 import { KhatmahWidget } from "@/components/home/KhatmahWidget";
 import { BookOpen, Sparkles, Compass, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const currentTab = resolvedSearchParams.tab === "juz" ? "juz" : "surah";
-
+export default async function HomePage() {
   let chapters: Chapter[] = [];
   let juzs: Juz[] = [];
   let error: string | null = null;
@@ -98,38 +90,8 @@ export default async function HomePage({
           {/* Khatmah & Daily Goal Tracker */}
           <KhatmahWidget />
 
-          {/* Tabs: Surahs vs Juzs */}
-          <div className="flex items-center justify-center pt-2">
-            <div className="p-1 rounded-xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex gap-1 shadow-inner text-xs">
-              <Link
-                href="/?tab=surah"
-                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
-                  currentTab === "surah"
-                    ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                Surahs (114)
-              </Link>
-              <Link
-                href="/?tab=juz"
-                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
-                  currentTab === "juz"
-                    ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                Juzs (30)
-              </Link>
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          {currentTab === "surah" ? (
-            <SurahList chapters={chapters} />
-          ) : (
-            <JuzList juzs={juzs} chapters={chapters} />
-          )}
+          {/* Directory Tabs (Surahs vs Juzs) */}
+          <QuranDirectoryTabs chapters={chapters} juzs={juzs} />
         </>
       )}
     </div>
