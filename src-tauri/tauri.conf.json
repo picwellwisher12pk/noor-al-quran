@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Noor Al-Quran",
-  "version": "1.29.1",
+  "version": "1.29.2",
   "identifier": "com.nooralquran.app",
   "build": {
     "frontendDist": "../out",
@@ -12,7 +12,9 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Noor Al-Quran (نور القرآن) - Authentic Noble Quran Workstation",
+        "url": "index.html",
         "width": 1366,
         "height": 860,
         "minWidth": 960,

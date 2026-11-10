@@ -164,14 +164,6 @@ export function DesktopRightInspector() {
       .finally(() => setLoadingTafsir(false));
   }, [isRightInspectorOpen, selectedAyahKey, prefs.selectedTafsirId]);
 
-  if (!isRightInspectorOpen) return null;
-
-  const handleCopy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   const { learnerProfile } = useLearningStore();
   const ageGroup = learnerProfile?.ageGroup || "standard";
   const isKids = ageGroup === "kids";
@@ -190,6 +182,14 @@ export function DesktopRightInspector() {
       ageGroup
     );
   }, [effectiveWordText, effectiveRoot, morphology?.lemma, selectedWord?.translation?.text, selectedWord?.translation_urdu?.text, ageGroup]);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  if (!isRightInspectorOpen) return null;
 
   const widthClass = {
     default: "w-96",
