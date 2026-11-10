@@ -268,12 +268,67 @@ body {
   background: var(--muted-foreground);
 }
 
-/* Tafsir html styling */
-.tafsir-html p {
-  margin-bottom: 1rem;
-  line-height: 1.9;
+/* Tafsir html & typography formatting */
+.tafsir-rendered-content,
+.tafsir-html {
+  line-height: 2.3;
 }
 
-.tafsir-html strong {
+.tafsir-rendered-content p,
+.tafsir-html p,
+.tafsir-paragraph {
+  margin-bottom: 1.25rem !important;
+  line-height: 2.3 !important;
+  text-align: justify;
+}
+
+.tafsir-rendered-content p:last-child,
+.tafsir-html p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.tafsir-rendered-content strong,
+.tafsir-html strong,
+.tafsir-strong {
   color: var(--primary);
+  font-weight: 700;
+}
+
+.tafsir-heading-box {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tafsir-heading {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tafsir-arabic {
+  font-family: var(--font-arabic-amiri, "Amiri", "Noto Naskh Arabic", serif);
+  font-weight: 600;
+  font-size: 1.18em;
+  color: var(--primary);
+  padding: 0 0.25rem;
+  display: inline-block;
+  line-height: 1.8;
+}
+
+.tafsir-citation {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.45rem;
+  margin: 0 0.25rem;
+  display: inline-block;
+  vertical-align: middle;
 }

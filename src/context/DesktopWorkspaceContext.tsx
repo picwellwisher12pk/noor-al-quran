@@ -8,6 +8,18 @@ export type SidebarTab = "surahs" | "juz" | "khatmah" | "bookmarks";
 export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars";
 export type ReadingLayoutMode = "continuous" | "compact" | "mushaf";
 export type InspectorWidthMode = "default" | "expanded" | "maximized";
+export type SettingsModalTab =
+  | "navigation"
+  | "account"
+  | "learner"
+  | "theme"
+  | "typography"
+  | "languages"
+  | "tafseer"
+  | "audio"
+  | "shortcuts"
+  | "live"
+  | "storage";
 
 interface DesktopWorkspaceContextType {
   // Sidebar state
@@ -54,6 +66,11 @@ interface DesktopWorkspaceContextType {
   setIsSearchOpen: (open: boolean) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  settingsTab: SettingsModalTab;
+  setSettingsTab: (tab: SettingsModalTab) => void;
+  openSettingsModal: (tab?: SettingsModalTab) => void;
+  isLiveSettingsOpen: boolean;
+  setIsLiveSettingsOpen: (open: boolean) => void;
   isDownloadManagerOpen: boolean;
   setIsDownloadManagerOpen: (open: boolean) => void;
 
@@ -89,7 +106,14 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsModalTab>("theme");
+  const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
   const [isDownloadManagerOpen, setIsDownloadManagerOpen] = useState(false);
+
+  const openSettingsModal = (tab?: SettingsModalTab) => {
+    if (tab) setSettingsTab(tab);
+    setIsSettingsOpen(true);
+  };
 
   // Mobile drawer states
   const [isMobileSurahDrawerOpen, setIsMobileSurahDrawerOpen] = useState(false);
@@ -274,6 +298,11 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setIsSearchOpen,
         isSettingsOpen,
         setIsSettingsOpen,
+        settingsTab,
+        setSettingsTab,
+        openSettingsModal,
+        isLiveSettingsOpen,
+        setIsLiveSettingsOpen,
         isDownloadManagerOpen,
         setIsDownloadManagerOpen,
 

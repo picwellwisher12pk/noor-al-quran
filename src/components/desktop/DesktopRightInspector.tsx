@@ -12,6 +12,7 @@ import {
   ScholarVerseTranslation,
 } from "@/services/wordTranslationsService";
 import { fetchTafsirForAyah, AVAILABLE_TAFSIRS } from "@/services/quranApi";
+import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
 import { TafsirModal } from "@/components/modals/TafsirModal";
 import {
   X,
@@ -67,7 +68,7 @@ export function DesktopRightInspector() {
     toggleExpandInspector,
   } = useDesktopWorkspace();
 
-  const { prefs, setSelectedTafsirId } = useReadingPreferences();
+  const { prefs, setSelectedTafsirId, setTafsirFontSize } = useReadingPreferences();
   const { playWord, playVerse } = useAudio();
   const { isUrdu } = useLanguage();
 
@@ -149,20 +150,20 @@ export function DesktopRightInspector() {
     setLoadingTafsir(true);
     fetchTafsirForAyah(prefs.selectedTafsirId, selectedAyahKey)
       .then((data) => {
-        if (data) {
-          setTafsirText(data.text);
+        if (data && data.text) {
+          setTafsirText(parseAndFormatTafsir(data.text, isUrdu));
           setTafsirAuthor(data.author);
         } else {
-          setTafsirText("Tafseer commentary is currently unavailable for this Ayah.");
+          setTafsirText(isUrdu ? "اس آیت کی تفسیر فی الحال دستیاب نہیں ہے۔" : "Tafseer commentary is currently unavailable for this Ayah.");
           setTafsirAuthor("");
         }
       })
       .catch((err) => {
         console.error("Error loading tafsir:", err);
-        setTafsirText("Unable to load Tafseer commentary at this time.");
+        setTafsirText(isUrdu ? "تفسیر لوڈ کرنے میں مسئلہ پیش آیا۔ براہ کرم دوبارہ کوشش کریں۔" : "Unable to load Tafseer commentary at this time.");
       })
       .finally(() => setLoadingTafsir(false));
-  }, [isRightInspectorOpen, selectedAyahKey, prefs.selectedTafsirId]);
+  }, [isRightInspectorOpen, selectedAyahKey, prefs.selectedTafsirId, isUrdu]);
 
   const { learnerProfile } = useLearningStore();
   const ageGroup = learnerProfile?.ageGroup || "standard";
@@ -686,27 +687,56 @@ export function DesktopRightInspector() {
             <div className="space-y-3">
               {/* Tafsir Selector Dropdown & Open in Modal */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-1">
                   <label className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase">
-                    Active Tafseer:
+                    {isUrdu ? "منتخب تفسیر:" : "Active Tafseer:"}
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsFullModalOpen(true)}
-                    className="text-[11px] px-2.5 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-700 dark:text-emerald-300 font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer"
-                    title="Open in full modal dialog"
-                  >
-                    <ExternalLink className="h-3 w-3" /> Full Modal
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* Tafseer Font Size Steppers */}
+                    <div className="flex items-center rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[10px] px-1 py-0.5 shadow-xs">
+                      <button
+                        type="button"
+                        onClick={() => setTafsirFontSize(Math.max(13, (prefs.tafsirFontSize || 18) - 1))}
+                        className="px-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
+                        title="Decrease Tafseer font size"
+                      >
+                        A-
+                      </button>
+                      <span className="px-1 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        {prefs.tafsirFontSize || 18}px
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setTafsirFontSize(Math.min(34, (prefs.tafsirFontSize || 18) + 1))}
+                        className="px-1 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
+                        title="Increase Tafseer font size"
+                      >
+                        A+
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsFullModalOpen(true)}
+                      className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-700 dark:text-emerald-300 font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
+                      title={isUrdu ? "مکمل تفسیر الگ ونڈو میں دیکھیں" : "Open in full modal dialog"}
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      <span>{isUrdu ? "مکمل تفسیر" : "Full Modal"}</span>
+                    </button>
+                  </div>
                 </div>
                 <select
                   value={prefs.selectedTafsirId}
                   onChange={(e) => setSelectedTafsirId(Number(e.target.value))}
                   className="w-full p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] focus:outline-none focus:border-emerald-500 cursor-pointer"
                 >
-                  {AVAILABLE_TAFSIRS.map((t) => (
+                  {(isUrdu
+                    ? AVAILABLE_TAFSIRS.filter((t) => t.language === "urdu")
+                    : AVAILABLE_TAFSIRS
+                  ).map((t) => (
                     <option key={t.id} value={t.id}>
-                      [{t.language.toUpperCase()}] {t.name} - {t.author}
+                      {isUrdu ? `${t.name} - ${t.author}` : `[${t.language.toUpperCase()}] ${t.name} - ${t.author}`}
                     </option>
                   ))}
                 </select>
@@ -714,16 +744,22 @@ export function DesktopRightInspector() {
 
               {loadingTafsir ? (
                 <div className="p-8 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
-                  Fetching authentic Tafseer text...
+                  {isUrdu ? "مستند تفسیر لوڈ ہو رہی ہے..." : "Fetching authentic Tafseer text..."}
                 </div>
               ) : (
                 <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs leading-relaxed">
                   <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 text-[10px] text-[var(--muted-foreground)]">
-                    <span>Author: {tafsirAuthor || "Scholar"}</span>
-                    <span>Ayah {selectedAyahKey}</span>
+                    <span>{isUrdu ? `مصنف: ${tafsirAuthor || "حافظ ابن کثیر"}` : `Author: ${tafsirAuthor || "Scholar"}`}</span>
+                    <span>{isUrdu ? `آیت: ${selectedAyahKey}` : `Ayah ${selectedAyahKey}`}</span>
                   </div>
                   <div
-                    className="prose prose-sm dark:prose-invert max-w-none text-[var(--foreground)]"
+                    className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
+                      isUrdu
+                        ? "font-urdu leading-[2.3] text-right"
+                        : "leading-relaxed text-left"
+                    }`}
+                    style={{ fontSize: `${prefs.tafsirFontSize || 18}px` }}
+                    dir={isUrdu ? "rtl" : "ltr"}
                     dangerouslySetInnerHTML={{ __html: tafsirText }}
                   />
                 </div>

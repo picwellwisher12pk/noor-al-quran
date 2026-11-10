@@ -23,17 +23,21 @@ import {
   AlignJustify,
   CloudDownload,
   Languages,
+  ExternalLink,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useLanguage } from "@/context/LanguageContext";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface DraggableSettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenFullSettings?: () => void;
 }
 
-export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPanelProps) {
+export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: DraggableSettingsPanelProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { isUrdu } = useLanguage();
   const { readingMode, setReadingMode, setIsDownloadManagerOpen } = useDesktopWorkspace();
   const {
     prefs,
@@ -179,9 +183,20 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
             </div>
 
             <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setIsMinimized(!isMinimized)}
+              {onOpenFullSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenFullSettings}
+                  title={isUrdu ? "مکمل ترتیبات موڈال کھولیں" : "Open Full Tabbed Settings"}
+                  className="px-1.5 py-0.5 rounded text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span className="hidden sm:inline">{isUrdu ? "مکمل ترتیبات" : "Full Modal"}</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsMinimized(!isMinimized)}
               aria-label={isMinimized ? "Maximize settings" : "Minimize settings"}
               className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)]"
             >

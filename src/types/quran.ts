@@ -157,6 +157,7 @@ export interface ReadingPreferences {
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26
+  tafsirFontSize?: number; // 14 to 32
   arabicFont: ArabicFontFamily;
   urduFont: UrduFontFamily;
   wbwLanguage: WbwLanguage;

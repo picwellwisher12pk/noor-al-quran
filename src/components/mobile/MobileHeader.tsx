@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
@@ -102,11 +101,6 @@ export function MobileHeader() {
               <Moon className="h-4 w-4 text-slate-700 dark:text-slate-300" />
             )}
           </button>
-
-          {/* Language Toggle */}
-          <div className="scale-90 origin-right">
-            <LanguageToggle />
-          </div>
 
           {/* Full Menu Drawer Button */}
           <button

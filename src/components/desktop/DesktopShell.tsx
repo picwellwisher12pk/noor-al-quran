@@ -13,7 +13,7 @@ import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { MobileSurahDrawer } from "@/components/mobile/MobileSurahDrawer";
 import { MobileInspectorSheet } from "@/components/mobile/MobileInspectorSheet";
 import { MobileAudioBar } from "@/components/mobile/MobileAudioBar";
-import { AppMenuDrawer } from "./AppMenuDrawer";
+import { SettingsModal } from "@/components/modals/SettingsModal";
 import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { DownloadManagerModal } from "@/components/modals/DownloadManagerModal";
@@ -32,6 +32,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
     setIsSearchOpen,
     isSettingsOpen,
     setIsSettingsOpen,
+    isLiveSettingsOpen,
+    setIsLiveSettingsOpen,
     isDownloadManagerOpen,
     setIsDownloadManagerOpen,
     isMobileMenuOpen,
@@ -88,22 +90,34 @@ export function DesktopShell({ children }: DesktopShellProps) {
       )}
 
       {/* ================= SHARED GLOBAL MODALS & DRAWERS ================= */}
-      {/* App Menu Drawer (Profile, Google Drive Sync, Age Tier, Keyboard Shortcuts) */}
-      <AppMenuDrawer
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-
       {/* Global Command Palette / Search Modal (Ctrl+K) */}
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
       />
 
-      {/* Settings Panel */}
+      {/* Unified Master Settings & App Menu Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen || isMobileMenuOpen}
+        onClose={() => {
+          setIsSettingsOpen(false);
+          setIsMobileMenuOpen(false);
+        }}
+        onOpenLiveSettings={() => {
+          setIsSettingsOpen(false);
+          setIsMobileMenuOpen(false);
+          setIsLiveSettingsOpen(true);
+        }}
+      />
+
+      {/* Floating Draggable Live Settings Panel */}
       <DraggableSettingsPanel
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        isOpen={isLiveSettingsOpen}
+        onClose={() => setIsLiveSettingsOpen(false)}
+        onOpenFullSettings={() => {
+          setIsLiveSettingsOpen(false);
+          setIsSettingsOpen(true);
+        }}
       />
 
       {/* Offline Storage & Pre-download Manager Modal */}

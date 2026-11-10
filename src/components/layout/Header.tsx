@@ -9,6 +9,7 @@ import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { BookmarksModal } from "@/components/modals/BookmarksModal";
+import { SettingsModal } from "@/components/modals/SettingsModal";
 import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { KhatmahModal } from "@/components/modals/KhatmahModal";
 import {
@@ -24,7 +25,6 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { LanguageToggle } from "@/components/common/LanguageToggle";
 
 export function Header() {
   const { themeMode, toggleThemeMode } = useTheme();
@@ -36,6 +36,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
   const [isKhatmahOpen, setIsKhatmahOpen] = useState(false);
 
   return (
@@ -139,9 +140,6 @@ export function Header() {
               )}
             </button>
 
-            {/* Global Language Toggle */}
-            <LanguageToggle />
-
             {/* Quick Dark/Light Toggle */}
             <button
               type="button"
@@ -169,10 +167,25 @@ export function Header() {
         </div>
       </header>
 
-      {/* Global Modals & Floating Draggable Settings */}
+      {/* Global Modals & Settings */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       <BookmarksModal isOpen={isBookmarksOpen} onClose={() => setIsBookmarksOpen(false)} />
-      <DraggableSettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onOpenLiveSettings={() => {
+          setIsSettingsOpen(false);
+          setIsLiveSettingsOpen(true);
+        }}
+      />
+      <DraggableSettingsPanel
+        isOpen={isLiveSettingsOpen}
+        onClose={() => setIsLiveSettingsOpen(false)}
+        onOpenFullSettings={() => {
+          setIsLiveSettingsOpen(false);
+          setIsSettingsOpen(true);
+        }}
+      />
       <KhatmahModal isOpen={isKhatmahOpen} onClose={() => setIsKhatmahOpen(false)} />
     </>
   );

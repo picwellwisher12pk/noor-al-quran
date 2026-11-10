@@ -9,6 +9,7 @@ interface ReadingPreferencesContextType {
   setArabicFontSize: (size: number) => void;
   setEnglishFontSize: (size: number) => void;
   setUrduFontSize: (size: number) => void;
+  setTafsirFontSize: (size: number) => void;
   setArabicFont: (font: ArabicFontFamily) => void;
   setUrduFont: (font: UrduFontFamily) => void;
   toggleShowTranslation: () => void;
@@ -26,6 +27,7 @@ const DEFAULT_PREFERENCES: ReadingPreferences = {
   arabicFontSize: 32,
   englishFontSize: 16,
   urduFontSize: 20,
+  tafsirFontSize: 18,
   arabicFont: "amiri",
   urduFont: "nastaliq",
   wbwLanguage: "english",
@@ -69,6 +71,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         showTranslation: false,
         showTransliteration: false,
         wbwLanguage: "urdu",
+        selectedTafsirId: [160, 159, 157, 818].includes(prev.selectedTafsirId) ? prev.selectedTafsirId : 160,
       }));
     } else if (language === "english") {
       setPrefs((prev) => ({
@@ -106,6 +109,10 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
 
   const setUrduFontSize = (size: number) => {
     setPrefs((prev) => ({ ...prev, urduFontSize: Math.max(14, Math.min(32, size)) }));
+  };
+
+  const setTafsirFontSize = (size: number) => {
+    setPrefs((prev) => ({ ...prev, tafsirFontSize: Math.max(13, Math.min(34, size)) }));
   };
 
   const setArabicFont = (font: ArabicFontFamily) => {
@@ -182,6 +189,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         setArabicFontSize,
         setEnglishFontSize,
         setUrduFontSize,
+        setTafsirFontSize,
         setArabicFont,
         setUrduFont,
         toggleShowTranslation,

@@ -27,9 +27,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isTauri as checkIsTauri, safeCloseWindow, safeMinimizeWindow, safeToggleMaximize } from "@/utils/platform";
 import { useLanguage } from "@/context/LanguageContext";
-import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { useGoogleAuth } from "@/context/GoogleAuthContext";
-import { AppMenuDrawer } from "./AppMenuDrawer";
 
 export function DesktopTitleBar() {
   const pathname = usePathname();
@@ -44,6 +42,7 @@ export function DesktopTitleBar() {
     toggleRightInspector,
     setIsSearchOpen,
     setIsSettingsOpen,
+    openSettingsModal,
     chapters,
     activeChapterId,
     activeAyahNumber,
@@ -55,7 +54,6 @@ export function DesktopTitleBar() {
   const { isUrdu } = useLanguage();
   const { user, isSignedIn, isSyncing } = useGoogleAuth();
   const [isTauri, setIsTauri] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsTauri(checkIsTauri());
@@ -175,9 +173,6 @@ export function DesktopTitleBar() {
           </button>
         )}
 
-        {/* Global Language Toggle Pill */}
-        <LanguageToggle compact={true} />
-
         {/* Desktop Theme Mode Toggle (Light / Dark) */}
         <button
           type="button"
@@ -212,7 +207,7 @@ export function DesktopTitleBar() {
         {/* Application Menu & User Profile Trigger */}
         <button
           type="button"
-          onClick={() => setIsMenuOpen(true)}
+          onClick={() => openSettingsModal(isSignedIn && user ? "account" : "navigation")}
           className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--foreground)] text-xs font-semibold transition-all shadow-sm cursor-pointer active:scale-98"
           title="Open Noor Al-Quran Hub & Menu (Backup, Themes, Navigation & Settings)"
         >
@@ -244,9 +239,6 @@ export function DesktopTitleBar() {
           )}
         </button>
       </div>
-
-      {/* Centralized Application Hub & Menu Drawer */}
-      <AppMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </header>
   );
 }

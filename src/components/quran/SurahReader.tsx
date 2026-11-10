@@ -10,6 +10,7 @@ import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
@@ -34,6 +35,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { setLastReadPosition } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
+  const { isUrdu } = useLanguage();
   const { setActiveChapterId, setActiveAyahNumber, readingMode } = useDesktopWorkspace();
   const { currentVerseKey, currentChapterId, isPlaying, updateVersesQueue } = useAudio();
 
@@ -163,7 +165,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         >
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
 
-          {/* Surah Title Calligraphy & English */}
+          {/* Surah Title Calligraphy & Translations */}
           <div className="flex flex-col items-center justify-center space-y-0.5">
             <h1
               className={`font-arabic text-[var(--foreground)] py-0.5 ${
@@ -173,19 +175,41 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
             >
               سُورَةُ {chapter.name_arabic}
             </h1>
-            <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[var(--foreground)]">
-              Surah {chapter.name_simple} &bull;{" "}
-              <span className="text-emerald-700 dark:text-emerald-400 font-medium">{chapter.translated_name.name}</span>
-            </h2>
-            <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground)] pt-0.5">
-              <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] font-medium">
-                {chapter.revelation_place}
-              </span>
-              <span>&bull;</span>
-              <span>{chapter.verses_count} Ayahs</span>
-              <span>&bull;</span>
-              <span>Juz {chapter.pages?.[0] ? Math.ceil(chapter.pages[0] / 20) : 1}</span>
-            </div>
+
+            {/* Subtitle / Meaning: Urdu-only when Urdu is selected, else English */}
+            {isUrdu ? (
+              <h2 className="text-xs sm:text-sm font-urdu font-semibold text-[var(--foreground)]" dir="rtl">
+                سورت {chapter.name_arabic} {chapter.translated_name_urdu?.name ? `• ${chapter.translated_name_urdu.name}` : ""}
+              </h2>
+            ) : (
+              <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[var(--foreground)]">
+                Surah {chapter.name_simple} &bull;{" "}
+                <span className="text-emerald-700 dark:text-emerald-400 font-medium">{chapter.translated_name.name}</span>
+              </h2>
+            )}
+
+            {/* Metadata Badges: Urdu-only when Urdu is selected, else English */}
+            {isUrdu ? (
+              <div className="flex items-center gap-2 text-[11px] font-urdu text-[var(--muted-foreground)] pt-0.5" dir="rtl">
+                <span className="px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] font-medium">
+                  {chapter.revelation_place === "makkah" ? "مکیہ" : "مدنیہ"}
+                </span>
+                <span>&bull;</span>
+                <span>{chapter.verses_count} آیات</span>
+                <span>&bull;</span>
+                <span>پارہ {chapter.pages?.[0] ? Math.ceil(chapter.pages[0] / 20) : 1}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-[10px] sm:text-[11px] text-[var(--muted-foreground)] pt-0.5">
+                <span className="capitalize px-2 py-0.2 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)] font-medium">
+                  {chapter.revelation_place}
+                </span>
+                <span>&bull;</span>
+                <span>{chapter.verses_count} Ayahs</span>
+                <span>&bull;</span>
+                <span>Juz {chapter.pages?.[0] ? Math.ceil(chapter.pages[0] / 20) : 1}</span>
+              </div>
+            )}
           </div>
 
           {/* Bismillah Decoration */}
@@ -199,9 +223,15 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               >
                 بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
               </div>
-              <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">
-                In the Name of Allah—the Most Compassionate, Most Merciful
-              </p>
+              {isUrdu ? (
+                <p className="text-[12px] font-urdu text-[var(--urdu-color)] mt-0.5" dir="rtl">
+                  شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم والا ہے
+                </p>
+              ) : (
+                <p className="text-[10px] text-[var(--muted-foreground)] mt-0.5">
+                  In the Name of Allah—the Most Compassionate, Most Merciful
+                </p>
+              )}
             </div>
           )}
         </div>

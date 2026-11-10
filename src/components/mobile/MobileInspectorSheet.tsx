@@ -14,6 +14,8 @@ import {
   ScholarVerseTranslation,
 } from "@/services/wordTranslationsService";
 import { fetchTafsirForAyah, AVAILABLE_TAFSIRS } from "@/services/quranApi";
+import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   X,
   Sparkles,
@@ -36,8 +38,9 @@ export function MobileInspectorSheet() {
     closeInspector,
   } = useDesktopWorkspace();
 
-  const { prefs, setSelectedTafsirId } = useReadingPreferences();
+  const { prefs, setSelectedTafsirId, setTafsirFontSize } = useReadingPreferences();
   const { playWord, playVerse } = useAudio();
+  const { isUrdu } = useLanguage();
 
   // Data states
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -114,20 +117,20 @@ export function MobileInspectorSheet() {
     setLoadingTafsir(true);
     fetchTafsirForAyah(prefs.selectedTafsirId, selectedAyahKey)
       .then((data) => {
-        if (data) {
-          setTafsirText(data.text);
+        if (data && data.text) {
+          setTafsirText(parseAndFormatTafsir(data.text, isUrdu));
           setTafsirAuthor(data.author);
         } else {
-          setTafsirText("Tafseer commentary is currently unavailable for this Ayah.");
+          setTafsirText(isUrdu ? "اس آیت کی تفسیر فی الحال دستیاب نہیں ہے۔" : "Tafseer commentary is currently unavailable for this Ayah.");
           setTafsirAuthor("");
         }
       })
       .catch(() => {
-        setTafsirText("Unable to load Tafseer commentary. Please check your internet connection.");
+        setTafsirText(isUrdu ? "تفسیر لوڈ کرنے میں مسئلہ پیش آیا۔" : "Unable to load Tafseer commentary. Please check your internet connection.");
         setTafsirAuthor("");
       })
       .finally(() => setLoadingTafsir(false));
-  }, [isMobileInspectorOpen, selectedAyahKey, prefs.selectedTafsirId]);
+  }, [isMobileInspectorOpen, selectedAyahKey, prefs.selectedTafsirId, isUrdu]);
 
   if (!isMobileInspectorOpen) return null;
 
@@ -400,19 +403,44 @@ export function MobileInspectorSheet() {
 
           {activeInspectorTab === "tafseer" && (
             <div className="space-y-3">
-              {/* Tafseer Selector */}
-              <div className="space-y-1">
-                <label className="text-[11px] font-semibold text-[var(--muted-foreground)]">
-                  Select Commentary Source
-                </label>
+              {/* Tafseer Selector & Font Size */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold text-[var(--muted-foreground)]">
+                    {isUrdu ? "منتخب تفسیر" : "Select Commentary Source"}
+                  </label>
+                  {/* Tafseer Font Size Steppers */}
+                  <div className="flex items-center rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[10px] px-1 py-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setTafsirFontSize(Math.max(13, (prefs.tafsirFontSize || 18) - 1))}
+                      className="px-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
+                    >
+                      A-
+                    </button>
+                    <span className="px-1 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      {prefs.tafsirFontSize || 18}px
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setTafsirFontSize(Math.min(34, (prefs.tafsirFontSize || 18) + 1))}
+                      className="px-1.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
+                    >
+                      A+
+                    </button>
+                  </div>
+                </div>
                 <select
                   value={prefs.selectedTafsirId}
                   onChange={(e) => setSelectedTafsirId(Number(e.target.value))}
                   className="w-full p-2.5 rounded-xl text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
                 >
-                  {AVAILABLE_TAFSIRS.map((t) => (
+                  {(isUrdu
+                    ? AVAILABLE_TAFSIRS.filter((t) => t.language === "urdu")
+                    : AVAILABLE_TAFSIRS
+                  ).map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.name} ({t.language.toUpperCase()})
+                      {isUrdu ? `${t.name} - ${t.author}` : `${t.name} (${t.language.toUpperCase()})`}
                     </option>
                   ))}
                 </select>
@@ -421,17 +449,23 @@ export function MobileInspectorSheet() {
               {/* Tafseer Text */}
               {loadingTafsir ? (
                 <div className="text-center py-8 text-xs text-[var(--muted-foreground)] animate-pulse">
-                  Loading authentic commentary...
+                  {isUrdu ? "مستند تفسیر لوڈ ہو رہی ہے..." : "Loading authentic commentary..."}
                 </div>
               ) : (
                 <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
                   {tafsirAuthor && (
                     <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                      Author: {tafsirAuthor}
+                      {isUrdu ? `مصنف: ${tafsirAuthor}` : `Author: ${tafsirAuthor}`}
                     </div>
                   )}
                   <div
-                    className="text-xs sm:text-sm text-[var(--foreground)] leading-relaxed prose prose-sm dark:prose-invert max-w-none"
+                    className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
+                      isUrdu
+                        ? "font-urdu leading-[2.3] text-right"
+                        : "leading-relaxed text-left"
+                    }`}
+                    style={{ fontSize: `${prefs.tafsirFontSize || 18}px` }}
+                    dir={isUrdu ? "rtl" : "ltr"}
                     dangerouslySetInnerHTML={{ __html: tafsirText }}
                   />
                 </div>
