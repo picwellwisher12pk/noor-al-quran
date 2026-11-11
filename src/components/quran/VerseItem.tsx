@@ -50,6 +50,7 @@ export function VerseItem({
   const [copied, setCopied] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const verseRef = useRef<HTMLDivElement>(null);
+  const hasLoggedPlaybackRef = useRef(false);
 
   const verseNote = getVerseNote(verse.verse_key);
   const isCurrentPlaying = currentVerseKey === verse.verse_key;
@@ -90,6 +91,13 @@ export function VerseItem({
     (t) => t !== urduTranslation && /[a-zA-Z]/.test(t.text)
   );
 
+  // Reset logged playback guard when this verse stops playing
+  useEffect(() => {
+    if (!isCurrentPlaying) {
+      hasLoggedPlaybackRef.current = false;
+    }
+  }, [isCurrentPlaying]);
+
   // Auto-scroll when this verse starts playing
   useEffect(() => {
     if (isCurrentPlaying && prefs.autoScroll && verseRef.current) {
@@ -103,12 +111,17 @@ export function VerseItem({
         verseNumber: verse.verse_number,
         verseKey: verse.verse_key,
       });
-      logVerseRead(verse.chapter_id, verse.verse_number);
-      if (plan) {
-        recordReadingProgress(verse.chapter_id, verse.verse_number);
+
+      // Guard to ensure reading progress is logged only once per playback activation
+      if (!hasLoggedPlaybackRef.current) {
+        hasLoggedPlaybackRef.current = true;
+        logVerseRead(verse.chapter_id, verse.verse_number);
+        if (plan) {
+          recordReadingProgress(verse.chapter_id, verse.verse_number);
+        }
       }
     }
-  }, [isCurrentPlaying, prefs.autoScroll, verse, chapterName, setLastReadPosition, plan, recordReadingProgress, logVerseRead]);
+  }, [isCurrentPlaying, prefs.autoScroll, verse.chapter_id, verse.verse_number, verse.verse_key, chapterName, setLastReadPosition, plan, recordReadingProgress, logVerseRead]);
 
   const handlePlayToggle = () => {
     if (isCurrentPlaying) {
