@@ -7,8 +7,11 @@ import { useBookmarks } from "@/context/BookmarksContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
+import { useNotes } from "@/context/NotesContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
+import NoteEditorModal from "@/components/modals/NoteEditorModal";
 import {
   Play,
   Pause,
@@ -18,6 +21,7 @@ import {
   Check,
   Share2,
   CheckCircle2,
+  StickyNote,
 } from "lucide-react";
 
 interface VerseItemProps {
@@ -40,10 +44,14 @@ export function VerseItem({
   const { prefs } = useReadingPreferences();
   const { plan, recordReadingProgress } = useKhatmah();
   const { logVerseRead } = useReadingActivity();
+  const { getVerseNote } = useNotes();
+  const { isUrdu } = useLanguage();
 
   const [copied, setCopied] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const verseRef = useRef<HTMLDivElement>(null);
 
+  const verseNote = getVerseNote(verse.verse_key);
   const isCurrentPlaying = currentVerseKey === verse.verse_key;
   const bookmarked = isBookmarked(verse.verse_key);
   const isCompact = readingMode === "compact";
@@ -234,6 +242,21 @@ export function VerseItem({
             <BookmarkIcon className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${bookmarked ? "fill-emerald-600 dark:fill-emerald-400" : ""}`} />
           </button>
 
+          {/* Note / Tadabbur Button */}
+          <button
+            type="button"
+            onClick={() => setIsNoteModalOpen(true)}
+            aria-label={verseNote ? "View or edit personal note" : "Add personal note"}
+            className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
+              verseNote
+                ? "text-amber-700 dark:text-amber-300 bg-amber-500/15 dark:bg-amber-950/50 border border-amber-500/30"
+                : "text-[var(--muted-foreground)] hover:text-amber-600 dark:hover:text-amber-400 hover:bg-[var(--hover-bg)]"
+            }`}
+            title={verseNote ? (isUrdu ? "نوٹ دیکھیں یا تبدیل کریں" : "View or edit note") : (isUrdu ? "نوٹ یا تدبر لکھیں" : "Add reflection note")}
+          >
+            <StickyNote className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${verseNote ? "fill-amber-500/30" : ""}`} />
+          </button>
+
           {/* Khatmah Progress Toggle */}
           {plan && (
             <button
@@ -341,6 +364,54 @@ export function VerseItem({
           />
         </div>
       )}
+
+      {/* Inline Personal Reflection Note Card */}
+      {verseNote && (
+        <div
+          className={`mt-2.5 p-3 rounded-xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/20 text-xs transition-all flex flex-col gap-1.5`}
+          dir={isUrdu ? "rtl" : "ltr"}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 font-semibold text-amber-700 dark:text-amber-300">
+              <StickyNote className="w-3.5 h-3.5" />
+              <span>{isUrdu ? "ذاتی نوٹ و تدبر:" : "Personal Reflection & Note:"}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsNoteModalOpen(true)}
+              className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
+            >
+              {isUrdu ? "تبدیل کریں" : "Edit"}
+            </button>
+          </div>
+          <p className="text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text">
+            {verseNote.text}
+          </p>
+          {verseNote.tags && verseNote.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-0.5">
+              {verseNote.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Note Editor Modal */}
+      <NoteEditorModal
+        isOpen={isNoteModalOpen}
+        onClose={() => setIsNoteModalOpen(false)}
+        targetType="verse"
+        verseKey={verse.verse_key}
+        chapterId={verse.chapter_id}
+        verseNumber={verse.verse_number}
+        chapterName={chapterName}
+      />
     </div>
   );
 }

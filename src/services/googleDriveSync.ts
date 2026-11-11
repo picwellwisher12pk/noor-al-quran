@@ -1,5 +1,7 @@
 "use client";
 
+import { QuranNote } from "@/types/quran";
+
 /**
  * Google Drive AppData Sync Service
  * 
@@ -45,6 +47,7 @@ export interface CloudBackupPayload {
   };
   bookmarks?: any[];
   lastRead?: any;
+  notes?: QuranNote[];
 }
 
 const BACKUP_FILENAME = "noor_al_quran_backup.json";
@@ -293,6 +296,23 @@ export function reconcileProgress(
     },
     bookmarks: localState.bookmarks || cloudState.bookmarks || [],
     lastRead: localState.lastRead || cloudState.lastRead || null,
+    notes: (() => {
+      const notesMap = new Map<string, QuranNote>();
+      for (const n of cloudState.notes || []) {
+        notesMap.set(n.id, n);
+      }
+      for (const n of localState.notes || []) {
+        const existing = notesMap.get(n.id);
+        if (!existing) {
+          notesMap.set(n.id, n);
+        } else {
+          const localTime = new Date(n.updatedAt || n.createdAt || 0).getTime();
+          const cloudTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+          notesMap.set(n.id, localTime >= cloudTime ? n : existing);
+        }
+      }
+      return Array.from(notesMap.values());
+    })(),
   };
 }
 

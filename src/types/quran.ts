@@ -122,6 +122,24 @@ export interface Bookmark {
   note?: string;
 }
 
+export type QuranNoteTargetType = "verse" | "word";
+
+export interface QuranNote {
+  id: string; // e.g. "note_v_1:2" or "note_w_1:2:3"
+  targetType: QuranNoteTargetType;
+  verseKey: string; // e.g. "1:2"
+  chapterId: number;
+  verseNumber: number;
+  chapterName?: string;
+  wordLocation?: string; // e.g. "1:2:3" (for word-level)
+  wordText?: string; // Arabic token text (for word-level)
+  text: string; // Note content (Markdown / Plain text)
+  color?: "emerald" | "amber" | "blue" | "rose" | "purple";
+  tags?: string[];
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
+}
+
 export interface KhatmahPlan {
   id: string;
   name: string;

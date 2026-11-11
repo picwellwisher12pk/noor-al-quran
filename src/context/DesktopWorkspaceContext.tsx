@@ -5,7 +5,7 @@ import { Chapter, Juz, Word } from "@/types/quran";
 import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 
 export type SidebarTab = "surahs" | "juz" | "khatmah" | "bookmarks";
-export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars";
+export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars" | "notes";
 export type ReadingLayoutMode = "continuous" | "compact" | "mushaf";
 export type InspectorWidthMode = "default" | "expanded" | "maximized";
 export type SettingsModalTab =
@@ -17,6 +17,7 @@ export type SettingsModalTab =
   | "languages"
   | "tafseer"
   | "audio"
+  | "notes"
   | "shortcuts"
   | "live"
   | "storage";

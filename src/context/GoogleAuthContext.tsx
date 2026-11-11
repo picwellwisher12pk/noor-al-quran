@@ -90,6 +90,7 @@ export function GoogleAuthProvider({ children }: { children: React.ReactNode }) 
     let bookmarks = [];
     let lastRead = null;
     let readingActivity: any = {};
+    let notes = [];
 
     try {
       const rawBm = localStorage.getItem("naq_bookmarks");
@@ -98,6 +99,8 @@ export function GoogleAuthProvider({ children }: { children: React.ReactNode }) 
       if (rawLr) lastRead = JSON.parse(rawLr);
       const rawAct = localStorage.getItem("naq_reading_activity_v1");
       if (rawAct) readingActivity = JSON.parse(rawAct);
+      const rawNotes = localStorage.getItem("naq_quran_notes_v1");
+      if (rawNotes) notes = JSON.parse(rawNotes);
     } catch {}
 
     return {
@@ -125,6 +128,7 @@ export function GoogleAuthProvider({ children }: { children: React.ReactNode }) 
       },
       bookmarks,
       lastRead,
+      notes,
     };
   }, []);
 
@@ -159,7 +163,7 @@ export function GoogleAuthProvider({ children }: { children: React.ReactNode }) 
           });
         }
 
-        // Apply reconciled bookmarks & reading activity
+        // Apply reconciled bookmarks & reading activity & notes
         try {
           if (reconciled.bookmarks) {
             localStorage.setItem("naq_bookmarks", JSON.stringify(reconciled.bookmarks));
@@ -169,6 +173,10 @@ export function GoogleAuthProvider({ children }: { children: React.ReactNode }) 
               "naq_reading_activity_v1",
               JSON.stringify(reconciled.readingActivity)
             );
+          }
+          if (reconciled.notes) {
+            localStorage.setItem("naq_quran_notes_v1", JSON.stringify(reconciled.notes));
+            window.dispatchEvent(new CustomEvent("naq_notes_updated"));
           }
         } catch {}
 

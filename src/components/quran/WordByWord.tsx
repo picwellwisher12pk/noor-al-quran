@@ -6,8 +6,9 @@ import { useAudio } from "@/context/AudioContext";
 import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
+import { useNotes } from "@/context/NotesContext";
 import { WordDetailsModal } from "@/components/modals/WordDetailsModal";
-import { Volume2, Info } from "lucide-react";
+import { Volume2, Info, StickyNote } from "lucide-react";
 
 interface WordByWordProps {
   words: Word[];
@@ -25,6 +26,7 @@ export function WordByWord({
   const { playWord } = useAudio();
   const { prefs } = useReadingPreferences();
   const { openWordInInspector, selectedWord: currentSelectedWord } = useDesktopWorkspace();
+  const { hasWordNote } = useNotes();
   const [modalWord, setModalWord] = useState<Word | null>(null);
 
   const handleWordClick = (word: Word) => {
@@ -55,17 +57,25 @@ export function WordByWord({
           const urduText = word.translation_urdu?.text;
           const englishText = word.translation?.text;
           const isSelectedInInspector = currentSelectedWord?.id === word.id;
+          const hasNote = hasWordNote(word.location);
 
           return (
             <div
               key={word.id}
               onClick={() => handleWordClick(word)}
-              title="Click to inspect Root, Grammar & Translations in Right Inspector"
+              title={hasNote ? "Has personal note • Click to inspect" : "Click to inspect Root, Grammar & Translations in Right Inspector"}
               className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${isSelectedInInspector
                   ? "border-emerald-500/60 bg-emerald-500/15 dark:bg-emerald-950/40 shadow-xs ring-1 ring-emerald-500/30"
                   : "border-transparent hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:hover:bg-emerald-950/30"
                 }`}
             >
+              {/* Note Indicator Pin */}
+              {hasNote && (
+                <span
+                  className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-[var(--surface-raised)] z-10 animate-pulse"
+                  title="Has personal note"
+                />
+              )}
               {/* Arabic Word Token */}
               <span
                 className={`${arabicFontClass} text-[var(--foreground)] group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-tight`}

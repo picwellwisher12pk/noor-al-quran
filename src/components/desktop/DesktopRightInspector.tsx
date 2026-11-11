@@ -14,6 +14,7 @@ import {
 import { fetchTafsirForAyah, AVAILABLE_TAFSIRS } from "@/services/quranApi";
 import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
 import { TafsirModal } from "@/components/modals/TafsirModal";
+import NoteEditorModal from "@/components/modals/NoteEditorModal";
 import {
   X,
   BookOpen,
@@ -27,9 +28,12 @@ import {
   Maximize2,
   Minimize2,
   ExternalLink,
+  StickyNote,
+  Plus,
 } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useNotes } from "@/context/NotesContext";
 import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLearningStore } from "@/store/useLearningStore";
 import { getPosLabel, getCaseEndingExplanation } from "@/services/terminologyService";
@@ -71,6 +75,7 @@ export function DesktopRightInspector() {
   const { prefs, setSelectedTafsirId, setTafsirFontSize } = useReadingPreferences();
   const { playWord, playVerse } = useAudio();
   const { isUrdu } = useLanguage();
+  const { getVerseNote, getWordNote } = useNotes();
 
   // Inspector Data States
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -80,6 +85,7 @@ export function DesktopRightInspector() {
   const [tafsirText, setTafsirText] = useState<string>("");
   const [tafsirAuthor, setTafsirAuthor] = useState<string>("");
   const [isFullModalOpen, setIsFullModalOpen] = useState(false);
+  const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
 
   // Loading States
   const [loadingMorph, setLoadingMorph] = useState(false);
@@ -366,6 +372,19 @@ export function DesktopRightInspector() {
                 ? (isUrdu ? "اساتذہ 🎓" : "Wise Teachers 🎓")
                 : (isUrdu ? "مترجمین" : "Scholars")}
             </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveInspectorTab("notes")}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
+              activeInspectorTab === "notes"
+                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+          >
+            <StickyNote className="h-3 w-3" />
+            <span>{isUrdu ? "نوٹس و تدبر" : "Notes"}</span>
           </button>
         </div>
 
@@ -806,6 +825,144 @@ export function DesktopRightInspector() {
               )}
             </div>
           )}
+
+          {/* TAB 5: NOTES & REFLECTIONS */}
+          {activeInspectorTab === "notes" && (() => {
+            const currentAyahKey = selectedWord?.verse_key || selectedAyahKey || "1:1";
+            const [chapStr, verseStr] = currentAyahKey.split(":");
+            const chapterId = Number(chapStr) || 1;
+            const verseNumber = Number(verseStr) || 1;
+            const activeVerseNote = getVerseNote(currentAyahKey);
+            const activeWordNote = selectedWord ? getWordNote(selectedWord.location) : undefined;
+
+            return (
+              <div className="space-y-3.5">
+                {/* 1. Word Note Section (If word selected) */}
+                {selectedWord ? (
+                  <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                    <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+                      <div className="flex items-center gap-1.5">
+                        <StickyNote className="w-3.5 h-3.5 text-amber-500" />
+                        <span className="text-xs font-bold text-[var(--foreground)]">
+                          {isUrdu ? "لفظ کا نوٹ" : "Word Note"}
+                        </span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-semibold">
+                          {selectedWord.location}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setNoteModalTarget("word")}
+                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      >
+                        {activeWordNote ? (isUrdu ? "تبدیل کریں" : "Edit") : (isUrdu ? "+ نیا نوٹ" : "+ Add Note")}
+                      </button>
+                    </div>
+
+                    <div className="text-center py-1">
+                      <span className="font-arabic text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                        {selectedWord.text_uthmani || selectedWord.text}
+                      </span>
+                    </div>
+
+                    {activeWordNote ? (
+                      <div className="space-y-1.5" dir={isUrdu ? "rtl" : "ltr"}>
+                        <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text bg-[var(--surface-sunken)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                          {activeWordNote.text}
+                        </p>
+                        {activeWordNote.tags && activeWordNote.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {activeWordNote.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-3 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border-subtle)]/60">
+                        <p className="text-xs text-[var(--muted-foreground)]">
+                          {isUrdu
+                            ? "اس لفظ پر کوئی نوٹ نہیں ہے۔"
+                            : "No personal note attached to this word."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setNoteModalTarget("word")}
+                          className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          {isUrdu ? "لفظ کا نوٹ شامل کریں" : "Add Word Note"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                {/* 2. Verse Note Section */}
+                <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+                    <div className="flex items-center gap-1.5">
+                      <StickyNote className="w-3.5 h-3.5 text-emerald-500" />
+                      <span className="text-xs font-bold text-[var(--foreground)]">
+                        {isUrdu ? "آیت کے نوٹس و تدبر" : "Ayah Reflection & Notes"}
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
+                        {currentAyahKey}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNoteModalTarget("verse")}
+                      className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      {activeVerseNote ? (isUrdu ? "تبدیل کریں" : "Edit") : (isUrdu ? "+ نیا نوٹ" : "+ Add Note")}
+                    </button>
+                  </div>
+
+                  {activeVerseNote ? (
+                    <div className="space-y-1.5" dir={isUrdu ? "rtl" : "ltr"}>
+                      <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text bg-[var(--surface-sunken)] p-2.5 rounded-lg border border-[var(--border-subtle)]">
+                        {activeVerseNote.text}
+                      </p>
+                      {activeVerseNote.tags && activeVerseNote.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {activeVerseNote.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-3 bg-[var(--surface-sunken)] rounded-lg border border-[var(--border-subtle)]/60">
+                      <p className="text-xs text-[var(--muted-foreground)]">
+                        {isUrdu
+                          ? "اس آیت مبارکہ پر ابھی کوئی تدبر یا ذاتی نوٹ نہیں ہے۔"
+                          : "No personal reflection or note saved for this ayah."}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setNoteModalTarget("verse")}
+                        className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        {isUrdu ? "آیت کا نوٹ / تدبر شامل کریں" : "Add Ayah Note"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </aside>
 
@@ -816,6 +973,20 @@ export function DesktopRightInspector() {
           onClose={() => setIsFullModalOpen(false)}
           verseKey={selectedAyahKey}
           arabicText={selectedAyahArabic}
+        />
+      )}
+
+      {/* Note Editor Modal triggered from inspector */}
+      {noteModalTarget && (
+        <NoteEditorModal
+          isOpen={!!noteModalTarget}
+          onClose={() => setNoteModalTarget(null)}
+          targetType={noteModalTarget}
+          verseKey={selectedWord?.verse_key || selectedAyahKey || "1:1"}
+          chapterId={Number((selectedWord?.verse_key || selectedAyahKey || "1:1").split(":")[0]) || 1}
+          verseNumber={Number((selectedWord?.verse_key || selectedAyahKey || "1:1").split(":")[1]) || 1}
+          wordLocation={noteModalTarget === "word" ? selectedWord?.location : undefined}
+          wordText={noteModalTarget === "word" ? (selectedWord?.text_uthmani || selectedWord?.text) : undefined}
         />
       )}
     </>

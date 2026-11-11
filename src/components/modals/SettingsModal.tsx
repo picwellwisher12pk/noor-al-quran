@@ -10,12 +10,14 @@ import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useGoogleAuth } from "@/context/GoogleAuthContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
+import { useNotes } from "@/context/NotesContext";
 import { useLearningStore } from "@/store/useLearningStore";
 import { AVAILABLE_TRANSLATIONS, AVAILABLE_TAFSIRS } from "@/services/quranApi";
-import { ArabicFontFamily, UrduFontFamily, ThemeStyle } from "@/types/quran";
+import { ArabicFontFamily, UrduFontFamily, ThemeStyle, QuranNote } from "@/types/quran";
 import { LearnerAgeGroup, LEARNER_AVATARS, AGE_TIER_META } from "@/types/learnerProfile";
 import { reconcileProgress } from "@/services/googleDriveSync";
 import { APP_CONFIG } from "@/config/version";
+import NoteEditorModal from "@/components/modals/NoteEditorModal";
 import {
   Settings,
   Sparkles,
@@ -47,6 +49,10 @@ import {
   CalendarDays,
   ChevronRight,
   Command,
+  StickyNote,
+  Search,
+  Trash2,
+  Edit3,
 } from "lucide-react";
 
 interface SettingsModalProps {
@@ -117,6 +123,12 @@ export function SettingsModal({
   const [authActionError, setAuthActionError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
+  // Notes state
+  const { notes, deleteNote } = useNotes();
+  const [noteSearchQuery, setNoteSearchQuery] = useState("");
+  const [noteFilterType, setNoteFilterType] = useState<"all" | "verse" | "word">("all");
+  const [editingNote, setEditingNote] = useState<QuranNote | null>(null);
+
   const handleSignIn = async () => {
     setAuthActionError(null);
     try {
@@ -140,6 +152,7 @@ export function SettingsModal({
       let bookmarks = [];
       let lastRead = null;
       let readingActivity: any = {};
+      let notes = [];
       try {
         const rawBm = localStorage.getItem("naq_bookmarks");
         if (rawBm) bookmarks = JSON.parse(rawBm);
@@ -147,6 +160,8 @@ export function SettingsModal({
         if (rawLr) lastRead = JSON.parse(rawLr);
         const rawAct = localStorage.getItem("naq_reading_activity_v1");
         if (rawAct) readingActivity = JSON.parse(rawAct);
+        const rawNotes = localStorage.getItem("naq_quran_notes_v1");
+        if (rawNotes) notes = JSON.parse(rawNotes);
       } catch {}
 
       const backup = {
@@ -170,6 +185,7 @@ export function SettingsModal({
         bookmarks,
         lastRead,
         readingActivity,
+        notes,
       };
 
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
@@ -236,6 +252,11 @@ export function SettingsModal({
 
         if (reconciled.bookmarks) {
           localStorage.setItem("naq_bookmarks", JSON.stringify(reconciled.bookmarks));
+        }
+
+        if (reconciled.notes || parsed.notes) {
+          localStorage.setItem("naq_quran_notes_v1", JSON.stringify(reconciled.notes || parsed.notes));
+          window.dispatchEvent(new CustomEvent("naq_notes_updated"));
         }
 
         setImportSuccess(
@@ -375,6 +396,7 @@ export function SettingsModal({
     { id: "languages", labelEn: "Language & Translations", labelUr: "زبان و تراجم", icon: Languages },
     { id: "tafseer", labelEn: "Tafseer Commentary", labelUr: "تفسیر قرآن", icon: ScrollText },
     { id: "audio", labelEn: "Audio & Reciters", labelUr: "تلاوت و قاری", icon: Volume2 },
+    { id: "notes", labelEn: "My Notes & Reflections", labelUr: "میرے نوٹس و تدبر", icon: StickyNote },
     { id: "shortcuts", labelEn: "Shortcuts Cheat Sheet", labelUr: "شارٹ کٹس", icon: Command },
     { id: "live", labelEn: "Live Settings Panel", labelUr: "لائیو ترتیبات", icon: Sliders },
     { id: "storage", labelEn: "Storage & Offline", labelUr: "آف لائن ڈیٹا", icon: CloudDownload },
@@ -1236,6 +1258,214 @@ export function SettingsModal({
             </div>
           )}
 
+          {/* ================= TAB: MY NOTES & REFLECTIONS ================= */}
+          {activeTab === "notes" && (() => {
+            const filteredNotes = notes.filter((n) => {
+              if (noteFilterType === "verse" && n.targetType !== "verse") return false;
+              if (noteFilterType === "word" && n.targetType !== "word") return false;
+              if (!noteSearchQuery.trim()) return true;
+              const q = noteSearchQuery.toLowerCase();
+              const matchText = n.text.toLowerCase().includes(q);
+              const matchKey = n.verseKey.toLowerCase().includes(q);
+              const matchChapter = (n.chapterName || "").toLowerCase().includes(q);
+              const matchTags = (n.tags || []).some((t) => t.toLowerCase().includes(q));
+              const matchWord = (n.wordText || "").toLowerCase().includes(q);
+              return matchText || matchKey || matchChapter || matchTags || matchWord;
+            });
+
+            const handleExportNotesOnly = () => {
+              const blob = new Blob([JSON.stringify(notes, null, 2)], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `noor-al-quran-notes-${new Date().toISOString().slice(0, 10)}.json`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            };
+
+            return (
+              <div className="space-y-4">
+                {/* Header Banner */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-[var(--surface-raised)] to-emerald-500/5 border border-amber-500/30 flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                      <StickyNote className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[var(--foreground)]">
+                        {isUrdu ? "میرے ذاتی نوٹس و تدبر" : "My Personal Notes & Reflections"}
+                      </h3>
+                      <p className="text-xs text-[var(--muted-foreground)]">
+                        {notes.length} {isUrdu ? "نوٹس محفوظ ہیں" : "total reflections saved"}
+                      </p>
+                    </div>
+                  </div>
+                  {notes.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleExportNotesOnly}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] border border-[var(--border-subtle)] text-xs font-semibold transition-all shadow-xs cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{isUrdu ? "نوٹس کا بیک اپ حاصل کریں" : "Export Notes"}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Search & Filters */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                    <input
+                      type="text"
+                      value={noteSearchQuery}
+                      onChange={(e) => setNoteSearchQuery(e.target.value)}
+                      placeholder={isUrdu ? "نوٹ، آیت، سورت یا ٹیگ تلاش کریں..." : "Search in reflections, ayahs, tags..."}
+                      className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <div className="flex items-center gap-1 bg-[var(--surface-raised)] p-1 rounded-xl border border-[var(--border-subtle)]">
+                    {(
+                      [
+                        { id: "all", labelEn: "All", labelUr: "سب" },
+                        { id: "verse", labelEn: "Ayahs", labelUr: "آیات" },
+                        { id: "word", labelEn: "Words", labelUr: "الفاظ" },
+                      ] as const
+                    ).map((f) => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setNoteFilterType(f.id)}
+                        className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                          noteFilterType === f.id
+                            ? "bg-emerald-600 text-white shadow-xs"
+                            : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                        }`}
+                      >
+                        {isUrdu ? f.labelUr : f.labelEn}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Notes List */}
+                {filteredNotes.length === 0 ? (
+                  <div className="p-8 text-center bg-[var(--surface-raised)] border border-[var(--border-subtle)] rounded-2xl space-y-2">
+                    <StickyNote className="w-8 h-8 text-[var(--muted-foreground)]/50 mx-auto" />
+                    <p className="text-xs font-semibold text-[var(--foreground)]">
+                      {notes.length === 0
+                        ? isUrdu
+                          ? "ابھی تک کوئی نوٹ تحریر نہیں کیا گیا ہے۔"
+                          : "No personal reflections written yet."
+                        : isUrdu
+                        ? "کوئی نوٹ تلاش کے معیار پر پورا نہیں اترا۔"
+                        : "No notes matched your search query."}
+                    </p>
+                    <p className="text-[11px] text-[var(--muted-foreground)] max-w-sm mx-auto">
+                      {isUrdu
+                        ? "قرآن مجید پڑھتے ہوئے کسی بھی آیت یا لفظ پر موجود نوٹس کے بٹن 📝 پر کلک کر کے اپنے خیالات اور تدبر محفوظ کریں۔"
+                        : "While reciting the Quran, click the note icon 📝 on any verse or inspect words to record your personal reflections and tadabbur."}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[440px] overflow-y-auto pr-1">
+                    {filteredNotes.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2 hover:border-emerald-500/30 transition-all text-xs"
+                      >
+                        {/* Note Item Header */}
+                        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2 flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`w-2.5 h-2.5 rounded-full ${
+                                item.color === "amber"
+                                  ? "bg-amber-500"
+                                  : item.color === "blue"
+                                  ? "bg-sky-500"
+                                  : item.color === "rose"
+                                  ? "bg-rose-500"
+                                  : item.color === "purple"
+                                  ? "bg-purple-500"
+                                  : "bg-emerald-500"
+                              }`}
+                            />
+                            <span className="font-bold text-[var(--foreground)]">
+                              {item.targetType === "verse"
+                                ? isUrdu
+                                  ? `آیت ${item.verseKey}`
+                                  : `Ayah ${item.verseKey}`
+                                : isUrdu
+                                ? `لفظ ${item.wordLocation || item.verseKey}`
+                                : `Word ${item.wordLocation || item.verseKey}`}
+                            </span>
+                            {item.chapterName && (
+                              <span className="text-[11px] text-[var(--muted-foreground)]">
+                                • {item.chapterName}
+                              </span>
+                            )}
+                            {item.wordText && (
+                              <span className="font-arabic font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                                "{item.wordText}"
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setEditingNote(item)}
+                              className="p-1 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+                              title={isUrdu ? "تبدیل کریں" : "Edit Note"}
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteNote(item.id)}
+                              className="p-1 rounded-lg text-[var(--muted-foreground)] hover:text-rose-500 hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+                              title={isUrdu ? "حذف کریں" : "Delete Note"}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Note Body */}
+                        <p className="text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text py-0.5" dir={isUrdu ? "rtl" : "ltr"}>
+                          {item.text}
+                        </p>
+
+                        {/* Tags and Jump Action */}
+                        <div className="flex items-center justify-between pt-1 flex-wrap gap-2 text-[11px]">
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags?.map((t) => (
+                              <span
+                                key={t}
+                                className="px-1.5 py-0.2 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px]"
+                              >
+                                #{t}
+                              </span>
+                            ))}
+                          </div>
+                          <Link
+                            href={`/surah/${item.chapterId}?ayah=${item.verseNumber}`}
+                            onClick={onClose}
+                            className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                          >
+                            <span>{isUrdu ? "آیت پر جائیں" : "Jump to Ayah"}</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {/* ================= TAB 8: KEYBOARD SHORTCUTS ================= */}
           {activeTab === "shortcuts" && (
             <div className="space-y-4">
@@ -1383,6 +1613,21 @@ export function SettingsModal({
           )}
         </div>
       </div>
+
+      {/* Note Editor Modal when editing from Settings */}
+      {editingNote && (
+        <NoteEditorModal
+          isOpen={!!editingNote}
+          onClose={() => setEditingNote(null)}
+          targetType={editingNote.targetType}
+          verseKey={editingNote.verseKey}
+          chapterId={editingNote.chapterId}
+          verseNumber={editingNote.verseNumber}
+          chapterName={editingNote.chapterName}
+          wordLocation={editingNote.wordLocation}
+          wordText={editingNote.wordText}
+        />
+      )}
     </Modal>
   );
 }
