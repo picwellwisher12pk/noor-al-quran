@@ -171,7 +171,10 @@ export type ThemeMode = "dark" | "light";
 
 export type WbwLanguage = "english" | "urdu" | "both";
 
+export type QuranStudyMode = "read" | "learn";
+
 export interface ReadingPreferences {
+  quranStudyMode?: QuranStudyMode;
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26

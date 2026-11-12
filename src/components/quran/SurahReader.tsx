@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Chapter, Verse } from "@/types/quran";
 import { fetchVersesByChapter } from "@/services/quranApi";
 import { VerseItem } from "./VerseItem";
+import { VerseScrollNavigator } from "./VerseScrollNavigator";
 import { TafsirModal } from "@/components/modals/TafsirModal";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useKhatmah } from "@/context/KhatmahContext";
@@ -13,8 +14,7 @@ import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
 import { useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Loader2, ArrowUp, Calendar } from "lucide-react";
-import Link from "next/link";
+import { Loader2, ArrowUp, History, X } from "lucide-react";
 
 interface SurahReaderProps {
   chapter: Chapter;
@@ -26,17 +26,33 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const [verses, setVerses] = useState<Verse[]>(initialVerses);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [jumpingToAyah, setJumpingToAyah] = useState<number | null>(null);
+  const [dismissResumeBanner, setDismissResumeBanner] = useState(false);
   const [tafsirAyahKey, setTafsirAyahKey] = useState<string | null>(null);
   const [tafsirArabicText, setTafsirArabicText] = useState<string>("");
   const [showScrollTop, setShowScrollTop] = useState(false);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hasUserScrolledRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
+  const versesRef = useRef<Verse[]>(verses);
+  const currentPageRef = useRef<number>(currentPage);
+
+  useEffect(() => {
+    versesRef.current = verses;
+  }, [verses]);
+
+  useEffect(() => {
+    currentPageRef.current = currentPage;
+  }, [currentPage]);
+
   const searchParams = useSearchParams();
   const targetAyah = searchParams.get("ayah");
-  const { setLastReadPosition } = useBookmarks();
+  const { lastRead } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
   const { isUrdu } = useLanguage();
-  const { setActiveChapterId, setActiveAyahNumber, readingMode } = useDesktopWorkspace();
+  const { setActiveChapterId, setActiveAyahNumber, activeAyahNumber, readingMode } = useDesktopWorkspace();
   const { currentVerseKey, currentChapterId, isPlaying, updateVersesQueue } = useAudio();
 
   // Sync loaded verses with audio queue
@@ -70,36 +86,142 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     };
   }, [chapter.id, prefs.selectedUrduTranslationId]);
 
-  // Handle jump to ayah on initial load if query param present
+  // Scroll smoothly to an ayah, loading any missing pages first if needed
+  const jumpToAyah = useCallback(
+    async (ayahNum: number) => {
+      if (isNaN(ayahNum) || ayahNum < 1 || ayahNum > chapter.verses_count) return;
+
+      const neededPage = Math.min(totalPages, Math.ceil(ayahNum / 50));
+      const loadedPage = currentPageRef.current;
+
+      isProgrammaticScrollRef.current = true;
+      setJumpingToAyah(ayahNum);
+
+      try {
+        if (neededPage > loadedPage) {
+          const pagesToFetch = Array.from(
+            { length: neededPage - loadedPage },
+            (_, idx) => loadedPage + 1 + idx
+          );
+          const results = await Promise.all(
+            pagesToFetch.map((p) =>
+              fetchVersesByChapter(chapter.id, p, 50, 20, prefs.selectedUrduTranslationId)
+            )
+          );
+
+          const newlyFetched = results.flatMap((r) => r.verses || []);
+          if (newlyFetched.length > 0) {
+            setVerses((prev) => {
+              const seen = new Set(prev.map((v) => v.verse_key));
+              const merged = [...prev];
+              for (const v of newlyFetched) {
+                if (!seen.has(v.verse_key)) {
+                  seen.add(v.verse_key);
+                  merged.push(v);
+                }
+              }
+              return merged;
+            });
+            setCurrentPage(neededPage);
+          }
+        }
+
+        // Wait for DOM to paint newly loaded verses before scrolling
+        setTimeout(() => {
+          const el = document.getElementById(`ayah-${ayahNum}`);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+          setActiveAyahNumber(ayahNum);
+
+          setTimeout(() => {
+            isProgrammaticScrollRef.current = false;
+            setJumpingToAyah(null);
+          }, 700);
+        }, 120);
+      } catch (err) {
+        console.error("Failed to jump to ayah:", err);
+        isProgrammaticScrollRef.current = false;
+        setJumpingToAyah(null);
+      }
+    },
+    [chapter.id, chapter.verses_count, totalPages, prefs.selectedUrduTranslationId, setActiveAyahNumber]
+  );
+
+  // Handle jump to ayah on initial load or query param change
   useEffect(() => {
     if (targetAyah) {
-      setTimeout(() => {
-        const el = document.getElementById(`ayah-${targetAyah}`);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 500);
+      const num = Number(targetAyah);
+      if (!isNaN(num) && num >= 1) {
+        const timer = setTimeout(() => {
+          jumpToAyah(num);
+        }, 0);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [targetAyah]);
+  }, [targetAyah, jumpToAyah]);
 
-  // Track last read
+  // Track scroll container for Scroll-to-Top visibility and user-scroll activation
   useEffect(() => {
-    setLastReadPosition({
-      chapterId: chapter.id,
-      chapterName: chapter.name_simple,
-      verseNumber: Number(targetAyah) || 1,
-      verseKey: `${chapter.id}:${Number(targetAyah) || 1}`,
-    });
-  }, [chapter.id, chapter.name_simple, targetAyah, setLastReadPosition]);
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  // Scroll to top button visibility
-  useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      if (!isProgrammaticScrollRef.current) {
+        hasUserScrolledRef.current = true;
+      }
+      setShowScrollTop(container.scrollTop > 400);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Track visible Ayah in status bar without overwriting the user's saved resume point
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || verses.length === 0) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const visibleAyahs = new Set<number>();
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const num = Number((entry.target as HTMLElement).dataset.ayahNumber);
+          if (!isNaN(num)) {
+            if (entry.isIntersecting) {
+              visibleAyahs.add(num);
+            } else {
+              visibleAyahs.delete(num);
+            }
+          }
+        }
+
+        if (!hasUserScrolledRef.current || isProgrammaticScrollRef.current) return;
+        if (visibleAyahs.size === 0) return;
+
+        const topVisibleAyah = Math.min(...Array.from(visibleAyahs));
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          setActiveAyahNumber(topVisibleAyah);
+        }, 400);
+      },
+      {
+        root: container,
+        rootMargin: "-15% 0px -65% 0px",
+        threshold: 0.05,
+      }
+    );
+
+    const elements = container.querySelectorAll("[data-ayah-number]");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [verses, setActiveAyahNumber]);
 
   const loadMoreVerses = async () => {
     if (currentPage >= totalPages || loadingMore) return;
@@ -133,15 +255,22 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Surah 1 (Al-Fatihah) and Surah 9 (At-Tawbah) bismillah rules
   const showBismillah = chapter.id !== 1 && chapter.id !== 9;
   const isCompact = readingMode === "compact";
+  const showSameSurahResume =
+    !targetAyah &&
+    !dismissResumeBanner &&
+    lastRead &&
+    lastRead.chapterId === chapter.id &&
+    lastRead.verseNumber > 1 &&
+    jumpingToAyah === null;
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full">
+    <div className="flex-1 flex flex-col w-full h-full relative">
       {/* Desktop Sticky Workspace Toolbar */}
       <DesktopToolbar
         chapterId={chapter.id}
@@ -149,14 +278,61 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         chapterArabic={chapter.name_arabic}
         totalAyahs={chapter.verses_count}
         verses={verses}
+        onJumpToAyah={jumpToAyah}
       />
 
       {/* Reading Canvas Container */}
       <div
+        ref={scrollContainerRef}
         className={`flex-1 overflow-y-auto w-full mx-auto pb-24 ${
-          isCompact ? "max-w-4xl px-2 sm:px-4 py-2 space-y-2" : "max-w-5xl px-3 sm:px-6 py-4 space-y-3"
+          isCompact ? "max-w-4xl px-2 sm:px-4 py-2 space-y-2 pr-10 sm:pr-12" : "max-w-5xl px-3 sm:px-6 py-4 space-y-3 pr-10 sm:pr-12"
         }`}
       >
+        {/* Jumping to Ayah Loading Banner */}
+        {jumpingToAyah !== null && (
+          <div className="sticky top-2 z-20 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-semibold shadow-lg">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span>
+                {isUrdu ? `آیت ${jumpingToAyah} پر جا رہے ہیں...` : `Jumping to Ayah ${jumpingToAyah}...`}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Same-Surah Resume Banner */}
+        {showSameSurahResume && lastRead && (
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/50 border border-emerald-500/30 text-xs shadow-xs">
+            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200 font-medium">
+              <History className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>
+                {isUrdu
+                  ? `آپ نے آخری بار آیت ${lastRead.verseNumber} پر تلاوت روکی تھی`
+                  : `You last stopped at Ayah ${lastRead.verseNumber}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setDismissResumeBanner(true);
+                  jumpToAyah(lastRead.verseNumber);
+                }}
+                className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-colors cursor-pointer"
+              >
+                {isUrdu ? "وہیں سے جاری رکھیں" : "Resume"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDismissResumeBanner(true)}
+                aria-label="Dismiss resume banner"
+                className="p-1 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
         {/* Compact Chapter Banner */}
         <div
           className={`relative overflow-hidden bg-[var(--surface-raised)] border border-[var(--card-border)] text-center shadow-md ${
@@ -243,6 +419,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               key={verse.verse_key}
               verse={verse}
               chapterName={chapter.name_simple}
+              chapterArabic={chapter.name_arabic}
               allVersesInSurah={verses}
               onOpenTafsir={handleOpenTafsir}
               readingMode={readingMode}
@@ -271,6 +448,29 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           </div>
         )}
       </div>
+
+      {/* Scroll to Top Floating Button */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+          className="fixed bottom-14 right-6 z-30 p-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg transition-all cursor-pointer"
+          title={isUrdu ? "اوپر جائیں" : "Scroll to Top"}
+        >
+          <ArrowUp className="h-4 w-4" />
+        </button>
+      )}
+
+      {/* Verse Milestone Scroll Navigator alongside the scrollbar */}
+      {chapter.verses_count > 1 && (
+        <VerseScrollNavigator
+          totalVerses={chapter.verses_count}
+          currentVerse={activeAyahNumber || 1}
+          onSelectVerse={(ayahNum) => jumpToAyah(ayahNum)}
+          isUrdu={isUrdu}
+        />
+      )}
 
       {/* Dedicated Spacious Tafseer Modal Dialog */}
       {tafsirAyahKey && (

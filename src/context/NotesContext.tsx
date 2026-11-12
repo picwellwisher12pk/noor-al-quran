@@ -8,9 +8,11 @@ interface NotesContextType {
   getVerseNote: (verseKey: string) => QuranNote | undefined;
   getWordNote: (location: string) => QuranNote | undefined;
   getNotesForVerse: (verseKey: string) => QuranNote[];
+  getNotesForWord: (location: string) => QuranNote[];
   hasVerseNote: (verseKey: string) => boolean;
   hasWordNote: (location: string) => boolean;
   saveVerseNote: (params: {
+    id?: string;
     verseKey: string;
     chapterId: number;
     verseNumber: number;
@@ -20,6 +22,7 @@ interface NotesContextType {
     tags?: string[];
   }) => void;
   saveWordNote: (params: {
+    id?: string;
     location: string;
     wordText: string;
     verseKey: string;
@@ -106,7 +109,14 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
   const getNotesForVerse = useCallback(
     (verseKey: string) => {
-      return notes.filter((n) => n.verseKey === verseKey);
+      return notes.filter((n) => n.targetType === "verse" && n.verseKey === verseKey);
+    },
+    [notes]
+  );
+
+  const getNotesForWord = useCallback(
+    (location: string) => {
+      return notes.filter((n) => n.targetType === "word" && n.wordLocation === location);
     },
     [notes]
   );
@@ -127,6 +137,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
   const saveVerseNote = useCallback(
     ({
+      id,
       verseKey,
       chapterId,
       verseNumber,
@@ -135,6 +146,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       color = "emerald",
       tags = [],
     }: {
+      id?: string;
       verseKey: string;
       chapterId: number;
       verseNumber: number;
@@ -144,16 +156,18 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       tags?: string[];
     }) => {
       const trimmed = text.trim();
-      const existingId = `note_v_${verseKey}`;
+      const targetId = id || `note_v_${verseKey}_${Date.now()}`;
 
       if (!trimmed) {
-        // Empty text deletes the note
-        setNotes((prev) => prev.filter((n) => n.id !== existingId));
+        // Empty text deletes the note if editing an existing note
+        if (id) {
+          setNotes((prev) => prev.filter((n) => n.id !== id));
+        }
         return;
       }
 
       setNotes((prev) => {
-        const existingIdx = prev.findIndex((n) => n.id === existingId);
+        const existingIdx = id ? prev.findIndex((n) => n.id === id) : -1;
         const now = new Date().toISOString();
 
         if (existingIdx >= 0) {
@@ -170,7 +184,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         }
 
         const newNote: QuranNote = {
-          id: existingId,
+          id: targetId,
           targetType: "verse",
           verseKey,
           chapterId,
@@ -191,6 +205,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
 
   const saveWordNote = useCallback(
     ({
+      id,
       location,
       wordText,
       verseKey,
@@ -201,6 +216,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       color = "amber",
       tags = [],
     }: {
+      id?: string;
       location: string;
       wordText: string;
       verseKey: string;
@@ -212,15 +228,17 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
       tags?: string[];
     }) => {
       const trimmed = text.trim();
-      const existingId = `note_w_${location}`;
+      const targetId = id || `note_w_${location}_${Date.now()}`;
 
       if (!trimmed) {
-        setNotes((prev) => prev.filter((n) => n.id !== existingId));
+        if (id) {
+          setNotes((prev) => prev.filter((n) => n.id !== id));
+        }
         return;
       }
 
       setNotes((prev) => {
-        const existingIdx = prev.findIndex((n) => n.id === existingId);
+        const existingIdx = id ? prev.findIndex((n) => n.id === id) : -1;
         const now = new Date().toISOString();
 
         if (existingIdx >= 0) {
@@ -238,7 +256,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         }
 
         const newNote: QuranNote = {
-          id: existingId,
+          id: targetId,
           targetType: "word",
           verseKey,
           chapterId,
@@ -274,6 +292,7 @@ export function NotesProvider({ children }: { children: React.ReactNode }) {
         getVerseNote,
         getWordNote,
         getNotesForVerse,
+        getNotesForWord,
         hasVerseNote,
         hasWordNote,
         saveVerseNote,

@@ -1,11 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ReadingPreferences, ArabicFontFamily, UrduFontFamily } from "@/types/quran";
+import { ReadingPreferences, ArabicFontFamily, UrduFontFamily, QuranStudyMode } from "@/types/quran";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
+  setQuranStudyMode: (mode: QuranStudyMode) => void;
   setArabicFontSize: (size: number) => void;
   setEnglishFontSize: (size: number) => void;
   setUrduFontSize: (size: number) => void;
@@ -24,6 +25,7 @@ interface ReadingPreferencesContextType {
 }
 
 const DEFAULT_PREFERENCES: ReadingPreferences = {
+  quranStudyMode: "read",
   arabicFontSize: 32,
   englishFontSize: 16,
   urduFontSize: 20,
@@ -98,6 +100,10 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
       console.error("Failed to persist reading preferences:", e);
     }
   }, [prefs, mounted]);
+
+  const setQuranStudyMode = (mode: QuranStudyMode) => {
+    setPrefs((prev) => ({ ...prev, quranStudyMode: mode }));
+  };
 
   const setArabicFontSize = (size: number) => {
     setPrefs((prev) => ({ ...prev, arabicFontSize: Math.max(20, Math.min(56, size)) }));
@@ -186,6 +192,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     <ReadingPreferencesContext.Provider
       value={{
         prefs,
+        setQuranStudyMode,
         setArabicFontSize,
         setEnglishFontSize,
         setUrduFontSize,

@@ -15,6 +15,7 @@ export interface NoteEditorModalProps {
   chapterName?: string;
   wordLocation?: string;
   wordText?: string;
+  noteId?: string | null;
 }
 
 const COLOR_OPTIONS: Array<{
@@ -45,9 +46,10 @@ export default function NoteEditorModal({
   chapterName,
   wordLocation,
   wordText,
+  noteId,
 }: NoteEditorModalProps) {
   const { isUrdu } = useLanguage();
-  const { getVerseNote, getWordNote, saveVerseNote, saveWordNote, deleteNote } = useNotes();
+  const { notes, getVerseNote, getWordNote, saveVerseNote, saveWordNote, deleteNote } = useNotes();
 
   const [text, setText] = useState("");
   const [color, setColor] = useState<"emerald" | "amber" | "blue" | "rose" | "purple">(
@@ -60,6 +62,18 @@ export default function NoteEditorModal({
   // Load existing note when modal opens or target changes
   useEffect(() => {
     if (!isOpen) return;
+
+    if (noteId) {
+      const specific = notes.find((n) => n.id === noteId);
+      if (specific) {
+        setText(specific.text);
+        setColor(specific.color || (targetType === "word" ? "amber" : "emerald"));
+        setTags(specific.tags || []);
+        setExistingId(specific.id);
+        setTagInput("");
+        return;
+      }
+    }
 
     if (targetType === "verse") {
       const existing = getVerseNote(verseKey);
@@ -89,7 +103,7 @@ export default function NoteEditorModal({
       }
     }
     setTagInput("");
-  }, [isOpen, targetType, verseKey, wordLocation, getVerseNote, getWordNote]);
+  }, [isOpen, targetType, verseKey, wordLocation, noteId, notes, getVerseNote, getWordNote]);
 
   // Handle escape key
   useEffect(() => {
@@ -108,6 +122,7 @@ export default function NoteEditorModal({
   const handleSave = () => {
     if (targetType === "verse") {
       saveVerseNote({
+        id: existingId || undefined,
         verseKey,
         chapterId,
         verseNumber,
@@ -118,6 +133,7 @@ export default function NoteEditorModal({
       });
     } else if (targetType === "word" && wordLocation) {
       saveWordNote({
+        id: existingId || undefined,
         location: wordLocation,
         wordText: wordText || "",
         verseKey,
@@ -222,7 +238,7 @@ export default function NoteEditorModal({
                   : "Write your notes, root meaning, or reflections for this word..."
               }
               rows={5}
-              className="w-full px-3.5 py-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)]/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm leading-relaxed resize-none"
+              className="w-full px-3.5 py-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm leading-relaxed resize-none"
               autoFocus
               onKeyDown={(e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
@@ -307,7 +323,7 @@ export default function NoteEditorModal({
                   }
                 }}
                 placeholder={isUrdu ? "نیا ٹیگ شامل کریں..." : "Add custom tag..."}
-                className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-[var(--foreground-muted)]/50 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
               <button
                 type="button"

@@ -45,7 +45,7 @@ export function MobileInspectorSheet() {
   const { prefs, setSelectedTafsirId, setTafsirFontSize } = useReadingPreferences();
   const { playWord, playVerse } = useAudio();
   const { isUrdu } = useLanguage();
-  const { getVerseNote, getWordNote } = useNotes();
+  const { getNotesForVerse, getNotesForWord, deleteNote } = useNotes();
 
   // Data states
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -55,6 +55,7 @@ export function MobileInspectorSheet() {
   const [tafsirText, setTafsirText] = useState<string>("");
   const [tafsirAuthor, setTafsirAuthor] = useState<string>("");
   const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
+  const [noteModalEditingId, setNoteModalEditingId] = useState<string | null>(null);
 
   // Loading states
   const [loadingMorph, setLoadingMorph] = useState(false);
@@ -527,33 +528,39 @@ export function MobileInspectorSheet() {
           {/* Tab 5: Notes & Reflections */}
           {activeInspectorTab === "notes" && (() => {
             const currentAyahKey = selectedWord?.verse_key || selectedAyahKey || "1:1";
-            const [chapStr, verseStr] = currentAyahKey.split(":");
-            const chapterId = Number(chapStr) || 1;
-            const verseNumber = Number(verseStr) || 1;
-            const activeVerseNote = getVerseNote(currentAyahKey);
-            const activeWordNote = selectedWord ? getWordNote(selectedWord.location) : undefined;
+            const verseNotesList = getNotesForVerse(currentAyahKey);
+            const wordNotesList = selectedWord ? getNotesForWord(selectedWord.location) : [];
 
             return (
-              <div className="space-y-3.5">
+              <div className="space-y-4">
                 {/* 1. Word Note Section */}
                 {selectedWord ? (
-                  <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                  <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2.5">
                     <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
                       <div className="flex items-center gap-1.5">
                         <StickyNote className="w-3.5 h-3.5 text-amber-500" />
                         <span className="text-xs font-bold text-[var(--foreground)]">
-                          {isUrdu ? "لفظ کا نوٹ" : "Word Note"}
+                          {isUrdu ? "لفظ کے نوٹس" : "Word Notes"}
                         </span>
                         <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-semibold">
                           {selectedWord.location}
                         </span>
+                        {wordNotesList.length > 0 && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                            {wordNotesList.length}
+                          </span>
+                        )}
                       </div>
                       <button
                         type="button"
-                        onClick={() => setNoteModalTarget("word")}
+                        onClick={() => {
+                          setNoteModalEditingId(null);
+                          setNoteModalTarget("word");
+                        }}
                         className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
                       >
-                        {activeWordNote ? (isUrdu ? "تبدیل کریں" : "Edit") : (isUrdu ? "+ نیا نوٹ" : "+ Add Note")}
+                        <Plus className="w-3.5 h-3.5" />
+                        {isUrdu ? "نیا نوٹ" : "Add Note"}
                       </button>
                     </div>
 
@@ -563,23 +570,55 @@ export function MobileInspectorSheet() {
                       </span>
                     </div>
 
-                    {activeWordNote ? (
-                      <div className="space-y-1.5" dir={isUrdu ? "rtl" : "ltr"}>
-                        <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text bg-[var(--surface-sunken)] p-2.5 rounded-xl border border-[var(--border-subtle)]">
-                          {activeWordNote.text}
-                        </p>
-                        {activeWordNote.tags && activeWordNote.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {activeWordNote.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
-                              >
-                                #{tag}
+                    {wordNotesList.length > 0 ? (
+                      <div className="space-y-2">
+                        {wordNotesList.map((wNote, idx) => (
+                          <div
+                            key={wNote.id}
+                            className="p-2.5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] space-y-1.5 text-xs"
+                            dir={isUrdu ? "rtl" : "ltr"}
+                          >
+                            <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
+                              <span className="font-bold text-amber-600 dark:text-amber-400">
+                                {isUrdu ? `نوٹ #${idx + 1}` : `Note #${idx + 1}`}
                               </span>
-                            ))}
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNoteModalEditingId(wNote.id);
+                                    setNoteModalTarget("word");
+                                  }}
+                                  className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                                >
+                                  {isUrdu ? "تبدیل کریں" : "Edit"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => deleteNote(wNote.id)}
+                                  className="text-rose-500 hover:text-rose-600 font-semibold cursor-pointer"
+                                >
+                                  {isUrdu ? "حذف" : "Delete"}
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text">
+                              {wNote.text}
+                            </p>
+                            {wNote.tags && wNote.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pt-0.5">
+                                {wNote.tags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ))}
                       </div>
                     ) : (
                       <div className="text-center py-3 bg-[var(--surface-sunken)] rounded-xl border border-[var(--border-subtle)]/60">
@@ -590,11 +629,14 @@ export function MobileInspectorSheet() {
                         </p>
                         <button
                           type="button"
-                          onClick={() => setNoteModalTarget("word")}
+                          onClick={() => {
+                            setNoteModalEditingId(null);
+                            setNoteModalTarget("word");
+                          }}
                           className="mt-2 inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          {isUrdu ? "لفظ کا نوٹ شامل کریں" : "Add Word Note"}
+                          {isUrdu ? "لفظ کا پہلا نوٹ شامل کریں" : "Add Word Note"}
                         </button>
                       </div>
                     )}
@@ -602,43 +644,84 @@ export function MobileInspectorSheet() {
                 ) : null}
 
                 {/* 2. Verse Note Section */}
-                <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
+                <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2.5">
                   <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
                     <div className="flex items-center gap-1.5">
                       <StickyNote className="w-3.5 h-3.5 text-emerald-500" />
                       <span className="text-xs font-bold text-[var(--foreground)]">
-                        {isUrdu ? "آیت کے نوٹس و تدبر" : "Ayah Reflection & Notes"}
+                        {isUrdu ? "آیت کے نوٹس و تدبر" : "Ayah Reflections & Notes"}
                       </span>
                       <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
                         {currentAyahKey}
                       </span>
+                      {verseNotesList.length > 0 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                          {verseNotesList.length}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
-                      onClick={() => setNoteModalTarget("verse")}
+                      onClick={() => {
+                        setNoteModalEditingId(null);
+                        setNoteModalTarget("verse");
+                      }}
                       className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
                     >
-                      {activeVerseNote ? (isUrdu ? "تبدیل کریں" : "Edit") : (isUrdu ? "+ نیا نوٹ" : "+ Add Note")}
+                      <Plus className="w-3.5 h-3.5" />
+                      {isUrdu ? "نیا نوٹ" : "Add Note"}
                     </button>
                   </div>
 
-                  {activeVerseNote ? (
-                    <div className="space-y-1.5" dir={isUrdu ? "rtl" : "ltr"}>
-                      <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text bg-[var(--surface-sunken)] p-2.5 rounded-xl border border-[var(--border-subtle)]">
-                        {activeVerseNote.text}
-                      </p>
-                      {activeVerseNote.tags && activeVerseNote.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {activeVerseNote.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-                            >
-                              #{tag}
+                  {verseNotesList.length > 0 ? (
+                    <div className="space-y-2">
+                      {verseNotesList.map((vNote, idx) => (
+                        <div
+                          key={vNote.id}
+                          className="p-2.5 rounded-xl bg-[var(--surface-sunken)] border border-[var(--border-subtle)] space-y-1.5 text-xs"
+                          dir={isUrdu ? "rtl" : "ltr"}
+                        >
+                          <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                              {isUrdu ? `نوٹ #${idx + 1}` : `Note #${idx + 1}`}
                             </span>
-                          ))}
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setNoteModalEditingId(vNote.id);
+                                  setNoteModalTarget("verse");
+                                }}
+                                className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                              >
+                                {isUrdu ? "تبدیل کریں" : "Edit"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => deleteNote(vNote.id)}
+                                className="text-rose-500 hover:text-rose-600 font-semibold cursor-pointer"
+                              >
+                                {isUrdu ? "حذف" : "Delete"}
+                              </button>
+                            </div>
+                          </div>
+                          <p className="text-xs text-[var(--foreground)] whitespace-pre-wrap leading-relaxed select-text">
+                            {vNote.text}
+                          </p>
+                          {vNote.tags && vNote.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-0.5">
+                              {vNote.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
                   ) : (
                     <div className="text-center py-3 bg-[var(--surface-sunken)] rounded-xl border border-[var(--border-subtle)]/60">
@@ -649,11 +732,14 @@ export function MobileInspectorSheet() {
                       </p>
                       <button
                         type="button"
-                        onClick={() => setNoteModalTarget("verse")}
+                        onClick={() => {
+                          setNoteModalEditingId(null);
+                          setNoteModalTarget("verse");
+                        }}
                         className="mt-2 inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        {isUrdu ? "آیت کا نوٹ / تدبر شامل کریں" : "Add Ayah Note"}
+                        {isUrdu ? "آیت کا پہلا نوٹ شامل کریں" : "Add Ayah Note"}
                       </button>
                     </div>
                   )}
@@ -668,13 +754,17 @@ export function MobileInspectorSheet() {
       {noteModalTarget && (
         <NoteEditorModal
           isOpen={!!noteModalTarget}
-          onClose={() => setNoteModalTarget(null)}
+          onClose={() => {
+            setNoteModalTarget(null);
+            setNoteModalEditingId(null);
+          }}
           targetType={noteModalTarget}
           verseKey={selectedWord?.verse_key || selectedAyahKey || "1:1"}
           chapterId={Number((selectedWord?.verse_key || selectedAyahKey || "1:1").split(":")[0]) || 1}
           verseNumber={Number((selectedWord?.verse_key || selectedAyahKey || "1:1").split(":")[1]) || 1}
           wordLocation={noteModalTarget === "word" ? selectedWord?.location : undefined}
           wordText={noteModalTarget === "word" ? (selectedWord?.text_uthmani || selectedWord?.text) : undefined}
+          noteId={noteModalEditingId}
         />
       )}
     </div>

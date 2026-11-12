@@ -11,6 +11,8 @@ import {
   Play,
   Pause,
   Settings,
+  BookOpen,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +24,7 @@ interface DesktopToolbarProps {
   chapterArabic: string;
   totalAyahs: number;
   verses?: Verse[];
+  onJumpToAyah?: (ayahNumber: number) => void;
 }
 
 export function DesktopToolbar({
@@ -30,6 +33,7 @@ export function DesktopToolbar({
   chapterArabic,
   totalAyahs,
   verses,
+  onJumpToAyah,
 }: DesktopToolbarProps) {
   const router = useRouter();
   const {
@@ -39,7 +43,10 @@ export function DesktopToolbar({
   const {
     prefs,
     setArabicFontSize,
+    setQuranStudyMode,
   } = useReadingPreferences();
+
+  const studyMode = prefs.quranStudyMode || "read";
 
   const { isPlaying, playSurah, togglePlayPause, currentChapterId } = useAudio();
   const { isUrdu } = useLanguage();
@@ -50,9 +57,13 @@ export function DesktopToolbar({
     const input = (e.currentTarget.elements.namedItem("ayahNum") as HTMLInputElement)?.value;
     const num = Number(input);
     if (!isNaN(num) && num >= 1 && num <= totalAyahs) {
-      const el = document.getElementById(`ayah-${num}`);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (onJumpToAyah) {
+        onJumpToAyah(num);
+      } else {
+        const el = document.getElementById(`ayah-${num}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       }
     }
   };
@@ -119,26 +130,66 @@ export function DesktopToolbar({
         </form>
       </div>
 
-      {/* Right: Font Controls, Preferences & Play Surah */}
+      {/* Right: Mode Switcher, Font Controls, Preferences & Play Surah */}
       <div className="flex items-center gap-2">
+        {/* Read / Learn Mode Toggle */}
+        <div
+          className="flex items-center rounded-lg bg-[var(--surface-card)] p-0.5 border border-[var(--border-subtle)] text-[11px]"
+          role="group"
+          aria-label="Quran Study Mode"
+        >
+          <button
+            type="button"
+            onClick={() => setQuranStudyMode("read")}
+            className={`px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold transition-all cursor-pointer ${
+              studyMode === "read"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+            title={
+              isUrdu
+                ? "تلاوت موڈ: عربی، ایک ترجمہ اور تفسیر (لفظ بہ لفظ ترجمہ کے بغیر)"
+                : "Reading Mode: Arabic, single translation & Tafseer (no word-by-word)"
+            }
+          >
+            <BookOpen className="h-3 w-3" />
+            <span>{isUrdu ? "تلاوت" : "Read"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuranStudyMode("learn")}
+            className={`px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold transition-all cursor-pointer ${
+              studyMode === "learn"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+            title={
+              isUrdu
+                ? "تعلیم موڈ: لفظ بہ لفظ ترجمہ، تمام تراجم اور تفسیر"
+                : "Learn Mode: Word-by-word translation, all translations & Tafseer"
+            }
+          >
+            <GraduationCap className="h-3 w-3" />
+            <span>{isUrdu ? "تعلیم" : "Learn"}</span>
+          </button>
+        </div>
+
         {/* Font Size A- / A+ */}
         <div className="flex items-center rounded-lg bg-[var(--surface-card)] p-0.5 border border-[var(--border-subtle)] text-[11px]">
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.max(22, prefs.arabicFontSize - 2))}
             className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
-            title="Decrease Arabic Font Size"
+            title={isUrdu ? "عربی فونٹ سائز چھوٹا کریں" : "Decrease Arabic Font Size"}
           >
             A-
           </button>
-          <span className="px-1.5 font-mono text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
-            {prefs.arabicFontSize}px
-          </span>
+          <div className="w-px h-3.5 bg-[var(--border-subtle)]" />
           <button
             type="button"
             onClick={() => setArabicFontSize(Math.min(56, prefs.arabicFontSize + 2))}
             className="px-2 py-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] font-bold cursor-pointer"
-            title="Increase Arabic Font Size"
+            title={isUrdu ? "عربی فونٹ سائز بڑا کریں" : "Increase Arabic Font Size"}
           >
             A+
           </button>

@@ -2,6 +2,7 @@ import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 import { Chapter, Juz } from "@/types/quran";
 import { QuranDirectoryTabs } from "@/components/home/QuranDirectoryTabs";
 import { KhatmahWidget } from "@/components/home/KhatmahWidget";
+import { ResumeReadingCard } from "@/components/home/ResumeReadingCard";
 import { BookOpen, Sparkles, Compass, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -87,6 +88,9 @@ export default async function HomePage() {
         </div>
       ) : (
         <>
+          {/* Resume Reading Banner */}
+          <ResumeReadingCard />
+
           {/* Khatmah & Daily Goal Tracker */}
           <KhatmahWidget />
 

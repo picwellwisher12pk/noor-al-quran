@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
@@ -14,6 +15,7 @@ import {
   Moon,
   Sparkles,
   BookOpen,
+  GraduationCap,
 } from "lucide-react";
 
 export function MobileHeader() {
@@ -27,6 +29,8 @@ export function MobileHeader() {
 
   const { themeMode, toggleThemeMode } = useTheme();
   const { isUrdu } = useLanguage();
+  const { prefs, setQuranStudyMode } = useReadingPreferences();
+  const studyMode = prefs.quranStudyMode || "read";
 
   const isReadingPage = pathname.startsWith("/surah");
   const currentChapter = isReadingPage
@@ -76,6 +80,32 @@ export function MobileHeader() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1 sm:gap-1.5 flex-none">
+          {/* Read / Learn Mode Pill on Surah pages */}
+          {isReadingPage && (
+            <button
+              type="button"
+              onClick={() => setQuranStudyMode(studyMode === "read" ? "learn" : "read")}
+              className="px-2 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+              title={
+                studyMode === "read"
+                  ? "Switch to Learn Mode (Word-by-word)"
+                  : "Switch to Reading Mode"
+              }
+            >
+              {studyMode === "learn" ? (
+                <>
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  <span>{isUrdu ? "تعلیم" : "Learn"}</span>
+                </>
+              ) : (
+                <>
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>{isUrdu ? "تلاوت" : "Read"}</span>
+                </>
+              )}
+            </button>
+          )}
+
           {/* Search Trigger */}
           <button
             type="button"

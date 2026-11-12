@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
+import { useBookmarks } from "@/context/BookmarksContext";
 import { useLanguage } from "@/context/LanguageContext";
 import {
   BookOpen,
@@ -17,6 +18,7 @@ import {
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { currentStreak } = useReadingActivity();
+  const { lastRead } = useBookmarks();
   const { isUrdu } = useLanguage();
   const {
     setIsMobileSurahDrawerOpen,
@@ -27,13 +29,18 @@ export function MobileBottomNav() {
   const isReadingActive = pathname === "/" || pathname.startsWith("/surah");
   const isLearnActive = pathname.startsWith("/learn");
   const isCalendarActive = pathname.startsWith("/calendar");
+  const readHref = lastRead
+    ? `/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`
+    : activeChapterId
+    ? `/surah/${activeChapterId}`
+    : "/";
 
   return (
     <nav className="w-full flex-none bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none pb-[env(safe-area-inset-bottom,0px)] shadow-lg">
       <div className="h-14 flex items-center justify-around px-1 w-full">
         {/* 1. Read / Surah Reader */}
         <Link
-          href={activeChapterId ? `/surah/${activeChapterId}` : "/"}
+          href={readHref}
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isReadingActive
               ? "text-emerald-600 dark:text-emerald-400 font-semibold"

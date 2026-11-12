@@ -18,6 +18,7 @@ import {
   PanelLeftClose,
   GraduationCap,
   CalendarDays,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -43,7 +44,7 @@ export function DesktopSidebar() {
     setActiveChapterId,
   } = useDesktopWorkspace();
 
-  const { bookmarks, removeBookmark } = useBookmarks();
+  const { bookmarks, lastRead, removeBookmark } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
@@ -258,6 +259,21 @@ export function DesktopSidebar() {
                     Madani (28)
                   </button>
                 </div>
+                {/* Quick Resume Reading Pill */}
+                {lastRead && (
+                  <Link
+                    href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 hover:border-emerald-500/60 transition-colors text-[11px] group"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 text-emerald-800 dark:text-emerald-300 font-semibold">
+                      <History className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <span className="truncate">
+                        {isUrdu ? "جاری رکھیں:" : "Resume:"} {lastRead.chapterName} ({lastRead.verseNumber})
+                      </span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                )}
               </div>
             )}
           </div>
@@ -406,7 +422,31 @@ export function DesktopSidebar() {
 
             {/* TAB 4: BOOKMARKS */}
             {activeSidebarTab === "bookmarks" && (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
+                {lastRead && (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                      <span className="flex items-center gap-1">
+                        <History className="h-3 w-3" />
+                        {isUrdu ? "آخری تلاوت" : "Last Read"}
+                      </span>
+                      <span className="text-[var(--muted-foreground)] font-normal">
+                        {new Date(lastRead.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="font-bold text-[var(--foreground)]">
+                      Surah {lastRead.chapterName} • Ayah {lastRead.verseNumber}
+                    </div>
+                    <Link
+                      href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:underline"
+                    >
+                      {isUrdu ? "تلاوت جاری رکھیں" : "Resume Reading"}
+                      <ChevronRight className="h-3 w-3" />
+                    </Link>
+                  </div>
+                )}
+
                 {bookmarks.length === 0 ? (
                   <div className="p-6 text-center text-xs text-[var(--muted-foreground)] space-y-1">
                     <Bookmark className="h-5 w-5 mx-auto text-emerald-600/60 dark:text-emerald-400/60 mb-1" />

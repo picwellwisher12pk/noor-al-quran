@@ -51,6 +51,7 @@ interface DesktopWorkspaceContextType {
   openWordInInspector: (word: Word) => void;
   openTafsirInInspector: (verseKey: string, arabicText: string) => void;
   openAyahInInspector: (verseKey: string, arabicText: string) => void;
+  openNotesInInspector: (verseKey?: string, arabicText?: string, word?: Word) => void;
   closeInspector: () => void;
 
   // Global Quran metadata
@@ -248,7 +249,22 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const openAyahInInspector = (verseKey: string, arabicText: string) => {
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
-    setActiveInspectorTab("scholars");
+    setSelectedWord(null);
+    setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
+  };
+
+  const openNotesInInspector = (verseKey?: string, arabicText?: string, word?: Word) => {
+    if (word) {
+      setSelectedWord(word);
+      setSelectedAyahKey(word.verse_key);
+      setSelectedAyahArabic(word.text_uthmani || word.text);
+    } else if (verseKey) {
+      setSelectedAyahKey(verseKey);
+      if (arabicText) setSelectedAyahArabic(arabicText);
+      setSelectedWord(null);
+    }
+    setActiveInspectorTab("notes");
     setRightInspectorOpen(true);
     setIsMobileInspectorOpen(true);
   };
@@ -285,6 +301,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         openWordInInspector,
         openTafsirInInspector,
         openAyahInInspector,
+        openNotesInInspector,
         closeInspector,
 
         chapters,

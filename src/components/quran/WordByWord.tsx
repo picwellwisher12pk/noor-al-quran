@@ -26,7 +26,7 @@ export function WordByWord({
   const { playWord } = useAudio();
   const { prefs } = useReadingPreferences();
   const { openWordInInspector, selectedWord: currentSelectedWord } = useDesktopWorkspace();
-  const { hasWordNote } = useNotes();
+  const { getNotesForWord } = useNotes();
   const [modalWord, setModalWord] = useState<Word | null>(null);
 
   const handleWordClick = (word: Word) => {
@@ -57,13 +57,18 @@ export function WordByWord({
           const urduText = word.translation_urdu?.text;
           const englishText = word.translation?.text;
           const isSelectedInInspector = currentSelectedWord?.id === word.id;
-          const hasNote = hasWordNote(word.location);
+          const wordNotes = getNotesForWord(word.location);
+          const hasNote = wordNotes.length > 0;
 
           return (
             <div
               key={word.id}
               onClick={() => handleWordClick(word)}
-              title={hasNote ? "Has personal note • Click to inspect" : "Click to inspect Root, Grammar & Translations in Right Inspector"}
+              title={
+                hasNote
+                  ? `${wordNotes.length} personal note(s) • Click to inspect`
+                  : "Click to inspect Root, Grammar & Translations in Right Inspector"
+              }
               className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${isSelectedInInspector
                   ? "border-emerald-500/60 bg-emerald-500/15 dark:bg-emerald-950/40 shadow-xs ring-1 ring-emerald-500/30"
                   : "border-transparent hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:hover:bg-emerald-950/30"
@@ -72,9 +77,11 @@ export function WordByWord({
               {/* Note Indicator Pin */}
               {hasNote && (
                 <span
-                  className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 ring-2 ring-[var(--surface-raised)] z-10 animate-pulse"
-                  title="Has personal note"
-                />
+                  className="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-1 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-bold flex items-center justify-center ring-2 ring-[var(--surface-raised)] z-10"
+                  title={`${wordNotes.length} note(s)`}
+                >
+                  {wordNotes.length > 1 ? wordNotes.length : ""}
+                </span>
               )}
               {/* Arabic Word Token */}
               <span
