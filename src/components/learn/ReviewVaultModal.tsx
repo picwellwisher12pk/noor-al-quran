@@ -14,7 +14,7 @@ import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
 import phase1Foundations from "../../data/learning/phase1-foundations.json";
 import { getWordUrduGloss } from "../../lib/quiz-engine";
-import { buildSafeWordAudioUrl, isSafeAudioUrl } from "@/utils/security";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 
 export function ReviewVaultModal() {
   const {
@@ -42,13 +42,9 @@ export function ReviewVaultModal() {
     (w) => w && (w.masteryLevel <= 2 || (w.nextReviewAt && w.nextReviewAt <= now))
   );
 
-  const handlePlayAudio = (audioUrl: string | null, id: string) => {
-    if (!audioUrl || !isSafeAudioUrl(audioUrl)) return;
+  const handlePlayAudio = (audioUrl: string | null, id: string, fallbackArabic?: string) => {
     setPlayingAudioId(id);
-    const audio = new Audio(audioUrl);
-    audio.play().catch(() => {});
-    audio.onended = () => setPlayingAudioId(null);
-    audio.onerror = () => setPlayingAudioId(null);
+    playAudioSafely(audioUrl, fallbackArabic).finally(() => setPlayingAudioId(null));
   };
 
   const handleStartBlitz = () => {
@@ -127,7 +123,7 @@ export function ReviewVaultModal() {
               const arabicText = particle?.textUthmani || record.wordId;
               const englishMeaning = particle?.translationEn || "Quranic Word";
               const urduMeaning = particle?.translationUrdu || getWordUrduGloss(arabicText);
-              const safeAudio = buildSafeWordAudioUrl(record.wordId);
+              const safeAudio = getWordAudioUrl(record.wordId);
               const isPlaying = playingAudioId === record.wordId;
 
               return (
@@ -137,10 +133,9 @@ export function ReviewVaultModal() {
                 >
                   {/* Left: Arabic & Audio */}
                   <div className="flex items-center gap-3">
-                    {safeAudio && (
                       <button
                         type="button"
-                        onClick={() => handlePlayAudio(safeAudio, record.wordId)}
+                        onClick={() => handlePlayAudio(safeAudio, record.wordId, arabicText)}
                         className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
                           isPlaying
                             ? "bg-emerald-600 text-white animate-pulse"
@@ -150,7 +145,6 @@ export function ReviewVaultModal() {
                       >
                         <Volume2 className="w-4 h-4" />
                       </button>
-                    )}
 
                     <div>
                       <div className="flex items-baseline gap-2">

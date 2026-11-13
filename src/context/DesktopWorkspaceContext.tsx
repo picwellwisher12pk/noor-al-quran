@@ -5,9 +5,22 @@ import { Chapter, Juz, Word } from "@/types/quran";
 import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 
 export type SidebarTab = "surahs" | "juz" | "khatmah" | "bookmarks";
-export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars";
+export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars" | "notes";
 export type ReadingLayoutMode = "continuous" | "compact" | "mushaf";
 export type InspectorWidthMode = "default" | "expanded" | "maximized";
+export type SettingsModalTab =
+  | "navigation"
+  | "account"
+  | "learner"
+  | "theme"
+  | "typography"
+  | "languages"
+  | "tafseer"
+  | "audio"
+  | "notes"
+  | "shortcuts"
+  | "live"
+  | "storage";
 
 interface DesktopWorkspaceContextType {
   // Sidebar state
@@ -38,6 +51,7 @@ interface DesktopWorkspaceContextType {
   openWordInInspector: (word: Word) => void;
   openTafsirInInspector: (verseKey: string, arabicText: string) => void;
   openAyahInInspector: (verseKey: string, arabicText: string) => void;
+  openNotesInInspector: (verseKey?: string, arabicText?: string, word?: Word) => void;
   closeInspector: () => void;
 
   // Global Quran metadata
@@ -52,10 +66,25 @@ interface DesktopWorkspaceContextType {
   // Modals & Panels
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
+  isVerseIdentifierOpen: boolean;
+  setIsVerseIdentifierOpen: (open: boolean) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  settingsTab: SettingsModalTab;
+  setSettingsTab: (tab: SettingsModalTab) => void;
+  openSettingsModal: (tab?: SettingsModalTab) => void;
+  isLiveSettingsOpen: boolean;
+  setIsLiveSettingsOpen: (open: boolean) => void;
   isDownloadManagerOpen: boolean;
   setIsDownloadManagerOpen: (open: boolean) => void;
+
+  // Mobile specific drawers & sheets
+  isMobileSurahDrawerOpen: boolean;
+  setIsMobileSurahDrawerOpen: (open: boolean) => void;
+  isMobileInspectorOpen: boolean;
+  setIsMobileInspectorOpen: (open: boolean) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
 const DesktopWorkspaceContext = createContext<DesktopWorkspaceContextType | undefined>(undefined);
@@ -80,21 +109,40 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [activeAyahNumber, setActiveAyahNumber] = useState<number>(1);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isVerseIdentifierOpen, setIsVerseIdentifierOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsModalTab>("theme");
+  const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
   const [isDownloadManagerOpen, setIsDownloadManagerOpen] = useState(false);
+
+  const openSettingsModal = (tab?: SettingsModalTab) => {
+    if (tab) setSettingsTab(tab);
+    setIsSettingsOpen(true);
+  };
+
+  // Mobile drawer states
+  const [isMobileSurahDrawerOpen, setIsMobileSurahDrawerOpen] = useState(false);
+  const [isMobileInspectorOpen, setIsMobileInspectorOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const [mounted, setMounted] = useState(false);
 
   // Restore persistent workspace state from localStorage on mount
   useEffect(() => {
+    const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 768;
     try {
       const savedReadingMode = localStorage.getItem("naq_reading_mode") as ReadingLayoutMode;
       if (savedReadingMode === "continuous" || savedReadingMode === "compact" || savedReadingMode === "mushaf") {
         setReadingMode(savedReadingMode);
       }
 
-      const savedSidebar = localStorage.getItem("naq_desktop_sidebar_open");
-      if (savedSidebar !== null) {
-        setLeftSidebarOpen(savedSidebar === "true");
+      if (isMobileViewport) {
+        setLeftSidebarOpen(false);
+      } else {
+        const savedSidebar = localStorage.getItem("naq_desktop_sidebar_open");
+        if (savedSidebar !== null) {
+          setLeftSidebarOpen(savedSidebar === "true");
+        }
       }
 
       const savedInspector = localStorage.getItem("naq_desktop_inspector_open");
@@ -162,20 +210,26 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         e.preventDefault();
         setLeftSidebarOpen((prev) => !prev);
       }
+      // Ctrl + Shift + R or Cmd + Shift + R: Recite to Identify Ayah
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        setIsVerseIdentifierOpen((prev) => !prev);
+      }
       // Ctrl + \ or Cmd + \: Toggle Right Inspector
       if ((e.ctrlKey || e.metaKey) && e.key === "\\") {
         e.preventDefault();
         setRightInspectorOpen((prev) => !prev);
       }
-      // Escape closes search
+      // Escape closes search & verse identifier
       if (e.key === "Escape") {
         if (isSearchOpen) setIsSearchOpen(false);
+        if (isVerseIdentifierOpen) setIsVerseIdentifierOpen(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isSearchOpen]);
+  }, [isSearchOpen, isVerseIdentifierOpen]);
 
   const toggleLeftSidebar = () => setLeftSidebarOpen((prev) => !prev);
   const toggleRightInspector = () => setRightInspectorOpen((prev) => !prev);
@@ -190,6 +244,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahArabic(word.text_uthmani || word.text);
     setActiveInspectorTab("morphology");
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const openTafsirInInspector = (verseKey: string, arabicText: string) => {
@@ -197,17 +252,35 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahArabic(arabicText);
     setActiveInspectorTab("tafseer");
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const openAyahInInspector = (verseKey: string, arabicText: string) => {
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
-    setActiveInspectorTab("scholars");
+    setSelectedWord(null);
     setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
+  };
+
+  const openNotesInInspector = (verseKey?: string, arabicText?: string, word?: Word) => {
+    if (word) {
+      setSelectedWord(word);
+      setSelectedAyahKey(word.verse_key);
+      setSelectedAyahArabic(word.text_uthmani || word.text);
+    } else if (verseKey) {
+      setSelectedAyahKey(verseKey);
+      if (arabicText) setSelectedAyahArabic(arabicText);
+      setSelectedWord(null);
+    }
+    setActiveInspectorTab("notes");
+    setRightInspectorOpen(true);
+    setIsMobileInspectorOpen(true);
   };
 
   const closeInspector = () => {
     setRightInspectorOpen(false);
+    setIsMobileInspectorOpen(false);
   };
 
   return (
@@ -237,6 +310,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         openWordInInspector,
         openTafsirInInspector,
         openAyahInInspector,
+        openNotesInInspector,
         closeInspector,
 
         chapters,
@@ -249,10 +323,24 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
         isSearchOpen,
         setIsSearchOpen,
+        isVerseIdentifierOpen,
+        setIsVerseIdentifierOpen,
         isSettingsOpen,
         setIsSettingsOpen,
+        settingsTab,
+        setSettingsTab,
+        openSettingsModal,
+        isLiveSettingsOpen,
+        setIsLiveSettingsOpen,
         isDownloadManagerOpen,
         setIsDownloadManagerOpen,
+
+        isMobileSurahDrawerOpen,
+        setIsMobileSurahDrawerOpen,
+        isMobileInspectorOpen,
+        setIsMobileInspectorOpen,
+        isMobileMenuOpen,
+        setIsMobileMenuOpen,
       }}
     >
       {children}

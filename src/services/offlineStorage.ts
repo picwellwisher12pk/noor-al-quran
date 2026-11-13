@@ -9,6 +9,7 @@
  */
 
 import { fetchVerseAudioUrl, fetchVersesByChapter, WBW_CDN_URL } from "./quranApi";
+import { normalizeAudioUrl } from "@/utils/audioResolver";
 import { CHAPTER_VERSE_COUNTS } from "@/utils/quranMeta";
 import { Verse, Word } from "@/types/quran";
 
@@ -263,9 +264,11 @@ class OfflineDownloadManager {
     const existing = await cache.match(requestKey);
     if (existing) return 0;
 
-    const fullUrl = relativeAudioUrl.startsWith("http")
-      ? relativeAudioUrl
-      : `${WBW_CDN_URL}/${cleanPath}`;
+    const fullUrl = normalizeAudioUrl(relativeAudioUrl) || (
+      relativeAudioUrl.startsWith("http")
+        ? relativeAudioUrl
+        : `${WBW_CDN_URL}/${cleanPath}`
+    );
 
     const res = await fetch(fullUrl);
     if (!res.ok) return 0;

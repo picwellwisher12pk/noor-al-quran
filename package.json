@@ -1,17 +1,29 @@
 {
   "name": "noor-al-quran",
-  "version": "1.27.0",
+  "version": "1.34.6",
   "private": true,
   "scripts": {
+    "version:sync": "bun run scripts/sync-version.ts",
+    "predev": "bun run scripts/sync-version.ts",
+    "prebuild": "bun run scripts/sync-version.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
+    "tauri:dev": "bun run scripts/sync-version.ts && tauri dev",
+    "tauri:build": "bun run scripts/sync-version.ts && tauri build",
+    "tauri:android:init": "tauri android init",
+    "tauri:android:dev": "tauri android dev",
+    "tauri:android:build": "tauri android build",
+    "tauri:ios:init": "tauri ios init",
+    "tauri:ios:dev": "tauri ios dev",
     "seed:learning": "bun run scripts/seed-quran-learning.ts",
-    "test:engine": "bun run scripts/test-quiz-engine.ts"
+    "test:engine": "bun run scripts/test-quiz-engine.ts",
+    "release": "bun run scripts/release.ts",
+    "release:patch": "bun run scripts/release.ts patch",
+    "release:minor": "bun run scripts/release.ts minor",
+    "release:major": "bun run scripts/release.ts major"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

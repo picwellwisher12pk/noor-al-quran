@@ -1,18 +1,20 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Noor Al-Quran",
-  "version": "1.27.0",
-  "identifier": "com.nooralquran.desktop",
+  "version": "1.34.6",
+  "identifier": "com.nooralquran.app",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "bun run dev",
-    "beforeBuildCommand": "bun run build"
+    "beforeDevCommand": "bun run scripts/sync-version.ts && bun run dev",
+    "beforeBuildCommand": "bun run scripts/sync-version.ts && bun run build"
   },
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "Noor Al-Quran (نور القرآن) - Authentic Noble Quran Workstation",
+        "url": "index.html",
         "width": 1366,
         "height": 860,
         "minWidth": 960,
@@ -36,5 +38,17 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY3ODIyODUwNDU1QTNDMEMKUldRTVBGcEZVQ2lDWityOTA5RC9RbzFxWldCcGNJdUJVMmY2bFROUVZmeWRvOGxYZUVoU0ZIMzEK",
+      "endpoints": [
+        "https://raw.githubusercontent.com/picwellwisher12pk/noor-ul-quran/main/updater/latest.json"
+      ],
+      "dialog": true,
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

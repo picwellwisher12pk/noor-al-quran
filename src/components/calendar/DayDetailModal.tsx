@@ -36,13 +36,18 @@ export function DayDetailModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-2xl p-6 overflow-hidden max-h-[85vh] flex flex-col text-[var(--foreground)]"
+        className="relative w-full max-w-lg rounded-t-3xl sm:rounded-3xl bg-[var(--surface-raised)] border-t sm:border border-[var(--card-border)] shadow-2xl p-5 sm:p-6 overflow-hidden max-h-[85vh] flex flex-col text-[var(--foreground)] pb-[env(safe-area-inset-bottom,16px)] sm:pb-6"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="sm:hidden flex items-center justify-center pt-1 pb-3">
+          <div className="h-1.5 w-12 rounded-full bg-[var(--border-subtle)]" />
+        </div>
+
         {/* Glow Accent */}
         <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 

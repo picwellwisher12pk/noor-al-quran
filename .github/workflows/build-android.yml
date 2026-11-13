@@ -1,0 +1,160 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - production
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Extract App Version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Extracted App Version: v$VERSION"
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK & NDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          
+          # Accept licenses
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+          # Find available or install NDK 26
+          NDK_DIR=$(find $ANDROID_HOME/ndk -maxdepth 1 -mindepth 1 -type d | head -n 1)
+          if [ -z "$NDK_DIR" ]; then
+            echo "[CI] Installing NDK 26.1.10909125 and build-tools 34..."
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125" "build-tools;34.0.0" "platforms;android-34"
+            NDK_DIR="$ANDROID_HOME/ndk/26.1.10909125"
+          fi
+          
+          echo "[CI] Using NDK at: $NDK_DIR"
+          echo "NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+
+      - name: Install Dependencies
+        run: bun install
+
+      - name: Initialize Tauri Android (if not initialized)
+        run: |
+          if [ ! -d "src-tauri/gen/android" ]; then
+            echo "[CI] Initializing Tauri Android project..."
+            bun run tauri android init --ci
+          else
+            echo "[CI] Android project already initialized."
+          fi
+
+      - name: Inject Android Permissions (Microphone & Internet for Verse Identifier)
+        run: |
+          MANIFEST_FILE="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST_FILE" ]; then
+            echo "[CI] Ensuring Android permissions in $MANIFEST_FILE..."
+            if ! grep -q "android.permission.RECORD_AUDIO" "$MANIFEST_FILE"; then
+              sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST_FILE"
+              echo "[CI] Injected RECORD_AUDIO and INTERNET permissions."
+            fi
+          fi
+
+      - name: Build Android APK
+        env:
+          NDK_HOME: ${{ env.NDK_HOME }}
+        run: |
+          echo "[CI] Building Android APK with version v${{ env.APP_VERSION }}..."
+          # Build Release APK
+          bun run tauri android build --apk --ci --target aarch64 || bun run tauri android build --apk --ci
+          # Also build Debug APK (pre-signed by Gradle debug key, 100% installs instantly on any phone)
+          bun run tauri android build --apk --debug --ci --target aarch64 || bun run tauri android build --apk --debug --ci
+
+      - name: Sign & Organize Generated APKs
+        run: |
+          mkdir -p dist-apks
+          echo "[CI] Searching for generated APK files..."
+          
+          # Generate a signing key for the release APK
+          keytool -genkeypair -v -keystore release.jks -alias noor-release -keyalg RSA -keysize 2048 -validity 10000 -storepass noor1234 -keypass noor1234 -dname "CN=NoorAlQuran, OU=Mobile, O=Noor, C=PK"
+
+          # Find apksigner in Android build-tools
+          APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner | sort -V | tail -n 1)
+          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign | sort -V | tail -n 1)
+          echo "[CI] Using apksigner at: $APKSIGNER"
+
+          for apk in $(find src-tauri/gen/android -name "*.apk" -type f); do
+            filename=$(basename "$apk")
+            echo "Processing: $apk ($filename)"
+            
+            if [[ "$filename" == *"unsigned"* ]]; then
+              # Align and sign release APK
+              signed_name="Noor-Al-Quran-v${{ env.APP_VERSION }}-release-signed.apk"
+              aligned_tmp="aligned-temp.apk"
+              $ZIPALIGN -p -f 4 "$apk" "$aligned_tmp"
+              $APKSIGNER sign --ks release.jks --ks-pass pass:noor1234 --ks-key-alias noor-release --key-pass pass:noor1234 --out "dist-apks/$signed_name" "$aligned_tmp"
+              rm -f "$aligned_tmp"
+              echo "Created Signed Release APK: dist-apks/$signed_name"
+            else
+              # Copy debug APK directly
+              dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-${filename}"
+              cp "$apk" "$dest"
+              echo "Staged APK: $dest"
+            fi
+          done
+
+          ls -lh dist-apks/
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Noor-Al-Quran-v${{ env.APP_VERSION }}-Android-APKs
+          path: dist-apks/*.apk
+          retention-days: 30
+
+      - name: Create GitHub Release (Optional Tag Trigger)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-apks/*.apk
+          name: "Noor Al-Quran v${{ env.APP_VERSION }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: true

@@ -23,16 +23,21 @@ import {
   AlignJustify,
   CloudDownload,
   Languages,
+  ExternalLink,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useLanguage } from "@/context/LanguageContext";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 
 interface DraggableSettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenFullSettings?: () => void;
 }
 
-export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPanelProps) {
+export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: DraggableSettingsPanelProps) {
   const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { isUrdu } = useLanguage();
   const { readingMode, setReadingMode, setIsDownloadManagerOpen } = useDesktopWorkspace();
   const {
     prefs,
@@ -41,14 +46,17 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
     setUrduFontSize,
     setArabicFont,
     setUrduFont,
+    setQuranScript,
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
+    toggleShowTransliteration,
     toggleShowWordByWord,
     toggleAutoScroll,
     setSelectedUrduTranslationId,
   } = useReadingPreferences();
   const { reciters, currentReciter, setReciter } = useAudio();
+  const isMobile = useIsMobile();
 
   const [isMinimized, setIsMinimized] = useState(false);
   const [position, setPosition] = useState({ x: 20, y: 80 });
@@ -98,10 +106,14 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
   if (!isOpen) return null;
 
   const fontOptions: { id: ArabicFontFamily; name: string }[] = [
-    { id: "amiri", name: "Amiri" },
-    { id: "noto-sans-arabic", name: "Noto Sans" },
-    { id: "scheherazade", name: "Scheherazade" },
-    { id: "nastaliq", name: "Nastaliq" },
+    { id: "amiri", name: "Amiri (Classical)" },
+    { id: "amiri-quran", name: "Amiri Quran (Uthmani)" },
+    { id: "noto-naskh-arabic", name: "Noto Naskh (Standard)" },
+    { id: "lateef", name: "Lateef (Easy Read)" },
+    { id: "scheherazade", name: "Scheherazade (Tradition)" },
+    { id: "noto-sans-arabic", name: "Noto Sans (Clean)" },
+    { id: "cairo", name: "Cairo (Geometric)" },
+    { id: "nastaliq", name: "Nastaliq (Indo-Pak)" },
   ];
 
   const urduFontOptions: { id: UrduFontFamily; name: string }[] = [
@@ -120,36 +132,72 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
   const urduTranslations = AVAILABLE_TRANSLATIONS.filter((t) => t.language === "urdu");
 
   return (
-    <aside
-      aria-label="Interactive reading settings panel"
-      className="fixed z-50 transition-shadow select-none"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        width: isMinimized ? "auto" : "360px",
-      }}
-    >
-      {/* Container with Frosted Glass Styling */}
-      <div className="rounded-2xl bg-[var(--surface-raised)]/95 backdrop-blur-md border border-[var(--card-border)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        {/* Drag Handle & Header */}
+    <>
+      {/* Mobile Backdrop */}
+      {isMobile && (
         <div
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          className={`flex items-center justify-between px-3.5 py-2.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] cursor-grab active:cursor-grabbing ${
-            isDragging ? "bg-emerald-950/40" : ""
+          onClick={onClose}
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
+        />
+      )}
+
+      <aside
+        aria-label="Interactive reading settings panel"
+        className={`fixed z-50 select-none ${
+          isMobile
+            ? "inset-x-0 bottom-0 max-h-[85vh] w-full"
+            : "transition-shadow"
+        }`}
+        style={
+          isMobile
+            ? undefined
+            : {
+                left: `${position.x}px`,
+                top: `${position.y}px`,
+                width: isMinimized ? "auto" : "360px",
+              }
+        }
+      >
+        {/* Container with Frosted Glass Styling */}
+        <div
+          className={`bg-[var(--surface-raised)]/95 backdrop-blur-md border border-[var(--card-border)] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${
+            isMobile
+              ? "rounded-t-3xl border-b-0 pb-[env(safe-area-inset-bottom,0px)]"
+              : "rounded-2xl"
           }`}
         >
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
-            <GripHorizontal className="h-4 w-4 text-[var(--muted-foreground)]" />
-            <Settings className="h-3.5 w-3.5 text-emerald-400" />
-            <span>Live Settings (Drag Me)</span>
-          </div>
+          {/* Drag Handle & Header */}
+          <div
+            onPointerDown={!isMobile ? handlePointerDown : undefined}
+            onPointerMove={!isMobile ? handlePointerMove : undefined}
+            onPointerUp={!isMobile ? handlePointerUp : undefined}
+            className={`flex items-center justify-between px-3.5 py-2.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] ${
+              !isMobile
+                ? "cursor-grab active:cursor-grabbing"
+                : ""
+            } ${isDragging ? "bg-emerald-950/40" : ""}`}
+          >
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
+              {!isMobile && <GripHorizontal className="h-4 w-4 text-[var(--muted-foreground)]" />}
+              <Settings className="h-3.5 w-3.5 text-emerald-400" />
+              <span>{isMobile ? "Reading & Display Settings" : "Live Settings (Drag Me)"}</span>
+            </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setIsMinimized(!isMinimized)}
+            <div className="flex items-center gap-1">
+              {onOpenFullSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenFullSettings}
+                  title={isUrdu ? "مکمل ترتیبات موڈال کھولیں" : "Open Full Tabbed Settings"}
+                  className="px-1.5 py-0.5 rounded text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span className="hidden sm:inline">{isUrdu ? "مکمل ترتیبات" : "Full Modal"}</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsMinimized(!isMinimized)}
               aria-label={isMinimized ? "Maximize settings" : "Minimize settings"}
               className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)]"
             >
@@ -209,6 +257,43 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
                     {t.name}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Quran Script Tradition Toggle */}
+            <div>
+              <span className="block mb-1.5 font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                {isUrdu ? "قرآنی رسم الخط (مصحف)" : "Quranic Script (Mushaf)"}
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setQuranScript("uthmani")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
+                    prefs.quranScript !== "indopak"
+                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
+                  }`}
+                >
+                  <div className="font-bold">{isUrdu ? "عثمانی" : "Uthmani"}</div>
+                  <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                    {isUrdu ? "مصحف مدینہ" : "Medina Mushaf"}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuranScript("indopak")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
+                    prefs.quranScript === "indopak"
+                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
+                  }`}
+                >
+                  <div className="font-bold">{isUrdu ? "پاکستانی" : "Indo-Pak"}</div>
+                  <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                    {isUrdu ? "اسلام 360" : "Pakistani / Islam 360"}
+                  </div>
+                </button>
               </div>
             </div>
 
@@ -457,6 +542,18 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
                   className="h-3.5 w-3.5 accent-emerald-500 rounded"
                 />
               </label>
+
+              {prefs.showTranslation && (
+                <label className="flex items-center justify-between p-2 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] cursor-pointer pl-4">
+                  <span className="text-[11px] text-[var(--muted-foreground)]">Include English Transliteration</span>
+                  <input
+                    type="checkbox"
+                    checked={prefs.showTransliteration}
+                    onChange={toggleShowTransliteration}
+                    className="h-3.5 w-3.5 accent-emerald-500 rounded"
+                  />
+                </label>
+              )}
             </div>
 
             {/* Audio Reciter */}
@@ -513,5 +610,6 @@ export function DraggableSettingsPanel({ isOpen, onClose }: DraggableSettingsPan
         )}
       </div>
     </aside>
+  </>
   );
 }

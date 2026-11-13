@@ -163,9 +163,9 @@ export function DesktopStatusBar() {
 
         <span className="hidden md:inline text-[var(--border-subtle)]">|</span>
 
-        {/* Font Info */}
+        {/* Script & Font Info */}
         <span className="hidden sm:inline capitalize">
-          {prefs.arabicFont} ({prefs.arabicFontSize}px)
+          {prefs.quranScript === "indopak" ? "Indo-Pak" : "Uthmani"} • {prefs.arabicFont} ({prefs.arabicFontSize}px)
         </span>
 
         <span className="text-[var(--border-subtle)]">|</span>

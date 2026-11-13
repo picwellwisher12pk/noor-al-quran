@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Reciter, Verse } from "@/types/quran";
 import { fetchReciters, fetchVerseAudioUrl, WBW_CDN_URL } from "@/services/quranApi";
+import { normalizeAudioUrl } from "@/utils/audioResolver";
 import { CHAPTER_VERSE_COUNTS } from "@/utils/quranMeta";
 import { offlineStorage } from "@/services/offlineStorage";
 
@@ -286,9 +287,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     try {
       let fullUrl = await offlineStorage.getWordAudioUrl(relativeAudioUrl);
       if (!fullUrl) {
-        fullUrl = relativeAudioUrl.startsWith("http")
-          ? relativeAudioUrl
-          : `${WBW_CDN_URL}/${relativeAudioUrl.replace(/^\/+/, "")}`;
+        fullUrl = normalizeAudioUrl(relativeAudioUrl) || relativeAudioUrl;
         offlineStorage.cacheWordAudio(relativeAudioUrl).catch(() => {});
       }
       wordAudioRef.current.src = fullUrl;

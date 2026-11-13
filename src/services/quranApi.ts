@@ -135,8 +135,8 @@ export async function fetchVersesByChapter(
       language: "en",
       words: "true",
       translations: String(englishTranslationId),
-      fields: "text_uthmani,chapter_id,verse_number,verse_key,juz_number,hizb_number,rub_el_hizb_number,page_number",
-      word_fields: "verse_key,verse_id,page_number,location,text_uthmani,audio_url",
+      fields: "text_uthmani,text_indopak,chapter_id,verse_number,verse_key,juz_number,hizb_number,rub_el_hizb_number,page_number",
+      word_fields: "verse_key,verse_id,page_number,location,text_uthmani,text_indopak,audio_url",
       page: String(page),
       per_page: String(perPage),
     });

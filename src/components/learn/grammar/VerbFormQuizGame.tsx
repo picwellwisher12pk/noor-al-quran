@@ -8,6 +8,7 @@ import {
 } from "@/data/learning/quranGrammarData";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import { useLearningStore } from "@/store/useLearningStore";
 import { getVerbFormLabel } from "@/services/terminologyService";
 import { LearnerTierSwitcher } from "../LearnerTierSwitcher";
@@ -166,17 +167,11 @@ export function VerbFormQuizGame() {
   const handlePlayAudio = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentQ) return;
-    const sStr = String(currentQ.example.surah).padStart(3, "0");
-    const aStr = String(currentQ.example.ayah).padStart(3, "0");
-    const audioUrl = `https://audio.qurancdn.com/wbw/${sStr}_${aStr}_001.mp3`;
-    try {
+    const audioUrl = getWordAudioUrl(currentQ.example);
+    if (audioUrl) {
       playWord(audioUrl);
-    } catch {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        const utter = new SpeechSynthesisUtterance(currentQ.example.arabic);
-        utter.lang = "ar-SA";
-        window.speechSynthesis.speak(utter);
-      }
+    } else {
+      playAudioSafely(undefined, currentQ.example.arabic);
     }
   };
 

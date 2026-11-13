@@ -181,7 +181,7 @@ export function logVerseRead(chapterId: number, verseNumber: number, minutesEsti
     ayahsRead: isNewVerse ? currentRec.ayahsRead + 1 : currentRec.ayahsRead,
     verses: Array.from(versesSet),
     chapters: Array.from(chaptersSet),
-    minutesSpent: Number((currentRec.minutesSpent + minutesEstimate).toFixed(1)),
+    minutesSpent: Number((currentRec.minutesSpent + (isNewVerse || chapterId === 0 ? minutesEstimate : 0)).toFixed(1)),
     lastUpdated: new Date().toISOString(),
   };
 
@@ -252,15 +252,31 @@ export function loadReadingStreakSummary(): ReadingStreakSummary {
   let totalWordsStudied = 0;
   let totalMinutesSpent = 0;
   let totalActiveDays = 0;
+  let needsStoreSave = false;
 
   for (const date in records) {
     const rec = records[date];
+
+    // Sanitize runaway phantom minutes from previous re-render bug
+    // (A real Quran reading session is ~0.5 to 1.5 minutes per ayah read, plus ~0.3 min per word)
+    const realisticMax = Math.max(20, rec.ayahsRead * 2.0 + (rec.wordsStudied || 0) * 0.5);
+    if (rec.minutesSpent > realisticMax) {
+      rec.minutesSpent = Number(
+        Math.max(rec.ayahsRead > 0 || (rec.wordsStudied || 0) > 0 ? 1 : 0, rec.ayahsRead * 0.8 + (rec.wordsStudied || 0) * 0.3).toFixed(1)
+      );
+      needsStoreSave = true;
+    }
+
     if (rec.ayahsRead > 0 || rec.wordsStudied > 0 || rec.minutesSpent > 0) {
       totalActiveDays++;
       totalAyahsRead += rec.ayahsRead;
       totalWordsStudied += rec.wordsStudied;
       totalMinutesSpent += rec.minutesSpent;
     }
+  }
+
+  if (needsStoreSave) {
+    saveActivityStore(store);
   }
 
   // Check if streak is still valid today or broken

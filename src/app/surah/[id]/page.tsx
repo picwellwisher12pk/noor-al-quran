@@ -5,6 +5,12 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Loading from "@/app/loading";
 
+export function generateStaticParams() {
+  return Array.from({ length: 114 }, (_, i) => ({
+    id: String(i + 1),
+  }));
+}
+
 export async function generateMetadata({
   params,
 }: {

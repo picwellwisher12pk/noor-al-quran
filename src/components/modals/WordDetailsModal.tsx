@@ -12,6 +12,7 @@ import {
   ScholarVerseTranslation,
 } from "@/services/wordTranslationsService";
 import { useAudio } from "@/context/AudioContext";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 import {
   BookOpen,
   Volume2,
@@ -165,15 +166,20 @@ export function WordDetailsModal({
           )}
 
           {/* Audio Pronunciation Button */}
-          {word.audio_url && (
-            <button
-              type="button"
-              onClick={() => playWord(word.audio_url!)}
-              className="mt-3.5 px-4 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-sm"
-            >
-              <Volume2 className="h-4 w-4" /> Listen Authentic Pronunciation
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              const audio = getWordAudioUrl(word);
+              if (audio) {
+                playWord(audio);
+              } else {
+                playAudioSafely(undefined, word.text_uthmani || word.text);
+              }
+            }}
+            className="mt-3.5 px-4 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white text-xs font-semibold inline-flex items-center gap-2 transition-all shadow-sm cursor-pointer"
+          >
+            <Volume2 className="h-4 w-4" /> Listen Authentic Pronunciation
+          </button>
         </div>
 
         {/* Navigation Tabs */}

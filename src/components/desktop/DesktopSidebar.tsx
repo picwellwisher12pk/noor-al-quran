@@ -18,6 +18,7 @@ import {
   PanelLeftClose,
   GraduationCap,
   CalendarDays,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -43,7 +44,7 @@ export function DesktopSidebar() {
     setActiveChapterId,
   } = useDesktopWorkspace();
 
-  const { bookmarks, removeBookmark } = useBookmarks();
+  const { bookmarks, lastRead, removeBookmark } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
@@ -258,6 +259,21 @@ export function DesktopSidebar() {
                     Madani (28)
                   </button>
                 </div>
+                {/* Quick Resume Reading Pill */}
+                {lastRead && (
+                  <Link
+                    href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 hover:border-emerald-500/60 transition-colors text-[11px] group"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 text-emerald-800 dark:text-emerald-300 font-semibold">
+                      <History className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <span className="truncate">
+                        {isUrdu ? "جاری رکھیں:" : "Resume:"} {lastRead.chapterName} ({lastRead.verseNumber})
+                      </span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                )}
               </div>
             )}
           </div>
@@ -308,7 +324,7 @@ export function DesktopSidebar() {
                         </div>
                       </div>
 
-                      <div className="font-arabic text-sm text-emerald-400/90 flex-shrink-0 ml-1" dir="rtl">
+                      <div className="font-arabic text-sm text-emerald-700 dark:text-emerald-400 font-bold flex-shrink-0 ml-1" dir="rtl">
                         {chap.name_arabic}
                       </div>
                     </Link>
@@ -327,7 +343,7 @@ export function DesktopSidebar() {
                       className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-md bg-emerald-600/20 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center">
+                        <span className="w-6 h-6 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30 font-mono text-[11px] font-bold flex items-center justify-center">
                           {juzNum}
                         </span>
                         <div>
@@ -356,8 +372,8 @@ export function DesktopSidebar() {
             {activeSidebarTab === "khatmah" && (
               <div className="space-y-3 p-1">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600/15 via-emerald-900/10 to-transparent border border-emerald-500/30 text-xs space-y-2">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
-                    <Flame className="h-4 w-4" />
+                  <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold text-xs">
+                    <Flame className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Sunnah 7-Day Minimum Pacing</span>
                   </div>
                   <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
@@ -368,12 +384,12 @@ export function DesktopSidebar() {
                     <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs">
                       <div>
                         <span className="text-[10px] text-[var(--muted-foreground)] block">Current Pace:</span>
-                        <span className="font-bold text-emerald-300">{plan.targetDays} Days Khatmah</span>
+                        <span className="font-bold text-emerald-800 dark:text-emerald-300">{plan.targetDays} Days Khatmah</span>
                       </div>
                       {targetInfo && (
                         <div className="text-right">
                           <span className="text-[10px] text-[var(--muted-foreground)] block">Daily Target:</span>
-                          <span className="font-bold text-amber-300">{targetInfo.dailyQuota} Ayahs / Day</span>
+                          <span className="font-bold text-amber-800 dark:text-amber-300">{targetInfo.dailyQuota} Ayahs / Day</span>
                         </div>
                       )}
                     </div>
@@ -384,8 +400,8 @@ export function DesktopSidebar() {
                 {targetInfo && (
                   <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-[var(--muted-foreground)]">Overall Completion:</span>
-                      <span className="font-mono font-bold text-emerald-400">
+                      <span className="text-[var(--muted-foreground)] font-medium">Overall Completion:</span>
+                      <span className="font-mono font-bold text-emerald-800 dark:text-emerald-300">
                         {targetInfo.percentageCompleted.toFixed(1)}%
                       </span>
                     </div>
@@ -406,10 +422,34 @@ export function DesktopSidebar() {
 
             {/* TAB 4: BOOKMARKS */}
             {activeSidebarTab === "bookmarks" && (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
+                {lastRead && (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                      <span className="flex items-center gap-1">
+                        <History className="h-3 w-3" />
+                        {isUrdu ? "آخری تلاوت" : "Last Read"}
+                      </span>
+                      <span className="text-[var(--muted-foreground)] font-normal">
+                        {new Date(lastRead.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="font-bold text-[var(--foreground)]">
+                      Surah {lastRead.chapterName} • Ayah {lastRead.verseNumber}
+                    </div>
+                    <Link
+                      href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:underline"
+                    >
+                      {isUrdu ? "تلاوت جاری رکھیں" : "Resume Reading"}
+                      <ChevronRight className="h-3 w-3" />
+                    </Link>
+                  </div>
+                )}
+
                 {bookmarks.length === 0 ? (
                   <div className="p-6 text-center text-xs text-[var(--muted-foreground)] space-y-1">
-                    <Bookmark className="h-5 w-5 mx-auto text-emerald-400/60 mb-1" />
+                    <Bookmark className="h-5 w-5 mx-auto text-emerald-600/60 dark:text-emerald-400/60 mb-1" />
                     <p className="font-medium text-[var(--foreground)]">No Bookmarks Saved</p>
                     <p className="text-[10px]">Click the bookmark ribbon on any Ayah to save it here.</p>
                   </div>
@@ -422,7 +462,7 @@ export function DesktopSidebar() {
                       <div className="flex items-center justify-between">
                         <Link
                           href={`/surah/${bm.chapter_id}?ayah=${bm.verse_number}`}
-                          className="font-semibold text-emerald-400 hover:underline"
+                          className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
                         >
                           Surah {bm.chapter_name} • Ayah {bm.verse_number}
                         </Link>
@@ -434,9 +474,9 @@ export function DesktopSidebar() {
                           Remove
                         </button>
                       </div>
-                      {bm.text_uthmani && (
+                      {(bm.text_indopak || bm.text_uthmani) && (
                         <div className="font-arabic text-sm text-[var(--foreground)] truncate" dir="rtl">
-                          {bm.text_uthmani}
+                          {bm.text_indopak || bm.text_uthmani}
                         </div>
                       )}
                     </div>

@@ -51,6 +51,8 @@ export function sanitizeSearchQuery(query: string, maxLength = 100): string {
  */
 export function isSafeAudioUrl(url: string): boolean {
   if (!url || typeof url !== "string") return false;
+  // Local static audio asset in public folder (e.g. /audio/alphabet/alif.mp3)
+  if (url.startsWith("/audio/")) return true;
   try {
     const parsed = new URL(url);
     if (parsed.protocol !== "https:") return false;

@@ -1,19 +1,12 @@
 import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 import { Chapter, Juz } from "@/types/quran";
-import { SurahList } from "@/components/home/SurahList";
-import { JuzList } from "@/components/home/JuzList";
+import { QuranDirectoryTabs } from "@/components/home/QuranDirectoryTabs";
 import { KhatmahWidget } from "@/components/home/KhatmahWidget";
+import { ResumeReadingCard } from "@/components/home/ResumeReadingCard";
 import { BookOpen, Sparkles, Compass, CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const currentTab = resolvedSearchParams.tab === "juz" ? "juz" : "surah";
-
+export default async function HomePage() {
   let chapters: Chapter[] = [];
   let juzs: Juz[] = [];
   let error: string | null = null;
@@ -26,64 +19,64 @@ export default async function HomePage({
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-20 space-y-6">
-      {/* Desktop Hub Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-6 md:p-8 text-center shadow-lg">
+    <div className="w-full max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-20 space-y-4 sm:space-y-6">
+      {/* Desktop & Mobile Hub Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-4 sm:p-6 md:p-8 text-center shadow-lg">
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-transparent to-amber-500/5 pointer-events-none" />
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 text-xs font-semibold mb-3">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 dark:bg-emerald-950/60 border border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold mb-3">
           <Sparkles className="h-3.5 w-3.5" /> Authentic Uthmani Script & Multi-Reciter Studio
         </div>
 
-        <h1 className="font-arabic text-3xl sm:text-4xl md:text-5xl text-[var(--foreground)] mb-2 leading-relaxed" dir="rtl">
+        <h1 className="font-arabic text-2xl sm:text-4xl md:text-5xl text-[var(--foreground)] mb-2 leading-relaxed" dir="rtl">
           إِنَّ هَـٰذَا ٱلْقُرْءَانَ يَهْدِى لِلَّتِى هِىَ أَقْوَمُ
         </h1>
-        <p className="text-sm sm:text-base text-[var(--muted-foreground)] max-w-2xl mx-auto mb-5 leading-normal">
+        <p className="text-xs sm:text-base text-[var(--muted-foreground)] max-w-2xl mx-auto mb-4 sm:mb-5 leading-normal px-2">
           &ldquo;Indeed, this Qur&rsquo;an guides to that which is most suitable and gives good tidings to the believers.&rdquo;
-          <span className="block text-xs text-emerald-400 mt-0.5 font-medium">Surah Al-Isra [17:9]</span>
+          <span className="block text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 font-bold">Surah Al-Isra [17:9]</span>
         </p>
 
-        {/* Quick Launch Actions */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        {/* Quick Launch Actions - Mobile-First Stacked, Desktop Row */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Link
             href="/learn"
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center gap-2 active:scale-95"
           >
             <Sparkles className="h-4 w-4 text-amber-300" /> Learn 70% Words & Games
           </Link>
           <Link
             href="/surah/1"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
           >
-            <BookOpen className="h-4 w-4 text-emerald-400" /> Start Reading: Surah Al-Fatihah
+            <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Start Reading: Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
           >
-            <Compass className="h-4 w-4 text-emerald-400" /> Read Surah Al-Kahf
+            <Compass className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Read Surah Al-Kahf
           </Link>
           <Link
             href="/surah/36"
-            className="px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
           >
-            <Sparkles className="h-4 w-4 text-amber-400" /> Read Surah Ya-Sin
+            <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Read Surah Ya-Sin
           </Link>
         </div>
 
-        {/* Desktop Quick Specs */}
-        <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-center gap-6 text-[11px] text-[var(--muted-foreground)]">
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 114 Verified Chapters
+        {/* Quick Specs - 2-col on mobile, flex on desktop */}
+        <div className="mt-5 sm:mt-6 pt-4 border-t border-[var(--border-subtle)] grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2.5 sm:gap-6 text-[10px] sm:text-[11px] text-[var(--muted-foreground)] text-left sm:text-center">
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 flex-none" /> 114 Chapters
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> 30 Juzs (Parts)
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 flex-none" /> 30 Juzs (Parts)
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Authentic Word Roots & Morphology
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 flex-none" /> Word Roots &amp; Grammar
           </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle className="h-3.5 w-3.5 text-emerald-400" /> Sunnah 7-Day Minimum Pacing
+          <span className="flex items-center gap-1.5 font-medium">
+            <CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 flex-none" /> Sunnah Pacing
           </span>
         </div>
       </div>
@@ -95,41 +88,14 @@ export default async function HomePage({
         </div>
       ) : (
         <>
+          {/* Resume Reading Banner */}
+          <ResumeReadingCard />
+
           {/* Khatmah & Daily Goal Tracker */}
           <KhatmahWidget />
 
-          {/* Tabs: Surahs vs Juzs */}
-          <div className="flex items-center justify-center pt-2">
-            <div className="p-1 rounded-xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex gap-1 shadow-inner text-xs">
-              <Link
-                href="/?tab=surah"
-                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
-                  currentTab === "surah"
-                    ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                Surahs (114)
-              </Link>
-              <Link
-                href="/?tab=juz"
-                className={`px-5 py-1.5 rounded-lg font-semibold transition-all ${
-                  currentTab === "juz"
-                    ? "bg-emerald-600 text-white shadow"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                Juzs (30)
-              </Link>
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          {currentTab === "surah" ? (
-            <SurahList chapters={chapters} />
-          ) : (
-            <JuzList juzs={juzs} chapters={chapters} />
-          )}
+          {/* Directory Tabs (Surahs vs Juzs) */}
+          <QuranDirectoryTabs chapters={chapters} juzs={juzs} />
         </>
       )}
     </div>

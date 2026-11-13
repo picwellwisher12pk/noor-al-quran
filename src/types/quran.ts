@@ -27,6 +27,7 @@ export interface Word {
   verse_id: number;
   location: string;
   text_uthmani: string;
+  text_indopak?: string;
   page_number: number;
   line_number: number;
   text: string;
@@ -63,6 +64,7 @@ export interface Verse {
   manzil_number: number;
   sajdah_number: number | null;
   text_uthmani: string;
+  text_indopak?: string;
   chapter_id: number;
   page_number: number;
   juz_number: number;
@@ -117,9 +119,28 @@ export interface Bookmark {
   verse_number: number;
   chapter_name: string;
   text_uthmani: string;
+  text_indopak?: string;
   translation_text?: string;
   created_at: string;
   note?: string;
+}
+
+export type QuranNoteTargetType = "verse" | "word";
+
+export interface QuranNote {
+  id: string; // e.g. "note_v_1:2" or "note_w_1:2:3"
+  targetType: QuranNoteTargetType;
+  verseKey: string; // e.g. "1:2"
+  chapterId: number;
+  verseNumber: number;
+  chapterName?: string;
+  wordLocation?: string; // e.g. "1:2:3" (for word-level)
+  wordText?: string; // Arabic token text (for word-level)
+  text: string; // Note content (Markdown / Plain text)
+  color?: "emerald" | "amber" | "blue" | "rose" | "purple";
+  tags?: string[];
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
 }
 
 export interface KhatmahPlan {
@@ -137,7 +158,15 @@ export interface KhatmahPlan {
   isCompleted: boolean;
 }
 
-export type ArabicFontFamily = "amiri" | "noto-sans-arabic" | "scheherazade" | "nastaliq";
+export type ArabicFontFamily =
+  | "amiri"
+  | "amiri-quran"
+  | "noto-naskh-arabic"
+  | "scheherazade"
+  | "lateef"
+  | "noto-sans-arabic"
+  | "cairo"
+  | "nastaliq";
 export type UrduFontFamily = "nastaliq" | "noto-sans-arabic" | "scheherazade" | "amiri";
 
 export type ThemeStyle = "hadith" | "emerald" | "monochrome";
@@ -145,10 +174,17 @@ export type ThemeMode = "dark" | "light";
 
 export type WbwLanguage = "english" | "urdu" | "both";
 
+export type QuranScriptType = "uthmani" | "indopak";
+
+export type QuranStudyMode = "read" | "learn";
+
 export interface ReadingPreferences {
+  quranStudyMode?: QuranStudyMode;
+  quranScript?: QuranScriptType;
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26
+  tafsirFontSize?: number; // 14 to 32
   arabicFont: ArabicFontFamily;
   urduFont: UrduFontFamily;
   wbwLanguage: WbwLanguage;

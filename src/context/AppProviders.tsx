@@ -4,6 +4,7 @@ import React from "react";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { BookmarksProvider } from "@/context/BookmarksContext";
+import { NotesProvider } from "@/context/NotesContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { ReadingPreferencesProvider } from "@/context/ReadingPreferencesContext";
 import { KhatmahProvider } from "@/context/KhatmahContext";
@@ -25,19 +26,21 @@ export function AppProviders({ children }: AppProvidersProps) {
     <ThemeProvider>
       <LanguageProvider>
         <BookmarksProvider>
-          <AudioProvider>
-            <ReadingPreferencesProvider>
-              <KhatmahProvider>
-                <ReadingActivityProvider>
-                  <DesktopWorkspaceProvider>
-                    <GoogleAuthProvider>
-                      {children}
-                    </GoogleAuthProvider>
-                  </DesktopWorkspaceProvider>
-                </ReadingActivityProvider>
-              </KhatmahProvider>
-            </ReadingPreferencesProvider>
-          </AudioProvider>
+          <NotesProvider>
+            <AudioProvider>
+              <ReadingPreferencesProvider>
+                <KhatmahProvider>
+                  <ReadingActivityProvider>
+                    <DesktopWorkspaceProvider>
+                      <GoogleAuthProvider>
+                        {children}
+                      </GoogleAuthProvider>
+                    </DesktopWorkspaceProvider>
+                  </ReadingActivityProvider>
+                </KhatmahProvider>
+              </ReadingPreferencesProvider>
+            </AudioProvider>
+          </NotesProvider>
         </BookmarksProvider>
       </LanguageProvider>
     </ThemeProvider>

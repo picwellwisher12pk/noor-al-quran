@@ -1,14 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ReadingPreferences, ArabicFontFamily, UrduFontFamily } from "@/types/quran";
+import { ReadingPreferences, ArabicFontFamily, UrduFontFamily, QuranStudyMode, QuranScriptType } from "@/types/quran";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
+  setQuranStudyMode: (mode: QuranStudyMode) => void;
+  setQuranScript: (script: QuranScriptType) => void;
+  toggleQuranScript: () => void;
   setArabicFontSize: (size: number) => void;
   setEnglishFontSize: (size: number) => void;
   setUrduFontSize: (size: number) => void;
+  setTafsirFontSize: (size: number) => void;
   setArabicFont: (font: ArabicFontFamily) => void;
   setUrduFont: (font: UrduFontFamily) => void;
   toggleShowTranslation: () => void;
@@ -23,9 +27,12 @@ interface ReadingPreferencesContextType {
 }
 
 const DEFAULT_PREFERENCES: ReadingPreferences = {
+  quranStudyMode: "read",
+  quranScript: "uthmani",
   arabicFontSize: 32,
   englishFontSize: 16,
   urduFontSize: 20,
+  tafsirFontSize: 18,
   arabicFont: "amiri",
   urduFont: "nastaliq",
   wbwLanguage: "english",
@@ -67,7 +74,9 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         ...prev,
         showUrduTranslation: true,
         showTranslation: false,
+        showTransliteration: false,
         wbwLanguage: "urdu",
+        selectedTafsirId: [160, 159, 157, 818].includes(prev.selectedTafsirId) ? prev.selectedTafsirId : 160,
       }));
     } else if (language === "english") {
       setPrefs((prev) => ({
@@ -95,6 +104,21 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     }
   }, [prefs, mounted]);
 
+  const setQuranStudyMode = (mode: QuranStudyMode) => {
+    setPrefs((prev) => ({ ...prev, quranStudyMode: mode }));
+  };
+
+  const setQuranScript = (script: QuranScriptType) => {
+    setPrefs((prev) => ({ ...prev, quranScript: script }));
+  };
+
+  const toggleQuranScript = () => {
+    setPrefs((prev) => ({
+      ...prev,
+      quranScript: prev.quranScript === "indopak" ? "uthmani" : "indopak",
+    }));
+  };
+
   const setArabicFontSize = (size: number) => {
     setPrefs((prev) => ({ ...prev, arabicFontSize: Math.max(20, Math.min(56, size)) }));
   };
@@ -105,6 +129,10 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
 
   const setUrduFontSize = (size: number) => {
     setPrefs((prev) => ({ ...prev, urduFontSize: Math.max(14, Math.min(32, size)) }));
+  };
+
+  const setTafsirFontSize = (size: number) => {
+    setPrefs((prev) => ({ ...prev, tafsirFontSize: Math.max(13, Math.min(34, size)) }));
   };
 
   const setArabicFont = (font: ArabicFontFamily) => {
@@ -131,7 +159,15 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
   }, [prefs.urduFont]);
 
   const toggleShowTranslation = () => {
-    setPrefs((prev) => ({ ...prev, showTranslation: !prev.showTranslation }));
+    setPrefs((prev) => {
+      const nextShow = !prev.showTranslation;
+      return {
+        ...prev,
+        showTranslation: nextShow,
+        // When hiding English translation, also hide transliteration along with it
+        showTransliteration: nextShow ? prev.showTransliteration : false,
+      };
+    });
   };
 
   const toggleShowUrduTranslation = () => {
@@ -170,9 +206,13 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     <ReadingPreferencesContext.Provider
       value={{
         prefs,
+        setQuranStudyMode,
+        setQuranScript,
+        toggleQuranScript,
         setArabicFontSize,
         setEnglishFontSize,
         setUrduFontSize,
+        setTafsirFontSize,
         setArabicFont,
         setUrduFont,
         toggleShowTranslation,

@@ -6,6 +6,7 @@ import { useLearningStore } from "@/store/useLearningStore";
 import { useLanguage } from "@/context/LanguageContext";
 import { QURAN_70_VOCABULARY, QuranVocabWord } from "@/data/quranVocabularyData";
 import { saveGameScore } from "@/services/vocabularyStorage";
+import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 
 export interface BlitzWordPair {
   id: string;
@@ -74,31 +75,33 @@ export function VocabMatchBlitz({
 
   // Initialize and shuffle 4 Arabic and 4 Meaning cards based on langPreference
   useEffect(() => {
-    const arabicCards: BlitzCard[] = words.map((w) => ({
+    const arabicCards: BlitzCard[] = words.map((w: any) => ({
       cardId: `ar_${w.id}`,
       pairId: w.id,
       type: "arabic",
-      label: w.textArabic,
-      subLabel: w.transliteration,
-      audioUrl: w.audioUrl,
+      label: w.arabic || w.textArabic || w.textUthmani || "",
+      subLabel: w.transliteration || w.transliterationEn,
+      audioUrl: getWordAudioUrl(w) || w.audioUrl,
       isRtl: true,
     }));
 
-    const meaningCards: BlitzCard[] = words.map((w) => {
-      let label = w.translationEn;
+    const meaningCards: BlitzCard[] = words.map((w: any) => {
+      const en = w.english || w.translationEn || "";
+      const ur = w.urdu || w.translationUrdu || "";
+      let label = en;
       let subLabel: string | undefined = undefined;
       let isRtl = false;
 
       if (langPreference === "urdu") {
-        label = w.translationUrdu || w.translationEn;
-        isRtl = Boolean(w.translationUrdu);
+        label = ur || en;
+        isRtl = Boolean(ur);
       } else if (langPreference === "bilingual") {
-        if (w.translationUrdu) {
-          label = w.translationUrdu;
-          subLabel = w.translationEn;
+        if (ur) {
+          label = ur;
+          subLabel = en;
           isRtl = true;
         } else {
-          label = w.translationEn;
+          label = en;
         }
       }
 
@@ -167,14 +170,8 @@ export function VocabMatchBlitz({
     return () => clearInterval(timer);
   }, [isGameOver, matchedPairIds.length, handleEnd]);
 
-  const playSound = (url?: string) => {
-    if (!url) return;
-    try {
-      const audio = new Audio(url);
-      audio.play().catch(() => {});
-    } catch {
-      // Audio playback silently handled
-    }
+  const playSound = (url?: string, arabicText?: string) => {
+    playAudioSafely(url, arabicText);
   };
 
   const evaluatePair = (arabicPairId: string, meaningPairId: string) => {
@@ -205,7 +202,7 @@ export function VocabMatchBlitz({
     if (isGameOver || matchedPairIds.includes(card.pairId)) return;
 
     if (card.type === "arabic") {
-      playSound(card.audioUrl);
+      playSound(card.audioUrl, card.label);
 
       if (selectedArabicId === card.cardId) {
         setSelectedArabicId(null);

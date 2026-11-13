@@ -8,6 +8,7 @@ import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
+  Mic,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
@@ -27,9 +28,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isTauri as checkIsTauri, safeCloseWindow, safeMinimizeWindow, safeToggleMaximize } from "@/utils/platform";
 import { useLanguage } from "@/context/LanguageContext";
-import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { useGoogleAuth } from "@/context/GoogleAuthContext";
-import { AppMenuDrawer } from "./AppMenuDrawer";
 
 export function DesktopTitleBar() {
   const pathname = usePathname();
@@ -43,7 +42,9 @@ export function DesktopTitleBar() {
     isRightInspectorOpen,
     toggleRightInspector,
     setIsSearchOpen,
+    setIsVerseIdentifierOpen,
     setIsSettingsOpen,
+    openSettingsModal,
     chapters,
     activeChapterId,
     activeAyahNumber,
@@ -55,7 +56,6 @@ export function DesktopTitleBar() {
   const { isUrdu } = useLanguage();
   const { user, isSignedIn, isSyncing } = useGoogleAuth();
   const [isTauri, setIsTauri] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsTauri(checkIsTauri());
@@ -129,7 +129,7 @@ export function DesktopTitleBar() {
           <span className="font-arabic text-xs text-emerald-400 opacity-90" dir="rtl">
             {APP_CONFIG.nameArabic}
           </span>
-          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-950/70 text-emerald-400 border border-emerald-800/40">
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-800/40 font-semibold">
             v{APP_CONFIG.version}
           </span>
         </Link>
@@ -155,6 +155,17 @@ export function DesktopTitleBar() {
             Ctrl+K
           </kbd>
         </button>
+
+        {/* Recite to Identify Ayah Pill */}
+        <button
+          type="button"
+          onClick={() => setIsVerseIdentifierOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-all text-xs font-semibold cursor-pointer shadow-xs"
+          title="Recite to Identify Verse (Voice / Audio Search)"
+        >
+          <Mic className="h-3.5 w-3.5" />
+          <span className="hidden lg:inline">{isUrdu ? "تلاوت" : "Recite"}</span>
+        </button>
       </div>
 
       {/* Draggable spacer between center search and right tools */}
@@ -175,8 +186,20 @@ export function DesktopTitleBar() {
           </button>
         )}
 
-        {/* Global Language Toggle Pill */}
-        <LanguageToggle compact={true} />
+        {/* Desktop Theme Mode Toggle (Light / Dark) */}
+        <button
+          type="button"
+          onClick={toggleThemeMode}
+          className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
+          title={themeMode === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+          aria-label="Toggle dark / light theme"
+        >
+          {themeMode === "dark" ? (
+            <Sun className="h-3.5 w-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
+          ) : (
+            <Moon className="h-3.5 w-3.5 text-slate-700 hover:text-slate-900 transition-colors" />
+          )}
+        </button>
 
         {/* Right Inspector Toggle (Only visible on Quran reading pages) */}
         {isReadingPage && (
@@ -185,7 +208,7 @@ export function DesktopTitleBar() {
             onClick={toggleRightInspector}
             className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
               isRightInspectorOpen
-                ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30"
+                ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
             }`}
             title="Toggle Linguistic & Tafseer Inspector (Ctrl+\)"
@@ -197,7 +220,7 @@ export function DesktopTitleBar() {
         {/* Application Menu & User Profile Trigger */}
         <button
           type="button"
-          onClick={() => setIsMenuOpen(true)}
+          onClick={() => openSettingsModal(isSignedIn && user ? "account" : "navigation")}
           className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--foreground)] text-xs font-semibold transition-all shadow-sm cursor-pointer active:scale-98"
           title="Open Noor Al-Quran Hub & Menu (Backup, Themes, Navigation & Settings)"
         >
@@ -229,9 +252,6 @@ export function DesktopTitleBar() {
           )}
         </button>
       </div>
-
-      {/* Centralized Application Hub & Menu Drawer */}
-      <AppMenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
     </header>
   );
 }

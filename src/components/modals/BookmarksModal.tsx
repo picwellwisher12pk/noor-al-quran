@@ -128,7 +128,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
               </div>
 
               <p className="font-arabic text-lg text-right text-[var(--foreground)] leading-relaxed" dir="rtl">
-                {b.text_uthmani}
+                {b.text_indopak || b.text_uthmani}
               </p>
 
               {b.translation_text && (

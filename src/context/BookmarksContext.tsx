@@ -3,11 +3,13 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Bookmark } from "@/types/quran";
 
-interface LastRead {
+export interface LastRead {
   chapterId: number;
   chapterName: string;
+  chapterArabic?: string;
   verseNumber: number;
   verseKey: string;
+  juzNumber?: number;
   updatedAt: string;
 }
 
@@ -18,6 +20,7 @@ interface BookmarksContextType {
   removeBookmark: (verseKey: string) => void;
   isBookmarked: (verseKey: string) => boolean;
   setLastReadPosition: (pos: Omit<LastRead, "updatedAt">) => void;
+  clearLastRead: () => void;
   clearAllBookmarks: () => void;
 }
 
@@ -93,6 +96,15 @@ export function BookmarksProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const clearLastRead = useCallback(() => {
+    setLastRead(null);
+    try {
+      localStorage.removeItem("naq_last_read");
+    } catch (e) {
+      console.error("Failed to clear last read:", e);
+    }
+  }, []);
+
   const clearAllBookmarks = () => {
     setBookmarks([]);
   };
@@ -106,6 +118,7 @@ export function BookmarksProvider({ children }: { children: React.ReactNode }) {
         removeBookmark,
         isBookmarked,
         setLastReadPosition,
+        clearLastRead,
         clearAllBookmarks,
       }}
     >

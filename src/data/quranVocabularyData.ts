@@ -1,3 +1,5 @@
+import vocabAudioMap from "./quranVocabAudioMap.json";
+
 /**
  * Authentic 70% Quranic Vocabulary Dataset
  * 
@@ -58,6 +60,7 @@ export interface QuranVocabWord {
   grammarNotes?: string;
   sampleAyah: SampleAyah;
   audioVerseKey?: string;
+  audioUrl?: string;
 }
 
 export interface SemanticClusterInfo {
@@ -82,7 +85,7 @@ export const VOCAB_CATEGORIES: { id: QuranVocabCategory; labelEn: string; labelA
   { id: "time_space", labelEn: "Time, Place & Relational", labelAr: "الزمان والمكان والعلاقات", icon: "Compass" },
 ];
 
-export const QURAN_70_VOCABULARY: QuranVocabWord[] = [
+const rawVocabulary: QuranVocabWord[] = [
   // --- 1. DIVINE NAMES & THEOLOGY ---
   {
     id: "allah",
@@ -2411,6 +2414,13 @@ export const QURAN_70_VOCABULARY: QuranVocabWord[] = [
     audioVerseKey: "2:21",
   },
 ];
+
+const typedVocabAudioMap = vocabAudioMap as Record<string, string>;
+
+export const QURAN_70_VOCABULARY: QuranVocabWord[] = rawVocabulary.map((word) => ({
+  ...word,
+  audioUrl: typedVocabAudioMap[word.id] || word.audioUrl,
+}));
 
 /**
  * Meaning Clusters grouping similar words with same or closely related meanings
