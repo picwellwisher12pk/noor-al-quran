@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.34.5",
+  "version": "1.34.6",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",
@@ -19,7 +19,11 @@
     "tauri:ios:init": "tauri ios init",
     "tauri:ios:dev": "tauri ios dev",
     "seed:learning": "bun run scripts/seed-quran-learning.ts",
-    "test:engine": "bun run scripts/test-quiz-engine.ts"
+    "test:engine": "bun run scripts/test-quiz-engine.ts",
+    "release": "bun run scripts/release.ts",
+    "release:patch": "bun run scripts/release.ts patch",
+    "release:minor": "bun run scripts/release.ts minor",
+    "release:major": "bun run scripts/release.ts major"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",
