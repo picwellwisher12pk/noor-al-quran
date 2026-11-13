@@ -27,6 +27,7 @@ export interface Word {
   verse_id: number;
   location: string;
   text_uthmani: string;
+  text_indopak?: string;
   page_number: number;
   line_number: number;
   text: string;
@@ -63,6 +64,7 @@ export interface Verse {
   manzil_number: number;
   sajdah_number: number | null;
   text_uthmani: string;
+  text_indopak?: string;
   chapter_id: number;
   page_number: number;
   juz_number: number;
@@ -117,6 +119,7 @@ export interface Bookmark {
   verse_number: number;
   chapter_name: string;
   text_uthmani: string;
+  text_indopak?: string;
   translation_text?: string;
   created_at: string;
   note?: string;
@@ -171,10 +174,13 @@ export type ThemeMode = "dark" | "light";
 
 export type WbwLanguage = "english" | "urdu" | "both";
 
+export type QuranScriptType = "uthmani" | "indopak";
+
 export type QuranStudyMode = "read" | "learn";
 
 export interface ReadingPreferences {
   quranStudyMode?: QuranStudyMode;
+  quranScript?: QuranScriptType;
   arabicFontSize: number; // 24 to 48
   englishFontSize: number; // 14 to 22
   urduFontSize: number; // 16 to 26

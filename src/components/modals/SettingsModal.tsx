@@ -92,6 +92,7 @@ export function SettingsModal({
     setTafsirFontSize,
     setArabicFont,
     setUrduFont,
+    setQuranScript,
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
@@ -819,10 +820,60 @@ export function SettingsModal({
 
           {/* ================= TAB 4: FONTS & TYPOGRAPHY ================= */}
           {activeTab === "typography" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Quran Script Style (Uthmani vs Indo-Pak) */}
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-2">
-                  {isUrdu ? "قرآنی عربی رسم الخط" : "Quranic Arabic Script"}
+                  {isUrdu ? "قرآنی رسم الخط و مصحف کی روایت" : "Quranic Script Tradition (Mushaf Style)"}
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setQuranScript("uthmani")}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      prefs.quranScript !== "indopak"
+                        ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500"
+                        : "border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-emerald-500/40"
+                    }`}
+                  >
+                    <div className="text-[12px] font-bold text-[var(--foreground)] mb-1 flex items-center justify-between">
+                      <span>{isUrdu ? "عثمانی رسم الخط (مصحف مدینہ)" : "Madinah / Uthmani Script"}</span>
+                      {prefs.quranScript !== "indopak" && <Check className="h-4 w-4 text-emerald-500" />}
+                    </div>
+                    <div className="text-right text-lg text-[var(--foreground)] font-arabic-amiri py-1" dir="rtl">
+                      بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ
+                    </div>
+                    <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+                      {isUrdu ? "مصحف مدینہ منورہ اور شاہ فہد کمپلیکس کا مستند بین الاقوامی رسم الخط" : "Standard Ottoman orthography used by King Fahd Complex (Medina Mushaf)"}
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setQuranScript("indopak")}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                      prefs.quranScript === "indopak"
+                        ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500"
+                        : "border-[var(--border-subtle)] bg-[var(--surface-card)] hover:border-emerald-500/40"
+                    }`}
+                  >
+                    <div className="text-[12px] font-bold text-[var(--foreground)] mb-1 flex items-center justify-between">
+                      <span>{isUrdu ? "پاکستانی / انڈو-پاک رسم الخط (اسلام 360)" : "Pakistani / Indo-Pak Script (Islam 360)"}</span>
+                      {prefs.quranScript === "indopak" && <Check className="h-4 w-4 text-emerald-500" />}
+                    </div>
+                    <div className="text-right text-lg text-[var(--foreground)] font-arabic-nastaliq py-1" dir="rtl">
+                      بِسۡمِ اللهِ الرَّحۡمٰنِ الرَّحِيۡمِ
+                    </div>
+                    <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+                      {isUrdu ? "برصغیر پاک و ہند کے 13/15/16 سطری اور اسلام 360 ایپ کا روایتی و مانوس انداز" : "Traditional South Asian script with explicit phonetic diacritics and Jazm/Waqf markers"}
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-2">
+                  {isUrdu ? "عربی خطاطی فونٹ (فیملی)" : "Arabic Calligraphy Font Family"}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {fontOptions.map((f) => {

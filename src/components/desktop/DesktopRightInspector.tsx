@@ -265,7 +265,11 @@ export function DesktopRightInspector() {
             )}
           </div>
           <div className="font-arabic text-3xl font-bold text-emerald-700 dark:text-emerald-300 py-0.5 leading-relaxed" dir="rtl">
-            {selectedWord?.text_uthmani || selectedWord?.text || selectedAyahArabic || "ٱلْقُرْءَان"}
+            {selectedWord ? (
+              (prefs.quranScript === "indopak" && selectedWord.text_indopak)
+                ? selectedWord.text_indopak
+                : (selectedWord.text_uthmani || selectedWord.text)
+            ) : selectedAyahArabic || "ٱلْقُرْءَان"}
           </div>
           {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
             <div className="text-[11px] text-[var(--muted-foreground)] font-medium mt-0.5">

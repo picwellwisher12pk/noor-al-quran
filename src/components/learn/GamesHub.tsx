@@ -62,11 +62,11 @@ export function GamesHub({
       </div>
 
       {/* 5 Clean Game Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {/* Game 1: Meaning Quiz */}
         <Link
           href="/learn/arcade/meaning-quiz"
-          className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
+          className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden active:scale-[0.99]"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -100,7 +100,7 @@ export function GamesHub({
         {/* Game 2: Grammar Classifier */}
         <Link
           href="/learn/arcade/grammar-classifier"
-          className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-teal-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
+          className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-teal-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden active:scale-[0.99]"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ export function GamesHub({
         {/* Game 3: Root & Word Families */}
         <Link
           href="/learn/arcade/word-families"
-          className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-amber-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
+          className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-amber-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden active:scale-[0.99]"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -168,7 +168,7 @@ export function GamesHub({
         {/* Game 4: Ayah Verse Completion */}
         <Link
           href="/learn/arcade/ayah-fill"
-          className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-cyan-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden"
+          className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-cyan-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden active:scale-[0.99]"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -202,7 +202,7 @@ export function GamesHub({
         {/* Game 5: Speed Match Blitz */}
         <Link
           href="/learn/arcade/match-blitz"
-          className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-rose-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden md:col-span-2"
+          className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-rose-500/50 hover:bg-[var(--surface-card)] transition-all cursor-pointer flex flex-col justify-between shadow-sm hover:shadow-md group relative overflow-hidden md:col-span-2 active:scale-[0.99]"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">

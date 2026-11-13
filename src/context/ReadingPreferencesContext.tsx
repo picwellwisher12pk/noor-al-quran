@@ -1,12 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ReadingPreferences, ArabicFontFamily, UrduFontFamily, QuranStudyMode } from "@/types/quran";
+import { ReadingPreferences, ArabicFontFamily, UrduFontFamily, QuranStudyMode, QuranScriptType } from "@/types/quran";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface ReadingPreferencesContextType {
   prefs: ReadingPreferences;
   setQuranStudyMode: (mode: QuranStudyMode) => void;
+  setQuranScript: (script: QuranScriptType) => void;
+  toggleQuranScript: () => void;
   setArabicFontSize: (size: number) => void;
   setEnglishFontSize: (size: number) => void;
   setUrduFontSize: (size: number) => void;
@@ -26,6 +28,7 @@ interface ReadingPreferencesContextType {
 
 const DEFAULT_PREFERENCES: ReadingPreferences = {
   quranStudyMode: "read",
+  quranScript: "uthmani",
   arabicFontSize: 32,
   englishFontSize: 16,
   urduFontSize: 20,
@@ -103,6 +106,17 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
 
   const setQuranStudyMode = (mode: QuranStudyMode) => {
     setPrefs((prev) => ({ ...prev, quranStudyMode: mode }));
+  };
+
+  const setQuranScript = (script: QuranScriptType) => {
+    setPrefs((prev) => ({ ...prev, quranScript: script }));
+  };
+
+  const toggleQuranScript = () => {
+    setPrefs((prev) => ({
+      ...prev,
+      quranScript: prev.quranScript === "indopak" ? "uthmani" : "indopak",
+    }));
   };
 
   const setArabicFontSize = (size: number) => {
@@ -193,6 +207,8 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
       value={{
         prefs,
         setQuranStudyMode,
+        setQuranScript,
+        toggleQuranScript,
         setArabicFontSize,
         setEnglishFontSize,
         setUrduFontSize,

@@ -18,6 +18,8 @@ import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotes } from "@/context/NotesContext";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
+import { getWordComprehensiveMeanings, WordMeaningDetails } from "@/services/quranLexiconService";
+import { useLearningStore } from "@/store/useLearningStore";
 import {
   X,
   Sparkles,
@@ -29,6 +31,7 @@ import {
   CheckCircle2,
   StickyNote,
   Plus,
+  GraduationCap,
 } from "lucide-react";
 
 export function MobileInspectorSheet() {
@@ -57,12 +60,19 @@ export function MobileInspectorSheet() {
   const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
   const [noteModalEditingId, setNoteModalEditingId] = useState<string | null>(null);
 
+  // Comprehensive meanings
+  const [comprehensiveMeanings, setComprehensiveMeanings] = useState<WordMeaningDetails | null>(null);
+
   // Loading states
   const [loadingMorph, setLoadingMorph] = useState(false);
   const [loadingLangs, setLoadingLangs] = useState(false);
   const [loadingTafsir, setLoadingTafsir] = useState(false);
   const [loadingScholars, setLoadingScholars] = useState(false);
   const [copiedRoot, setCopiedRoot] = useState(false);
+  const [flashcardAdded, setFlashcardAdded] = useState(false);
+
+  // Learning store
+  const { markWordForReview } = useLearningStore();
 
   // Fetch word-level details
   useEffect(() => {
@@ -78,6 +88,7 @@ export function MobileInspectorSheet() {
     setLoadingLangs(true);
     setMorphology(null);
     setRootInfo(null);
+    setComprehensiveMeanings(null);
 
     // Multilingual translations
     getWordMultilingualTranslations(
@@ -94,6 +105,19 @@ export function MobileInspectorSheet() {
     getWordMorphology(selectedWord.location)
       .then((morph) => {
         setMorphology(morph);
+        // Fetch comprehensive meanings once we have morphology (root + lemma)
+        const arabic = selectedWord.text_uthmani || selectedWord.text;
+        const root = morph?.root;
+        const lemma = morph?.segments?.[0]?.lemma;
+        const meanings = getWordComprehensiveMeanings(
+          arabic,
+          root,
+          lemma,
+          selectedWord.translation?.text,
+          selectedWord.translation_urdu?.text
+        );
+        setComprehensiveMeanings(meanings);
+
         if (morph?.root) {
           getRootByName(morph.root).then((info) => {
             if (info) setRootInfo(info);
@@ -164,8 +188,8 @@ export function MobileInspectorSheet() {
       {/* Sheet Content */}
       <div className="relative w-full max-h-[85vh] h-[85vh] bg-[var(--modal-bg)] rounded-t-3xl border-t border-[var(--card-border)] shadow-2xl flex flex-col overflow-hidden z-10 transition-transform pb-[env(safe-area-inset-bottom,0px)]">
         {/* Drag Handle */}
-        <div className="pt-3 pb-1 flex items-center justify-center">
-          <div className="h-1.5 w-12 rounded-full bg-[var(--border-subtle)]" />
+        <div className="pt-2 pb-0 flex items-center justify-center">
+          <div className="h-1.5 w-14 rounded-full bg-[var(--muted-foreground)]/30" />
         </div>
 
         {/* Sheet Header */}
@@ -194,7 +218,7 @@ export function MobileInspectorSheet() {
             {selectedWord ? (
               <div>
                 <span className="font-arabic text-2xl text-[var(--foreground)] font-bold block" dir="rtl">
-                  {selectedWord.text_uthmani || selectedWord.text}
+                  {(prefs.quranScript === "indopak" && selectedWord.text_indopak) ? selectedWord.text_indopak : (selectedWord.text_uthmani || selectedWord.text)}
                 </span>
                 <span className="text-xs text-[var(--muted-foreground)] line-clamp-1">
                   {selectedWord.translation_urdu?.text || ""}
@@ -244,61 +268,66 @@ export function MobileInspectorSheet() {
           ) : null}
         </div>
 
-        {/* Tabs */}
-        <div className="grid grid-cols-5 p-1 mx-2.5 mt-2 bg-[var(--surface-card)] rounded-2xl border border-[var(--border-subtle)] text-[11px]">
+        {/* Tabs — horizontally scrollable icon+label chips */}
+        <div className="flex overflow-x-auto gap-1 px-2.5 mt-2 pb-1 scrollbar-none">
           <button
             type="button"
             onClick={() => setActiveInspectorTab("morphology")}
-            className={`py-1.5 rounded-xl font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-[11px] whitespace-nowrap flex-none transition-all ${
               activeInspectorTab === "morphology"
                 ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                : "bg-[var(--surface-card)] text-[var(--muted-foreground)]"
             }`}
           >
+            <Sparkles className="h-3.5 w-3.5" />
             Grammar
           </button>
           <button
             type="button"
             onClick={() => setActiveInspectorTab("translations")}
-            className={`py-1.5 rounded-xl font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-[11px] whitespace-nowrap flex-none transition-all ${
               activeInspectorTab === "translations"
                 ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                : "bg-[var(--surface-card)] text-[var(--muted-foreground)]"
             }`}
           >
+            <Languages className="h-3.5 w-3.5" />
             Meanings
           </button>
           <button
             type="button"
             onClick={() => setActiveInspectorTab("tafseer")}
-            className={`py-1.5 rounded-xl font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-[11px] whitespace-nowrap flex-none transition-all ${
               activeInspectorTab === "tafseer"
                 ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                : "bg-[var(--surface-card)] text-[var(--muted-foreground)]"
             }`}
           >
+            <ScrollText className="h-3.5 w-3.5" />
             Tafseer
           </button>
           <button
             type="button"
             onClick={() => setActiveInspectorTab("scholars")}
-            className={`py-1.5 rounded-xl font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-[11px] whitespace-nowrap flex-none transition-all ${
               activeInspectorTab === "scholars"
                 ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                : "bg-[var(--surface-card)] text-[var(--muted-foreground)]"
             }`}
           >
+            <BookOpen className="h-3.5 w-3.5" />
             Scholars
           </button>
           <button
             type="button"
             onClick={() => setActiveInspectorTab("notes")}
-            className={`py-1.5 rounded-xl font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold text-[11px] whitespace-nowrap flex-none transition-all ${
               activeInspectorTab === "notes"
                 ? "bg-emerald-600 text-white shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                : "bg-[var(--surface-card)] text-[var(--muted-foreground)]"
             }`}
           >
+            <StickyNote className="h-3.5 w-3.5" />
             Notes
           </button>
         </div>

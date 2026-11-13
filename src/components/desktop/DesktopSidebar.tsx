@@ -474,9 +474,9 @@ export function DesktopSidebar() {
                           Remove
                         </button>
                       </div>
-                      {bm.text_uthmani && (
+                      {(bm.text_indopak || bm.text_uthmani) && (
                         <div className="font-arabic text-sm text-[var(--foreground)] truncate" dir="rtl">
-                          {bm.text_uthmani}
+                          {bm.text_indopak || bm.text_uthmani}
                         </div>
                       )}
                     </div>

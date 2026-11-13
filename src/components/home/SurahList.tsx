@@ -87,14 +87,14 @@ export function SurahList({ chapters }: SurahListProps) {
                   type="button"
                   onClick={() => playVerse(chapter.id, `${chapter.id}:1`)}
                   title={`Listen to ${chapter.name_simple}`}
-                  className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-950/40 transition-colors"
+                  className="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-950/40 transition-colors active:scale-95"
                 >
                   <Volume2 className="h-4 w-4" />
                 </button>
 
                 <Link
                   href={`/surah/${chapter.id}`}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-semibold transition-all flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-semibold transition-all flex items-center gap-1 active:scale-95"
                 >
                   <BookOpen className="h-3 w-3" /> {isUrdu ? "تلاوت کریں" : "Read"}
                 </Link>

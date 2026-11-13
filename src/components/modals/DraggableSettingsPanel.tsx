@@ -46,6 +46,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
     setUrduFontSize,
     setArabicFont,
     setUrduFont,
+    setQuranScript,
     setWbwLanguage,
     toggleShowTranslation,
     toggleShowUrduTranslation,
@@ -256,6 +257,43 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     {t.name}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Quran Script Tradition Toggle */}
+            <div>
+              <span className="block mb-1.5 font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                {isUrdu ? "قرآنی رسم الخط (مصحف)" : "Quranic Script (Mushaf)"}
+              </span>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setQuranScript("uthmani")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
+                    prefs.quranScript !== "indopak"
+                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
+                  }`}
+                >
+                  <div className="font-bold">{isUrdu ? "عثمانی" : "Uthmani"}</div>
+                  <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                    {isUrdu ? "مصحف مدینہ" : "Medina Mushaf"}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuranScript("indopak")}
+                  className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
+                    prefs.quranScript === "indopak"
+                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
+                  }`}
+                >
+                  <div className="font-bold">{isUrdu ? "پاکستانی" : "Indo-Pak"}</div>
+                  <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                    {isUrdu ? "اسلام 360" : "Pakistani / Islam 360"}
+                  </div>
+                </button>
               </div>
             </div>
 

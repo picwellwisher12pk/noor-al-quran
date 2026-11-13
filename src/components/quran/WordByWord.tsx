@@ -59,6 +59,8 @@ export function WordByWord({
           const isSelectedInInspector = currentSelectedWord?.id === word.id;
           const wordNotes = getNotesForWord(word.location);
           const hasNote = wordNotes.length > 0;
+          const isIndoPak = prefs.quranScript === "indopak";
+          const displayArabicWord = (isIndoPak && word.text_indopak) ? word.text_indopak : (word.text_uthmani || word.text);
 
           return (
             <div
@@ -88,7 +90,7 @@ export function WordByWord({
                 className={`${arabicFontClass} text-[var(--foreground)] group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-tight`}
                 style={{ fontSize: `${arabicFontSize}px` }}
               >
-                {word.text_uthmani || word.text}
+                {displayArabicWord}
               </span>
 
               {/* Transliteration (Hidden when English Translation is disabled) */}

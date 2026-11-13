@@ -162,103 +162,108 @@ export function ReadingCalendarHeatmap({
         </div>
       </div>
 
-      {/* Weekday Labels (Guaranteed 7-column grid via inline style) */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "0.5rem" }}
-        className="mb-2 text-center"
-      >
-        {weekdays.map((day, idx) => (
+      {/* Calendar Grid Container (Horizontal scroll on narrow mobile screens) */}
+      <div className="overflow-x-auto pb-2 -mx-1 px-1 scrollbar-none">
+        <div className="min-w-[320px]">
+          {/* Weekday Labels (Guaranteed 7-column grid via inline style) */}
           <div
-            key={day}
-            className={`text-xs font-bold py-1.5 uppercase tracking-wider ${
-              idx === 5 ? "text-amber-400" : "text-[var(--muted-foreground)]"
-            }`}
+            style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "0.5rem" }}
+            className="mb-2 text-center"
           >
-            {day}
+            {weekdays.map((day, idx) => (
+              <div
+                key={day}
+                className={`text-xs font-bold py-1.5 uppercase tracking-wider ${
+                  idx === 5 ? "text-amber-400" : "text-[var(--muted-foreground)]"
+                }`}
+              >
+                {day}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* Calendar Day Grid (Guaranteed 7-column grid via inline style) */}
-      <div
-        style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "0.5rem" }}
-      >
-        {/* Leading empty cells for month offset */}
-        {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+          {/* Calendar Day Grid (Guaranteed 7-column grid via inline style) */}
           <div
-            key={`empty-${i}`}
-            className="h-16 sm:h-20 rounded-2xl bg-[var(--surface-card)]/40 border border-transparent opacity-20 pointer-events-none"
-          />
-        ))}
+            style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "0.5rem" }}
+          >
+            {/* Leading empty cells for month offset */}
+            {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+              <div
+                key={`empty-${i}`}
+                className="h-16 sm:h-20 rounded-2xl bg-[var(--surface-card)]/40 border border-transparent opacity-20 pointer-events-none"
+              />
+            ))}
 
-        {/* Month Day Cells */}
-        {Array.from({ length: totalDaysInMonth }).map((_, i) => {
-          const dayNumber = i + 1;
-          const dateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
-          const isToday = dateStr === todayStr;
-          const rec = records[dateStr];
-          const ayahs = rec?.ayahsRead || 0;
-          const words = rec?.wordsStudied || 0;
-          const intensity = getCellIntensity(ayahs, words);
+            {/* Month Day Cells */}
+            {Array.from({ length: totalDaysInMonth }).map((_, i) => {
+              const dayNumber = i + 1;
+              const dateStr = `${currentYear}-${String(currentMonth).padStart(2, "0")}-${String(dayNumber).padStart(2, "0")}`;
+              const isToday = dateStr === todayStr;
+              const rec = records[dateStr];
+              const ayahs = rec?.ayahsRead || 0;
+              const words = rec?.wordsStudied || 0;
+              const intensity = getCellIntensity(ayahs, words);
 
-          // Emerald gradient intensity tiers matching Noor Al-Quran theme
-          let cellStyle = "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:border-emerald-500/40";
-          if (intensity === 1) {
-            cellStyle = "bg-emerald-950/40 border-emerald-800/40 text-emerald-300 hover:border-emerald-500/50";
-          } else if (intensity === 2) {
-            cellStyle = "bg-emerald-900/45 border-emerald-700/50 text-emerald-200 hover:border-emerald-400/60";
-          } else if (intensity === 3) {
-            cellStyle = "bg-emerald-800/55 border-emerald-600/60 text-white font-semibold hover:border-emerald-300";
-          } else if (intensity === 4) {
-            cellStyle = "bg-gradient-to-br from-emerald-600 to-teal-600 border-emerald-400 text-white font-bold shadow-md shadow-emerald-950/50 hover:opacity-95";
-          }
+              // Emerald gradient intensity tiers matching Noor Al-Quran theme
+              let cellStyle = "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:border-emerald-500/40";
+              if (intensity === 1) {
+                cellStyle = "bg-emerald-950/40 border-emerald-800/40 text-emerald-300 hover:border-emerald-500/50";
+              } else if (intensity === 2) {
+                cellStyle = "bg-emerald-900/45 border-emerald-700/50 text-emerald-200 hover:border-emerald-400/60";
+              } else if (intensity === 3) {
+                cellStyle = "bg-emerald-800/55 border-emerald-600/60 text-white font-semibold hover:border-emerald-300";
+              } else if (intensity === 4) {
+                cellStyle = "bg-gradient-to-br from-emerald-600 to-teal-600 border-emerald-400 text-white font-bold shadow-md shadow-emerald-950/50 hover:opacity-95";
+              }
 
-          return (
-            <button
-              key={dateStr}
-              type="button"
-              onClick={() => onSelectDate(dateStr)}
-              className={`group relative h-16 sm:h-20 rounded-2xl p-2 flex flex-col justify-between transition-all duration-150 border text-left cursor-pointer ${cellStyle} ${
-                isToday ? "ring-2 ring-amber-400/80 ring-offset-2 ring-offset-[var(--surface-raised)]" : ""
-              }`}
-            >
-              {/* Day Number and Today Marker */}
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-xs sm:text-sm font-semibold ${isToday ? "text-amber-400 font-bold" : "text-[var(--foreground)]"}`}>
-                  {dayNumber}
-                </span>
-                {intensity > 0 && (
-                  <Flame className={`h-3 w-3 ${intensity === 4 ? "text-amber-300 fill-amber-300" : "text-amber-400 fill-amber-400"}`} />
-                )}
-              </div>
+              return (
+                <button
+                  key={dateStr}
+                  type="button"
+                  onClick={() => onSelectDate(dateStr)}
+                  className={`group relative h-16 sm:h-20 rounded-2xl p-2 flex flex-col justify-between transition-all duration-150 border text-left cursor-pointer active:scale-95 ${cellStyle} ${
+                    isToday ? "ring-2 ring-amber-400/80 ring-offset-2 ring-offset-[var(--surface-raised)]" : ""
+                  }`}
+                >
+                  {/* Day Number and Today Marker */}
+                  <div className="flex items-center justify-between w-full">
+                    <span className={`text-xs sm:text-sm font-semibold ${isToday ? "text-amber-400 font-bold" : "text-[var(--foreground)]"}`}>
+                      {dayNumber}
+                    </span>
+                    {intensity > 0 && (
+                      <Flame className={`h-3 w-3 ${intensity === 4 ? "text-amber-300 fill-amber-300" : "text-amber-400 fill-amber-400"}`} />
+                    )}
+                  </div>
 
-              {/* Reading Volume Pill / Badge */}
-              <div className="mt-auto">
-                {ayahs > 0 ? (
-                  <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
-                    intensity === 4
-                      ? "bg-black/30 text-emerald-100"
-                      : "bg-[var(--surface-raised)] text-emerald-400 border border-[var(--border-subtle)]"
-                  }`}>
-                    {ayahs} {ayahs === 1 ? "v" : "vs"}
-                  </span>
-                ) : words > 0 ? (
-                  <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
-                    intensity === 4
-                      ? "bg-black/30 text-amber-200"
-                      : "bg-[var(--surface-raised)] text-amber-300 border border-[var(--border-subtle)]"
-                  }`}>
-                    {words}w
-                  </span>
-                ) : isToday ? (
-                  <span className="text-[10px] font-semibold text-amber-400 hidden sm:inline-block">
-                    Today
-                  </span>
-                ) : null}
-              </div>
-            </button>
-          );
-        })}
+                  {/* Reading Volume Pill / Badge */}
+                  <div className="mt-auto">
+                    {ayahs > 0 ? (
+                      <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
+                        intensity === 4
+                          ? "bg-black/30 text-emerald-100"
+                          : "bg-[var(--surface-raised)] text-emerald-400 border border-[var(--border-subtle)]"
+                      }`}>
+                        {ayahs} {ayahs === 1 ? "v" : "vs"}
+                      </span>
+                    ) : words > 0 ? (
+                      <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
+                        intensity === 4
+                          ? "bg-black/30 text-amber-200"
+                          : "bg-[var(--surface-raised)] text-amber-300 border border-[var(--border-subtle)]"
+                      }`}>
+                        {words}w
+                      </span>
+                    ) : isToday ? (
+                      <span className="text-[10px] font-semibold text-amber-400 hidden sm:inline-block">
+                        Today
+                      </span>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Intensity Legend */}

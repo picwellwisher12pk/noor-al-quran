@@ -69,8 +69,11 @@ export function VerseItem({
   const currentAyahAbsIndex = getAbsoluteVerseIndex(verse.chapter_id, verse.verse_number);
   const isReadInKhatmah = plan ? currentAyahAbsIndex <= plan.completedAyahsCount : false;
 
+  const isIndoPak = prefs.quranScript === "indopak";
+  const activeArabicText = (isIndoPak && verse.text_indopak) ? verse.text_indopak : verse.text_uthmani;
+
   // Font class mapping
-  const arabicFontClass = {
+  const baseArabicFontClass = {
     amiri: "font-arabic-amiri",
     "amiri-quran": "font-arabic-amiri-quran",
     "noto-naskh-arabic": "font-arabic-noto-naskh",
@@ -80,6 +83,10 @@ export function VerseItem({
     cairo: "font-arabic-cairo",
     nastaliq: "font-arabic-nastaliq",
   }[prefs.arabicFont] || "font-arabic-amiri";
+
+  const arabicFontClass = isIndoPak && prefs.arabicFont === "amiri"
+    ? "font-arabic-nastaliq"
+    : baseArabicFontClass;
 
   const urduFontClass = {
     nastaliq: "font-urdu-nastaliq",
@@ -179,7 +186,8 @@ export function VerseItem({
         chapter_id: verse.chapter_id,
         verse_number: verse.verse_number,
         chapter_name: chapterName,
-        text_uthmani: verse.text_uthmani,
+        text_uthmani: activeArabicText,
+        text_indopak: verse.text_indopak,
         translation_text: englishTranslation?.text || urduTranslation?.text,
       });
     }
@@ -187,7 +195,7 @@ export function VerseItem({
 
   const handleCopy = () => {
     const textToCopy = [
-      verse.text_uthmani,
+      activeArabicText,
       urduTranslation ? `Urdu: ${urduTranslation.text.replace(/<[^>]+>/g, "")}` : "",
       englishTranslation ? `English: ${englishTranslation.text.replace(/<[^>]+>/g, "")}` : "",
       `[Surah ${chapterName} ${verse.verse_key}]`,
@@ -203,7 +211,7 @@ export function VerseItem({
   const handleShare = async () => {
     const shareData = {
       title: `Surah ${chapterName} - Ayah ${verse.verse_key}`,
-      text: `${verse.text_uthmani}\n\n${englishTranslation?.text || ""}\n[Surah ${chapterName} ${verse.verse_key}]`,
+      text: `${activeArabicText}\n\n${englishTranslation?.text || ""}\n[Surah ${chapterName} ${verse.verse_key}]`,
       url: typeof window !== "undefined" ? window.location.href : "",
     };
 
@@ -236,7 +244,7 @@ export function VerseItem({
     if (target.closest("button, a, input, [role='button']")) {
       return;
     }
-    openAyahInInspector(verse.verse_key, verse.text_uthmani);
+    openAyahInInspector(verse.verse_key, activeArabicText);
   };
 
   return (
@@ -346,7 +354,7 @@ export function VerseItem({
           <button
             type="button"
             onClick={() => {
-              openNotesInInspector(verse.verse_key, verse.text_uthmani);
+              openNotesInInspector(verse.verse_key, activeArabicText);
             }}
             aria-label={verseNotes.length > 0 ? "View or edit personal notes" : "Add personal note"}
             className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer relative ${
@@ -402,7 +410,7 @@ export function VerseItem({
           {/* Tafsir Dedicated Button (Opens Modal Directly) */}
           <button
             type="button"
-            onClick={() => onOpenTafsir(verse.verse_key, verse.text_uthmani)}
+            onClick={() => onOpenTafsir(verse.verse_key, activeArabicText)}
             title="Read Commentary (تفسیر / Tafseer)"
             className="px-2.5 py-1 sm:py-0.5 rounded-lg text-emerald-800 dark:text-emerald-200 bg-emerald-500/15 dark:bg-emerald-950/60 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white border border-emerald-500/30 dark:border-emerald-700/50 transition-all flex items-center gap-1.5 text-[11px] font-semibold shadow-xs cursor-pointer"
           >
@@ -448,7 +456,7 @@ export function VerseItem({
             } select-text`}
             style={{ fontSize: `${activeArabicFontSize}px` }}
           >
-            {verse.text_uthmani}
+            {activeArabicText}
             <span className="inline-flex items-center justify-center text-emerald-500 font-arabic text-lg px-2 select-none">
               ۝
             </span>

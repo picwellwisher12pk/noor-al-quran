@@ -44,6 +44,7 @@ export function DesktopToolbar({
     prefs,
     setArabicFontSize,
     setQuranStudyMode,
+    setQuranScript,
   } = useReadingPreferences();
 
   const studyMode = prefs.quranStudyMode || "read";
@@ -171,6 +172,46 @@ export function DesktopToolbar({
           >
             <GraduationCap className="h-3 w-3" />
             <span>{isUrdu ? "تعلیم" : "Learn"}</span>
+          </button>
+        </div>
+
+        {/* Quran Script Toggle: Uthmani vs Indo-Pak */}
+        <div
+          className="flex items-center rounded-lg bg-[var(--surface-card)] p-0.5 border border-[var(--border-subtle)] text-[11px]"
+          role="group"
+          aria-label="Quran Script Style"
+        >
+          <button
+            type="button"
+            onClick={() => setQuranScript("uthmani")}
+            className={`px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold transition-all cursor-pointer ${
+              prefs.quranScript !== "indopak"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+            title={
+              isUrdu
+                ? "عثمانی رسم الخط (مصحف مدینہ)"
+                : "Uthmani Script (Medina Mushaf)"
+            }
+          >
+            <span>{isUrdu ? "عثمانی" : "Uthmani"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuranScript("indopak")}
+            className={`px-2 py-0.5 rounded-md flex items-center gap-1 font-semibold transition-all cursor-pointer ${
+              prefs.quranScript === "indopak"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+            title={
+              isUrdu
+                ? "پاکستانی / انڈو-پاک رسم الخط (اسلام 360 / برصغیر)"
+                : "Indo-Pak Script (Pakistani Mushaf / Islam 360)"
+            }
+          >
+            <span>{isUrdu ? "پاکستانی (انڈو-پاک)" : "Indo-Pak"}</span>
           </button>
         </div>
 

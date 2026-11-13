@@ -13,6 +13,8 @@ import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
+import { MobileReaderBar } from "@/components/mobile/MobileReaderBar";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useSearchParams } from "next/navigation";
 import { Loader2, ArrowUp, History, X } from "lucide-react";
 
@@ -46,6 +48,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     currentPageRef.current = currentPage;
   }, [currentPage]);
 
+  const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const targetAyah = searchParams.get("ayah");
   const { lastRead } = useBookmarks();
@@ -271,15 +274,26 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
 
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
-      {/* Desktop Sticky Workspace Toolbar */}
-      <DesktopToolbar
-        chapterId={chapter.id}
-        chapterName={chapter.name_simple}
-        chapterArabic={chapter.name_arabic}
-        totalAyahs={chapter.verses_count}
-        verses={verses}
-        onJumpToAyah={jumpToAyah}
-      />
+      {/* Sticky Workspace Toolbar — Desktop or Mobile */}
+      {isMobile ? (
+        <MobileReaderBar
+          chapterId={chapter.id}
+          chapterName={chapter.name_simple}
+          chapterArabic={chapter.name_arabic}
+          totalAyahs={chapter.verses_count}
+          verses={verses}
+          onJumpToAyah={jumpToAyah}
+        />
+      ) : (
+        <DesktopToolbar
+          chapterId={chapter.id}
+          chapterName={chapter.name_simple}
+          chapterArabic={chapter.name_arabic}
+          totalAyahs={chapter.verses_count}
+          verses={verses}
+          onJumpToAyah={jumpToAyah}
+        />
+      )}
 
       {/* Reading Canvas Container */}
       <div
