@@ -50,29 +50,29 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android NDK & Build Tools
+      - name: Setup Android SDK & NDK
         run: |
-          yes | sdkmanager --install \
-            "ndk;26.1.10909125" \
-            "build-tools;34.0.0" \
-            "platforms;android-34" \
-            "platform-tools"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
           
-          # Find NDK path
-          NDK_PATH="$ANDROID_HOME/ndk/26.1.10909125"
-          echo "NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
-          echo "ANDROID_NDK_HOME=$NDK_PATH" >> $GITHUB_ENV
+          # Accept licenses
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+          # Find available or install NDK 26
+          NDK_DIR=$(find $ANDROID_HOME/ndk -maxdepth 1 -mindepth 1 -type d | head -n 1)
+          if [ -z "$NDK_DIR" ]; then
+            echo "[CI] Installing NDK 26.1.10909125 and build-tools 34..."
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125" "build-tools;34.0.0" "platforms;android-34"
+            NDK_DIR="$ANDROID_HOME/ndk/26.1.10909125"
+          fi
+          
+          echo "[CI] Using NDK at: $NDK_DIR"
+          echo "NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
 
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
-
-      - name: Install Rust Cargo-NDK
-        run: cargo install cargo-ndk
 
       - name: Install Dependencies
         run: bun install
@@ -91,7 +91,6 @@ jobs:
           MANIFEST_FILE="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST_FILE" ]; then
             echo "[CI] Ensuring Android permissions in $MANIFEST_FILE..."
-            # Check and inject RECORD_AUDIO if missing
             if ! grep -q "android.permission.RECORD_AUDIO" "$MANIFEST_FILE"; then
               sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST_FILE"
               echo "[CI] Injected RECORD_AUDIO and INTERNET permissions."
@@ -103,8 +102,7 @@ jobs:
           NDK_HOME: ${{ env.NDK_HOME }}
         run: |
           echo "[CI] Building Android APK with version v${{ env.APP_VERSION }}..."
-          # Build target APKs (aarch64 is standard for 99% of modern phones)
-          bun run tauri android build --apk --ci --target aarch64,armv7,x86_64 || bun run tauri android build --apk --ci --target aarch64
+          bun run tauri android build --apk --ci --target aarch64 || bun run tauri android build --apk --ci
 
       - name: Organize & Rename Generated APKs
         run: |
@@ -112,7 +110,6 @@ jobs:
           echo "[CI] Searching for generated APK files..."
           find src-tauri/gen/android -name "*.apk" -type f
           
-          # Copy and rename APKs with version string
           for apk in $(find src-tauri/gen/android -name "*.apk" -type f); do
             filename=$(basename "$apk")
             dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-${filename}"
