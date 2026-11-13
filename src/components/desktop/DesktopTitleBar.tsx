@@ -8,6 +8,7 @@ import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
+  Mic,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
@@ -41,6 +42,7 @@ export function DesktopTitleBar() {
     isRightInspectorOpen,
     toggleRightInspector,
     setIsSearchOpen,
+    setIsVerseIdentifierOpen,
     setIsSettingsOpen,
     openSettingsModal,
     chapters,
@@ -152,6 +154,17 @@ export function DesktopTitleBar() {
           <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--muted-foreground)]">
             Ctrl+K
           </kbd>
+        </button>
+
+        {/* Recite to Identify Ayah Pill */}
+        <button
+          type="button"
+          onClick={() => setIsVerseIdentifierOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-all text-xs font-semibold cursor-pointer shadow-xs"
+          title="Recite to Identify Verse (Voice / Audio Search)"
+        >
+          <Mic className="h-3.5 w-3.5" />
+          <span className="hidden lg:inline">{isUrdu ? "تلاوت" : "Recite"}</span>
         </button>
       </div>
 

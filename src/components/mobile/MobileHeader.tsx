@@ -10,6 +10,7 @@ import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { APP_CONFIG } from "@/config/version";
 import {
   Search,
+  Mic,
   Menu,
   Sun,
   Moon,
@@ -24,6 +25,7 @@ export function MobileHeader() {
     chapters,
     activeChapterId,
     setIsSearchOpen,
+    setIsVerseIdentifierOpen,
     setIsMobileMenuOpen,
   } = useDesktopWorkspace();
 
@@ -105,6 +107,17 @@ export function MobileHeader() {
               )}
             </button>
           )}
+
+          {/* Recite to Identify Ayah */}
+          <button
+            type="button"
+            onClick={() => setIsVerseIdentifierOpen(true)}
+            aria-label="Recite to Identify Ayah"
+            className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+            title="Recite to Identify Verse"
+          >
+            <Mic className="h-4 w-4" />
+          </button>
 
           {/* Search Trigger */}
           <button

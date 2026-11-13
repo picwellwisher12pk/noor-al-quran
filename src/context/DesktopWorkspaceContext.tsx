@@ -66,6 +66,8 @@ interface DesktopWorkspaceContextType {
   // Modals & Panels
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
+  isVerseIdentifierOpen: boolean;
+  setIsVerseIdentifierOpen: (open: boolean) => void;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
   settingsTab: SettingsModalTab;
@@ -107,6 +109,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [activeAyahNumber, setActiveAyahNumber] = useState<number>(1);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isVerseIdentifierOpen, setIsVerseIdentifierOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<SettingsModalTab>("theme");
   const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
@@ -207,20 +210,26 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         e.preventDefault();
         setLeftSidebarOpen((prev) => !prev);
       }
+      // Ctrl + Shift + R or Cmd + Shift + R: Recite to Identify Ayah
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "r") {
+        e.preventDefault();
+        setIsVerseIdentifierOpen((prev) => !prev);
+      }
       // Ctrl + \ or Cmd + \: Toggle Right Inspector
       if ((e.ctrlKey || e.metaKey) && e.key === "\\") {
         e.preventDefault();
         setRightInspectorOpen((prev) => !prev);
       }
-      // Escape closes search
+      // Escape closes search & verse identifier
       if (e.key === "Escape") {
         if (isSearchOpen) setIsSearchOpen(false);
+        if (isVerseIdentifierOpen) setIsVerseIdentifierOpen(false);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isSearchOpen]);
+  }, [isSearchOpen, isVerseIdentifierOpen]);
 
   const toggleLeftSidebar = () => setLeftSidebarOpen((prev) => !prev);
   const toggleRightInspector = () => setRightInspectorOpen((prev) => !prev);
@@ -314,6 +323,8 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
 
         isSearchOpen,
         setIsSearchOpen,
+        isVerseIdentifierOpen,
+        setIsVerseIdentifierOpen,
         isSettingsOpen,
         setIsSettingsOpen,
         settingsTab,

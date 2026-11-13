@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Play,
   Pause,
+  Mic,
   Settings,
   BookOpen,
   GraduationCap,
@@ -38,6 +39,7 @@ export function DesktopToolbar({
   const router = useRouter();
   const {
     setIsSettingsOpen,
+    setIsVerseIdentifierOpen,
   } = useDesktopWorkspace();
 
   const {
@@ -236,6 +238,17 @@ export function DesktopToolbar({
           </button>
         </div>
 
+
+        {/* Recite to find Verse button */}
+        <button
+          type="button"
+          onClick={() => setIsVerseIdentifierOpen(true)}
+          className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+          title="Recite to Identify Verse"
+        >
+          <Mic className="h-3.5 w-3.5" />
+          <span className="hidden md:inline">{isUrdu ? "تلاوت" : "Recite"}</span>
+        </button>
 
         {/* Preferences Shortcut Button */}
         <button

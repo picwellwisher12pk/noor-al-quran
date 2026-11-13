@@ -17,6 +17,7 @@ import { SettingsModal } from "@/components/modals/SettingsModal";
 import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { DownloadManagerModal } from "@/components/modals/DownloadManagerModal";
+import { VerseIdentifierModal } from "@/components/modals/VerseIdentifierModal";
 
 interface DesktopShellProps {
   children: React.ReactNode;
@@ -30,6 +31,8 @@ export function DesktopShell({ children }: DesktopShellProps) {
   const {
     isSearchOpen,
     setIsSearchOpen,
+    isVerseIdentifierOpen,
+    setIsVerseIdentifierOpen,
     isSettingsOpen,
     setIsSettingsOpen,
     isLiveSettingsOpen,
@@ -94,6 +97,12 @@ export function DesktopShell({ children }: DesktopShellProps) {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+      />
+
+      {/* Recite to Identify / Verse Finder Modal */}
+      <VerseIdentifierModal
+        isOpen={isVerseIdentifierOpen}
+        onClose={() => setIsVerseIdentifierOpen(false)}
       />
 
       {/* Unified Master Settings & App Menu Modal */}

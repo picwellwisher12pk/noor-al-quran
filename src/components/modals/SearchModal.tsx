@@ -4,9 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { Modal } from "@/components/common/Modal";
 import { searchQuran } from "@/services/quranApi";
 import { SearchResultItem } from "@/types/quran";
-import { Search, Loader2, ArrowRight } from "lucide-react";
+import { Search, Loader2, ArrowRight, Mic, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { sanitizeSearchQuery } from "@/utils/security";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface SearchModalProps {
 }
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const { setIsVerseIdentifierOpen } = useDesktopWorkspace();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [totalResults, setTotalResults] = useState(0);
@@ -63,6 +65,34 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
       }
     >
+      {/* Recite to Identify Ayah Banner */}
+      <div className="mb-4 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="h-7 w-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-none">
+            <Mic className="h-3.5 w-3.5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-[var(--foreground)] truncate">
+              Recite or Speak to Find an Ayah
+            </p>
+            <p className="text-[10px] text-[var(--muted-foreground)] truncate">
+              Identify any recited verse using speech recognition & phonetic matching
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            setIsVerseIdentifierOpen(true);
+          }}
+          className="flex-none px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+        >
+          <Mic className="h-3.5 w-3.5" />
+          <span>Recite</span>
+        </button>
+      </div>
+
       <form onSubmit={handleSearch} className="mb-6">
         <div className="relative flex items-center">
           <input

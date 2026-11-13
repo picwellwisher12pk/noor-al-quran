@@ -9,12 +9,14 @@ import { useKhatmah } from "@/context/KhatmahContext";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { SearchModal } from "@/components/modals/SearchModal";
 import { BookmarksModal } from "@/components/modals/BookmarksModal";
+import { VerseIdentifierModal } from "@/components/modals/VerseIdentifierModal";
 import { SettingsModal } from "@/components/modals/SettingsModal";
 import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPanel";
 import { KhatmahModal } from "@/components/modals/KhatmahModal";
 import {
   BookOpen,
   Search,
+  Mic,
   Bookmark,
   Settings,
   Sun,
@@ -34,6 +36,7 @@ export function Header() {
   const { isUrdu } = useLanguage();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isVerseIdentifierOpen, setIsVerseIdentifierOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
@@ -97,6 +100,17 @@ export function Header() {
               <Sparkles className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{isUrdu ? "الفاظ سیکھیں" : "Learn Words"}</span>
             </Link>
+
+            {/* Recite to Identify Button */}
+            <button
+              type="button"
+              onClick={() => setIsVerseIdentifierOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+              title="Recite to Identify Ayah"
+            >
+              <Mic className="h-4 w-4" />
+              <span className="hidden sm:inline">{isUrdu ? "تلاوت" : "Recite"}</span>
+            </button>
 
             {/* Search Button */}
             <button
@@ -169,6 +183,7 @@ export function Header() {
 
       {/* Global Modals & Settings */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <VerseIdentifierModal isOpen={isVerseIdentifierOpen} onClose={() => setIsVerseIdentifierOpen(false)} />
       <BookmarksModal isOpen={isBookmarksOpen} onClose={() => setIsBookmarksOpen(false)} />
       <SettingsModal
         isOpen={isSettingsOpen}

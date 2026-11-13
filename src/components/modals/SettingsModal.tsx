@@ -28,6 +28,7 @@ import {
   Languages,
   ScrollText,
   Volume2,
+  Mic,
   Sliders,
   CloudDownload,
   GripHorizontal,
@@ -68,7 +69,7 @@ export function SettingsModal({
   onOpenLiveSettings,
   initialTab,
 }: SettingsModalProps) {
-  const { settingsTab, setSettingsTab, readingMode, setReadingMode, setIsDownloadManagerOpen } =
+  const { settingsTab, setSettingsTab, readingMode, setReadingMode, setIsDownloadManagerOpen, setIsVerseIdentifierOpen } =
     useDesktopWorkspace();
 
   const [activeTab, setActiveTab] = useState<SettingsModalTab>(initialTab || settingsTab || "theme");
@@ -501,6 +502,31 @@ export function SettingsModal({
                     );
                   })}
                 </div>
+
+                {/* Recite to Identify Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    setIsVerseIdentifierOpen(true);
+                  }}
+                  className="w-full mt-3 p-3.5 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-between gap-3 text-left transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <Mic className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-[var(--foreground)]">
+                        {isUrdu ? "تلاوت سے آیت تلاش کریں (صوتی شناخت)" : "Recite to Identify Ayah (Voice Finder)"}
+                      </h4>
+                      <p className="text-[11px] text-[var(--muted-foreground)]">
+                        {isUrdu ? "قرآن پاک کی کوئی بھی آیت تلاوت کریں اور فوراً تلاش کریں" : "Recite or speak any verse to find its Surah & Ayah instantly"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-emerald-500" />
+                </button>
               </div>
             </div>
           )}
@@ -1527,6 +1553,7 @@ export function SettingsModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   {[
                     { keys: ["Ctrl", "K"], descEn: "Search Quran Verses & Words", descUr: "تلاش قرآن و الفاظ" },
+                    { keys: ["Ctrl", "Shift", "R"], descEn: "Recite to Identify Verse (Voice Finder)", descUr: "تلاوت سے آیت تلاش کریں (صوتی شناخت)" },
                     { keys: ["Ctrl", "B"], descEn: "Toggle Left Navigation Sidebar", descUr: "بایاں نیویگیشن بار دکھائیں / چھپائیں" },
                     { keys: ["Ctrl", "\\"], descEn: "Toggle Linguistic / Tafseer Inspector", descUr: "دایاں معانی و تفسیر پینل دکھائیں" },
                     { keys: ["Space"], descEn: "Play / Pause Active Recitation", descUr: "تلاوت شروع / موقوف کریں" },
