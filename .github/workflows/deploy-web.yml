@@ -1,4 +1,4 @@
-name: Deploy Web App
+name: 🌐 Deploy Web App
 
 on:
   push:
@@ -9,7 +9,24 @@ on:
       - '**.md'
       - '.github/workflows/build-android.yml'
       - '.github/workflows/build-desktop.yml'
+      - 'updater/**'
+      - 'src-tauri/**'
+
   workflow_dispatch:
+    inputs:
+      version_override:
+        description: 'Override version label (cosmetic only)'
+        required: false
+        type: string
+        default: ''
+
+  workflow_call:
+    inputs:
+      version:
+        description: 'App version (passed from release workflow)'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -22,40 +39,61 @@ concurrency:
 
 jobs:
   deploy-web:
-    name: Build & Deploy to GitHub Pages
+    name: 🌐 Build & Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
 
     steps:
+      # ── Checkout ───────────────────────────────────────────────
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # ── Bun ────────────────────────────────────────────────────
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Extract App Version
+      # ── Determine version ──────────────────────────────────────
+      - name: Resolve App Version
         id: version
+        shell: bash
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Extracted App Version: v$VERSION"
+          if [ -n "${{ inputs.version }}" ]; then
+            VER="${{ inputs.version }}"
+          elif [ -n "${{ inputs.version_override }}" ]; then
+            VER="${{ inputs.version_override }}"
+          else
+            VER=$(node -p "require('./package.json').version")
+          fi
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "Resolved version: v$VER"
 
+      # ── Install deps ───────────────────────────────────────────
       - name: Install Dependencies
         run: bun install
 
+      # ── Build ──────────────────────────────────────────────────
       - name: Build Next.js Static Export
         env:
           GITHUB_PAGES: "true"
           NEXT_PUBLIC_BASE_PATH: "/noor-al-quran"
+          NEXT_PUBLIC_APP_VERSION: ${{ env.APP_VERSION }}
         run: |
+          echo "[CI] Building web app v${{ env.APP_VERSION }}..."
           bun run scripts/sync-version.ts
           bun run build
           touch out/.nojekyll
+          echo "[CI] Build complete. Contents of out/:"
+          ls -lh out/
 
+      # ── GitHub Pages ───────────────────────────────────────────
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
         with:

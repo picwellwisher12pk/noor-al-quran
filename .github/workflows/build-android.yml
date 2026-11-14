@@ -1,4 +1,4 @@
-name: Build Android APK
+name: 🤖 Build Android APK
 
 on:
   push:
@@ -8,76 +8,141 @@ on:
     paths-ignore:
       - '**.md'
       - '.gitignore'
+      - '.github/workflows/build-desktop.yml'
+      - '.github/workflows/deploy-web.yml'
+      - 'updater/**'
+
   workflow_dispatch:
     inputs:
       build_type:
-        description: 'Build Type'
+        description: 'Build type'
         required: true
         default: 'release'
         type: choice
         options:
           - release
           - debug
+      version_override:
+        description: 'Override version (leave blank to read from package.json)'
+        required: false
+        type: string
+        default: ''
+
+  workflow_call:
+    inputs:
+      version:
+        description: 'App version (passed from release workflow)'
+        required: false
+        type: string
+        default: ''
+      upload_url:
+        description: 'GitHub Release upload URL for attaching APKs'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: write
 
 jobs:
   build-android:
-    name: Build Android APK
+    name: 🤖 Build Android APK
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout repository
+      # ── Checkout ───────────────────────────────────────────────
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # ── Bun ────────────────────────────────────────────────────
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Extract App Version
+      # ── Determine version ──────────────────────────────────────
+      - name: Resolve App Version
         id: version
+        shell: bash
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Extracted App Version: v$VERSION"
+          if [ -n "${{ inputs.version }}" ]; then
+            VER="${{ inputs.version }}"
+          elif [ -n "${{ inputs.version_override }}" ]; then
+            VER="${{ inputs.version_override }}"
+          else
+            VER=$(node -p "require('./package.json').version")
+          fi
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "Resolved version: v$VER"
 
+      # ── Java ───────────────────────────────────────────────────
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # ── Android SDK & NDK ──────────────────────────────────────
       - name: Setup Android SDK & NDK
+        shell: bash
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          
+
           # Accept licenses
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-          # Find available or install NDK 26
-          NDK_DIR=$(find $ANDROID_HOME/ndk -maxdepth 1 -mindepth 1 -type d | head -n 1)
+          # Find or install NDK 26
+          NDK_DIR=$(find $ANDROID_HOME/ndk -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort -V | tail -n 1 || echo "")
           if [ -z "$NDK_DIR" ]; then
-            echo "[CI] Installing NDK 26.1.10909125 and build-tools 34..."
-            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "ndk;26.1.10909125" "build-tools;34.0.0" "platforms;android-34"
+            echo "[CI] Installing NDK 26.1.10909125..."
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
+              "ndk;26.1.10909125" \
+              "build-tools;34.0.0" \
+              "platforms;android-34"
             NDK_DIR="$ANDROID_HOME/ndk/26.1.10909125"
           fi
-          
-          echo "[CI] Using NDK at: $NDK_DIR"
-          echo "NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+
+          echo "[CI] Using NDK: $NDK_DIR"
+          echo "NDK_HOME=$NDK_DIR"         >> $GITHUB_ENV
           echo "ANDROID_NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
 
+      # ── Rust ───────────────────────────────────────────────────
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
 
-      - name: Install Dependencies
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+          key: android-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
+
+      # ── JS deps ────────────────────────────────────────────────
+      - name: Install Project Dependencies
         run: bun install
 
-      - name: Initialize Tauri Android (if not initialized)
+      # ── Sync version ───────────────────────────────────────────
+      - name: Sync Version to Tauri config
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ] || [ -n "${{ inputs.version_override }}" ]; then
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+              pkg.version = '${{ env.APP_VERSION }}';
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            "
+          fi
+          bun run version:sync
+
+      # ── Tauri Android Init ─────────────────────────────────────
+      - name: Initialize Tauri Android Project
+        shell: bash
         run: |
           if [ ! -d "src-tauri/gen/android" ]; then
             echo "[CI] Initializing Tauri Android project..."
@@ -86,75 +151,101 @@ jobs:
             echo "[CI] Android project already initialized."
           fi
 
-      - name: Inject Android Permissions (Microphone & Internet for Verse Identifier)
+      # ── Inject Android Permissions ─────────────────────────────
+      - name: Inject Android Permissions
+        shell: bash
         run: |
-          MANIFEST_FILE="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
-          if [ -f "$MANIFEST_FILE" ]; then
-            echo "[CI] Ensuring Android permissions in $MANIFEST_FILE..."
-            if ! grep -q "android.permission.RECORD_AUDIO" "$MANIFEST_FILE"; then
-              sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST_FILE"
-              echo "[CI] Injected RECORD_AUDIO and INTERNET permissions."
+          MANIFEST="src-tauri/gen/android/app/src/main/AndroidManifest.xml"
+          if [ -f "$MANIFEST" ]; then
+            echo "[CI] Ensuring Android permissions in $MANIFEST..."
+            if ! grep -q "android.permission.RECORD_AUDIO" "$MANIFEST"; then
+              sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" \/>\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" \/>\n    <uses-permission android:name="android.permission.INTERNET" \/>' "$MANIFEST"
+              echo "[CI] Injected RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, and INTERNET permissions."
+            else
+              echo "[CI] Permissions already present."
             fi
           fi
 
-      - name: Build Android APK
+      # ── Build APKs ─────────────────────────────────────────────
+      - name: Build Android Release APK
         env:
           NDK_HOME: ${{ env.NDK_HOME }}
+        shell: bash
         run: |
-          echo "[CI] Building Android APK with version v${{ env.APP_VERSION }}..."
-          # Build Release APK
-          bun run tauri android build --apk --ci --target aarch64 || bun run tauri android build --apk --ci
-          # Also build Debug APK (pre-signed by Gradle debug key, 100% installs instantly on any phone)
-          bun run tauri android build --apk --debug --ci --target aarch64 || bun run tauri android build --apk --debug --ci
+          echo "[CI] Building Release APK — v${{ env.APP_VERSION }}..."
+          bun run tauri android build --apk --ci --target aarch64 || \
+          bun run tauri android build --apk --ci
 
-      - name: Sign & Organize Generated APKs
+      - name: Build Android Debug APK
+        if: inputs.build_type == 'debug' || github.event.inputs.build_type == 'debug' || github.event_name != 'workflow_dispatch'
+        env:
+          NDK_HOME: ${{ env.NDK_HOME }}
+        shell: bash
+        run: |
+          echo "[CI] Building Debug APK — v${{ env.APP_VERSION }}..."
+          bun run tauri android build --apk --debug --ci --target aarch64 || \
+          bun run tauri android build --apk --debug --ci
+
+      # ── Sign & Organize ────────────────────────────────────────
+      - name: Sign & Organize APKs
+        shell: bash
         run: |
           mkdir -p dist-apks
-          echo "[CI] Searching for generated APK files..."
-          
-          # Generate a signing key for the release APK
-          keytool -genkeypair -v -keystore release.jks -alias noor-release -keyalg RSA -keysize 2048 -validity 10000 -storepass noor1234 -keypass noor1234 -dname "CN=NoorAlQuran, OU=Mobile, O=Noor, C=PK"
 
-          # Find apksigner in Android build-tools
+          echo "[CI] Generating ad-hoc signing key..."
+          keytool -genkeypair -v \
+            -keystore release.jks \
+            -alias noor-release \
+            -keyalg RSA -keysize 2048 \
+            -validity 10000 \
+            -storepass noor1234 -keypass noor1234 \
+            -dname "CN=NoorAlQuran, OU=Mobile, O=Noor, C=PK" 2>/dev/null
+
           APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner | sort -V | tail -n 1)
-          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign | sort -V | tail -n 1)
-          echo "[CI] Using apksigner at: $APKSIGNER"
+          ZIPALIGN=$(find $ANDROID_HOME/build-tools -name zipalign   | sort -V | tail -n 1)
+          echo "[CI] apksigner: $APKSIGNER"
+          echo "[CI] zipalign:  $ZIPALIGN"
 
-          for apk in $(find src-tauri/gen/android -name "*.apk" -type f); do
+          while IFS= read -r apk; do
             filename=$(basename "$apk")
-            echo "Processing: $apk ($filename)"
-            
+            echo "Processing: $filename"
+
             if [[ "$filename" == *"unsigned"* ]]; then
-              # Align and sign release APK
-              signed_name="Noor-Al-Quran-v${{ env.APP_VERSION }}-release-signed.apk"
-              aligned_tmp="aligned-temp.apk"
-              $ZIPALIGN -p -f 4 "$apk" "$aligned_tmp"
-              $APKSIGNER sign --ks release.jks --ks-pass pass:noor1234 --ks-key-alias noor-release --key-pass pass:noor1234 --out "dist-apks/$signed_name" "$aligned_tmp"
-              rm -f "$aligned_tmp"
-              echo "Created Signed Release APK: dist-apks/$signed_name"
+              signed="Noor-Al-Quran-v${{ env.APP_VERSION }}-release-signed.apk"
+              aligned="aligned-tmp.apk"
+              $ZIPALIGN -p -f 4 "$apk" "$aligned"
+              $APKSIGNER sign \
+                --ks release.jks \
+                --ks-pass pass:noor1234 \
+                --ks-key-alias noor-release \
+                --key-pass pass:noor1234 \
+                --out "dist-apks/$signed" \
+                "$aligned"
+              rm -f "$aligned"
+              echo "[CI] Signed release APK → dist-apks/$signed"
             else
-              # Copy debug APK directly
-              dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-${filename}"
+              dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-debug.apk"
               cp "$apk" "$dest"
-              echo "Staged APK: $dest"
+              echo "[CI] Staged debug APK → $dest"
             fi
-          done
+          done < <(find src-tauri/gen/android -name "*.apk" -type f)
 
           ls -lh dist-apks/
 
-      - name: Upload APK as Workflow Artifact
+      # ── Upload artifacts ───────────────────────────────────────
+      - name: Upload APK Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Noor-Al-Quran-v${{ env.APP_VERSION }}-Android-APKs
           path: dist-apks/*.apk
           retention-days: 30
 
-      - name: Create GitHub Release (Optional Tag Trigger)
-        if: startsWith(github.ref, 'refs/tags/v')
+      # ── Attach to GitHub Release ───────────────────────────────
+      - name: Attach APKs to GitHub Release
+        if: inputs.upload_url != '' || (startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.APP_VERSION }}
           files: dist-apks/*.apk
-          name: "Noor Al-Quran v${{ env.APP_VERSION }}"
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

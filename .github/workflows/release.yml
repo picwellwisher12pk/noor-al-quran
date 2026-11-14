@@ -1,0 +1,237 @@
+name: 🚀 Release — Noor Al-Quran
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - custom
+      custom_version:
+        description: 'Custom version (e.g. 2.0.0) — only used when bump=custom'
+        required: false
+        type: string
+        default: ''
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+      draft:
+        description: 'Create as draft release'
+        required: false
+        type: boolean
+        default: false
+      build_web:
+        description: 'Deploy web (Vercel/GitHub Pages)'
+        required: false
+        type: boolean
+        default: true
+      build_desktop:
+        description: 'Build desktop installers (Windows/Linux/macOS)'
+        required: false
+        type: boolean
+        default: true
+      build_android:
+        description: 'Build Android APK'
+        required: false
+        type: boolean
+        default: true
+
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 1. Bump version, commit, tag, create GitHub Release
+  # ─────────────────────────────────────────────────────────────
+  release:
+    name: 🏷️ Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      release_id:  ${{ steps.create_release.outputs.id }}
+      upload_url:  ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      # ── Version bump (workflow_dispatch path) ──────────────────
+      - name: Compute & apply version bump
+        id: bump
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          BUMP="${{ inputs.bump }}"
+          CUSTOM="${{ inputs.custom_version }}"
+
+          semver_bump() {
+            local ver="$1" part="$2"
+            IFS='.' read -r MAJ MIN PAT <<< "$ver"
+            case "$part" in
+              major) echo "$((MAJ+1)).0.0" ;;
+              minor) echo "${MAJ}.$((MIN+1)).0" ;;
+              patch) echo "${MAJ}.${MIN}.$((PAT+1))" ;;
+            esac
+          }
+
+          if [ "$BUMP" = "custom" ]; then
+            if [ -z "$CUSTOM" ]; then
+              echo "::error::custom_version input is required when bump=custom"
+              exit 1
+            fi
+            NEW_VER="$CUSTOM"
+          else
+            NEW_VER=$(semver_bump "$CURRENT" "$BUMP")
+          fi
+
+          echo "Bumping $CURRENT → $NEW_VER"
+
+          # Write new version into package.json
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+            pkg.version = '$NEW_VER';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+          # Propagate to tauri.conf.json & Cargo.toml
+          bun run version:sync
+
+          echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=$NEW_VER" >> $GITHUB_ENV
+
+      # ── Version from pushed tag (tag push path) ───────────────
+      - name: Extract version from tag
+        id: tag_version
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          echo "new_version=$TAG" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=$TAG" >> $GITHUB_ENV
+
+      # ── Merge outputs so downstream jobs have one variable ─────
+      - name: Set unified NEW_VERSION env
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "NEW_VERSION=${{ steps.bump.outputs.new_version }}" >> $GITHUB_ENV
+          else
+            echo "NEW_VERSION=${{ steps.tag_version.outputs.new_version }}" >> $GITHUB_ENV
+          fi
+
+      # ── Commit + tag (only on workflow_dispatch) ──────────────
+      - name: Configure git identity
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit version bump
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml
+          git commit -m "chore: release v${{ env.NEW_VERSION }}" || echo "Nothing to commit"
+
+      - name: Create & push tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git tag -a "v${{ env.NEW_VERSION }}" -m "Release v${{ env.NEW_VERSION }}"
+          git push origin HEAD --follow-tags
+
+      # ── GitHub Release ─────────────────────────────────────────
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.NEW_VERSION }}
+          name: "Noor Al-Quran v${{ env.NEW_VERSION }}"
+          draft: ${{ inputs.draft || false }}
+          prerelease: ${{ inputs.prerelease || false }}
+          generate_release_notes: true
+          body: |
+            ## Noor Al-Quran v${{ env.NEW_VERSION }}
+
+            Automated release created by GitHub Actions.
+
+            ### Downloads
+            | Platform | File |
+            |---|---|
+            | 🪟 Windows | `.msi` / `.exe` |
+            | 🐧 Linux   | `.AppImage` / `.deb` |
+            | 🍎 macOS   | `.dmg` |
+            | 🤖 Android | `.apk` |
+
+            > Auto-update is supported on Desktop via the built-in updater.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. Build Desktop (conditional)
+  # ─────────────────────────────────────────────────────────────
+  call-build-desktop:
+    name: 🖥️ Desktop Builds
+    needs: release
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.build_desktop == true) ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    uses: ./.github/workflows/build-desktop.yml
+    with:
+      version:    ${{ needs.release.outputs.new_version }}
+      upload_url: ${{ needs.release.outputs.upload_url }}
+      prerelease: ${{ inputs.prerelease || false }}
+      draft:      ${{ inputs.draft || false }}
+    secrets: inherit
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. Build Android (conditional)
+  # ─────────────────────────────────────────────────────────────
+  call-build-android:
+    name: 🤖 Android Build
+    needs: release
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.build_android == true) ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    uses: ./.github/workflows/build-android.yml
+    with:
+      version:    ${{ needs.release.outputs.new_version }}
+      upload_url: ${{ needs.release.outputs.upload_url }}
+    secrets: inherit
+
+  # ─────────────────────────────────────────────────────────────
+  # 4. Deploy Web (conditional)
+  # ─────────────────────────────────────────────────────────────
+  call-deploy-web:
+    name: 🌐 Web Deploy
+    needs: release
+    if: |
+      (github.event_name == 'workflow_dispatch' && inputs.build_web == true) ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    uses: ./.github/workflows/deploy-web.yml
+    with:
+      version: ${{ needs.release.outputs.new_version }}
+    secrets: inherit

@@ -6,6 +6,25 @@ const BASE_URL = "https://api.quran.com/api/v4";
 export const AUDIO_CDN_URL = "https://verses.quran.com";
 export const WBW_CDN_URL = "https://audio.qurancdn.com";
 
+/** Resilient fetch with exponential backoff retry for transient network/API 502/503/504 hiccups */
+async function resilientFetch(url: string, retries = 3, delayMs = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok || (res.status >= 400 && res.status < 500 && res.status !== 429)) {
+        return res;
+      }
+      if (i < retries - 1) {
+        await new Promise((r) => setTimeout(r, delayMs * Math.pow(2, i)));
+      }
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise((r) => setTimeout(r, delayMs * Math.pow(2, i)));
+    }
+  }
+  return fetch(url);
+}
+
 // In-memory cache for chapters & reciters
 let cachedChapters: Chapter[] | null = null;
 let cachedReciters: Reciter[] | null = null;
@@ -63,8 +82,8 @@ export async function fetchChapters(): Promise<Chapter[]> {
   }
   try {
     const [resEn, resUr] = await Promise.all([
-      fetch(`${BASE_URL}/chapters?language=en`),
-      fetch(`${BASE_URL}/chapters?language=ur`).catch(() => null),
+      resilientFetch(`${BASE_URL}/chapters?language=en`),
+      resilientFetch(`${BASE_URL}/chapters?language=ur`).catch(() => null),
     ]);
     if (!resEn.ok) throw new Error(`Failed to fetch chapters: ${resEn.statusText}`);
     const dataEn = await resEn.json();
@@ -150,8 +169,8 @@ export async function fetchVersesByChapter(
     });
 
     const [resEn, resUr] = await Promise.all([
-      fetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`),
-      fetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`),
+      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`),
+      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`),
     ]);
 
     if (!resEn.ok) throw new Error(`Failed to fetch verses: ${resEn.statusText}`);

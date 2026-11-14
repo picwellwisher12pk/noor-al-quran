@@ -1,4 +1,4 @@
-name: Build Desktop Apps
+name: 🖥️ Build Desktop Apps
 
 on:
   push:
@@ -9,16 +9,53 @@ on:
       - '**.md'
       - '.github/workflows/build-android.yml'
       - '.github/workflows/deploy-web.yml'
+      - 'updater/**'
+
   workflow_dispatch:
+    inputs:
+      version_override:
+        description: 'Override version (leave blank to read from package.json)'
+        required: false
+        type: string
+        default: ''
+
+  workflow_call:
+    inputs:
+      version:
+        description: 'App version (passed from release workflow)'
+        required: true
+        type: string
+      upload_url:
+        description: 'GitHub Release upload URL for attaching assets'
+        required: false
+        type: string
+        default: ''
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        type: boolean
+        default: false
+      draft:
+        description: 'Is this a draft release?'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: false
 
 permissions:
   contents: write
 
 jobs:
-  build-desktop:
-    name: Desktop (${{ matrix.platform.name }})
+  # ─────────────────────────────────────────────────────────────
+  # Build matrix: Windows / Linux / macOS
+  # ─────────────────────────────────────────────────────────────
+  build:
+    name: Build — ${{ matrix.platform.name }}
     runs-on: ${{ matrix.platform.os }}
-    timeout-minutes: 45
+    timeout-minutes: 60
+
     strategy:
       fail-fast: false
       matrix:
@@ -26,36 +63,68 @@ jobs:
           - name: Windows-x64
             os: windows-latest
             rust-target: x86_64-pc-windows-msvc
+            artifact-id: windows-x86_64
+
           - name: Linux-x64
             os: ubuntu-22.04
             rust-target: x86_64-unknown-linux-gnu
-          - name: macOS
+            artifact-id: linux-x86_64
+
+          - name: macOS-aarch64
             os: macos-latest
             rust-target: aarch64-apple-darwin
+            artifact-id: darwin-aarch64
+
+    outputs:
+      # Each platform exposes its sig + url so the manifest job can consume them.
+      # GitHub Actions matrix job outputs only support a single job's output by key;
+      # we therefore upload a JSON file per-platform as an artifact instead.
+      version: ${{ steps.version.outputs.version }}
 
     steps:
+      # ── Checkout ───────────────────────────────────────────────
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # ── Bun ────────────────────────────────────────────────────
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
-      - name: Extract App Version
+      # ── Determine version ──────────────────────────────────────
+      - name: Resolve App Version
         id: version
         shell: bash
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Extracted App Version: v$VERSION"
+          if [ -n "${{ inputs.version }}" ]; then
+            VER="${{ inputs.version }}"
+          elif [ -n "${{ inputs.version_override }}" ]; then
+            VER="${{ inputs.version_override }}"
+          else
+            VER=$(node -p "require('./package.json').version")
+          fi
+          echo "version=$VER" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+          echo "Resolved version: v$VER"
 
+      # ── Linux system deps ──────────────────────────────────────
       - name: Install Linux System Dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl wget file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
 
+      # ── Rust ───────────────────────────────────────────────────
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -65,21 +134,88 @@ jobs:
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
+          key: ${{ matrix.platform.os }}-rust-${{ hashFiles('src-tauri/Cargo.lock') }}
 
+      # ── JS deps ────────────────────────────────────────────────
       - name: Install Project Dependencies
         run: bun install
 
+      # ── Sync version files ─────────────────────────────────────
+      - name: Sync Version to Tauri config
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ] || [ -n "${{ inputs.version_override }}" ]; then
+            # Temporarily write version into package.json so sync-version picks it up
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+              pkg.version = '${{ env.APP_VERSION }}';
+              fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            "
+          fi
+          bun run version:sync
+
+      # ── Tauri Build ────────────────────────────────────────────
       - name: Build Tauri Desktop Application
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         run: bun run tauri:build
 
+      # ── Stage installers & signatures ─────────────────────────
       - name: Stage Desktop Installers
+        id: stage
         shell: bash
         run: |
           mkdir -p dist-desktop
-          echo "[CI] Locating generated installers in src-tauri/target/release/bundle..."
-          find src-tauri/target/release/bundle -type f \( -name "*.exe" -o -name "*.msi" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.dmg" \) -exec cp {} dist-desktop/ \;
+
+          echo "[CI] Collecting bundle artifacts..."
+          find src-tauri/target/release/bundle -type f \( \
+            -name "*.exe"              \
+            -o -name "*.msi"          \
+            -o -name "*.msi.zip"      \
+            -o -name "*.msi.zip.sig"  \
+            -o -name "*.deb"          \
+            -o -name "*.AppImage"     \
+            -o -name "*.AppImage.tar.gz"     \
+            -o -name "*.AppImage.tar.gz.sig" \
+            -o -name "*.dmg"          \
+            -o -name "*.app.tar.gz"   \
+            -o -name "*.app.tar.gz.sig" \
+          \) -exec cp {} dist-desktop/ \;
+
           ls -lh dist-desktop/
 
+          # ── Collect .sig content and installer URL for the updater manifest
+          PLATFORM="${{ matrix.platform.artifact-id }}"
+          SIG_FILE=$(find dist-desktop -name "*.sig" | head -n 1)
+          if [ -n "$SIG_FILE" ]; then
+            SIG_CONTENT=$(cat "$SIG_FILE")
+          else
+            SIG_CONTENT=""
+          fi
+
+          # Pick the primary update bundle per platform
+          case "$PLATFORM" in
+            windows-x86_64) BUNDLE=$(find dist-desktop -name "*.msi.zip" | head -n 1) ;;
+            linux-x86_64)   BUNDLE=$(find dist-desktop -name "*.AppImage.tar.gz" | head -n 1) ;;
+            darwin-aarch64) BUNDLE=$(find dist-desktop -name "*.app.tar.gz" | head -n 1) ;;
+          esac
+          BUNDLE_NAME=$(basename "$BUNDLE" 2>/dev/null || echo "")
+
+          # Write a per-platform meta JSON for the manifest job
+          mkdir -p platform-meta
+          cat > platform-meta/$PLATFORM.json << EOF
+          {
+            "platform": "$PLATFORM",
+            "version": "v${{ env.APP_VERSION }}",
+            "signature": "$SIG_CONTENT",
+            "bundle": "$BUNDLE_NAME"
+          }
+          EOF
+          echo "bundle_name=$BUNDLE_NAME" >> $GITHUB_OUTPUT
+
+      # ── Upload artifacts ───────────────────────────────────────
       - name: Upload Desktop Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -87,12 +223,156 @@ jobs:
           path: dist-desktop/*
           retention-days: 30
 
-      - name: Publish to GitHub Release (Optional Tag Trigger)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Upload Platform Meta (for manifest job)
+        uses: actions/upload-artifact@v4
+        with:
+          name: platform-meta-${{ matrix.platform.artifact-id }}
+          path: platform-meta/${{ matrix.platform.artifact-id }}.json
+          retention-days: 1
+
+      # ── Attach to GitHub Release (if upload_url provided or tag push) ──
+      - name: Attach installers to GitHub Release
+        if: inputs.upload_url != '' || (startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push')
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.APP_VERSION }}
           files: dist-desktop/*
-          name: "Noor Al-Quran v${{ env.APP_VERSION }}"
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+          draft: ${{ inputs.draft || false }}
+          prerelease: ${{ inputs.prerelease || false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────
+  # Generate updater manifest after all platforms finish
+  # ─────────────────────────────────────────────────────────────
+  generate-updater-manifest:
+    name: 📋 Generate Updater Manifest
+    runs-on: ubuntu-latest
+    needs: build
+    if: always() && needs.build.result != 'skipped'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve App Version
+        id: version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VER="${{ inputs.version }}"
+          else
+            VER=$(node -p "require('./package.json').version")
+          fi
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+
+      # Download all platform meta JSONs
+      - name: Download Windows Meta
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: platform-meta-windows-x86_64
+          path: platform-meta
+
+      - name: Download Linux Meta
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: platform-meta-linux-x86_64
+          path: platform-meta
+
+      - name: Download macOS Meta
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: platform-meta-darwin-aarch64
+          path: platform-meta
+
+      - name: Build latest.json updater manifest
+        shell: bash
+        run: |
+          VERSION="v${{ env.APP_VERSION }}"
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          REPO="${{ github.repository }}"
+          TAG="$VERSION"
+
+          # Base GitHub release download URL pattern
+          BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
+
+          build_platform_entry() {
+            local meta_file="$1"
+            if [ ! -f "$meta_file" ]; then
+              echo "null"
+              return
+            fi
+            local sig=$(node -p "JSON.parse(require('fs').readFileSync('$meta_file','utf8')).signature")
+            local bundle=$(node -p "JSON.parse(require('fs').readFileSync('$meta_file','utf8')).bundle")
+            if [ -z "$bundle" ] || [ "$bundle" = "undefined" ]; then
+              echo "null"
+              return
+            fi
+            local url="${BASE_URL}/${bundle}"
+            echo "{\"url\":\"${url}\",\"signature\":\"${sig}\"}"
+          }
+
+          WIN=$(build_platform_entry "platform-meta/windows-x86_64.json")
+          LIN=$(build_platform_entry "platform-meta/linux-x86_64.json")
+          MAC=$(build_platform_entry "platform-meta/darwin-aarch64.json")
+
+          NOTES="See GitHub release for full changelog: https://github.com/${REPO}/releases/tag/${TAG}"
+
+          mkdir -p updater
+
+          cat > updater/latest.json << MANIFEST
+          {
+            "version": "${VERSION}",
+            "notes": "${NOTES}",
+            "pub_date": "${PUB_DATE}",
+            "platforms": {
+              "windows-x86_64": ${WIN},
+              "linux-x86_64": ${LIN},
+              "darwin-aarch64": ${MAC}
+            }
+          }
+          MANIFEST
+
+          echo "[CI] Generated updater/latest.json:"
+          cat updater/latest.json
+
+      - name: Upload updater manifest artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: updater-latest-json
+          path: updater/latest.json
+          retention-days: 30
+
+      - name: Attach updater manifest to GitHub Release
+        if: inputs.upload_url != '' || (startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.APP_VERSION }}
+          files: updater/latest.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Commit latest.json to repo so it's accessible via raw GitHub URL
+      - name: Commit & push updater manifest to repo
+        shell: bash
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add updater/latest.json
+          if git diff --cached --quiet; then
+            echo "No changes to updater manifest."
+          else
+            git commit -m "chore: update updater manifest to v${{ env.APP_VERSION }}"
+            git push origin HEAD:main || git push origin HEAD:$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)
+          fi

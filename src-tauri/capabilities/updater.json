@@ -1,0 +1,11 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema/acl-manifest.json",
+  "identifier": "updater",
+  "description": "Enables the tauri-plugin-updater capability for automatic app updates",
+  "windows": ["main"],
+  "permissions": [
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download-and-install"
+  ]
+}

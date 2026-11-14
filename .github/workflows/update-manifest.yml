@@ -1,0 +1,94 @@
+name: 🔄 Update Updater Manifest
+
+on:
+  workflow_run:
+    workflows: ["🖥️ Build Desktop Apps"]
+    types:
+      - completed
+    branches:
+      - main
+      - production
+
+  # Also allow manual trigger to force a manifest refresh
+  workflow_dispatch:
+    inputs:
+      version_override:
+        description: 'Force a specific version into the manifest'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  update-manifest:
+    name: 🔄 Commit Updater Manifest
+    runs-on: ubuntu-latest
+    # Only run if the triggering workflow succeeded (for workflow_run trigger)
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Resolve App Version
+        id: version
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.version_override }}" ]; then
+            VER="${{ inputs.version_override }}"
+          else
+            VER=$(node -p "require('./package.json').version")
+          fi
+          echo "APP_VERSION=$VER" >> $GITHUB_ENV
+
+      # Try to download the latest.json artifact from the triggering workflow run
+      - name: Download updater manifest artifact
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: updater-latest-json
+          path: updater
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # If artifact download failed, generate a minimal placeholder
+      - name: Ensure updater/latest.json exists
+        shell: bash
+        run: |
+          mkdir -p updater
+          if [ ! -f "updater/latest.json" ]; then
+            echo "[CI] No artifact found — writing placeholder manifest..."
+            cat > updater/latest.json << EOF
+          {
+            "version": "v${{ env.APP_VERSION }}",
+            "notes": "See GitHub releases for changelog.",
+            "pub_date": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "platforms": {}
+          }
+          EOF
+          fi
+          echo "[CI] updater/latest.json contents:"
+          cat updater/latest.json
+
+      - name: Commit & push updater manifest
+        shell: bash
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add updater/latest.json
+          if git diff --cached --quiet; then
+            echo "[CI] Updater manifest unchanged — nothing to commit."
+          else
+            git commit -m "chore: update updater manifest to v${{ env.APP_VERSION }} [skip ci]"
+            git push origin HEAD:main
+          fi

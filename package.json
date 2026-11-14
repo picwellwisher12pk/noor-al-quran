@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.34.6",
+  "version": "1.34.7",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",
@@ -21,6 +21,7 @@
     "seed:learning": "bun run scripts/seed-quran-learning.ts",
     "test:engine": "bun run scripts/test-quiz-engine.ts",
     "release": "bun run scripts/release.ts",
+    "release:current": "bun run scripts/release.ts current",
     "release:patch": "bun run scripts/release.ts patch",
     "release:minor": "bun run scripts/release.ts minor",
     "release:major": "bun run scripts/release.ts major"
