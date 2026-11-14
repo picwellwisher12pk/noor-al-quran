@@ -1,6 +1,10 @@
 {
-  "version": "v1.34.5",
-  "notes": "Initial release — auto-updated by GitHub Actions on each desktop build.",
-  "pub_date": "2026-11-14T00:00:00Z",
-  "platforms": {}
+  "version": "v1.34.7",
+  "notes": "See GitHub release for full changelog: https://github.com/picwellwisher12pk/noor-al-quran/releases/tag/v1.34.7",
+  "pub_date": "2026-11-14T13:49:41Z",
+  "platforms": {
+    "windows-x86_64": null,
+    "linux-x86_64": null,
+    "darwin-aarch64": null
+  }
 }
