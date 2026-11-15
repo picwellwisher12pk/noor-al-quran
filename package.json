@@ -1,13 +1,13 @@
 {
   "name": "noor-al-quran",
-  "version": "1.36.1",
+  "version": "1.36.2",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",
     "predev": "bun run scripts/sync-version.ts",
     "prebuild": "bun run scripts/sync-version.ts",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build || next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "tauri": "tauri",
