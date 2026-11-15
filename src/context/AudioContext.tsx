@@ -151,7 +151,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         voice = activePrefs.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
       }
 
-      const translationUrl = getTranslationAudioUrl(chapId, ayahNum, voice);
+      // Check if translation audio was already preloaded/downloaded while Arabic was playing
+      const preloaded = preloadedTranslationAudioRef.current;
+      const translationUrl =
+        preloaded?.verseKey === activeKey && preloaded.url
+          ? preloaded.url
+          : getTranslationAudioUrl(chapId, ayahNum, voice);
+
       if (translationUrl && audioRef.current) {
         setIsPlayingTranslation(true);
         isPlayingTranslationRef.current = true;
@@ -264,6 +270,40 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const preloadedNextAudioRef = useRef<{ verseKey: string; url: string; element?: HTMLAudioElement } | null>(null);
+  const preloadedTranslationAudioRef = useRef<{ verseKey: string; url: string; element?: HTMLAudioElement } | null>(null);
+
+  // Proactively download/buffer translation audio for the current verse so it is ready the instant Arabic recitation ends
+  const preloadCurrentTranslationAudio = (chapId: number, currentKey: string) => {
+    try {
+      const activePrefs = prefsRef.current;
+      if (!activePrefs?.playTranslationAudio || !currentKey) return;
+
+      const parts = currentKey.split(":");
+      const chapter = chapId || Number(parts[0]) || 1;
+      const ayahNum = Number(parts[1]) || 1;
+      const activeLanguage = languageRef.current;
+
+      let voice = activePrefs.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps";
+      if (activeLanguage === "english" || (!activePrefs.showUrduTranslation && activePrefs.showTranslation)) {
+        voice = activePrefs.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
+      }
+
+      const translationUrl = getTranslationAudioUrl(chapter, ayahNum, voice);
+      if (translationUrl) {
+        const preAudio = new Audio();
+        preAudio.preload = "auto";
+        preAudio.src = translationUrl;
+        preAudio.load();
+        preloadedTranslationAudioRef.current = {
+          verseKey: currentKey,
+          url: translationUrl,
+          element: preAudio,
+        };
+      }
+    } catch (e) {
+      console.warn("Failed to preload translation audio:", e);
+    }
+  };
 
   // Proactively buffer & preload the next verse audio to eliminate buffering stutter during continuous Surah play
   const preloadNextVerse = async (chapterId: number, currentKey: string) => {
@@ -363,8 +403,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       isPlayingRef.current = true;
       setIsLoading(false);
 
-      // Immediately buffer/preload next verse
+      // Immediately buffer/preload next Arabic verse and current translation audio
       preloadNextVerse(chapterId, verseKey);
+      preloadCurrentTranslationAudio(chapterId, verseKey);
     } catch (e) {
       console.error("Playback error:", e);
       setIsLoading(false);

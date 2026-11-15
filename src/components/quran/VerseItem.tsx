@@ -502,11 +502,11 @@ export function VerseItem({
           <button
             type="button"
             onClick={() => onOpenTafsir(verse.verse_key, activeArabicText)}
-            title="Read Commentary (تفسیر / Tafseer)"
-            className="px-2.5 py-1 sm:py-0.5 rounded-lg text-emerald-800 dark:text-emerald-200 bg-emerald-500/15 dark:bg-emerald-950/60 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white border border-emerald-500/30 dark:border-emerald-700/50 transition-all flex items-center gap-1.5 text-[11px] font-semibold shadow-xs cursor-pointer"
+            title={isUrdu ? "تفسیر قرآن دیکھیں" : "Read Commentary (Tafseer)"}
+            aria-label={isUrdu ? "تفسیر قرآن دیکھیں" : "Read Commentary (Tafseer)"}
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
-            <BookOpen className="h-3.5 w-3.5 sm:h-3 sm:w-3 text-emerald-700 dark:text-emerald-300" />
-            <span>تفسیر / Tafseer</span>
+            <BookOpen className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
 
           {/* Copy */}

@@ -76,9 +76,9 @@ export function SurahList({ chapters }: SurahListProps) {
               className="group relative rounded-2xl p-4 sm:p-5 bg-[var(--surface-raised)] border border-[var(--card-border)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg)] transition-all duration-200 flex flex-col justify-between shadow-xs hover:shadow-md"
             >
               <div>
-                {/* Top Row: Surah Number Badge + Revelation Place & Ayah Count + Arabic Name */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  {/* Left: Number + Revelation info */}
+                {/* 1st Row: Chapter Number + Madani/Makki + Verse Count + Chapter Name in Arabic */}
+                <div className="flex items-start justify-between gap-2 mb-2.5">
+                  {/* Left: Number + Revelation place & Verse count */}
                   <div className="flex items-center gap-2.5">
                     <span className="flex items-center justify-center h-9 w-9 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-all shadow-xs shrink-0">
                       {chapter.id}
@@ -93,7 +93,7 @@ export function SurahList({ chapters }: SurahListProps) {
                     </div>
                   </div>
 
-                  {/* Right: Authentic Arabic Name in Arabic Calligraphy Typography */}
+                  {/* Right: Chapter Name in Arabic */}
                   <div className="text-right">
                     <span
                       className="font-arabic text-2xl sm:text-3xl text-[var(--foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors block leading-none font-bold"
@@ -104,8 +104,8 @@ export function SurahList({ chapters }: SurahListProps) {
                   </div>
                 </div>
 
-                {/* Middle Row: Surah Names in English & Urdu */}
-                <div className="flex items-baseline justify-between gap-2 pb-2.5 mb-2.5 border-b border-[var(--border-subtle)]">
+                {/* 2nd Row: Chapter Name in English (Left) + Chapter Name in Urdu (Right) */}
+                <div className="flex items-baseline justify-between gap-2 pt-0.5 pb-1">
                   {/* English Name */}
                   <h3 className="font-bold text-[var(--foreground)] text-base group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
                     {chapter.name_simple}
@@ -120,34 +120,24 @@ export function SurahList({ chapters }: SurahListProps) {
                   </span>
                 </div>
 
-                {/* Translations Beneath: English & Urdu */}
-                <div className="space-y-1 mb-3 bg-[var(--surface-card)]/40 p-2 sm:p-2.5 rounded-xl border border-[var(--border-subtle)]/60 text-xs">
+                {/* 3rd Row: Chapter Name Translation in English (Left) + Translation in Urdu (Right) */}
+                <div className="flex items-baseline justify-between gap-2 pb-3 text-xs text-[var(--muted-foreground)]">
                   {/* English Translation */}
-                  <div className="flex items-center justify-between gap-1.5 min-w-0">
-                    <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 shrink-0">
-                      EN:
-                    </span>
-                    <span className="font-medium text-[var(--foreground)] text-right truncate text-[11px] sm:text-xs">
-                      {chapter.translated_name.name}
-                    </span>
-                  </div>
+                  <span className="truncate text-left text-[11px] sm:text-xs font-medium text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] transition-colors">
+                    {chapter.translated_name.name}
+                  </span>
 
                   {/* Urdu Translation */}
-                  <div className="flex items-center justify-between gap-1.5 min-w-0">
-                    <span className="text-[10px] font-sans font-bold text-emerald-700 dark:text-emerald-400 shrink-0">
-                      اردو:
-                    </span>
-                    <span
-                      className="font-urdu text-xs text-[var(--foreground)] text-right truncate font-medium"
-                      dir="rtl"
-                    >
-                      {urduMeaning}
-                    </span>
-                  </div>
+                  <span
+                    className="font-urdu text-xs text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] text-right truncate font-medium transition-colors shrink-0"
+                    dir="rtl"
+                  >
+                    {urduMeaning}
+                  </span>
                 </div>
               </div>
 
-              {/* Bottom Row: Metadata & Quick Actions */}
+              {/* Card Footer: Action Buttons */}
               <div className="flex items-center justify-between pt-2.5 border-t border-[var(--border-subtle)] text-xs text-[var(--muted-foreground)]">
                 <button
                   type="button"
