@@ -104,6 +104,7 @@ export function DesktopRightInspector() {
     if (!isRightInspectorOpen) return;
 
     if (selectedWord) {
+      let isWordCurrent = true;
       const [chapStr, verseStr, posStr] = selectedWord.location.split(":");
       const chapterId = Number(chapStr) || 1;
       const verseNumber = Number(verseStr) || 1;
@@ -118,30 +119,45 @@ export function DesktopRightInspector() {
         selectedWord.translation_urdu?.text,
         selectedWord.translation?.text
       )
-        .then((items) => setMultilingual(items))
+        .then((items) => {
+          if (isWordCurrent) setMultilingual(items);
+        })
         .catch(console.error)
-        .finally(() => setLoadingLangs(false));
+        .finally(() => {
+          if (isWordCurrent) setLoadingLangs(false);
+        });
 
       // 2. Morphology & Grammar
       setLoadingMorph(true);
       getWordMorphology(selectedWord.location)
         .then((morph) => {
+          if (!isWordCurrent) return;
           setMorphology(morph);
           if (morph?.root) {
             getRootByName(morph.root).then((info) => {
-              if (info) setRootInfo(info);
+              if (isWordCurrent && info) setRootInfo(info);
             });
           }
         })
         .catch(console.error)
-        .finally(() => setLoadingMorph(false));
+        .finally(() => {
+          if (isWordCurrent) setLoadingMorph(false);
+        });
 
       // 3. Root Occurrences
       getWordRoot(chapterId, verseNumber, wordPosition)
         .then((info) => {
-          if (info) setRootInfo(info);
+          if (isWordCurrent && info) setRootInfo(info);
         })
         .catch(console.error);
+
+      return () => {
+        isWordCurrent = false;
+      };
+    } else {
+      setMorphology(null);
+      setRootInfo(null);
+      setMultilingual([]);
     }
   }, [isRightInspectorOpen, selectedWord]);
 
@@ -149,17 +165,24 @@ export function DesktopRightInspector() {
   useEffect(() => {
     if (!isRightInspectorOpen || !selectedAyahKey) return;
 
+    let isAyahCurrent = true;
+
     // 1. Fetch Comparative Scholar Translations
     setLoadingScholars(true);
     getAyahComparativeTranslations(selectedAyahKey)
-      .then((items) => setScholarTranslations(items))
+      .then((items) => {
+        if (isAyahCurrent) setScholarTranslations(items);
+      })
       .catch(console.error)
-      .finally(() => setLoadingScholars(false));
+      .finally(() => {
+        if (isAyahCurrent) setLoadingScholars(false);
+      });
 
     // 2. Fetch Tafseer
     setLoadingTafsir(true);
     fetchTafsirForAyah(prefs.selectedTafsirId, selectedAyahKey)
       .then((data) => {
+        if (!isAyahCurrent) return;
         if (data && data.text) {
           setTafsirText(parseAndFormatTafsir(data.text, isUrdu));
           setTafsirAuthor(data.author);
@@ -169,10 +192,17 @@ export function DesktopRightInspector() {
         }
       })
       .catch((err) => {
+        if (!isAyahCurrent) return;
         console.error("Error loading tafsir:", err);
         setTafsirText(isUrdu ? "تفسیر لوڈ کرنے میں مسئلہ پیش آیا۔ براہ کرم دوبارہ کوشش کریں۔" : "Unable to load Tafseer commentary at this time.");
       })
-      .finally(() => setLoadingTafsir(false));
+      .finally(() => {
+        if (isAyahCurrent) setLoadingTafsir(false);
+      });
+
+    return () => {
+      isAyahCurrent = false;
+    };
   }, [isRightInspectorOpen, selectedAyahKey, prefs.selectedTafsirId, isUrdu]);
 
   const { learnerProfile } = useLearningStore();
@@ -570,8 +600,18 @@ export function DesktopRightInspector() {
                   <span className="font-semibold uppercase tracking-wider">
                     {isKids ? (isUrdu ? "اس آیت میں مطلب" : "Meaning in this Ayah") : (isUrdu ? "سیاق وسباق کا مفہوم" : "Contextual Verse Translation")}
                   </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">1:1 Verse Context</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">
+                    {selectedAyahKey || "1:1"} Verse Context
+                  </span>
                 </div>
+
+                {!selectedWord && (
+                  <div className="p-2 text-center text-xs text-[var(--muted-foreground)]">
+                    {isUrdu
+                      ? "قرآنی لفظ پر کلک کریں تاکہ اس کے مخصوص معانی سامنے آئیں۔"
+                      : "Click any word in the Quran text to inspect word-level translations."}
+                  </div>
+                )}
 
                 {/* Urdu Translation */}
                 {selectedWord?.translation_urdu?.text && (
@@ -816,16 +856,17 @@ export function DesktopRightInspector() {
                 </select>
               </div>
 
-              {loadingTafsir ? (
-                <div className="p-8 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
-                  {isUrdu ? "مستند تفسیر لوڈ ہو رہی ہے..." : "Fetching authentic Tafseer text..."}
+              <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs leading-relaxed min-h-[140px] transition-all duration-150">
+                <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 text-[10px] text-[var(--muted-foreground)]">
+                  <span>{isUrdu ? `مصنف: ${tafsirAuthor || "حافظ ابن کثیر"}` : `Author: ${tafsirAuthor || "Scholar"}`}</span>
+                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{isUrdu ? `آیت: ${selectedAyahKey}` : `Ayah ${selectedAyahKey}`}</span>
                 </div>
-              ) : (
-                <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs leading-relaxed">
-                  <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 text-[10px] text-[var(--muted-foreground)]">
-                    <span>{isUrdu ? `مصنف: ${tafsirAuthor || "حافظ ابن کثیر"}` : `Author: ${tafsirAuthor || "Scholar"}`}</span>
-                    <span>{isUrdu ? `آیت: ${selectedAyahKey}` : `Ayah ${selectedAyahKey}`}</span>
+                {loadingTafsir ? (
+                  <div className="p-8 text-center text-xs text-[var(--muted-foreground)] animate-pulse flex flex-col items-center justify-center gap-2 min-h-[100px]">
+                    <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                    <span>{isUrdu ? "مستند تفسیر لوڈ ہو رہی ہے..." : "Fetching authentic Tafseer text..."}</span>
                   </div>
+                ) : (
                   <div
                     className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
                       isUrdu
@@ -836,8 +877,8 @@ export function DesktopRightInspector() {
                     dir={isUrdu ? "rtl" : "ltr"}
                     dangerouslySetInnerHTML={{ __html: tafsirText }}
                   />
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
@@ -845,8 +886,9 @@ export function DesktopRightInspector() {
           {activeInspectorTab === "scholars" && (
             <div className="space-y-2.5">
               {loadingScholars ? (
-                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse">
-                  Loading comparative translations for Ayah {selectedAyahKey}...
+                <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse flex flex-col items-center justify-center gap-2 min-h-[120px]">
+                  <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  <span>Loading comparative translations for Ayah {selectedAyahKey}...</span>
                 </div>
               ) : scholarTranslations.length === 0 ? (
                 <div className="p-4 text-center text-xs text-[var(--muted-foreground)] bg-[var(--surface-card)] rounded-xl">

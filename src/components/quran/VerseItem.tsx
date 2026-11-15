@@ -62,7 +62,7 @@ export function VerseItem({
   const { plan, recordReadingProgress } = useKhatmah();
   const { logVerseRead } = useReadingActivity();
   const { getNotesForVerse } = useNotes();
-  const { openNotesInInspector, selectedAyahKey, openAyahInInspector } = useDesktopWorkspace();
+  const { openNotesInInspector, selectedAyahKey, openAyahInInspector, setActiveAyahFromPlayback } = useDesktopWorkspace();
   const { isUrdu } = useLanguage();
 
   const [copied, setCopied] = useState(false);
@@ -143,6 +143,8 @@ export function VerseItem({
   useEffect(() => {
     if (!isCurrentPlaying) return;
 
+    setActiveAyahFromPlayback(verse.verse_key, activeArabicText);
+
     if (prefs.autoScroll && verseRef.current) {
       verseRef.current.scrollIntoView({
         behavior: "smooth",
@@ -167,7 +169,22 @@ export function VerseItem({
         recordReadingProgress(verse.chapter_id, verse.verse_number);
       }
     }
-  }, [isCurrentPlaying, prefs.autoScroll, verse.chapter_id, verse.verse_number, verse.verse_key, verse.juz_number, chapterName, chapterArabic, setLastReadPosition, plan, recordReadingProgress, logVerseRead]);
+  }, [
+    isCurrentPlaying,
+    prefs.autoScroll,
+    verse.chapter_id,
+    verse.verse_number,
+    verse.verse_key,
+    verse.juz_number,
+    chapterName,
+    chapterArabic,
+    setLastReadPosition,
+    plan,
+    recordReadingProgress,
+    logVerseRead,
+    setActiveAyahFromPlayback,
+    activeArabicText,
+  ]);
 
   const handlePinLastRead = () => {
     logVerseRead(verse.chapter_id, verse.verse_number);

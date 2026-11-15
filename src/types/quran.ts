@@ -197,4 +197,7 @@ export interface ReadingPreferences {
   selectedReciterName: string;
   selectedUrduTranslationId: number;
   selectedTafsirId: number;
+  playTranslationAudio?: boolean;
+  urduTranslationAudioVoice?: string;
+  englishTranslationAudioVoice?: string;
 }

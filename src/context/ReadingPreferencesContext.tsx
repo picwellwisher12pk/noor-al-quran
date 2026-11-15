@@ -23,6 +23,9 @@ interface ReadingPreferencesContextType {
   toggleAutoScroll: () => void;
   setSelectedUrduTranslationId: (id: number) => void;
   setSelectedTafsirId: (id: number) => void;
+  setPlayTranslationAudio: (enabled: boolean) => void;
+  setUrduTranslationAudioVoice: (voice: string) => void;
+  setEnglishTranslationAudioVoice: (voice: string) => void;
   updatePreferences: (updates: Partial<ReadingPreferences>) => void;
 }
 
@@ -45,9 +48,12 @@ const DEFAULT_PREFERENCES: ReadingPreferences = {
   selectedReciterName: "Mishari Rashid al-`Afasy",
   selectedUrduTranslationId: 234,
   selectedTafsirId: 169,
+  playTranslationAudio: false,
+  urduTranslationAudioVoice: "urdu_shamshad_ali_khan_46kbps",
+  englishTranslationAudioVoice: "Sahih_Intnl_Ibrahim_Walk_192kbps",
 };
 
-const ReadingPreferencesContext = createContext<ReadingPreferencesContextType | undefined>(undefined);
+export const ReadingPreferencesContext = createContext<ReadingPreferencesContextType | undefined>(undefined);
 
 export function ReadingPreferencesProvider({ children }: { children: React.ReactNode }) {
   const [prefs, setPrefs] = useState<ReadingPreferences>(DEFAULT_PREFERENCES);
@@ -198,6 +204,18 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, selectedTafsirId: id }));
   };
 
+  const setPlayTranslationAudio = (enabled: boolean) => {
+    setPrefs((prev) => ({ ...prev, playTranslationAudio: enabled }));
+  };
+
+  const setUrduTranslationAudioVoice = (voice: string) => {
+    setPrefs((prev) => ({ ...prev, urduTranslationAudioVoice: voice }));
+  };
+
+  const setEnglishTranslationAudioVoice = (voice: string) => {
+    setPrefs((prev) => ({ ...prev, englishTranslationAudioVoice: voice }));
+  };
+
   const updatePreferences = (updates: Partial<ReadingPreferences>) => {
     setPrefs((prev) => ({ ...prev, ...updates }));
   };
@@ -223,6 +241,9 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         toggleAutoScroll,
         setSelectedUrduTranslationId,
         setSelectedTafsirId,
+        setPlayTranslationAudio,
+        setUrduTranslationAudioVoice,
+        setEnglishTranslationAudioVoice,
         updatePreferences,
       }}
     >

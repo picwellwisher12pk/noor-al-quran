@@ -102,6 +102,9 @@ export function SettingsModal({
     toggleAutoScroll,
     setSelectedUrduTranslationId,
     setSelectedTafsirId,
+    setPlayTranslationAudio,
+    setUrduTranslationAudioVoice,
+    setEnglishTranslationAudioVoice,
   } = useReadingPreferences();
 
   const { reciters, currentReciter, setReciter } = useAudio();
@@ -1317,6 +1320,69 @@ export function SettingsModal({
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Play Translation after Arabic Recitation */}
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="pr-2">
+                    <span className="text-xs font-semibold text-[var(--foreground)] block">
+                      {isUrdu ? "تلاوت کے بعد ترجمہ سنیں" : "Play Translation after Arabic Recitation"}
+                    </span>
+                    <span className="text-[11px] text-[var(--muted-foreground)]">
+                      {isUrdu
+                        ? "ہر آیت کی عربی تلاوت کے بعد ترجمہ کی آڈیو سنیں"
+                        : "Play translated audio recitation immediately after each Arabic ayah"}
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={!!prefs.playTranslationAudio}
+                    onChange={(e) => setPlayTranslationAudio(e.target.checked)}
+                    className="h-4 w-4 accent-emerald-500 rounded cursor-pointer shrink-0"
+                  />
+                </label>
+
+                {prefs.playTranslationAudio && (
+                  <div className="pt-2.5 border-t border-[var(--border-subtle)] space-y-3">
+                    {(language === "urdu" || language === "bilingual") && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-[var(--foreground)] block">
+                          {isUrdu ? "اردو ترجمہ کی آواز (مترجم / قاری)" : "Urdu Translation Voice"}
+                        </label>
+                        <select
+                          value={prefs.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps"}
+                          onChange={(e) => setUrduTranslationAudioVoice(e.target.value)}
+                          className="w-full rounded-xl bg-[var(--surface-card)] px-3.5 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+                        >
+                          <option value="urdu_shamshad_ali_khan_46kbps">
+                            فاتح محمد جالندھری (شمشاد علی خان)
+                          </option>
+                          <option value="urdu_farhat_hashmi">
+                            ڈاکٹر فرحت ہاشمی
+                          </option>
+                        </select>
+                      </div>
+                    )}
+
+                    {(language === "english" || language === "bilingual") && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-[var(--foreground)] block">
+                          {isUrdu ? "انگریزی ترجمہ کی آواز" : "English Translation Voice"}
+                        </label>
+                        <select
+                          value={prefs.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps"}
+                          onChange={(e) => setEnglishTranslationAudioVoice(e.target.value)}
+                          className="w-full rounded-xl bg-[var(--surface-card)] px-3.5 py-2.5 text-xs text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+                        >
+                          <option value="Sahih_Intnl_Ibrahim_Walk_192kbps">
+                            Saheeh International (Ibrahim Walk)
+                          </option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2">

@@ -17,7 +17,7 @@ interface LanguageContextType {
 
 const GLOBAL_LANG_STORAGE_KEY = "naq_global_lang_pref";
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<AppLanguage>("bilingual");

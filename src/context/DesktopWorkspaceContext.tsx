@@ -48,6 +48,9 @@ interface DesktopWorkspaceContextType {
   selectedWord: Word | null;
   selectedAyahKey: string | null;
   selectedAyahArabic: string;
+  setSelectedAyahKey: (key: string | null) => void;
+  setSelectedAyahArabic: (text: string) => void;
+  setActiveAyahFromPlayback: (verseKey: string, arabicText: string) => void;
   openWordInInspector: (word: Word) => void;
   openTafsirInInspector: (verseKey: string, arabicText: string) => void;
   openAyahInInspector: (verseKey: string, arabicText: string) => void;
@@ -255,6 +258,12 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setIsMobileInspectorOpen(true);
   };
 
+  const setActiveAyahFromPlayback = (verseKey: string, arabicText: string) => {
+    setSelectedAyahKey(verseKey);
+    setSelectedAyahArabic(arabicText);
+    setSelectedWord(null);
+  };
+
   const openAyahInInspector = (verseKey: string, arabicText: string) => {
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
@@ -307,6 +316,9 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         selectedWord,
         selectedAyahKey,
         selectedAyahArabic,
+        setSelectedAyahKey,
+        setSelectedAyahArabic,
+        setActiveAyahFromPlayback,
         openWordInInspector,
         openTafsirInInspector,
         openAyahInInspector,

@@ -25,10 +25,10 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <BookmarksProvider>
-          <NotesProvider>
-            <AudioProvider>
-              <ReadingPreferencesProvider>
+        <ReadingPreferencesProvider>
+          <BookmarksProvider>
+            <NotesProvider>
+              <AudioProvider>
                 <KhatmahProvider>
                   <ReadingActivityProvider>
                     <DesktopWorkspaceProvider>
@@ -38,10 +38,10 @@ export function AppProviders({ children }: AppProvidersProps) {
                     </DesktopWorkspaceProvider>
                   </ReadingActivityProvider>
                 </KhatmahProvider>
-              </ReadingPreferencesProvider>
-            </AudioProvider>
-          </NotesProvider>
-        </BookmarksProvider>
+              </AudioProvider>
+            </NotesProvider>
+          </BookmarksProvider>
+        </ReadingPreferencesProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

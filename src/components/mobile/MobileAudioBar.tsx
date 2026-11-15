@@ -22,6 +22,7 @@ export function MobileAudioBar() {
   const {
     isPlaying,
     isLoading,
+    isPlayingTranslation,
     currentVerseKey,
     currentReciter,
     currentTime,
@@ -113,7 +114,7 @@ export function MobileAudioBar() {
               <div className="text-[10px] text-[var(--muted-foreground)] truncate">
                 Ayah {verseNum}
                 {versesCount ? ` of ${versesCount}` : ""} •{" "}
-                {currentReciter?.reciter_name ?? "Reciter"}
+                {isPlayingTranslation ? "Translation Audio" : (currentReciter?.reciter_name ?? "Reciter")}
               </div>
             </div>
           </button>

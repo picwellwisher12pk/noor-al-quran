@@ -2,16 +2,19 @@
 
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Reciter, Verse } from "@/types/quran";
-import { fetchReciters, fetchVerseAudioUrl, WBW_CDN_URL } from "@/services/quranApi";
+import { fetchReciters, fetchVerseAudioUrl, WBW_CDN_URL, getTranslationAudioUrl } from "@/services/quranApi";
 import { normalizeAudioUrl } from "@/utils/audioResolver";
 import { CHAPTER_VERSE_COUNTS } from "@/utils/quranMeta";
 import { offlineStorage } from "@/services/offlineStorage";
+import { ReadingPreferencesContext } from "@/context/ReadingPreferencesContext";
+import { LanguageContext } from "@/context/LanguageContext";
 
 export type RepeatMode = "none" | "verse" | "infinite";
 
 interface AudioContextType {
   isPlaying: boolean;
   isLoading: boolean;
+  isPlayingTranslation: boolean;
   currentVerseKey: string | null;
   currentChapterId: number | null;
   currentReciter: Reciter | null;
@@ -39,6 +42,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlayingTranslation, setIsPlayingTranslation] = useState(false);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | null>(null);
   const [currentChapterId, setCurrentChapterId] = useState<number | null>(null);
   const [reciters, setReciters] = useState<Reciter[]>([]);
@@ -60,7 +64,24 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const currentReciterRef = useRef<Reciter | null>(null);
   const playbackRateRef = useRef<number>(1);
   const isPlayingRef = useRef<boolean>(false);
+  const isPlayingTranslationRef = useRef<boolean>(false);
   const handleVerseEndedRef = useRef<() => void>(() => {});
+
+  const readingPrefsCtx = useContext(ReadingPreferencesContext);
+  const languageCtx = useContext(LanguageContext);
+
+  const prefs = readingPrefsCtx?.prefs;
+  const language = languageCtx?.language || "bilingual";
+
+  const prefsRef = useRef(prefs);
+  useEffect(() => {
+    prefsRef.current = prefs;
+  }, [prefs]);
+
+  const languageRef = useRef(language);
+  useEffect(() => {
+    languageRef.current = language;
+  }, [language]);
 
   useEffect(() => {
     currentChapterIdRef.current = currentChapterId;
@@ -87,6 +108,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, [isPlaying]);
 
   const handleVerseEnded = () => {
+    // If the translation audio was currently playing and ended, proceed to next verse
+    if (isPlayingTranslationRef.current) {
+      setIsPlayingTranslation(false);
+      isPlayingTranslationRef.current = false;
+      playNextVerse();
+      return;
+    }
+
     if (repeatModeRef.current === "infinite") {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -105,6 +134,40 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       repeatCountRef.current = 0;
+    }
+
+    // Check if translation audio playback is enabled
+    const activePrefs = prefsRef.current;
+    const activeLanguage = languageRef.current;
+    const activeKey = currentVerseKeyRef.current;
+
+    if (activePrefs?.playTranslationAudio && activeKey) {
+      const parts = activeKey.split(":");
+      const chapId = currentChapterIdRef.current || Number(parts[0]) || 1;
+      const ayahNum = Number(parts[1]) || 1;
+
+      let voice = activePrefs.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps";
+      if (activeLanguage === "english" || (!activePrefs.showUrduTranslation && activePrefs.showTranslation)) {
+        voice = activePrefs.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
+      }
+
+      const translationUrl = getTranslationAudioUrl(chapId, ayahNum, voice);
+      if (translationUrl && audioRef.current) {
+        setIsPlayingTranslation(true);
+        isPlayingTranslationRef.current = true;
+        audioRef.current.src = translationUrl;
+        audioRef.current.playbackRate = playbackRateRef.current;
+        audioRef.current.play().then(() => {
+          setIsPlaying(true);
+          isPlayingRef.current = true;
+        }).catch((err) => {
+          console.warn("Failed to play translation audio, advancing to next verse:", err);
+          setIsPlayingTranslation(false);
+          isPlayingTranslationRef.current = false;
+          playNextVerse();
+        });
+        return;
+      }
     }
 
     // Automatically advance to the next verse in the Surah
@@ -157,6 +220,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const handleError = (e: Event) => {
       console.error("Audio playback error:", e);
+      if (isPlayingTranslationRef.current) {
+        setIsPlayingTranslation(false);
+        isPlayingTranslationRef.current = false;
+        playNextVerse();
+        return;
+      }
       setIsLoading(false);
       setIsPlaying(false);
       isPlayingRef.current = false;
@@ -253,6 +322,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     currentChapterIdRef.current = chapterId;
     setCurrentVerseKey(verseKey);
     currentVerseKeyRef.current = verseKey;
+    setIsPlayingTranslation(false);
+    isPlayingTranslationRef.current = false;
     setCurrentTime(0);
     setDuration(0);
     setIsLoading(true);
@@ -442,6 +513,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
     setIsPlaying(false);
     isPlayingRef.current = false;
+    setIsPlayingTranslation(false);
+    isPlayingTranslationRef.current = false;
     setCurrentVerseKey(null);
     currentVerseKeyRef.current = null;
   };
@@ -451,6 +524,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       value={{
         isPlaying,
         isLoading,
+        isPlayingTranslation,
         currentVerseKey,
         currentChapterId,
         currentReciter,

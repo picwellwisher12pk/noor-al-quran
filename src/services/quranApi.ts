@@ -328,3 +328,19 @@ export async function searchQuran(query: string, page = 1): Promise<{ results: S
     return { results: [], total: 0 };
   }
 }
+
+/**
+ * Returns the CDN audio URL for verse translations (Urdu / English) hosted on everyayah.com
+ */
+export function getTranslationAudioUrl(chapterId: number, verseNumber: number, voice: string): string {
+  const padSurah = String(chapterId).padStart(3, "0");
+  const padAyah = String(verseNumber).padStart(3, "0");
+
+  if (voice.startsWith("urdu_")) {
+    return `https://everyayah.com/data/translations/${voice}/${padSurah}${padAyah}.mp3`;
+  }
+  if (voice === "Sahih_Intnl_Ibrahim_Walk_192kbps") {
+    return `https://everyayah.com/data/English/Sahih_Intnl_Ibrahim_Walk_192kbps/${padSurah}${padAyah}.mp3`;
+  }
+  return `https://everyayah.com/data/translations/${voice}/${padSurah}${padAyah}.mp3`;
+}
