@@ -6,5 +6,7 @@ export const APP_CONFIG = {
   version: packageInfo.version,
   description: "A modern, authentic Quran web application with Uthmani script, word-by-word pronunciation, multi-reciter audio, Tafsir, and search.",
   author: "Noor Al-Quran Team",
-  githubUrl: "https://github.com/quran/quran.com-api",
+  githubRepo: "picwellwisher12pk/noor-al-quran",
+  githubUrl: "https://github.com/picwellwisher12pk/noor-al-quran",
+  releasesUrl: "https://github.com/picwellwisher12pk/noor-al-quran/releases",
 };

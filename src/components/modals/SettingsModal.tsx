@@ -18,6 +18,7 @@ import { LearnerAgeGroup, LEARNER_AVATARS, AGE_TIER_META } from "@/types/learner
 import { reconcileProgress } from "@/services/googleDriveSync";
 import { APP_CONFIG } from "@/config/version";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
+import { UpdateChecker } from "@/components/common/UpdateChecker";
 import {
   Settings,
   Sparkles,
@@ -405,6 +406,7 @@ export function SettingsModal({
     { id: "shortcuts", labelEn: "Shortcuts Cheat Sheet", labelUr: "شارٹ کٹس", icon: Command },
     { id: "live", labelEn: "Live Settings Panel", labelUr: "لائیو ترتیبات", icon: Sliders },
     { id: "storage", labelEn: "Storage & Offline", labelUr: "آف لائن ڈیٹا", icon: CloudDownload },
+    { id: "updates", labelEn: "Updates & Releases", labelUr: "ایپ اپ ڈیٹس", icon: RefreshCw },
   ];
 
   return (
@@ -1746,13 +1748,17 @@ export function SettingsModal({
                 </button>
               </div>
 
-              {/* App Version Info */}
-              <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--muted-foreground)]">
-                <span>{APP_CONFIG.name} ({APP_CONFIG.nameArabic})</span>
-                <span className="px-2 py-0.5 rounded-full bg-[var(--surface-card)] border border-[var(--border-subtle)] font-mono font-semibold">
-                  v{APP_CONFIG.version}
-                </span>
+              {/* In-App Update Checker */}
+              <div className="pt-2">
+                <UpdateChecker />
               </div>
+            </div>
+          )}
+
+          {/* TAB 13: Updates & Releases */}
+          {activeTab === "updates" && (
+            <div className="space-y-4">
+              <UpdateChecker />
             </div>
           )}
         </div>

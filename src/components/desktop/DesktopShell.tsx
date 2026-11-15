@@ -18,6 +18,7 @@ import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPan
 import { SearchModal } from "@/components/modals/SearchModal";
 import { DownloadManagerModal } from "@/components/modals/DownloadManagerModal";
 import { VerseIdentifierModal } from "@/components/modals/VerseIdentifierModal";
+import { UpdateNotificationBanner } from "@/components/common/UpdateNotificationBanner";
 
 interface DesktopShellProps {
   children: React.ReactNode;
@@ -46,6 +47,9 @@ export function DesktopShell({ children }: DesktopShellProps) {
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background)] text-[var(--foreground)] select-none">
+      {/* Background Update Notification Banner */}
+      <UpdateNotificationBanner />
+
       {/* Dynamic Layout Branching: Strictly isolate Desktop and Mobile navigation */}
       {isMobile ? (
         /* ================= MOBILE PHONE VIEWPORT (< 768px) ================= */

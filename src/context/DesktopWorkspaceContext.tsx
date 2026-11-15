@@ -20,7 +20,8 @@ export type SettingsModalTab =
   | "notes"
   | "shortcuts"
   | "live"
-  | "storage";
+  | "storage"
+  | "updates";
 
 interface DesktopWorkspaceContextType {
   // Sidebar state
