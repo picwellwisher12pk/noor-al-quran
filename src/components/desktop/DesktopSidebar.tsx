@@ -29,6 +29,7 @@ import {
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { getSurahUrduMeta } from "@/data/surahNamesUrdu";
 import { useLearningStore } from "@/store/useLearningStore";
 
 export function DesktopSidebar() {
@@ -497,11 +498,14 @@ export function DesktopSidebar() {
                           {chap.id}
                         </span>
                         <div className="truncate">
-                          <div className="text-xs truncate font-medium text-[var(--foreground)]">
-                            {chap.name_simple}
+                          <div className="text-xs truncate font-medium text-[var(--foreground)] flex items-center gap-1.5">
+                            <span>{chap.name_simple}</span>
+                            <span className="text-[11px] font-urdu text-emerald-700 dark:text-emerald-400">
+                              {getSurahUrduMeta(chap.id).name_urdu_short}
+                            </span>
                           </div>
                           <div className="text-[10px] text-[var(--muted-foreground)] truncate">
-                            {chap.verses_count} Ayahs • {chap.revelation_place}
+                            {chap.verses_count} Ayahs • {chap.translated_name.name} ({getSurahUrduMeta(chap.id).meaning_urdu})
                           </div>
                         </div>
                       </div>

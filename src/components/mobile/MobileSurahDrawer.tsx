@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getSurahUrduMeta } from "@/data/surahNamesUrdu";
 import { useKhatmah } from "@/context/KhatmahContext";
 import { Chapter, Juz } from "@/types/quran";
 import {
@@ -234,11 +235,14 @@ export function MobileSurahDrawer() {
                         {chapter.id}
                       </span>
                       <div className="min-w-0">
-                        <div className="font-semibold text-xs text-[var(--foreground)] truncate">
-                          {chapter.name_simple}
+                        <div className="font-semibold text-xs text-[var(--foreground)] truncate flex items-center gap-1.5">
+                          <span>{chapter.name_simple}</span>
+                          <span className="text-[11px] font-urdu text-emerald-700 dark:text-emerald-400">
+                            {getSurahUrduMeta(chapter.id).name_urdu_short}
+                          </span>
                         </div>
                         <div className="text-[10px] text-[var(--muted-foreground)] truncate">
-                          {chapter.translated_name.name} • {chapter.verses_count} ayahs
+                          {chapter.translated_name.name} ({getSurahUrduMeta(chapter.id).meaning_urdu}) • {chapter.verses_count} ayahs
                         </div>
                       </div>
                     </div>

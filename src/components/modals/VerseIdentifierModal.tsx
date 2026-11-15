@@ -609,96 +609,318 @@ export function VerseIdentifierModal({ isOpen, onClose }: VerseIdentifierModalPr
               </div>
             </div>
 
-            {/* API Keys Configuration */}
-            {engine !== "browser" && (
-              <div className="space-y-3 p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
-                  <Key className="h-3.5 w-3.5 text-emerald-500" />
-                  <span>Configure API Key for {engine.toUpperCase()}</span>
+            {/* Engine Setup, Instructions & API Key Configuration */}
+            <div className="space-y-3.5 p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] shadow-xs">
+              {/* Header */}
+              <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 text-xs font-bold text-[var(--foreground)]">
+                  <Key className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    {engine === "browser"
+                      ? "Browser Dictation Configuration & Guide"
+                      : `Step-by-Step API Setup for ${
+                          engine === "groq"
+                            ? "Groq Whisper Large v3"
+                            : engine === "gemini"
+                            ? "Google Gemini Flash"
+                            : "OpenAI Whisper-1"
+                        }`}
+                  </span>
                 </div>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                  {engine === "browser" && "No Key Required"}
+                  {engine === "groq" && (groqKey ? "✓ Configured" : "Free Key Needed")}
+                  {engine === "gemini" && (geminiKey ? "✓ Configured" : "Free Key Needed")}
+                  {engine === "openai" && (openAiKey ? "✓ Configured" : "API Key Needed")}
+                </span>
+              </div>
 
-                {engine === "groq" && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-[var(--muted-foreground)]">
-                      Groq API Key (starts with gsk_):
-                    </label>
+              {/* 1. BROWSER DICTATION GUIDE */}
+              {engine === "browser" && (
+                <div className="space-y-2.5 text-xs">
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1.5">
+                    <p className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Ready to Use Immediately — Zero Configuration Required</span>
+                    </p>
+                    <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                      Browser Dictation uses your browser&apos;s native Web Speech API in Arabic (<code className="font-mono text-emerald-600 dark:text-emerald-400">ar-SA</code>). No API key, registration, or credit card is required.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 pl-1">
+                    <span className="text-[11px] font-bold text-[var(--foreground)] block">
+                      How to use:
+                    </span>
+                    <ol className="list-decimal list-inside space-y-1 text-[11px] text-[var(--muted-foreground)]">
+                      <li>Switch back to the <strong className="text-[var(--foreground)]">Recite Audio</strong> tab above.</li>
+                      <li>Click the large green <strong className="text-[var(--foreground)]">Microphone</strong> button.</li>
+                      <li>When your browser asks, click <strong className="text-[var(--foreground)]">&quot;Allow&quot;</strong> to grant microphone permission.</li>
+                      <li>Recite any Quranic Ayah clearly. Recognized text appears live on the screen!</li>
+                    </ol>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[11px] text-amber-800 dark:text-amber-300 space-y-1">
+                    <span className="font-semibold flex items-center gap-1">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                      Recommended for Best Accuracy:
+                    </span>
+                    <p className="text-[10px] text-[var(--muted-foreground)] leading-relaxed">
+                      For classical Quranic recitation and complex Tajweed, we strongly recommend selecting <strong className="text-[var(--foreground)]">Groq Whisper Large v3</strong> above. Groq is 100% free, takes 30 seconds to setup, and transcribes Quranic Arabic with 99%+ accuracy!
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. GROQ WHISPER LARGE V3 GUIDE */}
+              {engine === "groq" && (
+                <div className="space-y-3 text-xs">
+                  {/* Info Banner */}
+                  <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-xs">
+                        <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        Recommended Engine: Ultra-Fast Cloud Whisper
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-600 text-white">
+                        100% Free
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                      Transcribes in sub-200ms using Groq LPU hardware with Quranic vocabulary biasing for near-perfect accuracy. Free tier requires no credit card.
+                    </p>
+                  </div>
+
+                  {/* Step-by-Step Instructions */}
+                  <div className="space-y-2 p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold text-[var(--foreground)] block">
+                      Step-by-Step Instructions to get your Free Groq API Key:
+                    </span>
+                    <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-[var(--muted-foreground)]">
+                      <li>
+                        Visit the Groq Console at{" "}
+                        <a
+                          href="https://console.groq.com/keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-semibold text-emerald-600 dark:text-emerald-400 underline inline-flex items-center gap-0.5 hover:opacity-80"
+                        >
+                          console.groq.com/keys <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </li>
+                      <li>Sign in with your Google or GitHub account (takes 10 seconds).</li>
+                      <li>Click the green <strong className="text-[var(--foreground)]">&quot;Create API Key&quot;</strong> button.</li>
+                      <li>Enter a name (e.g. <code className="px-1 py-0.5 rounded bg-[var(--background)] font-mono text-[10px]">Noor-Quran</code>) and click Submit.</li>
+                      <li>Copy your API Key (starts with <code className="font-mono text-emerald-600 dark:text-emerald-400">gsk_...</code>).</li>
+                      <li>Paste it in the input below and click <strong className="text-[var(--foreground)]">&quot;Save Engine Settings&quot;</strong>.</li>
+                    </ol>
+                  </div>
+
+                  {/* API Key Input */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-[var(--foreground)]">
+                        Enter Groq API Key:
+                      </label>
+                      <a
+                        href="https://console.groq.com/keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        Get Free Key at console.groq.com <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                     <input
                       type="password"
                       value={groqKey}
                       onChange={(e) => setGroqKey(e.target.value)}
                       placeholder="gsk_..."
-                      className="w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono"
+                      className="w-full rounded-xl bg-[var(--background)] px-3.5 py-2.5 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                     />
-                    <p className="text-[10px] text-[var(--muted-foreground)]">
-                      Get a free key at{" "}
-                      <a
-                        href="https://console.groq.com/keys"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-emerald-500 underline"
-                      >
-                        console.groq.com
-                      </a>
+                    {groqKey && (
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Key is populated (starts with {groqKey.slice(0, 7)}...)
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. GOOGLE GEMINI FLASH GUIDE */}
+              {engine === "gemini" && (
+                <div className="space-y-3 text-xs">
+                  {/* Info Banner */}
+                  <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/25 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-1.5 text-xs">
+                        <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        Google Gemini Multimodal AI
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white">
+                        Free AI Studio Tier
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                      Uses Google Gemini 2.0 / 1.5 Flash multimodal models for direct classical Arabic recitation processing. Free tier provides up to 15 requests/minute.
                     </p>
                   </div>
-                )}
 
-                {engine === "gemini" && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-[var(--muted-foreground)]">
-                      Google Gemini API Key (starts with AIzaSy...):
-                    </label>
+                  {/* Step-by-Step Instructions */}
+                  <div className="space-y-2 p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold text-[var(--foreground)] block">
+                      Step-by-Step Instructions to get your Google Gemini API Key:
+                    </span>
+                    <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-[var(--muted-foreground)]">
+                      <li>
+                        Visit Google AI Studio at{" "}
+                        <a
+                          href="https://aistudio.google.com/app/apikey"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-semibold text-emerald-600 dark:text-emerald-400 underline inline-flex items-center gap-0.5 hover:opacity-80"
+                        >
+                          aistudio.google.com/app/apikey <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </li>
+                      <li>Sign in with your Google account.</li>
+                      <li>Click the blue <strong className="text-[var(--foreground)]">&quot;Create API key&quot;</strong> button.</li>
+                      <li>Select &quot;Create key in new project&quot; (or select an existing project).</li>
+                      <li>Copy your API key (starts with <code className="font-mono text-emerald-600 dark:text-emerald-400">AIzaSy...</code>).</li>
+                      <li>Paste it in the input below and click <strong className="text-[var(--foreground)]">&quot;Save Engine Settings&quot;</strong>.</li>
+                    </ol>
+                  </div>
+
+                  {/* API Key Input */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-[var(--foreground)]">
+                        Enter Google Gemini API Key:
+                      </label>
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        Get Free Key at aistudio.google.com <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                     <input
                       type="password"
                       value={geminiKey}
                       onChange={(e) => setGeminiKey(e.target.value)}
                       placeholder="AIzaSy..."
-                      className="w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono"
+                      className="w-full rounded-xl bg-[var(--background)] px-3.5 py-2.5 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                     />
-                    <p className="text-[10px] text-[var(--muted-foreground)]">
-                      Free tier available at{" "}
-                      <a
-                        href="https://aistudio.google.com/app/apikey"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-emerald-500 underline"
-                      >
-                        aistudio.google.com
-                      </a>
+                    {geminiKey && (
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Key is populated (starts with {geminiKey.slice(0, 8)}...)
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* 4. OPENAI WHISPER GUIDE */}
+              {engine === "openai" && (
+                <div className="space-y-3 text-xs">
+                  {/* Info Banner */}
+                  <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/25 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-purple-800 dark:text-purple-300 flex items-center gap-1.5 text-xs">
+                        <Volume2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        OpenAI Official Whisper-1
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-600 text-white">
+                        Cloud API
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                      Uses OpenAI&apos;s standard Whisper cloud API model. Requires an OpenAI account with available prepaid API credits.
                     </p>
                   </div>
-                )}
 
-                {engine === "openai" && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] text-[var(--muted-foreground)]">
-                      OpenAI API Key (starts with sk-...):
-                    </label>
+                  {/* Step-by-Step Instructions */}
+                  <div className="space-y-2 p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
+                    <span className="text-xs font-bold text-[var(--foreground)] block">
+                      Step-by-Step Instructions to get your OpenAI API Key:
+                    </span>
+                    <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-[var(--muted-foreground)]">
+                      <li>
+                        Visit the OpenAI Platform at{" "}
+                        <a
+                          href="https://platform.openai.com/api-keys"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-semibold text-emerald-600 dark:text-emerald-400 underline inline-flex items-center gap-0.5 hover:opacity-80"
+                        >
+                          platform.openai.com/api-keys <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </li>
+                      <li>Sign in to your OpenAI platform account.</li>
+                      <li>Click <strong className="text-[var(--foreground)]">&quot;Create new secret key&quot;</strong>, name it <code className="px-1 py-0.5 rounded bg-[var(--background)] font-mono text-[10px]">Noor-Quran</code>, and copy it.</li>
+                      <li>Ensure your account has billing credits active at{" "}
+                        <a
+                          href="https://platform.openai.com/settings/organization/billing/overview"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-emerald-600 dark:text-emerald-400 underline inline-flex items-center gap-0.5"
+                        >
+                          platform.openai.com/billing <ExternalLink className="h-3 w-3" />
+                        </a>.
+                      </li>
+                      <li>Paste the secret key below and click <strong className="text-[var(--foreground)]">&quot;Save Engine Settings&quot;</strong>.</li>
+                    </ol>
+                  </div>
+
+                  {/* API Key Input */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-[var(--foreground)]">
+                        Enter OpenAI API Key:
+                      </label>
+                      <a
+                        href="https://platform.openai.com/api-keys"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        Get Key at platform.openai.com <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                     <input
                       type="password"
                       value={openAiKey}
                       onChange={(e) => setOpenAiKey(e.target.value)}
                       placeholder="sk-..."
-                      className="w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono"
+                      className="w-full rounded-xl bg-[var(--background)] px-3.5 py-2.5 text-xs border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono transition-colors"
                     />
+                    {openAiKey && (
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Key is populated (starts with {openAiKey.slice(0, 7)}...)
+                      </p>
+                    )}
                   </div>
-                )}
-
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-                    <span>Keys are stored strictly locally in your browser/device.</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSaveSettings}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    {settingsSaved ? "Saved!" : "Save Engine Settings"}
-                  </button>
                 </div>
+              )}
+
+              {/* Bottom Actions & Privacy Guarantee */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[var(--border-subtle)]">
+                <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>Privacy guarantee: API keys are stored strictly on your local device.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSaveSettings}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-xs active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>{settingsSaved ? "Settings Saved!" : "Save Engine Settings"}</span>
+                </button>
               </div>
-            )}
+            </div>
           </div>
         )}
 
