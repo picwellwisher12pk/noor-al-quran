@@ -15,12 +15,15 @@ interface AudioContextType {
   isPlaying: boolean;
   isLoading: boolean;
   isPlayingTranslation: boolean;
+  isTranslationLoading: boolean;
   currentVerseKey: string | null;
   currentChapterId: number | null;
   currentReciter: Reciter | null;
   reciters: Reciter[];
   currentTime: number;
   duration: number;
+  translationCurrentTime: number;
+  translationDuration: number;
   playbackRate: number;
   repeatMode: RepeatMode;
   playVerse: (chapterId: number, verseKey: string, versesList?: Verse[]) => Promise<void>;
@@ -28,13 +31,16 @@ interface AudioContextType {
   updateVersesQueue: (verses: Verse[]) => void;
   playWord: (audioUrl: string) => void;
   togglePlayPause: () => void;
+  toggleTranslationPlayPause: () => void;
   playNextVerse: () => void;
   playPreviousVerse: () => void;
   seek: (time: number) => void;
+  seekTranslation: (time: number) => void;
   setReciter: (reciter: Reciter) => void;
   setPlaybackRate: (rate: number) => void;
   setRepeatMode: (mode: RepeatMode) => void;
   stopAudio: () => void;
+  stopTranslationAudio: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -43,16 +49,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPlayingTranslation, setIsPlayingTranslation] = useState(false);
+  const [isTranslationLoading, setIsTranslationLoading] = useState(false);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | null>(null);
   const [currentChapterId, setCurrentChapterId] = useState<number | null>(null);
   const [reciters, setReciters] = useState<Reciter[]>([]);
   const [currentReciter, setCurrentReciter] = useState<Reciter | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [translationCurrentTime, setTranslationCurrentTime] = useState(0);
+  const [translationDuration, setTranslationDuration] = useState(0);
   const [playbackRate, setPlaybackRateState] = useState(1);
   const [repeatMode, setRepeatModeState] = useState<RepeatMode>("none");
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const translationAudioRef = useRef<HTMLAudioElement | null>(null);
   const wordAudioRef = useRef<HTMLAudioElement | null>(null);
   const versesQueueRef = useRef<Verse[]>([]);
   const repeatCountRef = useRef(0);
@@ -66,6 +76,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const isPlayingRef = useRef<boolean>(false);
   const isPlayingTranslationRef = useRef<boolean>(false);
   const handleVerseEndedRef = useRef<() => void>(() => {});
+  const handleTranslationEndedRef = useRef<() => void>(() => {});
 
   const readingPrefsCtx = useContext(ReadingPreferencesContext);
   const languageCtx = useContext(LanguageContext);
@@ -108,14 +119,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, [isPlaying]);
 
   const handleVerseEnded = () => {
-    // If the translation audio was currently playing and ended, proceed to next verse
-    if (isPlayingTranslationRef.current) {
-      setIsPlayingTranslation(false);
-      isPlayingTranslationRef.current = false;
-      playNextVerse();
-      return;
-    }
-
     if (repeatModeRef.current === "infinite") {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -136,62 +139,48 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       repeatCountRef.current = 0;
     }
 
-    // Check if translation audio playback is enabled
+    // Check if translation audio playback is enabled in preferences
     const activePrefs = prefsRef.current;
-    const activeLanguage = languageRef.current;
-    const activeKey = currentVerseKeyRef.current;
-
-    if (activePrefs?.playTranslationAudio && activeKey) {
-      const parts = activeKey.split(":");
-      const chapId = currentChapterIdRef.current || Number(parts[0]) || 1;
-      const ayahNum = Number(parts[1]) || 1;
-
-      let voice = activePrefs.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps";
-      if (activeLanguage === "english" || (!activePrefs.showUrduTranslation && activePrefs.showTranslation)) {
-        voice = activePrefs.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
-      }
-
-      // Check if translation audio was already preloaded/downloaded while Arabic was playing
-      const preloaded = preloadedTranslationAudioRef.current;
-      const translationUrl =
-        preloaded?.verseKey === activeKey && preloaded.url
-          ? preloaded.url
-          : getTranslationAudioUrl(chapId, ayahNum, voice);
-
-      if (translationUrl && audioRef.current) {
+    if (activePrefs?.playTranslationAudio && translationAudioRef.current?.src) {
+      translationAudioRef.current.playbackRate = playbackRateRef.current;
+      translationAudioRef.current.play().then(() => {
         setIsPlayingTranslation(true);
         isPlayingTranslationRef.current = true;
-        audioRef.current.src = translationUrl;
-        audioRef.current.playbackRate = playbackRateRef.current;
-        audioRef.current.play().then(() => {
-          setIsPlaying(true);
-          isPlayingRef.current = true;
-        }).catch((err) => {
-          console.warn("Failed to play translation audio, advancing to next verse:", err);
-          setIsPlayingTranslation(false);
-          isPlayingTranslationRef.current = false;
-          playNextVerse();
-        });
-        return;
-      }
+      }).catch((err) => {
+        console.warn("Failed to play translation audio, advancing to next verse:", err);
+        playNextVerse();
+      });
+      return;
     }
 
     // Automatically advance to the next verse in the Surah
     playNextVerse();
   };
 
-  // Keep handleVerseEndedRef current on every render
+  const handleTranslationEnded = () => {
+    setIsPlayingTranslation(false);
+    isPlayingTranslationRef.current = false;
+    setTranslationCurrentTime(0);
+    // When translation finishes, advance to next verse if continuous playback is active
+    playNextVerse();
+  };
+
+  // Keep ended handler refs current on every render
   useEffect(() => {
     handleVerseEndedRef.current = handleVerseEnded;
+    handleTranslationEndedRef.current = handleTranslationEnded;
   });
 
-  // Initialize audio element and reciters
+  // Initialize audio elements and reciters
   useEffect(() => {
     audioRef.current = new Audio();
+    translationAudioRef.current = new Audio();
     wordAudioRef.current = new Audio();
 
     const audio = audioRef.current;
+    const trAudio = translationAudioRef.current;
 
+    // --- Arabic Audio Listeners ---
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
     };
@@ -225,13 +214,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleError = (e: Event) => {
-      console.error("Audio playback error:", e);
-      if (isPlayingTranslationRef.current) {
-        setIsPlayingTranslation(false);
-        isPlayingTranslationRef.current = false;
-        playNextVerse();
-        return;
-      }
+      console.error("Arabic recitation audio error:", e);
       setIsLoading(false);
       setIsPlaying(false);
       isPlayingRef.current = false;
@@ -245,6 +228,55 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     audio.addEventListener("pause", handlePause);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
+
+    // --- Translation Audio Listeners ---
+    const handleTrTimeUpdate = () => {
+      setTranslationCurrentTime(trAudio.currentTime);
+    };
+
+    const handleTrLoadedMetadata = () => {
+      setTranslationDuration(trAudio.duration || 0);
+      setIsTranslationLoading(false);
+    };
+
+    const handleTrWaiting = () => {
+      setIsTranslationLoading(true);
+    };
+
+    const handleTrCanPlay = () => {
+      setIsTranslationLoading(false);
+    };
+
+    const handleTrPlaying = () => {
+      setIsTranslationLoading(false);
+      setIsPlayingTranslation(true);
+      isPlayingTranslationRef.current = true;
+    };
+
+    const handleTrPause = () => {
+      setIsPlayingTranslation(false);
+      isPlayingTranslationRef.current = false;
+    };
+
+    const handleTrEnded = () => {
+      handleTranslationEndedRef.current();
+    };
+
+    const handleTrError = (e: Event) => {
+      console.warn("Translation audio error:", e);
+      setIsTranslationLoading(false);
+      setIsPlayingTranslation(false);
+      isPlayingTranslationRef.current = false;
+    };
+
+    trAudio.addEventListener("timeupdate", handleTrTimeUpdate);
+    trAudio.addEventListener("loadedmetadata", handleTrLoadedMetadata);
+    trAudio.addEventListener("waiting", handleTrWaiting);
+    trAudio.addEventListener("canplay", handleTrCanPlay);
+    trAudio.addEventListener("playing", handleTrPlaying);
+    trAudio.addEventListener("pause", handleTrPause);
+    trAudio.addEventListener("ended", handleTrEnded);
+    trAudio.addEventListener("error", handleTrError);
 
     // Fetch reciters
     fetchReciters()
@@ -266,6 +298,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
+
+      trAudio.pause();
+      trAudio.removeEventListener("timeupdate", handleTrTimeUpdate);
+      trAudio.removeEventListener("loadedmetadata", handleTrLoadedMetadata);
+      trAudio.removeEventListener("waiting", handleTrWaiting);
+      trAudio.removeEventListener("canplay", handleTrCanPlay);
+      trAudio.removeEventListener("playing", handleTrPlaying);
+      trAudio.removeEventListener("pause", handleTrPause);
+      trAudio.removeEventListener("ended", handleTrEnded);
+      trAudio.removeEventListener("error", handleTrError);
     };
   }, []);
 
@@ -366,8 +408,36 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     isPlayingTranslationRef.current = false;
     setCurrentTime(0);
     setDuration(0);
+    setTranslationCurrentTime(0);
     setIsLoading(true);
     repeatCountRef.current = 0;
+
+    // Stop and buffer translation audio into translationAudioRef so duration is immediately known & ready to play
+    if (translationAudioRef.current) {
+      translationAudioRef.current.pause();
+      translationAudioRef.current.currentTime = 0;
+
+      try {
+        const activePrefs = prefsRef.current;
+        const activeLanguage = languageRef.current;
+        let voice = activePrefs?.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps";
+        if (activeLanguage === "english" || (!activePrefs?.showUrduTranslation && activePrefs?.showTranslation)) {
+          voice = activePrefs?.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
+        }
+        const parts = verseKey.split(":");
+        const chap = chapterId || Number(parts[0]) || 1;
+        const ayah = Number(parts[1]) || 1;
+        const trUrl = getTranslationAudioUrl(chap, ayah, voice);
+        if (trUrl) {
+          translationAudioRef.current.src = trUrl;
+          translationAudioRef.current.playbackRate = playbackRateRef.current;
+          translationAudioRef.current.preload = "auto";
+          translationAudioRef.current.load();
+        }
+      } catch (e) {
+        console.warn("Failed to preload translation audio:", e);
+      }
+    }
 
     const reciterId = currentReciterRef.current ? currentReciterRef.current.id : 7;
 
@@ -403,9 +473,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       isPlayingRef.current = true;
       setIsLoading(false);
 
-      // Immediately buffer/preload next Arabic verse and current translation audio
+      // Immediately buffer/preload next Arabic verse
       preloadNextVerse(chapterId, verseKey);
-      preloadCurrentTranslationAudio(chapterId, verseKey);
     } catch (e) {
       console.error("Playback error:", e);
       setIsLoading(false);
@@ -449,6 +518,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setIsPlaying(false);
       isPlayingRef.current = false;
     } else {
+      // Pause translation if it was playing so both don't overlap
+      if (translationAudioRef.current && isPlayingTranslationRef.current) {
+        translationAudioRef.current.pause();
+        setIsPlayingTranslation(false);
+        isPlayingTranslationRef.current = false;
+      }
+
       if (audioRef.current.src) {
         audioRef.current.play().then(() => {
           setIsPlaying(true);
@@ -456,6 +532,49 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         }).catch(console.error);
       } else if (currentChapterIdRef.current && currentVerseKeyRef.current) {
         playVerse(currentChapterIdRef.current, currentVerseKeyRef.current);
+      }
+    }
+  };
+
+  const toggleTranslationPlayPause = () => {
+    if (!translationAudioRef.current) return;
+    if (isPlayingTranslationRef.current) {
+      translationAudioRef.current.pause();
+      setIsPlayingTranslation(false);
+      isPlayingTranslationRef.current = false;
+    } else {
+      // Pause Arabic recitation if it was playing so both don't overlap
+      if (audioRef.current && isPlayingRef.current) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        isPlayingRef.current = false;
+      }
+
+      if (translationAudioRef.current.src) {
+        translationAudioRef.current.playbackRate = playbackRateRef.current;
+        translationAudioRef.current.play().then(() => {
+          setIsPlayingTranslation(true);
+          isPlayingTranslationRef.current = true;
+        }).catch(console.error);
+      } else if (currentChapterIdRef.current && currentVerseKeyRef.current) {
+        const parts = currentVerseKeyRef.current.split(":");
+        const chap = currentChapterIdRef.current || Number(parts[0]) || 1;
+        const ayah = Number(parts[1]) || 1;
+        const activePrefs = prefsRef.current;
+        const activeLanguage = languageRef.current;
+        let voice = activePrefs?.urduTranslationAudioVoice || "urdu_shamshad_ali_khan_46kbps";
+        if (activeLanguage === "english" || (!activePrefs?.showUrduTranslation && activePrefs?.showTranslation)) {
+          voice = activePrefs?.englishTranslationAudioVoice || "Sahih_Intnl_Ibrahim_Walk_192kbps";
+        }
+        const url = getTranslationAudioUrl(chap, ayah, voice);
+        if (url) {
+          translationAudioRef.current.src = url;
+          translationAudioRef.current.playbackRate = playbackRateRef.current;
+          translationAudioRef.current.play().then(() => {
+            setIsPlayingTranslation(true);
+            isPlayingTranslationRef.current = true;
+          }).catch(console.error);
+        }
       }
     }
   };
@@ -491,6 +610,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       // Completed full Surah recitation
       setIsPlaying(false);
       isPlayingRef.current = false;
+      setIsPlayingTranslation(false);
+      isPlayingTranslationRef.current = false;
       setCurrentVerseKey(null);
       currentVerseKeyRef.current = null;
     }
@@ -526,6 +647,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const seekTranslation = (time: number) => {
+    if (translationAudioRef.current) {
+      translationAudioRef.current.currentTime = time;
+      setTranslationCurrentTime(time);
+    }
+  };
+
   const setReciter = (reciter: Reciter) => {
     setCurrentReciter(reciter);
     currentReciterRef.current = reciter;
@@ -540,6 +668,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     if (audioRef.current) {
       audioRef.current.playbackRate = rate;
     }
+    if (translationAudioRef.current) {
+      translationAudioRef.current.playbackRate = rate;
+    }
   };
 
   const setRepeatMode = (mode: RepeatMode) => {
@@ -547,15 +678,31 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     repeatModeRef.current = mode;
   };
 
+  const stopTranslationAudio = () => {
+    if (translationAudioRef.current) {
+      translationAudioRef.current.pause();
+      translationAudioRef.current.currentTime = 0;
+    }
+    setIsPlayingTranslation(false);
+    isPlayingTranslationRef.current = false;
+    setTranslationCurrentTime(0);
+  };
+
   const stopAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+    if (translationAudioRef.current) {
+      translationAudioRef.current.pause();
+      translationAudioRef.current.currentTime = 0;
+    }
     setIsPlaying(false);
     isPlayingRef.current = false;
     setIsPlayingTranslation(false);
     isPlayingTranslationRef.current = false;
+    setCurrentTime(0);
+    setTranslationCurrentTime(0);
     setCurrentVerseKey(null);
     currentVerseKeyRef.current = null;
   };
@@ -566,12 +713,15 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         isPlaying,
         isLoading,
         isPlayingTranslation,
+        isTranslationLoading,
         currentVerseKey,
         currentChapterId,
         currentReciter,
         reciters,
         currentTime,
         duration,
+        translationCurrentTime,
+        translationDuration,
         playbackRate,
         repeatMode,
         playVerse,
@@ -579,13 +729,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         updateVersesQueue,
         playWord,
         togglePlayPause,
+        toggleTranslationPlayPause,
         playNextVerse,
         playPreviousVerse,
         seek,
+        seekTranslation,
         setReciter,
         setPlaybackRate,
         setRepeatMode,
         stopAudio,
+        stopTranslationAudio,
       }}
     >
       {children}

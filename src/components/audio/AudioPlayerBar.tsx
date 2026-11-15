@@ -20,22 +20,48 @@ export function AudioPlayerBar() {
     isPlaying,
     isLoading,
     isPlayingTranslation,
+    isTranslationLoading,
     currentVerseKey,
     currentReciter,
     currentTime,
     duration,
+    translationCurrentTime,
+    translationDuration,
     playbackRate,
     repeatMode,
     togglePlayPause,
+    toggleTranslationPlayPause,
     playNextVerse,
     playPreviousVerse,
     seek,
+    seekTranslation,
     setPlaybackRate,
     setRepeatMode,
     stopAudio,
   } = useAudio();
 
-  if (!currentVerseKey && !isPlaying) return null;
+  if (!currentVerseKey && !isPlaying && !isPlayingTranslation) return null;
+
+  const activeCurrentTime = isPlayingTranslation ? translationCurrentTime : currentTime;
+  const activeDuration = isPlayingTranslation ? translationDuration : duration;
+  const activeLoading = isPlayingTranslation ? isTranslationLoading : isLoading;
+  const activePlaying = isPlaying || isPlayingTranslation;
+
+  const handleActiveToggle = () => {
+    if (isPlayingTranslation) {
+      toggleTranslationPlayPause();
+    } else {
+      togglePlayPause();
+    }
+  };
+
+  const handleSeek = (time: number) => {
+    if (isPlayingTranslation) {
+      seekTranslation(time);
+    } else {
+      seek(time);
+    }
+  };
 
   const formatTime = (secs: number) => {
     if (isNaN(secs) || secs < 0) return "0:00";
@@ -70,11 +96,18 @@ export function AudioPlayerBar() {
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)] truncate">
               <span>{currentReciter ? currentReciter.reciter_name : "Reciter"}</span>
-              {isPlayingTranslation && (
-                <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                  Translation Audio
-                </span>
-              )}
+              <button
+                type="button"
+                onClick={toggleTranslationPlayPause}
+                className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded-full border transition-all cursor-pointer ${
+                  isPlayingTranslation
+                    ? "bg-teal-500/20 text-teal-600 dark:text-teal-400 border-teal-500/40 font-bold"
+                    : "bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-teal-600 border-[var(--border-subtle)]"
+                }`}
+                title={isPlayingTranslation ? "Translation playing (click to pause)" : "Click to play translation audio"}
+              >
+                {isPlayingTranslation ? "🗣️ Translation Audio" : "Play Translation"}
+              </button>
             </div>
           </div>
         </div>
@@ -93,14 +126,18 @@ export function AudioPlayerBar() {
 
             <button
               type="button"
-              onClick={togglePlayPause}
-              disabled={isLoading}
-              aria-label={isPlaying ? "Pause" : "Play"}
-              className="h-10 w-10 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-md transition-all active:scale-95"
+              onClick={handleActiveToggle}
+              disabled={activeLoading}
+              aria-label={activePlaying ? "Pause" : "Play"}
+              className={`h-10 w-10 rounded-full text-white flex items-center justify-center shadow-md transition-all active:scale-95 ${
+                isPlayingTranslation
+                  ? "bg-teal-600 hover:bg-teal-500"
+                  : "bg-emerald-600 hover:bg-emerald-500"
+              }`}
             >
-              {isLoading ? (
+              {activeLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
-              ) : isPlaying ? (
+              ) : activePlaying ? (
                 <Pause className="h-5 w-5" />
               ) : (
                 <Play className="h-5 w-5 ml-0.5" />
@@ -117,21 +154,23 @@ export function AudioPlayerBar() {
             </button>
           </div>
 
-          {/* Time Scrubber */}
+          {/* Time Scrubber (Ultra-Thin 2.5px) */}
           <div className="flex items-center gap-2 w-full max-w-md">
             <span className="text-[10px] font-mono text-[var(--muted-foreground)] w-8 text-right">
-              {formatTime(currentTime)}
+              {formatTime(activeCurrentTime)}
             </span>
             <input
               type="range"
               min={0}
-              max={duration || 100}
-              value={currentTime}
-              onChange={(e) => seek(Number(e.target.value))}
-              className="w-full h-1 bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              max={activeDuration || 100}
+              value={activeCurrentTime}
+              onChange={(e) => handleSeek(Number(e.target.value))}
+              className={`w-full h-[2.5px] bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer transition-colors ${
+                isPlayingTranslation ? "accent-teal-500" : "accent-emerald-500"
+              }`}
             />
             <span className="text-[10px] font-mono text-[var(--muted-foreground)] w-8">
-              {formatTime(duration)}
+              {formatTime(activeDuration)}
             </span>
           </div>
         </div>

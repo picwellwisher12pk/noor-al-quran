@@ -24,16 +24,21 @@ export function MobileAudioBar() {
     isPlaying,
     isLoading,
     isPlayingTranslation,
+    isTranslationLoading,
     currentVerseKey,
     currentReciter,
     currentTime,
     duration,
+    translationCurrentTime,
+    translationDuration,
     playbackRate,
     repeatMode,
     togglePlayPause,
+    toggleTranslationPlayPause,
     playNextVerse,
     playPreviousVerse,
     seek,
+    seekTranslation,
     setPlaybackRate,
     setRepeatMode,
     stopAudio,
@@ -49,7 +54,7 @@ export function MobileAudioBar() {
   const [loopFrom, setLoopFrom] = useState(1);
   const [loopTo, setLoopTo] = useState(1);
 
-  if (!currentVerseKey && !isPlaying) return null;
+  if (!currentVerseKey && !isPlaying && !isPlayingTranslation) return null;
 
   // ── Verse key parsing ──────────────────────────────────────────────────────
   const [rawChapterId, rawVerseNum] = (currentVerseKey ?? "1:1").split(":");
@@ -59,7 +64,28 @@ export function MobileAudioBar() {
   const surahName = chapter?.name_simple ?? `Surah ${chapterId}`;
   const versesCount = chapter?.verses_count ?? null;
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const activeCurrentTime = isPlayingTranslation ? translationCurrentTime : currentTime;
+  const activeDuration = isPlayingTranslation ? translationDuration : duration;
+  const activeLoading = isPlayingTranslation ? isTranslationLoading : isLoading;
+  const activePlaying = isPlaying || isPlayingTranslation;
+
+  const progressPercent = activeDuration > 0 ? (activeCurrentTime / activeDuration) * 100 : 0;
+
+  const handleActiveToggle = () => {
+    if (isPlayingTranslation) {
+      toggleTranslationPlayPause();
+    } else {
+      togglePlayPause();
+    }
+  };
+
+  const handleSeek = (time: number) => {
+    if (isPlayingTranslation) {
+      seekTranslation(time);
+    } else {
+      seek(time);
+    }
+  };
 
   // Reciter initials badge text
   const reciterInitials =
@@ -94,10 +120,12 @@ export function MobileAudioBar() {
             : "bottom-[calc(56px+env(safe-area-inset-bottom,0px))]"
         }`}
       >
-        {/* Progress Line */}
-        <div className="w-full h-1 bg-[var(--surface-card)] overflow-hidden">
+        {/* Progress Line (Ultra-Thin 2px) */}
+        <div className="w-full h-[2px] bg-[var(--surface-card)] overflow-hidden">
           <div
-            className="h-full bg-emerald-500 transition-all duration-200"
+            className={`h-full transition-all duration-200 ${
+              isPlayingTranslation ? "bg-teal-500" : "bg-emerald-500"
+            }`}
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -123,7 +151,7 @@ export function MobileAudioBar() {
               <div className="text-[10px] text-[var(--muted-foreground)] truncate">
                 Ayah {verseNum}
                 {versesCount ? ` of ${versesCount}` : ""} •{" "}
-                {isPlayingTranslation ? "Translation Audio" : (currentReciter?.reciter_name ?? "Reciter")}
+                {isPlayingTranslation ? "🗣️ Translation Audio" : (currentReciter?.reciter_name ?? "Reciter")}
               </div>
             </div>
           </button>
@@ -141,14 +169,18 @@ export function MobileAudioBar() {
 
             <button
               type="button"
-              onClick={togglePlayPause}
-              disabled={isLoading}
-              aria-label={isPlaying ? "Pause" : "Play"}
-              className="h-9 w-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs transition-all active:scale-95"
+              onClick={handleActiveToggle}
+              disabled={activeLoading}
+              aria-label={activePlaying ? "Pause" : "Play"}
+              className={`h-9 w-9 rounded-full text-white flex items-center justify-center shadow-xs transition-all active:scale-95 ${
+                isPlayingTranslation
+                  ? "bg-teal-600 hover:bg-teal-500"
+                  : "bg-emerald-600 hover:bg-emerald-500"
+              }`}
             >
-              {isLoading ? (
+              {activeLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
-              ) : isPlaying ? (
+              ) : activePlaying ? (
                 <Pause className="h-4 w-4" />
               ) : (
                 <Play className="h-4 w-4 ml-0.5" />
@@ -230,19 +262,47 @@ export function MobileAudioBar() {
               </div>
             </div>
 
-            {/* Scrubber */}
+            {/* Dual Audio Mode Selector (Arabic Recitation vs Translation Audio) */}
+            <div className="flex items-center justify-center gap-2 pt-1 pb-1">
+              <button
+                type="button"
+                onClick={togglePlayPause}
+                className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  isPlaying
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                    : "bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-emerald-600 border-[var(--border-subtle)]"
+                }`}
+              >
+                🎙️ {currentReciter?.reciter_name?.split(" ")[0] || "Arabic"}
+              </button>
+              <button
+                type="button"
+                onClick={toggleTranslationPlayPause}
+                className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  isPlayingTranslation
+                    ? "bg-teal-600 text-white border-teal-600 shadow-xs"
+                    : "bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-teal-600 border-[var(--border-subtle)]"
+                }`}
+              >
+                🗣️ Translation Audio
+              </button>
+            </div>
+
+            {/* Scrubber (Ultra-Thin 2.5px) */}
             <div className="space-y-1">
               <input
                 type="range"
                 min={0}
-                max={duration || 100}
-                value={currentTime}
-                onChange={(e) => seek(Number(e.target.value))}
-                className="w-full h-1.5 bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                max={activeDuration || 100}
+                value={activeCurrentTime}
+                onChange={(e) => handleSeek(Number(e.target.value))}
+                className={`w-full h-[2.5px] bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer ${
+                  isPlayingTranslation ? "accent-teal-500" : "accent-emerald-500"
+                }`}
               />
               <div className="flex justify-between text-[11px] font-mono text-[var(--muted-foreground)]">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+                <span>{formatTime(activeCurrentTime)}</span>
+                <span>{formatTime(activeDuration)}</span>
               </div>
             </div>
 
@@ -258,13 +318,17 @@ export function MobileAudioBar() {
 
               <button
                 type="button"
-                onClick={togglePlayPause}
-                disabled={isLoading}
-                className="h-14 w-14 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition-all active:scale-95"
+                onClick={handleActiveToggle}
+                disabled={activeLoading}
+                className={`h-14 w-14 rounded-full text-white flex items-center justify-center shadow-lg transition-all active:scale-95 ${
+                  isPlayingTranslation
+                    ? "bg-teal-600 hover:bg-teal-500"
+                    : "bg-emerald-600 hover:bg-emerald-500"
+                }`}
               >
-                {isLoading ? (
+                {activeLoading ? (
                   <Loader2 className="h-6 w-6 animate-spin" />
-                ) : isPlaying ? (
+                ) : activePlaying ? (
                   <Pause className="h-6 w-6" />
                 ) : (
                   <Play className="h-6 w-6 ml-0.5" />
