@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Chapter } from "@/types/quran";
 import Link from "next/link";
-import { Search, BookOpen, Volume2 } from "lucide-react";
+import { Search, BookOpen, Volume2, X } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { getSurahUrduMeta } from "@/data/surahNamesUrdu";
@@ -48,9 +48,19 @@ export function SurahList({ chapters }: SurahListProps) {
               ? "سورت کے نام، نمبر، عربی، اردو یا انگریزی ترجمہ سے تلاش کریں..."
               : "Search by Surah name (EN/UR/AR), number, or translation..."
           }
-          className="w-full rounded-2xl bg-[var(--surface-raised)] px-4 py-3.5 pl-11 text-sm text-[var(--foreground)] border border-[var(--card-border)] focus:outline-none focus:border-emerald-500 placeholder-[var(--muted-foreground)] shadow-xs transition-colors"
+          className="w-full rounded-2xl bg-[var(--surface-raised)] px-4 py-3.5 pl-11 pr-10 text-sm text-[var(--foreground)] border border-[var(--card-border)] focus:outline-none focus:border-emerald-500 placeholder-[var(--muted-foreground)] shadow-xs transition-colors"
         />
         <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-[var(--muted-foreground)] pointer-events-none" />
+        {filterQuery && (
+          <button
+            type="button"
+            onClick={() => setFilterQuery("")}
+            aria-label="Clear search"
+            className="absolute right-3.5 top-3.5 p-1 rounded-full text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Chapters Grid */}
@@ -111,21 +121,21 @@ export function SurahList({ chapters }: SurahListProps) {
                 </div>
 
                 {/* Translations Beneath: English & Urdu */}
-                <div className="space-y-1.5 mb-3.5 bg-[var(--surface-card)]/50 p-2.5 rounded-xl border border-[var(--border-subtle)]/70 text-xs">
+                <div className="space-y-1 mb-3 bg-[var(--surface-card)]/40 p-2 sm:p-2.5 rounded-xl border border-[var(--border-subtle)]/60 text-xs">
                   {/* English Translation */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-medium text-[var(--muted-foreground)] shrink-0">
-                      Translation (EN):
+                  <div className="flex items-center justify-between gap-1.5 min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-400 shrink-0">
+                      EN:
                     </span>
-                    <span className="font-medium text-[var(--foreground)] text-right truncate">
+                    <span className="font-medium text-[var(--foreground)] text-right truncate text-[11px] sm:text-xs">
                       {chapter.translated_name.name}
                     </span>
                   </div>
 
                   {/* Urdu Translation */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-medium text-[var(--muted-foreground)] shrink-0">
-                      ترجمہ (اردو):
+                  <div className="flex items-center justify-between gap-1.5 min-w-0">
+                    <span className="text-[10px] font-sans font-bold text-emerald-700 dark:text-emerald-400 shrink-0">
+                      اردو:
                     </span>
                     <span
                       className="font-urdu text-xs text-[var(--foreground)] text-right truncate font-medium"

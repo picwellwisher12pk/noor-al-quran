@@ -25,7 +25,8 @@ interface DesktopShellProps {
 
 export function DesktopShell({ children }: DesktopShellProps) {
   const pathname = usePathname();
-  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isSurahReadingPage = pathname.startsWith("/surah");
+  const isReadingPage = pathname === "/" || isSurahReadingPage;
   const isMobile = useIsMobile();
 
   const {
@@ -49,19 +50,23 @@ export function DesktopShell({ children }: DesktopShellProps) {
       {isMobile ? (
         /* ================= MOBILE PHONE VIEWPORT (< 768px) ================= */
         <>
-          {/* 1. Mobile Top App Header */}
-          <MobileHeader />
+          {/* 1. Mobile Top App Header (Only on Non-Surah Pages; SurahReader provides its own unified header) */}
+          {!isSurahReadingPage && <MobileHeader />}
 
-          {/* 2. Main Mobile Canvas */}
-          <main className="flex-1 h-full overflow-y-auto relative flex flex-col select-text pb-20">
+          {/* 2. Main Mobile Canvas: single container scrolling without nested conflicts */}
+          <main
+            className={`flex-1 w-full h-full relative flex flex-col select-text ${
+              isSurahReadingPage ? "overflow-hidden" : "overflow-y-auto pb-24"
+            }`}
+          >
             {children}
           </main>
 
           {/* 3. Mobile Docked Audio Player */}
           <MobileAudioBar />
 
-          {/* 4. Mobile Bottom Tab Bar */}
-          <MobileBottomNav />
+          {/* 4. Mobile Bottom Tab Bar (Only on Non-Surah Pages for maximum reading immersion) */}
+          {!isSurahReadingPage && <MobileBottomNav />}
 
           {/* 5. Mobile Drawers & Sheets */}
           <MobileSurahDrawer />

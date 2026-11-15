@@ -5,7 +5,17 @@ import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  Layers,
+  Sparkles,
+  BookOpen,
+} from "lucide-react";
 import Link from "next/link";
 import { Verse } from "@/types/quran";
 
@@ -30,7 +40,9 @@ export function MobileReaderBar({
   const { prefs, setArabicFontSize } = useReadingPreferences();
   const { isPlaying, playSurah, togglePlayPause, currentChapterId } = useAudio();
   const { isUrdu } = useLanguage();
+  const { setIsMobileSurahDrawerOpen } = useDesktopWorkspace();
 
+  const [isJumpOpen, setIsJumpOpen] = useState(false);
   const [ayahInput, setAyahInput] = useState("");
 
   if (!isMobile) return null;
@@ -43,6 +55,7 @@ export function MobileReaderBar({
     if (!isNaN(num) && num >= 1 && num <= totalAyahs) {
       onJumpToAyah?.(num);
       setAyahInput("");
+      setIsJumpOpen(false);
     }
   };
 
@@ -60,125 +73,131 @@ export function MobileReaderBar({
   };
 
   return (
-    <div
+    <header
+      className="w-full flex-none bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none shadow-xs pt-[env(safe-area-inset-top,0px)]"
       dir={isUrdu ? "rtl" : "ltr"}
-      className="h-10 w-full flex-none flex items-center justify-between px-2 gap-1 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none text-xs z-20"
     >
-      {/* ── LEFT: Prev / Chapter badge / Next ── */}
-      <div className="flex items-center gap-0.5 shrink-0">
-        {/* Prev Surah */}
-        {chapterId > 1 ? (
+      <div className="h-12 px-2.5 flex items-center justify-between gap-1">
+        {/* Left: Back Arrow + Surah Info */}
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          {/* Back to Home Button */}
           <Link
-            href={`/surah/${chapterId - 1}`}
-            aria-label={isUrdu ? "پچھلی سورت" : "Previous Surah"}
-            className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95"
+            href="/"
+            aria-label="Back to Surahs"
+            className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95 shrink-0"
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-4 w-4" />
           </Link>
-        ) : (
-          <div className="w-8" />
-        )}
 
-        {/* Chapter badge + name */}
-        <div className="flex items-center gap-1 px-1">
-          <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded bg-emerald-600 text-white text-[10px] font-bold leading-none">
+          {/* Surah Badge */}
+          <span className="flex items-center justify-center h-6 min-w-[24px] px-1.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono font-bold text-[11px] shrink-0">
             {chapterId}
           </span>
-          <span className="text-[11px] font-semibold text-[var(--foreground)] max-w-[60px] truncate">
-            {isUrdu ? chapterArabic : chapterName}
-          </span>
+
+          {/* Surah Name English + Arabic */}
+          <div className="min-w-0 flex items-baseline gap-1.5 truncate">
+            <span className="font-bold text-xs sm:text-sm text-[var(--foreground)] truncate">
+              {chapterName}
+            </span>
+            <span
+              className="font-arabic text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-semibold shrink-0"
+              dir="rtl"
+            >
+              {chapterArabic}
+            </span>
+          </div>
         </div>
 
-        {/* Next Surah */}
-        {chapterId < 114 ? (
-          <Link
-            href={`/surah/${chapterId + 1}`}
-            aria-label={isUrdu ? "اگلی سورت" : "Next Surah"}
-            className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95"
-          >
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Link>
-        ) : (
-          <div className="w-8" />
-        )}
-      </div>
-
-      {/* ── CENTER: Ayah jump ── */}
-      <form
-        onSubmit={handleJump}
-        className="flex items-center gap-1 flex-1 min-w-0 justify-center"
-      >
-        <input
-          type="number"
-          min={1}
-          max={totalAyahs}
-          value={ayahInput}
-          onChange={(e) => setAyahInput(e.target.value)}
-          placeholder={`1-${totalAyahs}`}
-          aria-label={isUrdu ? "آیت نمبر" : "Ayah number"}
-          className="w-14 px-1.5 py-0.5 text-[11px] rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-mono text-center"
-        />
-        <button
-          type="submit"
-          className="px-2 py-0.5 min-h-[26px] rounded bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[10px] font-semibold text-[var(--muted-foreground)] hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-colors active:scale-95"
-        >
-          {isUrdu ? "جاؤ" : "Go"}
-        </button>
-      </form>
-
-      {/* ── RIGHT: Font size + Play/Pause ── */}
-      <div className="flex items-center gap-0.5 shrink-0">
-        {/* A- */}
-        <button
-          type="button"
-          onClick={decreaseFontSize}
-          disabled={prefs.arabicFontSize <= 22}
-          aria-label={isUrdu ? "فونٹ چھوٹا کریں" : "Decrease font size"}
-          title={isUrdu ? "فونٹ چھوٹا کریں" : "Decrease Arabic font size"}
-          className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px]"
-        >
-          A-
-        </button>
-
-        {/* A+ */}
-        <button
-          type="button"
-          onClick={increaseFontSize}
-          disabled={prefs.arabicFontSize >= 56}
-          aria-label={isUrdu ? "فونٹ بڑا کریں" : "Increase font size"}
-          title={isUrdu ? "فونٹ بڑا کریں" : "Increase Arabic font size"}
-          className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-[11px]"
-        >
-          A+
-        </button>
-
-        {/* Play / Pause Surah */}
-        <button
-          type="button"
-          onClick={handlePlayPause}
-          aria-label={
-            isThisChapterPlaying
-              ? isUrdu ? "وقفہ" : "Pause"
-              : isUrdu ? "سورت سنیں" : "Play Surah"
-          }
-          title={
-            isThisChapterPlaying
-              ? isUrdu ? "وقفہ" : "Pause Recitation"
-              : isUrdu ? "پوری سورت سنیں" : "Recite Entire Surah"
-          }
-          className={`p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-md transition-colors active:scale-95 ${
-            isThisChapterPlaying
-              ? "bg-emerald-600 text-white"
-              : "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/15 hover:text-emerald-800 dark:hover:text-emerald-300"
-          }`}
-        >
-          {isThisChapterPlaying ? (
-            <Pause className="h-3.5 w-3.5" />
+        {/* Right: Quick Controls */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          {/* Jump to Ayah Form / Button */}
+          {isJumpOpen ? (
+            <form onSubmit={handleJump} className="flex items-center gap-1">
+              <input
+                type="number"
+                min={1}
+                max={totalAyahs}
+                value={ayahInput}
+                onChange={(e) => setAyahInput(e.target.value)}
+                placeholder={`1-${totalAyahs}`}
+                autoFocus
+                className="w-13 px-1.5 py-0.5 text-xs rounded bg-[var(--surface-card)] border border-emerald-500 text-[var(--foreground)] focus:outline-none font-mono text-center"
+              />
+              <button
+                type="submit"
+                className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold"
+              >
+                Go
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsJumpOpen(false)}
+                className="px-1 text-xs text-[var(--muted-foreground)]"
+              >
+                ✕
+              </button>
+            </form>
           ) : (
-            <Play className="h-3.5 w-3.5" />
+            <button
+              type="button"
+              onClick={() => setIsJumpOpen(true)}
+              title={`Jump to Ayah (1-${totalAyahs})`}
+              className="px-2 py-1 rounded-md text-[11px] font-mono text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors"
+            >
+              Ayah
+            </button>
           )}
-        </button>
+
+          {/* Font Size A- / A+ */}
+          <button
+            type="button"
+            onClick={decreaseFontSize}
+            disabled={prefs.arabicFontSize <= 22}
+            aria-label="Decrease Font Size"
+            className="p-1 min-w-[28px] h-7 rounded text-[11px] font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] disabled:opacity-40"
+          >
+            A-
+          </button>
+          <button
+            type="button"
+            onClick={increaseFontSize}
+            disabled={prefs.arabicFontSize >= 56}
+            aria-label="Increase Font Size"
+            className="p-1 min-w-[28px] h-7 rounded text-[11px] font-bold text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] disabled:opacity-40"
+          >
+            A+
+          </button>
+
+          {/* Recite Whole Surah Button */}
+          <button
+            type="button"
+            onClick={handlePlayPause}
+            aria-label={isThisChapterPlaying ? "Pause Surah" : "Play Surah"}
+            className={`p-1.5 rounded-lg transition-all active:scale-95 ${
+              isThisChapterPlaying
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/15"
+            }`}
+          >
+            {isThisChapterPlaying ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+          </button>
+
+          {/* Surahs Drawer Button */}
+          <button
+            type="button"
+            onClick={() => setIsMobileSurahDrawerOpen(true)}
+            aria-label="Open Surahs Drawer"
+            className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95"
+            title="Browse all Surahs"
+          >
+            <Layers className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

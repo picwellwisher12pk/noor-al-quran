@@ -14,6 +14,7 @@ import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { DesktopToolbar } from "@/components/desktop/DesktopToolbar";
 import { MobileReaderBar } from "@/components/mobile/MobileReaderBar";
+import { MobileAyahActionDock } from "@/components/mobile/MobileAyahActionDock";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import { useSearchParams } from "next/navigation";
 import { Loader2, ArrowUp, History, X } from "lucide-react";
@@ -298,8 +299,8 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       {/* Reading Canvas Container */}
       <div
         ref={scrollContainerRef}
-        className={`flex-1 overflow-y-auto w-full mx-auto pb-24 ${
-          isCompact ? "max-w-4xl px-2 sm:px-4 py-2 space-y-2 pr-10 sm:pr-12" : "max-w-5xl px-3 sm:px-6 py-4 space-y-3 pr-10 sm:pr-12"
+        className={`flex-1 overflow-y-auto w-full mx-auto pb-32 sm:pb-24 overscroll-contain ${
+          isCompact ? "max-w-4xl px-2.5 sm:px-4 py-2 space-y-2 sm:pr-12" : "max-w-5xl px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:pr-12"
         }`}
       >
         {/* Jumping to Ayah Loading Banner */}
@@ -485,6 +486,15 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           isUrdu={isUrdu}
         />
       )}
+
+      {/* Mobile Floating/Docked Active Ayah Action Bar */}
+      <MobileAyahActionDock
+        verses={verses}
+        chapterId={chapter.id}
+        chapterName={chapter.name_simple}
+        chapterArabic={chapter.name_arabic}
+        onOpenTafsir={handleOpenTafsir}
+      />
 
       {/* Dedicated Spacious Tafseer Modal Dialog */}
       {tafsirAyahKey && (

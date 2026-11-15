@@ -13,6 +13,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
+import { useIsMobile } from "@/hooks/useMediaQuery";
 import {
   Play,
   Pause,
@@ -26,6 +27,7 @@ import {
   Flag,
   Loader2,
   X,
+  MoreHorizontal,
 } from "lucide-react";
 
 interface VerseItemProps {
@@ -62,8 +64,16 @@ export function VerseItem({
   const { plan, recordReadingProgress } = useKhatmah();
   const { logVerseRead } = useReadingActivity();
   const { getNotesForVerse } = useNotes();
-  const { openNotesInInspector, selectedAyahKey, openAyahInInspector, setActiveAyahFromPlayback } = useDesktopWorkspace();
+  const {
+    openNotesInInspector,
+    selectedAyahKey,
+    setSelectedAyahKey,
+    setSelectedAyahArabic,
+    openAyahInInspector,
+    setActiveAyahFromPlayback,
+  } = useDesktopWorkspace();
   const { isUrdu } = useLanguage();
+  const isMobile = useIsMobile();
 
   const [copied, setCopied] = useState(false);
   const [pinnedSaved, setPinnedSaved] = useState(false);
@@ -285,7 +295,14 @@ export function VerseItem({
     if (target.closest("button, a, input, [role='button']")) {
       return;
     }
-    openAyahInInspector(verse.verse_key, activeArabicText);
+    if (isMobile) {
+      // On mobile, tap selects the ayah to surface the active action dock,
+      // without opening the heavy bottom inspector sheet.
+      setSelectedAyahKey(isSelected ? null : verse.verse_key);
+      setSelectedAyahArabic(activeArabicText);
+    } else {
+      openAyahInInspector(verse.verse_key, activeArabicText);
+    }
   };
 
   return (
@@ -332,8 +349,8 @@ export function VerseItem({
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1 flex-wrap">
+        {/* Desktop Action Buttons */}
+        <div className="hidden sm:flex items-center gap-1 flex-wrap">
           {/* Play Verse */}
           <button
             type="button"
@@ -510,6 +527,32 @@ export function VerseItem({
             className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
             <Share2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+          </button>
+        </div>
+
+        {/* Mobile Minimal Indicators & Quick Action Trigger */}
+        <div className="flex sm:hidden items-center gap-1.5">
+          {bookmarked && (
+            <BookmarkIcon className="h-3.5 w-3.5 fill-emerald-600 dark:fill-emerald-400 text-emerald-600 dark:text-emerald-400" />
+          )}
+          {verseNotes.length > 0 && (
+            <StickyNote className="h-3.5 w-3.5 fill-amber-500/40 text-amber-600 dark:text-amber-400" />
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedAyahKey(isSelected ? null : verse.verse_key);
+              setSelectedAyahArabic(activeArabicText);
+            }}
+            aria-label="Ayah actions"
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              isSelected
+                ? "bg-emerald-600 text-white"
+                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+            }`}
+          >
+            <MoreHorizontal className="h-4 w-4" />
           </button>
         </div>
       </div>

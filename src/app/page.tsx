@@ -36,8 +36,8 @@ export default async function HomePage() {
           <span className="block text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 font-bold">Surah Al-Isra [17:9]</span>
         </p>
 
-        {/* Quick Launch Actions - Mobile-First Stacked, Desktop Row */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-center gap-2 sm:gap-3 w-full sm:w-auto">
+        {/* Quick Launch Actions - 2x2 Grid on Mobile, Row on Desktop */}
+        <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center sm:justify-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Link
             href="/learn"
             className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center gap-2 active:scale-95"

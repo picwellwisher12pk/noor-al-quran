@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.36.2",
+  "version": "1.37.0",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",

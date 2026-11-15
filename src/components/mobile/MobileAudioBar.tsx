@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAudio, RepeatMode } from "@/context/AudioContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import {
@@ -41,6 +42,8 @@ export function MobileAudioBar() {
   } = useAudio();
 
   const { chapters } = useDesktopWorkspace();
+  const pathname = usePathname();
+  const isSurahReading = pathname?.startsWith("/surah") ?? false;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [loopFrom, setLoopFrom] = useState(1);
@@ -84,7 +87,13 @@ export function MobileAudioBar() {
   return (
     <>
       {/* ── 1. Collapsed Mini Player Bar ─────────────────────────────────── */}
-      <div className="md:hidden fixed bottom-[calc(56px+env(safe-area-inset-bottom,0px))] inset-x-0 z-30 bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-lg select-none">
+      <div
+        className={`md:hidden fixed inset-x-0 z-30 bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-lg select-none ${
+          isSurahReading
+            ? "bottom-0 pb-[env(safe-area-inset-bottom,0px)]"
+            : "bottom-[calc(56px+env(safe-area-inset-bottom,0px))]"
+        }`}
+      >
         {/* Progress Line */}
         <div className="w-full h-1 bg-[var(--surface-card)] overflow-hidden">
           <div
