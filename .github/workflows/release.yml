@@ -59,7 +59,7 @@ jobs:
     name: 🏷️ Create Release
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.bump.outputs.new_version }}
+      new_version: ${{ steps.unified_version.outputs.version }}
       release_id:  ${{ steps.create_release.outputs.id }}
       upload_url:  ${{ steps.create_release.outputs.upload_url }}
 
@@ -136,13 +136,16 @@ jobs:
 
       # ── Merge outputs so downstream jobs have one variable ─────
       - name: Set unified NEW_VERSION env
+        id: unified_version
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "NEW_VERSION=${{ steps.bump.outputs.new_version }}" >> $GITHUB_ENV
+            VER="${{ steps.bump.outputs.new_version }}"
           else
-            echo "NEW_VERSION=${{ steps.tag_version.outputs.new_version }}" >> $GITHUB_ENV
+            VER="${{ steps.tag_version.outputs.new_version }}"
           fi
+          echo "NEW_VERSION=$VER" >> $GITHUB_ENV
+          echo "version=$VER" >> $GITHUB_OUTPUT
 
       # ── Commit + tag (only on workflow_dispatch) ──────────────
       - name: Configure git identity
