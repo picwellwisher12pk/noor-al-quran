@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Play,
   Pause,
-  Mic,
   Settings,
   BookOpen,
   GraduationCap,
@@ -39,7 +38,6 @@ export function DesktopToolbar({
   const router = useRouter();
   const {
     setIsSettingsOpen,
-    setIsVerseIdentifierOpen,
   } = useDesktopWorkspace();
 
   const {
@@ -209,11 +207,11 @@ export function DesktopToolbar({
             }`}
             title={
               isUrdu
-                ? "پاکستانی / انڈو-پاک رسم الخط (اسلام 360 / برصغیر)"
-                : "Indo-Pak Script (Pakistani Mushaf / Islam 360)"
+                ? "انڈو-پاک رسم الخط"
+                : "Indo-Pak Script"
             }
           >
-            <span>{isUrdu ? "پاکستانی (انڈو-پاک)" : "Indo-Pak"}</span>
+            <span>{isUrdu ? "انڈو-پاک" : "Indo-Pak"}</span>
           </button>
         </div>
 
@@ -238,30 +236,18 @@ export function DesktopToolbar({
           </button>
         </div>
 
-
-        {/* Recite to find Verse button */}
-        <button
-          type="button"
-          onClick={() => setIsVerseIdentifierOpen(true)}
-          className="px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-          title="Recite to Identify Verse"
-        >
-          <Mic className="h-3.5 w-3.5" />
-          <span className="hidden md:inline">{isUrdu ? "تلاوت" : "Recite"}</span>
-        </button>
-
-        {/* Preferences Shortcut Button */}
+        {/* Preferences / Settings Shortcut Button (Icon only with tooltip) */}
         <button
           type="button"
           onClick={() => setIsSettingsOpen(true)}
-          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 transition-colors cursor-pointer"
-          title="Reading Preferences & Display Settings"
+          className="p-1.5 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center justify-center transition-colors cursor-pointer"
+          title={isUrdu ? "ترتیبات و فونٹ سائز" : "Reading Preferences & Display Settings"}
+          aria-label={isUrdu ? "ترتیبات" : "Preferences"}
         >
           <Settings className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span className="hidden md:inline font-medium">{isUrdu ? "ترتیبات" : "Preferences"}</span>
         </button>
 
-        {/* Play Surah Button */}
+        {/* Play Surah Button (Icon only with tooltip) */}
         <button
           type="button"
           onClick={() => {
@@ -271,23 +257,34 @@ export function DesktopToolbar({
               playSurah(chapterId, 1, verses);
             }
           }}
-          className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer ${
+          className={`p-1.5 rounded-lg text-xs font-semibold flex items-center justify-center transition-all shadow-sm cursor-pointer ${
             isThisChapterPlaying
               ? "bg-emerald-600 text-white shadow-emerald-900/30"
               : "bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-800 dark:text-emerald-200 hover:text-emerald-900 dark:hover:text-emerald-100"
           }`}
-          title={isThisChapterPlaying ? "Pause Recitation" : "Recite Entire Surah"}
+          title={
+            isThisChapterPlaying
+              ? isUrdu
+                ? "تلاوت روکیں (سورت)"
+                : "Pause Surah Recitation"
+              : isUrdu
+              ? "پوری سورت سنیں"
+              : "Play Entire Surah"
+          }
+          aria-label={
+            isThisChapterPlaying
+              ? isUrdu
+                ? "تلاوت روکیں"
+                : "Pause Surah"
+              : isUrdu
+              ? "سورت سنیں"
+              : "Play Surah"
+          }
         >
           {isThisChapterPlaying ? (
-            <>
-              <Pause className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{isUrdu ? "وقفہ" : "Pause"}</span>
-            </>
+            <Pause className="h-3.5 w-3.5" />
           ) : (
-            <>
-              <Play className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{isUrdu ? "سورت سنیں" : "Play Surah"}</span>
-            </>
+            <Play className="h-3.5 w-3.5 ml-0.5" />
           )}
         </button>
       </div>

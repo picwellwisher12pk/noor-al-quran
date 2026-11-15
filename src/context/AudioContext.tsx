@@ -132,6 +132,25 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     };
 
+    const handleWaiting = () => {
+      setIsLoading(true);
+    };
+
+    const handleCanPlay = () => {
+      setIsLoading(false);
+    };
+
+    const handlePlaying = () => {
+      setIsLoading(false);
+      setIsPlaying(true);
+      isPlayingRef.current = true;
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
+      isPlayingRef.current = false;
+    };
+
     const handleEnded = () => {
       handleVerseEndedRef.current();
     };
@@ -145,6 +164,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("canplay", handleCanPlay);
+    audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("pause", handlePause);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
 
@@ -162,6 +185,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audio.pause();
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("canplay", handleCanPlay);
+      audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
     };
@@ -226,6 +253,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     currentChapterIdRef.current = chapterId;
     setCurrentVerseKey(verseKey);
     currentVerseKeyRef.current = verseKey;
+    setCurrentTime(0);
+    setDuration(0);
     setIsLoading(true);
     repeatCountRef.current = 0;
 
@@ -242,6 +271,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // Check 3: Fetch online
     if (!audioUrl) {
       audioUrl = await fetchVerseAudioUrl(reciterId, verseKey);
+      if (audioUrl) {
+        // Cache in background for zero-latency replays
+        offlineStorage.cacheVerseAudio(reciterId, verseKey, audioUrl).catch(() => {});
+      }
     }
 
     if (!audioUrl || !audioRef.current) {

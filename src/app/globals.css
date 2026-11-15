@@ -1,5 +1,14 @@
-@import "tailwindcss";
-@source "../";
+@import "tailwindcss" source(none);
+@source "../app";
+@source "../components";
+@source "../context";
+@source "../hooks";
+@source "../store";
+@source "../lib";
+@source "../services";
+@source "../utils";
+@source "../data";
+@source "../config";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

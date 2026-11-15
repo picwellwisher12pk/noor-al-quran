@@ -21,14 +21,22 @@ import {
   Sparkles,
   Flame,
   CalendarDays,
-  Menu,
-  LayoutGrid,
+  Minus,
+  Square,
+  X,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { isTauri as checkIsTauri, safeCloseWindow, safeMinimizeWindow, safeToggleMaximize } from "@/utils/platform";
+import {
+  isTauri as checkIsTauri,
+  isMac as checkIsMac,
+  safeCloseWindow,
+  safeMinimizeWindow,
+  safeToggleMaximize,
+} from "@/utils/platform";
 import { useLanguage } from "@/context/LanguageContext";
-import { useGoogleAuth } from "@/context/GoogleAuthContext";
 
 export function DesktopTitleBar() {
   const pathname = usePathname();
@@ -44,7 +52,6 @@ export function DesktopTitleBar() {
     setIsSearchOpen,
     setIsVerseIdentifierOpen,
     setIsSettingsOpen,
-    openSettingsModal,
     chapters,
     activeChapterId,
     activeAyahNumber,
@@ -54,26 +61,33 @@ export function DesktopTitleBar() {
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
-  const { user, isSignedIn, isSyncing } = useGoogleAuth();
   const [isTauri, setIsTauri] = useState(false);
+  const [isMac, setIsMac] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     setIsTauri(checkIsTauri());
+    setIsMac(checkIsMac());
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
   }, []);
 
   const activeChapter = chapters.find((c) => c.id === activeChapterId);
 
-  // Window Action Handlers (Supports both Native Tauri window and Browser fallback)
+  // Window Action Handlers
   const handleWindowClose = () => {
     safeCloseWindow();
   };
 
   const handleWindowMinimize = () => {
-    if (isTauri) {
-      safeMinimizeWindow();
-    } else {
-      toggleLeftSidebar();
-    }
+    safeMinimizeWindow();
   };
 
   const handleWindowMaximize = () => {
@@ -84,29 +98,31 @@ export function DesktopTitleBar() {
     <header
       className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-40 text-xs"
     >
-      {/* Left: Window controls & App Branding */}
-      <div className="flex items-center gap-3 shrink-0">
-        {/* Window Control Buttons */}
-        <div className="flex items-center gap-1.5 pr-2 border-r border-[var(--border-subtle)]">
-          <button
-            type="button"
-            onClick={handleWindowClose}
-            className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm cursor-pointer"
-            title={isTauri ? "Close Application" : "Go to Home"}
-          />
-          <button
-            type="button"
-            onClick={handleWindowMinimize}
-            className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm cursor-pointer"
-            title={isTauri ? "Minimize Window" : "Toggle Sidebar"}
-          />
-          <button
-            type="button"
-            onClick={handleWindowMaximize}
-            className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm cursor-pointer"
-            title={isTauri ? "Maximize / Restore Window" : "Toggle Fullscreen"}
-          />
-        </div>
+      {/* Left: Window controls (macOS Tauri) & App Branding */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        {/* macOS Traffic Light Buttons (Only on native macOS Desktop) */}
+        {isTauri && isMac && (
+          <div className="flex items-center gap-1.5 pr-2.5 mr-1 border-r border-[var(--border-subtle)]">
+            <button
+              type="button"
+              onClick={handleWindowClose}
+              className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm cursor-pointer"
+              title="Close Application"
+            />
+            <button
+              type="button"
+              onClick={handleWindowMinimize}
+              className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm cursor-pointer"
+              title="Minimize Window"
+            />
+            <button
+              type="button"
+              onClick={handleWindowMaximize}
+              className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm cursor-pointer"
+              title="Maximize / Restore Window"
+            />
+          </div>
+        )}
 
         {/* Sidebar Toggle Button */}
         <button
@@ -217,40 +233,53 @@ export function DesktopTitleBar() {
           </button>
         )}
 
-        {/* Application Menu & User Profile Trigger */}
+        {/* Fullscreen Mode Toggle (Universal across Web and Desktop) */}
         <button
           type="button"
-          onClick={() => openSettingsModal(isSignedIn && user ? "account" : "navigation")}
-          className="flex items-center gap-1.5 p-1 sm:px-2 sm:py-1 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] hover:border-emerald-500/40 text-[var(--foreground)] text-xs font-semibold transition-all shadow-sm cursor-pointer active:scale-98"
-          title="Open Noor Al-Quran Hub & Menu (Backup, Themes, Navigation & Settings)"
+          onClick={safeToggleMaximize}
+          className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
+          title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
+          aria-label="Toggle Fullscreen"
         >
-          {isSignedIn && user ? (
-            <div className="flex items-center gap-1.5">
-              {user.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  className="w-5 h-5 rounded-full border border-emerald-500/50"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px]">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="hidden md:inline max-w-[80px] truncate">{user.name.split(" ")[0]}</span>
-              {isSyncing ? (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              )}
-            </div>
+          {isFullscreen ? (
+            <Minimize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
           ) : (
-            <div className="flex items-center gap-1.5">
-              <LayoutGrid className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="hidden sm:inline font-bold">{isUrdu ? "مینو" : "Menu"}</span>
-            </div>
+            <Maximize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
           )}
         </button>
+
+        {/* Windows / Linux Native Window Controls (Only in Tauri Desktop on Windows/Linux) */}
+        {isTauri && !isMac && (
+          <div className="flex items-center h-10 ml-1.5 border-l border-[var(--border-subtle)] -mr-3">
+            <button
+              type="button"
+              onClick={safeMinimizeWindow}
+              className="h-full px-3.5 hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center justify-center cursor-pointer"
+              title="Minimize Window"
+              aria-label="Minimize Window"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={safeToggleMaximize}
+              className="h-full px-3.5 hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center justify-center cursor-pointer"
+              title="Maximize / Restore Window"
+              aria-label="Maximize / Restore Window"
+            >
+              <Square className="h-3 w-3" />
+            </button>
+            <button
+              type="button"
+              onClick={handleWindowClose}
+              className="h-full px-3.5 hover:bg-rose-600 hover:text-white text-[var(--muted-foreground)] transition-colors flex items-center justify-center cursor-pointer"
+              title="Close Application"
+              aria-label="Close Application"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

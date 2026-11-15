@@ -30,6 +30,8 @@ import {
   ExternalLink,
   StickyNote,
   Plus,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -87,6 +89,7 @@ export function DesktopRightInspector() {
   const [isFullModalOpen, setIsFullModalOpen] = useState(false);
   const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
   const [noteModalEditingId, setNoteModalEditingId] = useState<string | null>(null);
+  const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
 
   // Loading States
   const [loadingMorph, setLoadingMorph] = useState(false);
@@ -223,6 +226,28 @@ export function DesktopRightInspector() {
             </span>
           </div>
           <div className="flex items-center gap-1">
+            {/* Collapse / Expand Preview Section */}
+            <button
+              type="button"
+              onClick={() => setIsPreviewCollapsed(!isPreviewCollapsed)}
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+              title={
+                isPreviewCollapsed
+                  ? isUrdu
+                    ? "آیت کا جائزہ دکھائیں"
+                    : "Expand Ayah Preview"
+                  : isUrdu
+                  ? "آیت کا جائزہ سکیڑیں (ٹیبز کے لیے زیادہ جگہ)"
+                  : "Collapse Ayah Preview (More Space for Tabs)"
+              }
+              aria-label="Toggle Ayah Preview"
+            >
+              {isPreviewCollapsed ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronUp className="h-4 w-4" />
+              )}
+            </button>
             {/* Expand / Collapse Width Button */}
             <button
               type="button"
@@ -254,56 +279,81 @@ export function DesktopRightInspector() {
           </div>
         </div>
 
-        {/* Active Token Hero Banner */}
-        <div className="p-3.5 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] text-center relative overflow-hidden">
-          <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2">
-            <span>{selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}</span>
-            {isKids && (
-              <span className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[9px] font-bold">
-                {isUrdu ? "متلاشی موڈ ⭐" : "Explorer Mode ⭐"}
+        {/* Active Token Hero Banner (Collapsible) */}
+        {isPreviewCollapsed ? (
+          <div
+            onClick={() => setIsPreviewCollapsed(false)}
+            className="px-3 py-2 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-500/5 transition-colors group"
+            title={isUrdu ? "آیت کا تفصیلی جائزہ کھولنے کے لیے کلک کریں" : "Click to expand Ayah preview"}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 shrink-0">
+                {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
               </span>
+              <span className="font-arabic text-sm text-[var(--foreground)] truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400" dir="rtl">
+                {selectedWord
+                  ? (prefs.quranScript === "indopak" && selectedWord.text_indopak)
+                    ? selectedWord.text_indopak
+                    : (selectedWord.text_uthmani || selectedWord.text)
+                  : selectedAyahArabic || "ٱلْقُرْءَان"}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 shrink-0 ml-2">
+              <span className="hidden sm:inline">{isUrdu ? "کھولیں" : "Expand"}</span>
+              <ChevronDown className="h-3 w-3" />
+            </div>
+          </div>
+        ) : (
+          <div className="p-3.5 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] text-center relative overflow-hidden">
+            {/* Quick Collapse Button */}
+            <button
+              type="button"
+              onClick={() => setIsPreviewCollapsed(true)}
+              className="absolute top-2 right-2 p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+              title={isUrdu ? "آیت کا جائزہ سکیڑیں" : "Collapse Ayah preview"}
+              aria-label="Collapse Ayah Preview"
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+            </button>
+
+            <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2">
+              <span>{selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}</span>
+              {isKids && (
+                <span className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[9px] font-bold">
+                  {isUrdu ? "متلاشی موڈ ⭐" : "Explorer Mode ⭐"}
+                </span>
+              )}
+            </div>
+            <div className="font-arabic text-3xl font-bold text-emerald-700 dark:text-emerald-300 py-0.5 leading-relaxed" dir="rtl">
+              {selectedWord ? (
+                (prefs.quranScript === "indopak" && selectedWord.text_indopak)
+                  ? selectedWord.text_indopak
+                  : (selectedWord.text_uthmani || selectedWord.text)
+              ) : selectedAyahArabic || "ٱلْقُرْءَان"}
+            </div>
+            {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
+              <div className="text-[11px] text-[var(--muted-foreground)] font-medium mt-0.5">
+                {selectedWord.transliteration.text}
+              </div>
+            )}
+            {selectedWord && (
+              <button
+                type="button"
+                onClick={() => {
+                  const audio = getWordAudioUrl(selectedWord);
+                  if (audio) {
+                    playWord(audio);
+                  } else {
+                    playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
+                  }
+                }}
+                className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
+              >
+                <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
+              </button>
             )}
           </div>
-          <div className="font-arabic text-3xl font-bold text-emerald-700 dark:text-emerald-300 py-0.5 leading-relaxed" dir="rtl">
-            {selectedWord ? (
-              (prefs.quranScript === "indopak" && selectedWord.text_indopak)
-                ? selectedWord.text_indopak
-                : (selectedWord.text_uthmani || selectedWord.text)
-            ) : selectedAyahArabic || "ٱلْقُرْءَان"}
-          </div>
-          {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
-            <div className="text-[11px] text-[var(--muted-foreground)] font-medium mt-0.5">
-              {selectedWord.transliteration.text}
-            </div>
-          )}
-          {selectedWord ? (
-            <button
-              type="button"
-              onClick={() => {
-                const audio = getWordAudioUrl(selectedWord);
-                if (audio) {
-                  playWord(audio);
-                } else {
-                  playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
-                }
-              }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
-            >
-              <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
-            </button>
-          ) : selectedAyahKey ? (
-            <button
-              type="button"
-              onClick={() => {
-                const [s] = selectedAyahKey.split(":");
-                playVerse(Number(s) || 1, selectedAyahKey);
-              }}
-              className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
-            >
-              <Volume2 className="h-3 w-3" /> {isUrdu ? "مکمل آیت سنیں" : "Recite Ayah"}
-            </button>
-          ) : null}
-        </div>
+        )}
 
         {/* Inspector Tabs */}
         <div className="flex items-center p-1 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] gap-1 text-[11px] overflow-x-auto">

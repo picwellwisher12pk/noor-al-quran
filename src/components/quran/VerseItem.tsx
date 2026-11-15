@@ -24,6 +24,8 @@ import {
   CheckCircle2,
   StickyNote,
   Flag,
+  Loader2,
+  X,
 } from "lucide-react";
 
 interface VerseItemProps {
@@ -43,7 +45,18 @@ export function VerseItem({
   onOpenTafsir,
   readingMode = "continuous",
 }: VerseItemProps) {
-  const { currentVerseKey, isPlaying, playVerse, togglePlayPause } = useAudio();
+  const {
+    currentVerseKey,
+    isPlaying,
+    isLoading,
+    currentTime,
+    duration,
+    playVerse,
+    togglePlayPause,
+    seek,
+    stopAudio,
+    currentReciter,
+  } = useAudio();
   const { isBookmarked, addBookmark, removeBookmark, lastRead, setLastReadPosition } = useBookmarks();
   const { prefs } = useReadingPreferences();
   const { plan, recordReadingProgress } = useKhatmah();
@@ -62,6 +75,7 @@ export function VerseItem({
   const isSelected = selectedAyahKey === verse.verse_key;
   const verseNotes = getNotesForVerse(verse.verse_key);
   const isCurrentPlaying = currentVerseKey === verse.verse_key;
+  const isVerseLoading = isCurrentPlaying && isLoading;
   const bookmarked = isBookmarked(verse.verse_key);
   const isLastRead = lastRead?.verseKey === verse.verse_key;
   const isCompact = readingMode === "compact";
@@ -238,6 +252,16 @@ export function VerseItem({
     ? Math.max(12, prefs.englishFontSize - 2)
     : prefs.englishFontSize;
 
+  const formatAudioTime = (secs: number) => {
+    if (isNaN(secs) || secs < 0) return "0:00";
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const audioProgressPercent =
+    duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+
   const handleVerseClick = (e: React.MouseEvent) => {
     // Avoid re-selecting if the user clicked an interactive control inside the card
     const target = e.target as HTMLElement;
@@ -297,15 +321,48 @@ export function VerseItem({
           <button
             type="button"
             onClick={handlePlayToggle}
-            aria-label={isCurrentPlaying && isPlaying ? "Pause verse" : "Play verse audio"}
-            className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
-              isCurrentPlaying && isPlaying
-                ? "bg-emerald-600 text-white"
+            disabled={isVerseLoading}
+            aria-label={
+              isVerseLoading
+                ? isUrdu
+                  ? "آڈیو ڈاؤن لوڈ ہو رہی ہے..."
+                  : "Downloading recitation audio..."
+                : isCurrentPlaying && isPlaying
+                ? isUrdu
+                  ? "تلاوت روکیں"
+                  : "Pause verse"
+                : isUrdu
+                ? "آیت کی تلاوت سنیں"
+                : "Play verse audio"
+            }
+            className={`p-2 sm:p-1.5 rounded-lg transition-all cursor-pointer ${
+              isVerseLoading
+                ? "bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 animate-pulse"
+                : isCurrentPlaying && isPlaying
+                ? "bg-emerald-600 text-white shadow-sm"
                 : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
             }`}
-            title="Play Audio"
+            title={
+              isVerseLoading
+                ? isUrdu
+                  ? "آڈیو ڈاؤن لوڈ ہو رہی ہے..."
+                  : "Downloading recitation audio..."
+                : isCurrentPlaying && isPlaying
+                ? isUrdu
+                  ? "تلاوت روکیں"
+                  : "Pause verse"
+                : isUrdu
+                ? "آیت کی تلاوت سنیں"
+                : "Play verse audio"
+            }
           >
-            {isCurrentPlaying && isPlaying ? <Pause className="h-4 w-4 sm:h-3.5 sm:w-3.5" /> : <Play className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
+            {isVerseLoading ? (
+              <Loader2 className="h-4 w-4 sm:h-3.5 sm:w-3.5 animate-spin" />
+            ) : isCurrentPlaying && isPlaying ? (
+              <Pause className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+            ) : (
+              <Play className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
+            )}
           </button>
 
           {/* Mark as Stopping Point (Last Read) */}
@@ -493,6 +550,107 @@ export function VerseItem({
             style={{ fontSize: `${activeEnglishFontSize}px` }}
             dangerouslySetInnerHTML={{ __html: englishTranslation.text }}
           />
+        </div>
+      )}
+
+      {/* Recitation Audio Downloading State */}
+      {isCurrentPlaying && isVerseLoading && duration === 0 && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2 pt-1.5 border-t border-emerald-500/20 flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-300 font-medium px-2.5 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-950/20 animate-pulse select-none"
+        >
+          <div className="flex items-center gap-1.5">
+            <Loader2 className="h-3 w-3 animate-spin text-emerald-600 dark:text-emerald-400" />
+            <span>
+              {isUrdu ? "تلاوت آڈیو ڈاؤن لوڈ ہو رہی ہے..." : "Downloading recitation audio..."}
+            </span>
+          </div>
+          <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
+            {currentReciter?.reciter_name || "Audio"}
+          </span>
+        </div>
+      )}
+
+      {/* Recitation Audio Seekbar & Playhead (Ultra-Minimal 1-Row Inline Player) */}
+      {isCurrentPlaying && (duration > 0 || isPlaying || currentTime > 0) && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2 pt-1.5 border-t border-emerald-500/25 flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-950/30 transition-all duration-200 select-none"
+        >
+          {/* Mini Play / Pause Toggle */}
+          <button
+            type="button"
+            onClick={handlePlayToggle}
+            disabled={isVerseLoading}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            className="h-6 w-6 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
+            title={
+              currentReciter?.reciter_name
+                ? `${currentReciter.reciter_name} - ${isPlaying ? "Pause" : "Play"}`
+                : isPlaying ? "Pause" : "Play"
+            }
+          >
+            {isVerseLoading ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : isPlaying ? (
+              <Pause className="h-3 w-3" />
+            ) : (
+              <Play className="h-3 w-3 ml-0.5" />
+            )}
+          </button>
+
+          {/* Interactive Seekbar Track + Playhead Knob (Fills remaining horizontal width) */}
+          <div className="relative flex-1 flex items-center group py-1 min-w-[60px]">
+            {/* Background Track */}
+            <div className="w-full h-1.5 rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
+              {/* Progress Fill */}
+              <div
+                className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 transition-[width] duration-75"
+                style={{ width: `${audioProgressPercent}%` }}
+              />
+            </div>
+
+            {/* Draggable Playhead Knob */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white dark:bg-emerald-200 border-2 border-emerald-600 dark:border-emerald-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
+              style={{ left: `${audioProgressPercent}%` }}
+            />
+
+            {/* Transparent Native Range Slider for click & drag */}
+            <input
+              type="range"
+              min={0}
+              max={duration > 0 ? duration : 100}
+              step={0.05}
+              value={currentTime}
+              onChange={(e) => {
+                seek(parseFloat(e.target.value));
+              }}
+              aria-label="Seek recitation time"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+
+          {/* Compact Timestamps */}
+          <div className="text-[10px] font-mono font-medium text-[var(--foreground)] shrink-0 flex items-center gap-0.5 whitespace-nowrap">
+            <span>{formatAudioTime(currentTime)}</span>
+            <span className="text-[var(--muted-foreground)]/60">/</span>
+            <span className="text-[var(--muted-foreground)]">{formatAudioTime(duration)}</span>
+          </div>
+
+          {/* Dismiss / Close Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              stopAudio();
+            }}
+            aria-label="Stop playback"
+            className="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer shrink-0"
+            title="Stop playback"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
         </div>
       )}
 

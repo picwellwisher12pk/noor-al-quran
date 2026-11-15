@@ -8,7 +8,6 @@ import { useReadingActivity } from "@/context/ReadingActivityContext";
 import {
   BookOpen,
   Layers,
-  Calendar,
   Bookmark,
   Search,
   CheckCircle2,
@@ -19,10 +18,18 @@ import {
   GraduationCap,
   CalendarDays,
   History,
+  Target,
+  LayoutDashboard,
+  Gamepad2,
+  Sparkles,
+  BookMarked,
+  ShieldAlert,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { useLearningStore } from "@/store/useLearningStore";
 
 export function DesktopSidebar() {
   const router = useRouter();
@@ -42,12 +49,15 @@ export function DesktopSidebar() {
     loadingMeta,
     activeChapterId,
     setActiveChapterId,
+    openSettingsModal,
   } = useDesktopWorkspace();
 
   const { bookmarks, lastRead, removeBookmark } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
+  const { getWeakWords, toggleReviewVault } = useLearningStore();
+  const weakWords = getWeakWords();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [revelationFilter, setRevelationFilter] = useState<"all" | "makkah" | "madinah">("all");
@@ -97,87 +107,231 @@ export function DesktopSidebar() {
       }`}
     >
       {/* 1. Leftmost Mini Activity Dock (48px / w-12) */}
-      <div className="w-12 h-full flex-none flex flex-col items-center py-3 bg-[var(--surface-sunken)] border-r border-[var(--border-subtle)] space-y-3">
-        <button
-          type="button"
-          onClick={() => handleTabClick("surahs")}
-          className={`p-2 rounded-xl transition-all ${
-            activeSidebarTab === "surahs" && isLeftSidebarOpen
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
-          }`}
-          title="Surahs Directory (1..114)"
-        >
-          <BookOpen className="h-4 w-4" />
-        </button>
+      <div className="w-12 h-full flex-none flex flex-col items-center py-3 bg-[var(--surface-sunken)] border-r border-[var(--border-subtle)] space-y-2">
+        {/* ================= TOP: 3 MAJOR APP PILLARS ================= */}
+        <div className="flex flex-col items-center space-y-2">
+          {/* 1. Major Pillar: Quran Reader */}
+          <button
+            type="button"
+            onClick={() => {
+              if (isReadingPage) {
+                toggleLeftSidebar();
+              } else {
+                router.push("/");
+              }
+            }}
+            className={`p-2 rounded-xl transition-all cursor-pointer ${
+              isReadingPage
+                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
+            }`}
+            title={isUrdu ? "تلاوتِ قرآن" : "Noble Quran Reader (تلاوت)"}
+          >
+            <BookOpen className="h-4 w-4" />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => handleTabClick("juz")}
-          className={`p-2 rounded-xl transition-all ${
-            activeSidebarTab === "juz" && isLeftSidebarOpen
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
-          }`}
-          title="Juz / Siparah Directory (1..30)"
-        >
-          <Layers className="h-4 w-4" />
-        </button>
+          {/* 2. Major Pillar: Learn Quranic Arabic */}
+          <Link
+            href="/learn"
+            className={`p-2 rounded-xl transition-all cursor-pointer ${
+              isLearnRoute
+                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
+            }`}
+            title={isUrdu ? "تعلیم القرآن (الفاظ و قواعد)" : "Learn Quranic Arabic (Words, Grammar & Games)"}
+          >
+            <GraduationCap className="h-4 w-4" />
+          </Link>
 
-        <button
-          type="button"
-          onClick={() => handleTabClick("khatmah")}
-          className={`p-2 rounded-xl transition-all ${
-            activeSidebarTab === "khatmah" && isLeftSidebarOpen
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
-          }`}
-          title="Khatmah Sunnah Goal (7-day minimum)"
-        >
-          <Calendar className="h-4 w-4" />
-        </button>
+          {/* 3. Major Pillar: Daily Istiqamah & Calendar */}
+          <Link
+            href="/calendar"
+            className={`relative p-2 rounded-xl transition-all cursor-pointer ${
+              isCalendarRoute
+                ? "bg-amber-600 text-white shadow-sm shadow-amber-600/30"
+                : "text-[var(--muted-foreground)] hover:text-amber-500 hover:bg-[var(--surface-card)]"
+            }`}
+            title={
+              currentStreak > 0
+                ? (isUrdu ? `تسلسل تلاوت (${currentStreak} دن)` : `Reading Streak & Calendar (${currentStreak} Days)`)
+                : (isUrdu ? "کیلنڈر و تسلسل" : "Reading Streak & Calendar")
+            }
+          >
+            <Flame className={`h-4 w-4 ${currentStreak > 0 ? "text-amber-400 fill-amber-400/30" : ""}`} />
+            {currentStreak > 0 && !isCalendarRoute && (
+              <span className="absolute top-1 right-1 flex h-2 w-2">
+                <span className="inline-flex rounded-full h-2 w-2 bg-amber-400 shadow-sm" />
+              </span>
+            )}
+          </Link>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => handleTabClick("bookmarks")}
-          className={`p-2 rounded-xl transition-all ${
-            activeSidebarTab === "bookmarks" && isLeftSidebarOpen
-              ? "bg-emerald-600 text-white shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
-          }`}
-          title="Bookmarks & Saved Verses"
-        >
-          <Bookmark className="h-4 w-4" />
-        </button>
+        {/* Subtle Section Divider */}
+        <div className="w-6 h-[1px] bg-[var(--border-subtle)] my-1 shrink-0" />
 
-        <Link
-          href="/calendar"
-          className={`relative p-2 rounded-xl transition-all ${
-            isCalendarRoute
-              ? "bg-amber-600 text-white shadow-sm shadow-amber-600/30"
-              : "text-[var(--muted-foreground)] hover:text-amber-400 hover:bg-[var(--surface-card)]"
-          }`}
-          title={currentStreak > 0 ? `Reading Streak & Calendar (${currentStreak} Days)` : "Reading Streak & Calendar"}
-        >
-          <CalendarDays className="h-4 w-4" />
-          {currentStreak > 0 && !isCalendarRoute && (
-            <span className="absolute top-1 right-1 flex h-2 w-2">
-              <span className="inline-flex rounded-full h-2 w-2 bg-amber-400 shadow-sm" />
-            </span>
-          )}
-        </Link>
+        {/* ================= CONTEXTUAL SUB-TOOLS ================= */}
+        {/* Sub-tools for Quran Reader */}
+        {isReadingPage && (
+          <div className="flex flex-col items-center space-y-2">
+            {/* Unified Quran Directory (Surahs & Juz) */}
+            <button
+              type="button"
+              onClick={() => {
+                if (isLeftSidebarOpen && (activeSidebarTab === "surahs" || activeSidebarTab === "juz")) {
+                  setLeftSidebarOpen(false);
+                } else {
+                  setActiveSidebarTab(activeSidebarTab === "juz" ? "juz" : "surahs");
+                  setLeftSidebarOpen(true);
+                }
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                (activeSidebarTab === "surahs" || activeSidebarTab === "juz") && isLeftSidebarOpen
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "فہرستِ قرآن (سورتیں اور پارے)" : "Quran Directory (114 Surahs & 30 Juz)"}
+            >
+              <Layers className="h-4 w-4" />
+            </button>
 
-        <Link
-          href="/learn"
-          className={`p-2 rounded-xl transition-all ${
-            isLearnRoute
-              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30 font-bold"
-              : "text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--surface-card)]"
-          }`}
-          title="Learn 70% Quran Words, Flashcards & Games"
-        >
-          <GraduationCap className="h-4 w-4" />
-        </Link>
+            {/* Bookmarks & Saved Verses */}
+            <button
+              type="button"
+              onClick={() => handleTabClick("bookmarks")}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                activeSidebarTab === "bookmarks" && isLeftSidebarOpen
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? `محفوظ آیات (${bookmarks.length})` : `Bookmarks & Saved Verses (${bookmarks.length})`}
+            >
+              <Bookmark className="h-4 w-4" />
+            </button>
+
+            {/* Khatmah Sunnah Goal */}
+            <button
+              type="button"
+              onClick={() => handleTabClick("khatmah")}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                activeSidebarTab === "khatmah" && isLeftSidebarOpen
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "منصوبہ ختمِ قرآن (سنت کے مطابق)" : "Khatmah Sunnah Goal (7-day minimum pacing)"}
+            >
+              <Target className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Sub-tools for Learn Quranic Arabic */}
+        {isLearnRoute && (
+          <div className="flex flex-col items-center space-y-2">
+            <Link
+              href="/learn/sirat"
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                pathname.startsWith("/learn/sirat")
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "صراطِ نور (سیکھنے کا راستہ)" : "My Path (Sirat Al-Noor Skill Tree)"}
+            >
+              <Compass className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/learn/flashcards"
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                pathname.startsWith("/learn/flashcards")
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "مشقی فلیش کارڈز" : "Practice Flashcards"}
+            >
+              <Layers className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/learn/arcade"
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                pathname.startsWith("/learn/arcade")
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "قرآنی گیمز آرکیڈ" : "Mini Games Arcade"}
+            >
+              <Gamepad2 className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/learn/word-bank"
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                pathname.startsWith("/learn/word-bank")
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "ذخیرہ الفاظ" : "Word Explorer & Vocabulary"}
+            >
+              <Sparkles className="h-4 w-4" />
+            </Link>
+
+            <Link
+              href="/learn/grammar"
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                pathname.startsWith("/learn/grammar")
+                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? "قواعد و صرف" : "Grammar & Verbs"}
+            >
+              <BookMarked className="h-4 w-4" />
+            </Link>
+
+            {/* SRS Review Vault button */}
+            <button
+              type="button"
+              onClick={() => toggleReviewVault(true)}
+              className={`relative p-2 rounded-xl transition-all cursor-pointer ${
+                weakWords.length > 0
+                  ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
+              }`}
+              title={isUrdu ? `دہرائی کا خزانہ (${weakWords.length} الفاظ)` : `SRS Review Vault (${weakWords.length} words due)`}
+            >
+              <ShieldAlert className="h-4 w-4" />
+              {weakWords.length > 0 && (
+                <span className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full text-[9px] font-mono font-bold bg-amber-500 text-slate-950 leading-none shadow-sm">
+                  {weakWords.length}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Sub-tools for Calendar / History */}
+        {isCalendarRoute && lastRead && (
+          <div className="flex flex-col items-center space-y-2">
+            <Link
+              href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
+              className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15 transition-all cursor-pointer"
+              title={`${isUrdu ? "جاری رکھیں:" : "Resume Reading:"} ${lastRead.chapterName} (${lastRead.verseNumber})`}
+            >
+              <History className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
+
+        {/* Bottom Anchor: App Navigation & Settings */}
+        <div className="mt-auto pt-2 flex flex-col items-center space-y-2 border-t border-[var(--border-subtle)] w-full">
+          <button
+            type="button"
+            onClick={() => openSettingsModal("navigation")}
+            className="p-2 rounded-xl text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+            title={isUrdu ? "ایپ سیٹنگز اور مینو" : "App Navigation & Settings"}
+          >
+            <Settings className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* 2. Explorer Panel Content (268px) - Strictly restricted to Quran Reading pages */}
@@ -208,6 +362,34 @@ export function DesktopSidebar() {
                 </button>
               </div>
             </div>
+
+            {/* Segmented Switcher for Surahs vs Juz */}
+            {(activeSidebarTab === "surahs" || activeSidebarTab === "juz") && (
+              <div className="flex rounded-lg bg-[var(--surface-sunken)] p-0.5 border border-[var(--border-subtle)] text-[11px] font-medium">
+                <button
+                  type="button"
+                  onClick={() => setActiveSidebarTab("surahs")}
+                  className={`flex-1 py-1 rounded-md text-center transition-all cursor-pointer ${
+                    activeSidebarTab === "surahs"
+                      ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {isUrdu ? "سورتیں (114)" : "Surahs (114)"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSidebarTab("juz")}
+                  className={`flex-1 py-1 rounded-md text-center transition-all cursor-pointer ${
+                    activeSidebarTab === "juz"
+                      ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  }`}
+                >
+                  {isUrdu ? "پارے (30)" : "Juz (30)"}
+                </button>
+              </div>
+            )}
 
             {/* Quick Filter Input (Surahs view) */}
             {activeSidebarTab === "surahs" && (
@@ -373,7 +555,7 @@ export function DesktopSidebar() {
               <div className="space-y-3 p-1">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600/15 via-emerald-900/10 to-transparent border border-emerald-500/30 text-xs space-y-2">
                   <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold text-xs">
-                    <Flame className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <Target className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Sunnah 7-Day Minimum Pacing</span>
                   </div>
                   <p className="text-[11px] text-[var(--muted-foreground)] leading-relaxed">
