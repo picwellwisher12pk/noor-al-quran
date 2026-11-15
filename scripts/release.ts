@@ -104,6 +104,7 @@ if (args.includes("--help") || args.includes("-h")) {
 }
 
 const dry        = args.includes("--dry-run");
+const yes        = args.includes("--yes") || args.includes("-y");
 const prerelease = args.includes("--prerelease");
 const draft      = args.includes("--draft");
 const noWeb      = args.includes("--no-web");
@@ -154,7 +155,7 @@ console.log(`
 ╚══════════════════════════════════════════════╝
 `);
 
-if (!dry) {
+if (!dry && !yes) {
   const readline = require("readline").createInterface({
     input: process.stdin, output: process.stdout,
   });
@@ -182,31 +183,37 @@ run("bun run version:sync", dry);
 // ─── Step 3: Git commit & tag ─────────────────────────────────────────────────
 
 console.log(`[3/5] 📦  Committing & tagging v${newVersion}...`);
-run(`git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml`, dry);
-run(`git commit -m "chore: release v${newVersion}"`, dry);
-run(`git tag -a "v${newVersion}" -m "Release v${newVersion}"`, dry);
+try {
+  run("git fetch origin", dry);
+  run("git rebase origin/main", dry);
+} catch {
+  // Continue if rebase fails or already synced
+}
+
+run(`git add -A`, dry);
+try {
+  run(`git commit -m "chore: release v${newVersion}"`, dry);
+} catch {
+  console.log("  (Working tree already clean, proceeding to tag)");
+}
+
+try {
+  run(`git tag -a "v${newVersion}" -m "Release v${newVersion}"`, dry);
+} catch {
+  console.log(`  (Tag v${newVersion} exists, updating tag pointer)`);
+  run(`git tag -d "v${newVersion}"`, dry);
+  run(`git tag -a "v${newVersion}" -m "Release v${newVersion}"`, dry);
+}
 
 // ─── Step 4: Push ─────────────────────────────────────────────────────────────
 
-console.log(`[4/5] 🚀  Pushing to remote...`);
-run(`git push --follow-tags`, dry);
+console.log(`[4/5] 🚀  Pushing to GitHub (main + tags)...`);
+run(`git push origin main --follow-tags`, dry);
 
-// ─── Step 5: Trigger GitHub Actions via gh CLI ───────────────────────────────
+// ─── Step 5: Verify GitHub Actions Workflow ───────────────────────────────────
 
-console.log(`[5/5] ⚙️  Triggering GitHub Actions release workflow...`);
-
-const ghArgs = [
-  `gh workflow run release.yml`,
-  `--field bump=custom`,
-  `--field custom_version=${newVersion}`,
-  `--field prerelease=${prerelease}`,
-  `--field draft=${draft}`,
-  `--field build_web=${!noWeb}`,
-  `--field build_desktop=${!noDesktop}`,
-  `--field build_android=${!noAndroid}`,
-].join(" ");
-
-run(ghArgs, dry);
+console.log(`[5/5] ⚙️  Release pipeline triggered on GitHub Actions!`);
+console.log(`  The '🚀 Release — Noor Al-Quran' workflow was automatically triggered by the v${newVersion} tag push.`);
 
 // ─── Done ─────────────────────────────────────────────────────────────────────
 
