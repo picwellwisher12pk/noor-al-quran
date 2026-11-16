@@ -100,6 +100,7 @@ export function SettingsModal({
     toggleShowUrduTranslation,
     toggleShowTransliteration,
     toggleShowWordByWord,
+    toggleShowStopSignsHelp,
     toggleAutoScroll,
     setSelectedUrduTranslationId,
     setSelectedTafsirId,
@@ -414,10 +415,13 @@ export function SettingsModal({
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="3xl"
+      draggable={true}
+      backdropBlur={false}
       title={
-        <div className="flex items-center justify-between w-full pr-6">
+        <div className="flex items-center justify-between w-full pr-2 sm:pr-4">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+            <div className="p-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <GripHorizontal className="h-3.5 w-3.5 opacity-60 hidden sm:inline-block" />
               <Settings className="h-5 w-5" />
             </div>
             <div>
@@ -1163,6 +1167,29 @@ export function SettingsModal({
                     />
                   </label>
                 )}
+              </div>
+
+              {/* Stop Signs & Waqf Rules Guidance Toggle */}
+              <div className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)] block">
+                      {isUrdu ? "رہنمائے رموزِ اوقاف (کب ٹھہریں، کب نہ ٹھہریں)" : "Stop Signs Guidance (Waqf Rules)"}
+                    </span>
+                    <span className="text-[10px] text-[var(--muted-foreground)]">
+                      {isUrdu ? "آیات میں وقف و وصل کے حروف اور احکام کا وضاحتی پینل" : "Show stopping mark advice and guidance ribbons on verses"}
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                    <span className="text-xs text-[var(--muted-foreground)]">Enabled</span>
+                    <input
+                      type="checkbox"
+                      checked={prefs.showStopSignsHelp !== false}
+                      onChange={toggleShowStopSignsHelp}
+                      className="h-4 w-4 accent-emerald-500 rounded cursor-pointer"
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2.5">

@@ -12,6 +12,7 @@ import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
+import { WaqfInteractiveText } from "./WaqfInteractiveText";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import {
@@ -102,6 +103,7 @@ export function VerseItem({
 
   const isIndoPak = prefs.quranScript === "indopak";
   const activeArabicText = (isIndoPak && verse.text_indopak) ? verse.text_indopak : verse.text_uthmani;
+  const showStopHelp = prefs.showStopSignsHelp !== false;
 
   // Font class mapping
   const baseArabicFontClass = {
@@ -593,17 +595,13 @@ export function VerseItem({
             chapterName={chapterName}
           />
         ) : (
-          <p
-            className={`${arabicFontClass} text-[var(--foreground)] ${
-              isCompact ? "leading-[1.7]" : "leading-[2.0]"
-            } select-text`}
-            style={{ fontSize: `${activeArabicFontSize}px` }}
-          >
-            {activeArabicText}
-            <span className="inline-flex items-center justify-center text-emerald-500 font-arabic text-lg px-2 select-none">
-              ۝
-            </span>
-          </p>
+          <WaqfInteractiveText
+            arabicText={activeArabicText}
+            fontSize={activeArabicFontSize}
+            fontClass={`${arabicFontClass} ${isCompact ? "leading-[1.7]" : "leading-[2.0]"}`}
+            isPlaying={isCurrentPlaying}
+            showWaqfHelp={showStopHelp}
+          />
         )}
       </div>
 

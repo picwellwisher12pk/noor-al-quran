@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
 import { useAudio } from "@/context/AudioContext";
 import { Verse } from "@/types/quran";
+import { WaqfGuideModal } from "@/components/modals/WaqfGuideModal";
 import {
   ChevronLeft,
   ChevronRight,
@@ -36,6 +37,7 @@ export function DesktopToolbar({
   onJumpToAyah,
 }: DesktopToolbarProps) {
   const router = useRouter();
+  const [isWaqfGuideOpen, setIsWaqfGuideOpen] = useState(false);
   const {
     setIsSettingsOpen,
   } = useDesktopWorkspace();
@@ -215,6 +217,17 @@ export function DesktopToolbar({
           </button>
         </div>
 
+        {/* Waqf / Stop Signs Guide Button */}
+        <button
+          type="button"
+          onClick={() => setIsWaqfGuideOpen(true)}
+          className="flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-semibold bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 border-[var(--border-subtle)] transition-all cursor-pointer shadow-2xs"
+          title={isUrdu ? "رہنمائے رموزِ اوقاف (کب ٹھہریں، کب نہ ٹھہریں)" : "Quranic Stop Signs & Waqf Rules Guide"}
+        >
+          <BookOpen className="h-3.5 w-3.5 text-emerald-500" />
+          <span>{isUrdu ? "رموزِ اوقاف" : "Stop Rules"}</span>
+        </button>
+
         {/* Font Size A- / A+ */}
         <div className="flex items-center rounded-lg bg-[var(--surface-card)] p-0.5 border border-[var(--border-subtle)] text-[11px]">
           <button
@@ -288,6 +301,14 @@ export function DesktopToolbar({
           )}
         </button>
       </div>
+
+      {/* Waqf & Stop Rules Guide Modal */}
+      {isWaqfGuideOpen && (
+        <WaqfGuideModal
+          isOpen={isWaqfGuideOpen}
+          onClose={() => setIsWaqfGuideOpen(false)}
+        />
+      )}
     </div>
   );
 }

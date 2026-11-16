@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.37.4",
+  "version": "1.38.1",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",
@@ -31,7 +31,7 @@
     "@tauri-apps/plugin-opener": "^2.7.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.60.0",
-    "next": "16.4.2",
+    "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0",
@@ -45,7 +45,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

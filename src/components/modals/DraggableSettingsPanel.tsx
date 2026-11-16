@@ -24,6 +24,7 @@ import {
   CloudDownload,
   Languages,
   ExternalLink,
+  BookOpen,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 import { useLanguage } from "@/context/LanguageContext";
@@ -52,6 +53,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
     toggleShowUrduTranslation,
     toggleShowTransliteration,
     toggleShowWordByWord,
+    toggleShowStopSignsHelp,
     toggleAutoScroll,
     setSelectedUrduTranslationId,
   } = useReadingPreferences();
@@ -444,6 +446,27 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Stop Signs & Waqf Rules Guidance Toggle */}
+            <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between">
+              <div>
+                <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--foreground)] flex items-center gap-1">
+                  <BookOpen className="h-3 w-3 text-emerald-400" />
+                  <span>{isUrdu ? "رہنمائے اوقاف" : "Stop Signs Help"}</span>
+                </span>
+                <span className="text-[10px] text-[var(--muted-foreground)] block">
+                  {isUrdu ? "کب ٹھہریں، کب نہ ٹھہریں" : "Waqf recitation stopping rules"}
+                </span>
+              </div>
+              <label className="flex items-center gap-1 cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  checked={prefs.showStopSignsHelp !== false}
+                  onChange={toggleShowStopSignsHelp}
+                  className="accent-emerald-500 rounded"
+                />
+              </label>
             </div>
 
             {/* Font Sizing Controls */}

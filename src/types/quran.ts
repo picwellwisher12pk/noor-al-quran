@@ -192,6 +192,7 @@ export interface ReadingPreferences {
   showUrduTranslation: boolean;
   showTransliteration: boolean;
   showWordByWord: boolean;
+  showStopSignsHelp?: boolean;
   autoScroll: boolean;
   selectedReciterId: number;
   selectedReciterName: string;

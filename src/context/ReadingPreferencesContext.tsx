@@ -19,6 +19,7 @@ interface ReadingPreferencesContextType {
   toggleShowUrduTranslation: () => void;
   toggleShowTransliteration: () => void;
   toggleShowWordByWord: () => void;
+  toggleShowStopSignsHelp: () => void;
   setWbwLanguage: (lang: "english" | "urdu" | "both") => void;
   toggleAutoScroll: () => void;
   setSelectedUrduTranslationId: (id: number) => void;
@@ -43,6 +44,7 @@ const DEFAULT_PREFERENCES: ReadingPreferences = {
   showUrduTranslation: true,
   showTransliteration: true,
   showWordByWord: true,
+  showStopSignsHelp: true,
   autoScroll: true,
   selectedReciterId: 7,
   selectedReciterName: "Mishari Rashid al-`Afasy",
@@ -188,6 +190,13 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
     setPrefs((prev) => ({ ...prev, showWordByWord: !prev.showWordByWord }));
   };
 
+  const toggleShowStopSignsHelp = () => {
+    setPrefs((prev) => ({
+      ...prev,
+      showStopSignsHelp: prev.showStopSignsHelp === undefined ? false : !prev.showStopSignsHelp,
+    }));
+  };
+
   const setWbwLanguage = (lang: "english" | "urdu" | "both") => {
     setPrefs((prev) => ({ ...prev, wbwLanguage: lang }));
   };
@@ -237,6 +246,7 @@ export function ReadingPreferencesProvider({ children }: { children: React.React
         toggleShowUrduTranslation,
         toggleShowTransliteration,
         toggleShowWordByWord,
+        toggleShowStopSignsHelp,
         setWbwLanguage,
         toggleAutoScroll,
         setSelectedUrduTranslationId,

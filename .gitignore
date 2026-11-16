@@ -38,6 +38,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# editor & audits
+.vscode/
+SECURITY_AUDIT.md
+
 # tauri
 src-tauri/target/
 dist-apks/
