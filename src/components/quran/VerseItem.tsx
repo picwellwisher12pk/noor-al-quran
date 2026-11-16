@@ -607,6 +607,115 @@ export function VerseItem({
         )}
       </div>
 
+      {/* Arabic Recitation Audio Player (Directly Below Arabic Script) */}
+      {isCurrentPlaying && (duration > 0 || isPlaying || currentTime > 0 || isVerseLoading) && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2 mb-1.5 pt-1.5 pb-1.5 border border-emerald-500/25 flex flex-col gap-1.5 px-2.5 sm:px-3 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/25 transition-all duration-200 select-none shadow-2xs"
+        >
+          {isVerseLoading && duration === 0 ? (
+            <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-300 font-medium py-0.5 animate-pulse">
+              <div className="flex items-center gap-1.5">
+                <Loader2 className="h-3 w-3 animate-spin text-emerald-600 dark:text-emerald-400" />
+                <span>
+                  {isUrdu ? "تلاوت آڈیو ڈاؤن لوڈ ہو رہی ہے..." : "Downloading recitation audio..."}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                {currentReciter?.reciter_name || "Audio"}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              {/* Play / Pause Toggle Button */}
+              <button
+                type="button"
+                onClick={togglePlayPause}
+                disabled={isVerseLoading}
+                aria-label={isPlaying ? "Pause Arabic recitation" : "Play Arabic recitation"}
+                className="h-6 w-6 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                title={
+                  currentReciter?.reciter_name
+                    ? `${currentReciter.reciter_name} - ${isPlaying ? "Pause" : "Play"}`
+                    : isPlaying ? "Pause Arabic" : "Play Arabic"
+                }
+              >
+                {isVerseLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : isPlaying ? (
+                  <Pause className="h-3 w-3" />
+                ) : (
+                  <Play className="h-3 w-3 ml-0.5" />
+                )}
+              </button>
+
+              {/* Language & Reciter Badge */}
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-sans">
+                  {isUrdu ? "عربی تلاوت" : "Arabic"}
+                </span>
+                <span
+                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
+                  title={currentReciter?.reciter_name}
+                >
+                  {currentReciter?.reciter_name?.split(" ")[0] || "Reciter"}
+                </span>
+              </div>
+
+              {/* Interactive Ultra-Thin Seekbar Track + Playhead Knob */}
+              <div className="relative flex-1 flex items-center group py-1 min-w-[60px]">
+                {/* Ultra-Thin Track (2.5px) */}
+                <div className="w-full h-[2.5px] rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 transition-[width] duration-75"
+                    style={{ width: `${audioProgressPercent}%` }}
+                  />
+                </div>
+
+                {/* Draggable Knob */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-emerald-200 border-[1.5px] border-emerald-600 dark:border-emerald-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
+                  style={{ left: `${audioProgressPercent}%` }}
+                />
+
+                {/* Transparent Native Range Slider */}
+                <input
+                  type="range"
+                  min={0}
+                  max={duration > 0 ? duration : 100}
+                  step={0.05}
+                  value={currentTime}
+                  onChange={(e) => seek(parseFloat(e.target.value))}
+                  aria-label="Seek Arabic recitation time"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+
+              {/* Timestamps */}
+              <div className="text-[10px] font-mono font-medium text-[var(--foreground)] shrink-0 flex items-center gap-0.5 whitespace-nowrap">
+                <span>{formatAudioTime(currentTime)}</span>
+                <span className="text-[var(--muted-foreground)]/60">/</span>
+                <span className="text-[var(--muted-foreground)]">{formatAudioTime(duration)}</span>
+              </div>
+
+              {/* Stop Arabic Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  stopAudio();
+                }}
+                aria-label="Stop playback"
+                className="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer shrink-0"
+                title="Stop playback"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Urdu Translation */}
       {showUrduInVerse && urduTranslation && (
         <div
@@ -639,213 +748,118 @@ export function VerseItem({
         </div>
       )}
 
-      {/* Recitation Audio Downloading State */}
-      {isCurrentPlaying && isVerseLoading && duration === 0 && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="mt-2 pt-1.5 border-t border-emerald-500/20 flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-300 font-medium px-2.5 py-1 rounded-lg bg-emerald-500/5 dark:bg-emerald-950/20 animate-pulse select-none"
-        >
-          <div className="flex items-center gap-1.5">
-            <Loader2 className="h-3 w-3 animate-spin text-emerald-600 dark:text-emerald-400" />
-            <span>
-              {isUrdu ? "تلاوت آڈیو ڈاؤن لوڈ ہو رہی ہے..." : "Downloading recitation audio..."}
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
-            {currentReciter?.reciter_name || "Audio"}
-          </span>
-        </div>
-      )}
-
-      {/* Dual Audio Players: Arabic Recitation & Translation Audio (Individually Controlled) */}
+      {/* Translation Audio Player (Directly Below Translation) */}
       {isCurrentPlaying &&
-        (duration > 0 ||
-          isPlaying ||
-          currentTime > 0 ||
-          translationDuration > 0 ||
+        (translationDuration > 0 ||
           isPlayingTranslation ||
-          translationCurrentTime > 0) && (
+          translationCurrentTime > 0 ||
+          isTranslationLoading) && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="mt-2.5 pt-2 border-t border-emerald-500/25 flex flex-col gap-2 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/25 transition-all duration-200 select-none shadow-2xs"
+          className="mt-2.5 pt-1.5 pb-1.5 border border-teal-500/25 flex flex-col gap-1.5 px-2.5 sm:px-3 rounded-xl bg-teal-500/5 dark:bg-teal-950/25 transition-all duration-200 select-none shadow-2xs"
         >
-          {/* Row 1: Arabic Recitation Player */}
-          <div className="flex items-center gap-2">
-            {/* Play / Pause Toggle Button */}
-            <button
-              type="button"
-              onClick={togglePlayPause}
-              disabled={isVerseLoading}
-              aria-label={isPlaying ? "Pause Arabic recitation" : "Play Arabic recitation"}
-              className="h-6 w-6 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
-              title={
-                currentReciter?.reciter_name
-                  ? `${currentReciter.reciter_name} - ${isPlaying ? "Pause" : "Play"}`
-                  : isPlaying ? "Pause Arabic" : "Play Arabic"
-              }
-            >
-              {isVerseLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : isPlaying ? (
-                <Pause className="h-3 w-3" />
-              ) : (
-                <Play className="h-3 w-3 ml-0.5" />
-              )}
-            </button>
-
-            {/* Language & Reciter Badge */}
-            <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-sans">
-                {isUrdu ? "عربی تلاوت" : "Arabic"}
-              </span>
-              <span
-                className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
-                title={currentReciter?.reciter_name}
-              >
-                {currentReciter?.reciter_name?.split(" ")[0] || "Reciter"}
-              </span>
-            </div>
-
-            {/* Interactive Ultra-Thin Seekbar Track + Playhead Knob */}
-            <div className="relative flex-1 flex items-center group py-1 min-w-[60px]">
-              {/* Ultra-Thin Track (2.5px) */}
-              <div className="w-full h-[2.5px] rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 transition-[width] duration-75"
-                  style={{ width: `${audioProgressPercent}%` }}
-                />
+          {isTranslationLoading && translationDuration === 0 ? (
+            <div className="flex items-center justify-between text-[11px] text-teal-700 dark:text-teal-300 font-medium py-0.5 animate-pulse">
+              <div className="flex items-center gap-1.5">
+                <Loader2 className="h-3 w-3 animate-spin text-teal-600 dark:text-teal-400" />
+                <span>
+                  {isUrdu ? "ترجمہ آڈیو ڈاؤن لوڈ ہو رہی ہے..." : "Downloading translation audio..."}
+                </span>
               </div>
-
-              {/* Draggable Knob */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-emerald-200 border-[1.5px] border-emerald-600 dark:border-emerald-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
-                style={{ left: `${audioProgressPercent}%` }}
-              />
-
-              {/* Transparent Native Range Slider */}
-              <input
-                type="range"
-                min={0}
-                max={duration > 0 ? duration : 100}
-                step={0.05}
-                value={currentTime}
-                onChange={(e) => seek(parseFloat(e.target.value))}
-                aria-label="Seek Arabic recitation time"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-            </div>
-
-            {/* Timestamps */}
-            <div className="text-[10px] font-mono font-medium text-[var(--foreground)] shrink-0 flex items-center gap-0.5 whitespace-nowrap">
-              <span>{formatAudioTime(currentTime)}</span>
-              <span className="text-[var(--muted-foreground)]/60">/</span>
-              <span className="text-[var(--muted-foreground)]">{formatAudioTime(duration)}</span>
-            </div>
-
-            {/* Stop Arabic Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                stopAudio();
-              }}
-              aria-label="Stop playback"
-              className="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer shrink-0"
-              title="Stop playback"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Row 2: Translation Audio Player */}
-          <div className="flex items-center gap-2">
-            {/* Play / Pause Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTranslationPlayPause}
-              disabled={isTranslationLoading}
-              aria-label={isPlayingTranslation ? "Pause translation audio" : "Play translation audio"}
-              className="h-6 w-6 rounded-full bg-teal-600 hover:bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
-              title={
-                translationVoiceLabel
-                  ? `${translationVoiceLabel} - ${isPlayingTranslation ? "Pause" : "Play"}`
-                  : isPlayingTranslation ? "Pause Translation" : "Play Translation"
-              }
-            >
-              {isTranslationLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : isPlayingTranslation ? (
-                <Pause className="h-3 w-3" />
-              ) : (
-                <Play className="h-3 w-3 ml-0.5" />
-              )}
-            </button>
-
-            {/* Language & Voice Badge */}
-            <div className="flex items-center gap-1 shrink-0">
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-teal-500/15 text-teal-800 dark:text-teal-300 font-sans">
-                {isUrdu ? "ترجمہ آڈیو" : "Translation"}
-              </span>
-              <span
-                className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
-                title={translationVoiceLabel}
-              >
+              <span className="text-[10px] font-mono text-[var(--muted-foreground)]">
                 {translationVoiceLabel}
               </span>
             </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              {/* Play / Pause Toggle Button */}
+              <button
+                type="button"
+                onClick={toggleTranslationPlayPause}
+                disabled={isTranslationLoading}
+                aria-label={isPlayingTranslation ? "Pause translation audio" : "Play translation audio"}
+                className="h-6 w-6 rounded-full bg-teal-600 hover:bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                title={
+                  translationVoiceLabel
+                    ? `${translationVoiceLabel} - ${isPlayingTranslation ? "Pause" : "Play"}`
+                    : isPlayingTranslation ? "Pause Translation" : "Play Translation"
+                }
+              >
+                {isTranslationLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : isPlayingTranslation ? (
+                  <Pause className="h-3 w-3" />
+                ) : (
+                  <Play className="h-3 w-3 ml-0.5" />
+                )}
+              </button>
 
-            {/* Interactive Ultra-Thin Seekbar Track + Playhead Knob */}
-            <div className="relative flex-1 flex items-center group py-1 min-w-[60px]">
-              {/* Ultra-Thin Track (2.5px) */}
-              <div className="w-full h-[2.5px] rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
+              {/* Language & Voice Badge */}
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-teal-500/15 text-teal-800 dark:text-teal-300 font-sans">
+                  {isUrdu ? "ترجمہ آڈیو" : "Translation"}
+                </span>
+                <span
+                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
+                  title={translationVoiceLabel}
+                >
+                  {translationVoiceLabel}
+                </span>
+              </div>
+
+              {/* Interactive Ultra-Thin Seekbar Track + Playhead Knob */}
+              <div className="relative flex-1 flex items-center group py-1 min-w-[60px]">
+                {/* Ultra-Thin Track (2.5px) */}
+                <div className="w-full h-[2.5px] rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-300 transition-[width] duration-75"
+                    style={{ width: `${translationProgressPercent}%` }}
+                  />
+                </div>
+
+                {/* Draggable Knob */}
                 <div
-                  className="h-full bg-gradient-to-r from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-300 transition-[width] duration-75"
-                  style={{ width: `${translationProgressPercent}%` }}
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-teal-200 border-[1.5px] border-teal-600 dark:border-teal-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
+                  style={{ left: `${translationProgressPercent}%` }}
+                />
+
+                {/* Transparent Native Range Slider */}
+                <input
+                  type="range"
+                  min={0}
+                  max={translationDuration > 0 ? translationDuration : 100}
+                  step={0.05}
+                  value={translationCurrentTime}
+                  onChange={(e) => seekTranslation(parseFloat(e.target.value))}
+                  aria-label="Seek translation time"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
 
-              {/* Draggable Knob */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-teal-200 border-[1.5px] border-teal-600 dark:border-teal-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
-                style={{ left: `${translationProgressPercent}%` }}
-              />
+              {/* Timestamps */}
+              <div className="text-[10px] font-mono font-medium text-[var(--foreground)] shrink-0 flex items-center gap-0.5 whitespace-nowrap">
+                <span>{formatAudioTime(translationCurrentTime)}</span>
+                <span className="text-[var(--muted-foreground)]/60">/</span>
+                <span className="text-[var(--muted-foreground)]">
+                  {translationDuration > 0 ? formatAudioTime(translationDuration) : "--:--"}
+                </span>
+              </div>
 
-              {/* Transparent Native Range Slider */}
-              <input
-                type="range"
-                min={0}
-                max={translationDuration > 0 ? translationDuration : 100}
-                step={0.05}
-                value={translationCurrentTime}
-                onChange={(e) => seekTranslation(parseFloat(e.target.value))}
-                aria-label="Seek translation time"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
+              {/* Stop Translation Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  stopTranslationAudio();
+                }}
+                aria-label="Stop translation audio"
+                className="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer shrink-0"
+                title="Stop translation audio"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-
-            {/* Timestamps */}
-            <div className="text-[10px] font-mono font-medium text-[var(--foreground)] shrink-0 flex items-center gap-0.5 whitespace-nowrap">
-              <span>{formatAudioTime(translationCurrentTime)}</span>
-              <span className="text-[var(--muted-foreground)]/60">/</span>
-              <span className="text-[var(--muted-foreground)]">
-                {translationDuration > 0 ? formatAudioTime(translationDuration) : "--:--"}
-              </span>
-            </div>
-
-            {/* Stop Translation Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                stopTranslationAudio();
-              }}
-              aria-label="Stop translation audio"
-              className="p-1 rounded text-[var(--muted-foreground)] hover:text-red-500 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer shrink-0"
-              title="Stop translation audio"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          )}
         </div>
       )}
 
