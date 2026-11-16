@@ -208,7 +208,13 @@ try {
 // ─── Step 4: Push ─────────────────────────────────────────────────────────────
 
 console.log(`[4/5] 🚀  Pushing to GitHub (main + tags)...`);
-run(`git push origin main --follow-tags`, dry);
+try {
+  run(`git push origin main --follow-tags`, dry);
+} catch {
+  // In case the tag already existed on remote with an older commit pointer, force update it
+  run(`git push origin "v${newVersion}" -f`, dry);
+  run(`git push origin main`, dry);
+}
 
 // ─── Step 5: Verify GitHub Actions Workflow ───────────────────────────────────
 
