@@ -183,18 +183,18 @@ run("bun run version:sync", dry);
 // ─── Step 3: Git commit & tag ─────────────────────────────────────────────────
 
 console.log(`[3/5] 📦  Committing & tagging v${newVersion}...`);
+run(`git add -A`, dry);
+try {
+  run(`git commit -m "chore: release v${newVersion}"`, dry);
+} catch {
+  console.log("  (Working tree already clean, proceeding)");
+}
+
 try {
   run("git fetch origin", dry);
   run("git rebase origin/main", dry);
 } catch {
   // Continue if rebase fails or already synced
-}
-
-run(`git add -A`, dry);
-try {
-  run(`git commit -m "chore: release v${newVersion}"`, dry);
-} catch {
-  console.log("  (Working tree already clean, proceeding to tag)");
 }
 
 try {
