@@ -76,7 +76,7 @@ export function TimeframeInfographics({
       {/* Header and View Selector */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 mb-1.5">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25 mb-1.5">
             <TrendingUp className="h-3 w-3" />
             <span>Infographic Analytics</span>
           </div>
@@ -95,7 +95,7 @@ export function TimeframeInfographics({
             onClick={() => setActiveTab("days")}
             className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
               activeTab === "days"
-                ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40"
+                ? "bg-[var(--primary)] text-white font-bold shadow-md shadow-[var(--primary)]/20"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -106,7 +106,7 @@ export function TimeframeInfographics({
             onClick={() => setActiveTab("weekdays")}
             className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
               activeTab === "weekdays"
-                ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40"
+                ? "bg-[var(--primary)] text-white font-bold shadow-md shadow-[var(--primary)]/20"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -117,7 +117,7 @@ export function TimeframeInfographics({
             onClick={() => setActiveTab("months")}
             className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
               activeTab === "months"
-                ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40"
+                ? "bg-[var(--primary)] text-white font-bold shadow-md shadow-[var(--primary)]/20"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -133,7 +133,7 @@ export function TimeframeInfographics({
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
               Daily Ayahs Read (Last 14 Days)
             </span>
-            <span className="text-xs text-emerald-400 font-mono font-medium">
+            <span className="text-xs text-[var(--primary)] font-mono font-medium">
               Peak: {maxDailyAyahs} ayahs
             </span>
           </div>
@@ -156,7 +156,7 @@ export function TimeframeInfographics({
                   {/* Tooltip / value */}
                   <span
                     className={`text-[10px] font-mono mb-1 transition-opacity ${
-                      day.ayahs > 0 ? "opacity-100 font-bold text-emerald-300" : "opacity-0 group-hover:opacity-75 text-[var(--muted-foreground)]"
+                      day.ayahs > 0 ? "opacity-100 font-bold text-[var(--primary)]" : "opacity-0 group-hover:opacity-75 text-[var(--muted-foreground)]"
                     }`}
                   >
                     {day.ayahs}
@@ -203,7 +203,7 @@ export function TimeframeInfographics({
           {totalAyahsAllTime > 0 && peakWeekday.ayahsRead > 0 && (
             <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-emerald-500/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400">
+                <div className="p-2.5 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/25 text-[var(--primary)]">
                   <Award className="h-5 w-5" />
                 </div>
                 <div>
@@ -216,7 +216,7 @@ export function TimeframeInfographics({
                 </div>
               </div>
               <div className="text-right hidden sm:block">
-                <span className="text-xl font-black text-emerald-400 font-mono">
+                <span className="text-xl font-black text-[var(--primary)] font-mono">
                   {Math.round((peakWeekday.ayahsRead / totalAyahsAllTime) * 100)}%
                 </span>
                 <div className="text-[10px] text-[var(--muted-foreground)]">of total recitation</div>
@@ -246,7 +246,7 @@ export function TimeframeInfographics({
                       </span>
                     </div>
                     <div className="flex items-center gap-2 font-mono">
-                      <span className="font-bold text-emerald-400">{item.ayahsRead} ayahs</span>
+                      <span className="font-bold text-[var(--primary)]">{item.ayahsRead} ayahs</span>
                       <span className="text-[var(--muted-foreground)] text-[11px]">({percent}%)</span>
                     </div>
                   </div>
@@ -285,7 +285,7 @@ export function TimeframeInfographics({
               {monthlyAggregates.map((m) => (
                 <div
                   key={m.monthKey}
-                  className="p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-all flex flex-col justify-between"
+                  className="p-5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 transition-all flex flex-col justify-between"
                 >
                   <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
                     <div>
@@ -296,7 +296,7 @@ export function TimeframeInfographics({
                         {m.activeDays} active reading days
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25">
                       {m.ayahsRead} ayahs
                     </span>
                   </div>
@@ -324,3 +324,4 @@ export function TimeframeInfographics({
     </div>
   );
 }
+

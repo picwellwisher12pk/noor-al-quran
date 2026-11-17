@@ -83,7 +83,7 @@ export function SettingsModal({
     }
   }, [initialTab, settingsTab, isOpen]);
 
-  const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { themeStyle, themeMode, resolvedMode, setThemeStyle, setThemeMode, toggleThemeMode } = useTheme();
   const { isUrdu, language, setLanguage } = useLanguage();
 
   const {
@@ -129,6 +129,8 @@ export function SettingsModal({
 
   const [authActionError, setAuthActionError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const [backupError, setBackupError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Notes state
   const { notes, deleteNote } = useNotes();
@@ -171,6 +173,7 @@ export function SettingsModal({
         if (rawNotes) notes = JSON.parse(rawNotes);
       } catch {}
 
+      setBackupError(null);
       const backup = {
         version: 1,
         exportedAt: new Date().toISOString(),
@@ -205,12 +208,13 @@ export function SettingsModal({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (e: any) {
-      alert("Failed to export backup: " + e.message);
+      setBackupError("Failed to export backup: " + e.message);
     }
   };
 
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
     setImportSuccess(null);
+    setBackupError(null);
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -272,7 +276,7 @@ export function SettingsModal({
             : "Data successfully restored from file!"
         );
       } catch (err: any) {
-        alert("Invalid backup file: " + err.message);
+        setBackupError("Invalid backup file: " + err.message);
       }
     };
     reader.readAsText(file);
@@ -663,8 +667,14 @@ export function SettingsModal({
                 </div>
 
                 {importSuccess && (
-                  <p className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-2 rounded-lg">
+                  <p className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 p-2 rounded-lg">
                     {importSuccess}
+                  </p>
+                )}
+
+                {backupError && (
+                  <p className="text-xs text-[var(--destructive)] bg-[var(--destructive)]/10 border border-[var(--destructive)]/25 p-2 rounded-lg">
+                    {backupError}
                   </p>
                 )}
               </div>
@@ -783,15 +793,15 @@ export function SettingsModal({
                 </div>
               </div>
 
-              {/* Light / Dark Mode Toggle */}
+              {/* Light / Dark / System Mode Toggle */}
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-[var(--muted-foreground)] block mb-2">
                   {isUrdu ? "ڈارک اور لائٹ موڈ" : "Appearance Mode"}
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
-                    onClick={() => themeMode !== "light" && toggleThemeMode()}
+                    onClick={() => setThemeMode("light")}
                     className={`p-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all cursor-pointer ${
                       themeMode === "light"
                         ? "border-amber-500 bg-amber-500/15 text-amber-900 dark:text-amber-200 ring-1 ring-amber-500"
@@ -799,20 +809,33 @@ export function SettingsModal({
                     }`}
                   >
                     <Sun className="h-4 w-4 text-amber-500" />
-                    <span>{isUrdu ? "لائٹ موڈ (دن)" : "Light Mode"}</span>
+                    <span>{isUrdu ? "لائٹ" : "Light"}</span>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => themeMode !== "dark" && toggleThemeMode()}
+                    onClick={() => setThemeMode("dark")}
                     className={`p-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all cursor-pointer ${
                       themeMode === "dark"
-                        ? "border-emerald-500 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 ring-1 ring-emerald-500"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/15 text-[var(--foreground)] ring-1 ring-[var(--primary)]"
                         : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
-                    <Moon className="h-4 w-4 text-emerald-500" />
-                    <span>{isUrdu ? "ڈارک موڈ (رات)" : "Dark Mode"}</span>
+                    <Moon className="h-4 w-4 text-[var(--primary)]" />
+                    <span>{isUrdu ? "ڈارک" : "Dark"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setThemeMode("system")}
+                    className={`p-3 rounded-2xl border flex items-center justify-center gap-2 text-xs font-semibold transition-all cursor-pointer ${
+                      themeMode === "system"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/15 text-[var(--foreground)] ring-1 ring-[var(--primary)]"
+                        : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4 text-[var(--primary)]" />
+                    <span>{isUrdu ? "سسٹم" : "Auto"}</span>
                   </button>
                 </div>
               </div>

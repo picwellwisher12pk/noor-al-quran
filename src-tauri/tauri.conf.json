@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Noor Al-Quran",
-  "version": "1.38.2",
+  "version": "1.39.1",
   "identifier": "com.nooralquran.app",
   "build": {
     "frontendDist": "../out",
@@ -22,7 +22,8 @@
         "resizable": true,
         "fullscreen": false,
         "center": true,
-        "devtools": true
+        "decorations": false,
+        "devtools": false
       }
     ],
     "security": {

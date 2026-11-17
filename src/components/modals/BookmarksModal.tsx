@@ -22,16 +22,16 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
       maxWidth="2xl"
       title={
         <div className="flex items-center gap-2">
-          <BookmarkIcon className="h-5 w-5 text-emerald-500" />
+          <BookmarkIcon className="h-5 w-5 text-[var(--primary)]" />
           <span>Saved Bookmarks & Reading History</span>
         </div>
       }
     >
       {/* Last Read Section */}
       {lastRead && (
-        <div className="mb-6 rounded-xl bg-emerald-950/30 border border-emerald-800/40 p-4">
+        <div className="mb-6 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/25 p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--primary)]">
               <History className="h-4 w-4" />
               <span>Continue Where You Left Off</span>
             </div>
@@ -45,7 +45,7 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
           <Link
             href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
             onClick={onClose}
-            className="inline-flex items-center text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="inline-flex items-center text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors"
           >
             Resume Reading <ArrowRight className="h-3 w-3 ml-1" />
           </Link>
@@ -69,8 +69,8 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
       </div>
 
       {confirmClear && (
-        <div className="mb-4 p-3 rounded-lg bg-red-950/40 border border-red-800/50 flex items-center justify-between text-xs">
-          <span className="text-red-200">Are you sure you want to remove all saved bookmarks?</span>
+        <div className="mb-4 p-3 rounded-lg bg-[var(--destructive)]/10 border border-[var(--destructive)]/25 flex items-center justify-between text-xs">
+          <span className="text-[var(--destructive)]">Are you sure you want to remove all saved bookmarks?</span>
           <div className="flex gap-2">
             <button
               type="button"
@@ -78,14 +78,14 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
                 clearAllBookmarks();
                 setConfirmClear(false);
               }}
-              className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white rounded font-medium"
+              className="px-2.5 py-1 bg-[var(--destructive)] hover:bg-[var(--destructive)]/80 text-[var(--foreground)] rounded font-medium"
             >
               Confirm
             </button>
             <button
               type="button"
               onClick={() => setConfirmClear(false)}
-              className="px-2.5 py-1 bg-zinc-700 hover:bg-zinc-600 text-white rounded font-medium"
+              className="px-2.5 py-1 bg-[var(--surface-sunken,var(--surface-raised))] hover:bg-[var(--hover-bg)] text-[var(--foreground)] rounded font-medium"
             >
               Cancel
             </button>
@@ -105,14 +105,14 @@ export function BookmarksModal({ isOpen, onClose }: BookmarksModalProps) {
               className="p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex flex-col gap-2"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-emerald-400">
+                <span className="text-xs font-semibold text-[var(--primary)]">
                   {b.chapter_name} • Ayah {b.verse_number}
                 </span>
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/surah/${b.chapter_id}?ayah=${b.verse_number}`}
                     onClick={onClose}
-                    className="p-1 text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium"
+                    className="p-1 text-xs text-[var(--primary)] hover:text-[var(--primary)]/80 flex items-center gap-1 font-medium"
                   >
                     Go to Ayah <ArrowRight className="h-3 w-3" />
                   </Link>

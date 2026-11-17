@@ -306,7 +306,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         {/* Jumping to Ayah Loading Banner */}
         {jumpingToAyah !== null && (
           <div className="sticky top-2 z-20 flex items-center justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-semibold shadow-lg">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--primary)] text-white text-xs font-semibold shadow-lg">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               <span>
                 {isUrdu ? `آیت ${jumpingToAyah} پر جا رہے ہیں...` : `Jumping to Ayah ${jumpingToAyah}...`}
@@ -317,9 +317,9 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
 
         {/* Same-Surah Resume Banner */}
         {showSameSurahResume && lastRead && (
-          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/50 border border-emerald-500/30 text-xs shadow-xs">
-            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-200 font-medium">
-              <History className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-xs shadow-xs">
+            <div className="flex items-center gap-2 text-[var(--primary)] font-medium">
+              <History className="h-4 w-4 text-[var(--primary)] shrink-0" />
               <span>
                 {isUrdu
                   ? `آپ نے آخری بار آیت ${lastRead.verseNumber} پر تلاوت روکی تھی`
@@ -333,7 +333,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
                   setDismissResumeBanner(true);
                   jumpToAyah(lastRead.verseNumber);
                 }}
-                className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition-colors cursor-pointer"
+                className="px-3 py-1 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-semibold transition-colors cursor-pointer"
               >
                 {isUrdu ? "وہیں سے جاری رکھیں" : "Resume"}
               </button>
@@ -354,7 +354,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
             isCompact ? "rounded-xl p-3 sm:p-4" : "rounded-2xl p-5"
           }`}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--primary)]/5 via-transparent to-transparent pointer-events-none" />
 
           {/* Surah Title Calligraphy & Translations */}
           <div className="flex flex-col items-center justify-center space-y-0.5">
@@ -375,7 +375,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
             ) : (
               <h2 className="text-xs sm:text-sm font-semibold tracking-tight text-[var(--foreground)]">
                 Surah {chapter.name_simple} &bull;{" "}
-                <span className="text-emerald-700 dark:text-emerald-400 font-medium">{chapter.translated_name.name}</span>
+                <span className="text-[var(--primary)] font-medium">{chapter.translated_name.name}</span>
               </h2>
             )}
 
@@ -407,7 +407,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           {showBismillah && (
             <div className="mt-3 pt-2.5 border-t border-[var(--border-subtle)]">
               <div
-                className={`font-arabic text-emerald-800 dark:text-emerald-300 font-bold leading-relaxed ${
+                className={`font-arabic text-[var(--primary)] font-bold leading-relaxed ${
                   isCompact ? "text-xl sm:text-2xl" : "text-2xl"
                 }`}
                 dir="rtl"
@@ -449,7 +449,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
               type="button"
               onClick={loadMoreVerses}
               disabled={loadingMore}
-              className="px-6 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-md inline-flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-2 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-semibold text-xs transition-all shadow-md inline-flex items-center gap-2 disabled:opacity-50"
             >
               {loadingMore ? (
                 <>
@@ -470,7 +470,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           type="button"
           onClick={scrollToTop}
           aria-label="Scroll to top"
-          className="fixed bottom-14 right-6 z-30 p-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg transition-all cursor-pointer"
+          className="fixed bottom-14 right-6 z-30 p-2.5 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white shadow-lg transition-all cursor-pointer"
           title={isUrdu ? "اوپر جائیں" : "Scroll to Top"}
         >
           <ArrowUp className="h-4 w-4" />

@@ -56,7 +56,7 @@ export function DayDetailModal({
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-2xl ${
               hasActivity
-                ? "bg-emerald-950/60 text-emerald-400 border border-emerald-800/40"
+                ? "bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25"
                 : "bg-[var(--surface-card)] text-[var(--muted-foreground)] border border-[var(--border-subtle)]"
             }`}>
               <Calendar className="h-5 w-5" />
@@ -83,7 +83,7 @@ export function DayDetailModal({
           <div className="grid grid-cols-3 gap-2.5">
             <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
               <span className="text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] font-semibold">Ayahs</span>
-              <div className="text-xl font-bold text-emerald-400 mt-0.5">{ayahsRead}</div>
+              <div className="text-xl font-bold text-[var(--primary)] mt-0.5">{ayahsRead}</div>
             </div>
             <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
               <span className="text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] font-semibold">Words</span>
@@ -101,14 +101,14 @@ export function DayDetailModal({
               {chapters.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] mb-2 flex items-center gap-1.5">
-                    <BookOpen className="h-3.5 w-3.5 text-emerald-400" />
+                    <BookOpen className="h-3.5 w-3.5 text-[var(--primary)]" />
                     Chapters Visited ({chapters.length})
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {chapters.map((ch) => (
                       <span
                         key={ch}
-                        className="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800/40"
+                        className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25"
                       >
                         Surah #{ch}
                       </span>
@@ -120,14 +120,14 @@ export function DayDetailModal({
               {verses.length > 0 && (
                 <div>
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)] mb-2 flex items-center gap-1.5">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[var(--primary)]" />
                     Recorded Verses ({verses.length})
                   </h4>
                   <div className="max-h-36 overflow-y-auto p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex flex-wrap gap-1.5">
                     {verses.map((v) => (
                       <span
                         key={v}
-                        className="px-2 py-0.5 rounded text-[11px] font-mono bg-[var(--surface-raised)] text-slate-200 border border-[var(--border-subtle)]"
+                        className="px-2 py-0.5 rounded text-[11px] font-mono bg-[var(--surface-raised)] text-[var(--foreground)] border border-[var(--border-subtle)]"
                       >
                         {v}
                       </span>
@@ -139,8 +139,8 @@ export function DayDetailModal({
               {wordsStudied > 0 && (
                 <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-2.5">
                   <Sparkles className="h-4 w-4 text-amber-400 flex-shrink-0" />
-                  <p className="text-xs text-amber-200">
-                    You reviewed <span className="font-bold text-amber-300">{wordsStudied} vocabulary words</span> in Learn Studio on this day.
+                  <p className="text-xs text-[var(--muted-foreground)]">
+                    You reviewed <span className="font-bold text-amber-700 dark:text-amber-300">{wordsStudied} vocabulary words</span> in Learn Studio on this day.
                   </p>
                 </div>
               )}
@@ -163,7 +163,7 @@ export function DayDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors cursor-pointer shadow-sm"
+            className="px-4 py-2 rounded-xl text-xs font-semibold bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white transition-colors cursor-pointer shadow-sm"
           >
             Close
           </button>
@@ -172,3 +172,4 @@ export function DayDetailModal({
     </div>
   );
 }
+

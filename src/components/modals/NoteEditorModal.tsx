@@ -238,7 +238,7 @@ export default function NoteEditorModal({
                   : "Write your notes, root meaning, or reflections for this word..."
               }
               rows={5}
-              className="w-full px-3.5 py-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm leading-relaxed resize-none"
+              className="w-full px-3.5 py-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] text-base sm:text-sm leading-relaxed resize-none"
               autoFocus
               onKeyDown={(e) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
@@ -256,7 +256,7 @@ export default function NoteEditorModal({
           {/* Color Highlight Choice */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-[var(--foreground-muted)] flex items-center gap-1.5">
-              <Palette className="w-3.5 h-3.5 text-emerald-500" />
+              <Palette className="w-3.5 h-3.5 text-[var(--primary)]" />
               {isUrdu ? "نوٹ کا رنگ و پہچان" : "Note Color"}
             </label>
             <div className="flex items-center gap-2">
@@ -269,7 +269,7 @@ export default function NoteEditorModal({
                     onClick={() => setColor(c.id)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
                       isSelected
-                        ? `${c.bgClass} ${c.borderClass} ring-2 ring-emerald-500/50 text-[var(--foreground)] font-semibold`
+                        ? `${c.bgClass} ${c.borderClass} ring-2 ring-[var(--primary)]/50 text-[var(--foreground)] font-semibold`
                         : "bg-[var(--surface-hover)]/40 border-[var(--border-subtle)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -284,7 +284,7 @@ export default function NoteEditorModal({
           {/* Tags */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-[var(--foreground-muted)] flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-emerald-500" />
+              <Tag className="w-3.5 h-3.5 text-[var(--primary)]" />
               {isUrdu ? "ٹیگز (موضوعات)" : "Tags"}
             </label>
 
@@ -299,7 +299,7 @@ export default function NoteEditorModal({
                     onClick={() => (isAdded ? handleRemoveTag(pTag) : handleAddTag(pTag))}
                     className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors ${
                       isAdded
-                        ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40"
+                        ? "bg-[var(--primary)]/20 text-[var(--primary)] border-[var(--primary)]/40"
                         : "bg-[var(--surface-hover)] text-[var(--foreground-muted)] border-[var(--border-subtle)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -323,7 +323,7 @@ export default function NoteEditorModal({
                   }
                 }}
                 placeholder={isUrdu ? "نیا ٹیگ شامل کریں..." : "Add custom tag..."}
-                className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="flex-1 px-3 py-1.5 text-base sm:text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
               />
               <button
                 type="button"

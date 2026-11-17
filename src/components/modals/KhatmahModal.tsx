@@ -77,10 +77,10 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
       {plan && targetInfo ? (
         <div className="space-y-6">
           {/* Active Summary Card */}
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-950/40 via-[var(--surface-raised)] to-emerald-950/20 border border-emerald-800/40 p-5">
+          <div className="rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 via-[var(--surface-raised)] to-[var(--primary)]/5 border border-[var(--primary)]/25 p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--primary)]">
                   Active Khatmah
                 </span>
                 <h3 className="text-lg font-bold text-[var(--foreground)] mt-0.5">
@@ -97,11 +97,11 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
             <div className="mb-4">
               <div className="flex justify-between text-xs text-[var(--muted-foreground)] mb-1.5 font-medium">
                 <span>Progress: {plan.completedAyahsCount} of {TOTAL_QURAN_VERSES} Ayahs</span>
-                <span className="text-emerald-400">{targetInfo.percentageCompleted.toFixed(1)}%</span>
+                <span className="text-[var(--primary)]">{targetInfo.percentageCompleted.toFixed(1)}%</span>
               </div>
               <div className="h-2.5 w-full bg-[var(--surface-card)] rounded-full overflow-hidden border border-[var(--border-subtle)]">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-600 to-teal-400 rounded-full transition-all duration-500"
+                  className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
                   style={{ width: `${targetInfo.percentageCompleted}%` }}
                 />
               </div>
@@ -111,14 +111,14 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
             <div className="grid grid-cols-2 gap-3 p-3.5 rounded-xl bg-[var(--surface-card)]/80 border border-[var(--border-subtle)] text-xs">
               <div>
                 <span className="text-[var(--muted-foreground)] block mb-1">Today&apos;s Target:</span>
-                <span className="font-semibold text-emerald-400">
+                <span className="font-semibold text-[var(--primary)]">
                   Surah {targetInfo.targetStart.chapterId}:{targetInfo.targetStart.verseNumber} → {targetInfo.targetEnd.chapterId}:{targetInfo.targetEnd.verseNumber}
                 </span>
               </div>
               <div>
                 <span className="text-[var(--muted-foreground)] block mb-1">Pace Status:</span>
                 <span className={`font-semibold capitalize ${
-                  targetInfo.paceStatus === "ahead" ? "text-emerald-400" : targetInfo.paceStatus === "behind" ? "text-amber-400" : "text-teal-300"
+                  targetInfo.paceStatus === "ahead" ? "text-[var(--primary)]" : targetInfo.paceStatus === "behind" ? "text-amber-400" : "text-teal-300"
                 }`}>
                   {targetInfo.paceStatus === "ahead" ? "Ahead of Schedule" : targetInfo.paceStatus === "behind" ? "Slightly Behind" : "On Track"}
                 </span>
@@ -130,7 +130,7 @@ export function KhatmahModal({ isOpen, onClose }: KhatmahModalProps) {
               <Link
                 href={`/surah/${targetInfo.targetStart.chapterId}?ayah=${targetInfo.targetStart.verseNumber}`}
                 onClick={onClose}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow transition-all"
               >
                 <span>Read Today&apos;s Portion</span>
                 <ArrowRight className="h-3.5 w-3.5" />

@@ -52,7 +52,7 @@ export function StreakHeroBanner({ summary }: StreakHeroBannerProps) {
           </div>
 
           <div className="text-center sm:text-left">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25 mb-2">
               <Sparkles className="h-3 w-3" />
               <span>Daily Quran Streak</span>
             </div>
@@ -67,8 +67,8 @@ export function StreakHeroBanner({ summary }: StreakHeroBannerProps) {
             </h1>
             <p className="text-xs sm:text-sm text-[var(--muted-foreground)] max-w-sm">
               {isTodayActive ? (
-                <span className="text-emerald-400 font-medium flex items-center gap-1.5 justify-center sm:justify-start">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block animate-ping" />
+                <span className="text-[var(--primary)] font-medium flex items-center gap-1.5 justify-center sm:justify-start">
+                  <span className="h-2 w-2 rounded-full bg-[var(--primary)] inline-block animate-ping" />
                   Today&apos;s recitation recorded! Streak protected.
                 </span>
               ) : (
@@ -94,10 +94,10 @@ export function StreakHeroBanner({ summary }: StreakHeroBannerProps) {
           <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--muted-foreground)] mb-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider">Ayahs</span>
-              <BookOpen className="h-4 w-4 text-emerald-400" />
+              <BookOpen className="h-4 w-4 text-[var(--primary)]" />
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-bold text-emerald-400">{totalAyahsRead.toLocaleString()}</div>
+              <div className="text-xl sm:text-2xl font-bold text-[var(--primary)]">{totalAyahsRead.toLocaleString()}</div>
               <div className="text-[11px] text-[var(--muted-foreground)]">Verses Read</div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export function StreakHeroBanner({ summary }: StreakHeroBannerProps) {
           <div className="p-3.5 sm:p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--muted-foreground)] mb-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider">Time</span>
-              <Clock className="h-4 w-4 text-emerald-400" />
+              <Clock className="h-4 w-4 text-[var(--primary)]" />
             </div>
             <div>
               <div className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
@@ -134,12 +134,13 @@ export function StreakHeroBanner({ summary }: StreakHeroBannerProps) {
       <div className="mt-5 pt-4 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
         <div className="italic text-center sm:text-left">
           &ldquo;The most beloved deed to Allah is the most regular and constant even if it were little.&rdquo;
-          <span className="ml-1 text-emerald-400 font-semibold">— Sahih al-Bukhari 6464</span>
+          <span className="ml-1 text-[var(--primary)] font-semibold">— Sahih al-Bukhari 6464</span>
         </div>
-        <div className="text-xs font-mono text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-800/40">
+        <div className="text-xs font-mono text-[var(--primary)] bg-[var(--primary)]/10 px-3 py-1 rounded-full border border-[var(--primary)]/25">
           Today: {todayRecord.ayahsRead} ayahs &bull; {todayRecord.wordsStudied} words studied
         </div>
       </div>
     </div>
   );
 }
+

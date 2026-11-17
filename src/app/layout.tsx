@@ -21,7 +21,12 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#059669",
+  // themeColor is set dynamically by ThemeContext to match current theme
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#0e1218" },
+  ],
+  interactiveWidget: "resizes-content",
 };
 
 const inter = Inter({
@@ -95,6 +100,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.ico",
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 
@@ -103,12 +109,48 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const fontVars = [
+    inter.variable,
+    amiri.variable,
+    amiriQuran.variable,
+    notoNaskhArabic.variable,
+    scheherazade.variable,
+    lateef.variable,
+    notoSansArabic.variable,
+    cairo.variable,
+    notoNastaliqUrdu.variable,
+  ].join(" ");
+
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${amiri.variable} ${amiriQuran.variable} ${notoNaskhArabic.variable} ${scheherazade.variable} ${lateef.variable} ${notoSansArabic.variable} ${cairo.variable} ${notoNastaliqUrdu.variable} dark theme-hadith`}
+      className={fontVars}
+      suppressHydrationWarning
     >
-      <body className="h-screen w-screen overflow-hidden flex flex-col font-sans select-none bg-[var(--background)] text-[var(--foreground)] overscroll-none">
+      <head suppressHydrationWarning>
+        {/* Anti-FOUC: read theme from localStorage before first paint */}
+        <script
+          id="theme-initializer"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{
+              var s=localStorage.getItem('naq_theme_style')||'hadith';
+              var m=localStorage.getItem('naq_theme_mode');
+              if(!m||m==='system'||!['dark','light'].includes(m)){
+                m=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+              }
+              var r=document.documentElement;
+              r.classList.add('theme-'+s,m);
+              r.dataset.theme=s+'-'+m;
+              r.dataset.themeStyle=s;
+              r.dataset.mode=m;
+            }catch(e){
+              document.documentElement.classList.add('theme-hadith','dark');
+            }}())`,
+          }}
+        />
+      </head>
+      <body className="h-dvh w-screen overflow-hidden flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)] overscroll-none">
         <AppProviders>
           <DesktopShell>{children}</DesktopShell>
         </AppProviders>

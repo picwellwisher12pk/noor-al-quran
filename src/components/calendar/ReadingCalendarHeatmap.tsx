@@ -90,7 +90,7 @@ export function ReadingCalendarHeatmap({
       {/* Month Header and Navigation */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 shadow-sm">
+          <div className="p-2.5 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/25 text-[var(--primary)] shadow-sm">
             <CalendarIcon className="h-5 w-5" />
           </div>
           <div>
@@ -124,7 +124,7 @@ export function ReadingCalendarHeatmap({
               type="button"
               onClick={handlePrevMonth}
               title="Previous Month"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -132,7 +132,7 @@ export function ReadingCalendarHeatmap({
               type="button"
               onClick={handleNextMonth}
               title="Next Month"
-              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -144,7 +144,7 @@ export function ReadingCalendarHeatmap({
       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 my-5">
         <div className="p-3 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center">
           <div className="text-xs text-[var(--muted-foreground)] font-medium">Active Days</div>
-          <div className="text-lg sm:text-xl font-bold text-emerald-400 mt-0.5">
+          <div className="text-lg sm:text-xl font-bold text-[var(--primary)] mt-0.5">
             {monthActiveDays} <span className="text-xs font-normal text-[var(--muted-foreground)]">/ {totalDaysInMonth}</span>
           </div>
         </div>
@@ -207,13 +207,13 @@ export function ReadingCalendarHeatmap({
               // Emerald gradient intensity tiers matching Noor Al-Quran theme
               let cellStyle = "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:border-emerald-500/40";
               if (intensity === 1) {
-                cellStyle = "bg-emerald-950/40 border-emerald-800/40 text-emerald-300 hover:border-emerald-500/50";
+                cellStyle = "bg-[var(--primary)]/10 border-[var(--primary)]/25 text-[var(--primary)] hover:border-[var(--primary)]/50";
               } else if (intensity === 2) {
-                cellStyle = "bg-emerald-900/45 border-emerald-700/50 text-emerald-200 hover:border-emerald-400/60";
+                cellStyle = "bg-[var(--primary)]/20 border-[var(--primary)]/40 text-[var(--foreground)] hover:border-[var(--primary)]/60";
               } else if (intensity === 3) {
-                cellStyle = "bg-emerald-800/55 border-emerald-600/60 text-white font-semibold hover:border-emerald-300";
+                cellStyle = "bg-[var(--primary)]/40 border-[var(--primary)]/60 text-white font-semibold hover:border-[var(--primary)]/80";
               } else if (intensity === 4) {
-                cellStyle = "bg-gradient-to-br from-emerald-600 to-teal-600 border-emerald-400 text-white font-bold shadow-md shadow-emerald-950/50 hover:opacity-95";
+                cellStyle = "bg-[var(--primary)] border-[var(--primary)]/80 text-white font-bold shadow-md shadow-[var(--primary)]/30 hover:opacity-95";
               }
 
               return (
@@ -240,7 +240,7 @@ export function ReadingCalendarHeatmap({
                     {ayahs > 0 ? (
                       <span className={`inline-block text-[10px] sm:text-xs font-mono font-medium px-1.5 py-0.5 rounded-md truncate max-w-full ${
                         intensity === 4
-                          ? "bg-black/30 text-emerald-100"
+                          ? "bg-black/30 text-white/90"
                           : "bg-[var(--surface-raised)] text-emerald-400 border border-[var(--border-subtle)]"
                       }`}>
                         {ayahs} {ayahs === 1 ? "v" : "vs"}
@@ -273,10 +273,10 @@ export function ReadingCalendarHeatmap({
           <span className="text-[11px] opacity-75">None</span>
           <div className="flex items-center gap-1.5">
             <span className="w-3.5 h-3.5 rounded-md bg-[var(--surface-card)] border border-[var(--border-subtle)]" />
-            <span className="w-3.5 h-3.5 rounded-md bg-emerald-950/40 border border-emerald-800/40" />
-            <span className="w-3.5 h-3.5 rounded-md bg-emerald-900/45 border border-emerald-700/50" />
-            <span className="w-3.5 h-3.5 rounded-md bg-emerald-800/55 border border-emerald-600/60" />
-            <span className="w-3.5 h-3.5 rounded-md bg-gradient-to-br from-emerald-600 to-teal-600 border border-emerald-400 shadow-sm" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[var(--primary)]/10 border border-[var(--primary)]/25" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[var(--primary)]/20 border border-[var(--primary)]/40" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[var(--primary)]/40 border border-[var(--primary)]/60" />
+            <span className="w-3.5 h-3.5 rounded-md bg-[var(--primary)] border border-[var(--primary)]/80 shadow-sm" />
           </div>
           <span className="text-[11px] opacity-75">30+ Ayahs</span>
         </div>
@@ -287,7 +287,7 @@ export function ReadingCalendarHeatmap({
             Gold Ring = Today
           </span>
           <span>&bull;</span>
-          <span className="flex items-center gap-1 text-emerald-400 font-medium">
+          <span className="flex items-center gap-1 text-[var(--primary)] font-medium">
             <Flame className="h-3 w-3 fill-amber-400 text-amber-400" />
             Flame = Active Day
           </span>
@@ -296,3 +296,4 @@ export function ReadingCalendarHeatmap({
     </div>
   );
 }
+

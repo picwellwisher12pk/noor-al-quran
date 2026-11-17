@@ -57,13 +57,14 @@ export function DesktopTitleBar() {
     activeAyahNumber,
   } = useDesktopWorkspace();
 
-  const { themeMode, toggleThemeMode } = useTheme();
+  const { themeMode, resolvedMode, toggleThemeMode } = useTheme();
   const { isPlaying, currentVerseKey, togglePlayPause } = useAudio();
   const { currentStreak } = useReadingActivity();
   const { isUrdu } = useLanguage();
   const [isTauri, setIsTauri] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
     setIsTauri(checkIsTauri());
@@ -74,8 +75,24 @@ export function DesktopTitleBar() {
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    // Track native window maximize state in Tauri
+    let unlistenResize: (() => void) | undefined;
+    if (checkIsTauri()) {
+      import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
+        const win = getCurrentWindow();
+        win.isMaximized().then(setIsMaximized);
+        win.onResized(async () => {
+          setIsMaximized(await win.isMaximized());
+        }).then((unlisten) => {
+          unlistenResize = unlisten;
+        });
+      }).catch(() => {});
+    }
+
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      unlistenResize?.();
     };
   }, []);
 
@@ -97,9 +114,11 @@ export function DesktopTitleBar() {
   return (
     <header
       className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-40 text-xs"
+      data-tauri-drag-region
+      onDoubleClick={isTauri ? handleWindowMaximize : undefined}
     >
       {/* Left: Window controls (macOS Tauri) & App Branding */}
-      <div className="flex items-center gap-2.5 shrink-0">
+      <div className="flex items-center gap-2.5 shrink-0" data-tauri-drag-region-exclude>
         {/* macOS Traffic Light Buttons (Only on native macOS Desktop) */}
         {isTauri && isMac && (
           <div className="flex items-center gap-1.5 pr-2.5 mr-1 border-r border-[var(--border-subtle)]">
@@ -134,19 +153,16 @@ export function DesktopTitleBar() {
           {isLeftSidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
         </button>
 
-        {/* App Title & Version Pill */}
+        {/* App Title & Branding */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-          <div className="w-5 h-5 rounded-md bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+          <div className="w-5 h-5 rounded-md bg-[var(--primary)]/20 border border-[var(--primary)]/30 flex items-center justify-center text-[var(--primary)] group-hover:scale-105 transition-transform">
             <BookOpen className="h-3 w-3" />
           </div>
           <span className="font-semibold text-[var(--foreground)] tracking-tight">
             {APP_CONFIG.name}
           </span>
-          <span className="font-arabic text-xs text-emerald-400 opacity-90" dir="rtl">
+          <span className="font-arabic text-xs text-[var(--primary)] opacity-90" dir="rtl">
             {APP_CONFIG.nameArabic}
-          </span>
-          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-800/40 font-semibold">
-            v{APP_CONFIG.version}
           </span>
         </Link>
       </div>
@@ -188,13 +204,13 @@ export function DesktopTitleBar() {
       <div className="flex-1 h-full min-w-4 cursor-default" data-tauri-drag-region />
 
       {/* Right: Tools & Toggles */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-1.5 shrink-0" data-tauri-drag-region-exclude>
         {/* Audio Playing Pill (only while audio is active) */}
         {isPlaying && (
           <button
             type="button"
             onClick={togglePlayPause}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium animate-pulse cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--primary)]/15 border border-[var(--primary)]/30 text-[var(--primary)] text-[11px] font-medium animate-pulse cursor-pointer shadow-sm"
             title="Pause recitation"
           >
             <Volume2 className="h-3 w-3" />
@@ -205,15 +221,16 @@ export function DesktopTitleBar() {
         {/* Desktop Theme Mode Toggle (Light / Dark) */}
         <button
           type="button"
+          suppressHydrationWarning
           onClick={toggleThemeMode}
           className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
-          title={themeMode === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
+          title={resolvedMode === "dark" ? "Switch to Light Theme" : "Switch to Dark Theme"}
           aria-label="Toggle dark / light theme"
         >
-          {themeMode === "dark" ? (
+          {resolvedMode === "dark" ? (
             <Sun className="h-3.5 w-3.5 text-amber-500 hover:text-amber-400 transition-colors" />
           ) : (
-            <Moon className="h-3.5 w-3.5 text-slate-700 hover:text-slate-900 transition-colors" />
+            <Moon className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors" />
           )}
         </button>
 
@@ -222,11 +239,10 @@ export function DesktopTitleBar() {
           <button
             type="button"
             onClick={toggleRightInspector}
-            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${
-              isRightInspectorOpen
-                ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30"
+            className={`p-1.5 rounded-xl transition-colors cursor-pointer ${isRightInspectorOpen
+                ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
-            }`}
+              }`}
             title="Toggle Linguistic & Tafseer Inspector (Ctrl+\)"
           >
             {isRightInspectorOpen ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
@@ -264,10 +280,10 @@ export function DesktopTitleBar() {
               type="button"
               onClick={safeToggleMaximize}
               className="h-full px-3.5 hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center justify-center cursor-pointer"
-              title="Maximize / Restore Window"
-              aria-label="Maximize / Restore Window"
+              title={isMaximized ? "Restore Window" : "Maximize Window"}
+              aria-label={isMaximized ? "Restore Window" : "Maximize Window"}
             >
-              <Square className="h-3 w-3" />
+              {isMaximized ? <Minimize2 className="h-3 w-3" /> : <Square className="h-3 w-3" />}
             </button>
             <button
               type="button"

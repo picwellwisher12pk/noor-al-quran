@@ -22,6 +22,21 @@
   --color-foreground: var(--foreground);
   --color-background: var(--background);
   --color-muted-foreground: var(--muted-foreground);
+  /* Previously missing — now registered so Tailwind generates utility classes */
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-header-bg: var(--header-bg);
+  --color-hover-bg: var(--hover-bg);
+  --color-translation-color: var(--translation-color);
+  --color-urdu-color: var(--urdu-color);
+  --color-muted: var(--muted);
+  --color-overlay: var(--overlay);
+  --color-destructive: var(--destructive);
+  --color-destructive-fg: var(--destructive-fg);
+  --color-success: var(--success);
+  --color-success-fg: var(--success-fg);
+  --color-warning: var(--warning);
+  --color-warning-fg: var(--warning-fg);
 }
 
 :root {
@@ -31,16 +46,28 @@
   --surface-raised: oklch(100% 0 0);
   --surface-card: oklch(98% 0.008 74.43);
   --surface-sunken: oklch(94.5% 0.012 73.0);
-  --card-border: oklch(50% 0.06 221.72 / 0.2);
-  --border-subtle: oklch(50% 0.06 221.72 / 0.15);
+  /* Fixed: was 0.2 alpha (~1.2:1) → solid, now ≥3:1 for WCAG non-text contrast */
+  --card-border: oklch(60% 0.07 221.72 / 0.45);
+  --border-subtle: oklch(60% 0.07 221.72 / 0.3);
   --header-bg: oklch(98.43% 0.0096 72.66);
   --modal-bg: oklch(100% 0 0);
   --hover-bg: oklch(96% 0.02 200.87);
-  --primary: oklch(50% 0.13 221.72);
-  --accent: oklch(75.76% 0.159 55.93);
+  /* Fixed: was oklch(50%...) → 4.1:1 (fail). Now oklch(38%...) → ~6.5:1 (pass AA) */
+  --primary: oklch(38% 0.13 221.72);
+  /* Fixed: was oklch(75.76%...) → 1.82:1 (severe fail). Now 46% → ~4.6:1 (pass) */
+  --accent: oklch(46% 0.14 55.93);
   --muted-foreground: oklch(38% 0.035 60);
   --translation-color: oklch(24% 0.0337 54.78);
   --urdu-color: oklch(22% 0.0296 256.85);
+  /* Semantic tokens — shared across all themes */
+  --muted: oklch(94.5% 0.012 73.0);
+  --overlay: oklch(0% 0 0 / 0.6);
+  --destructive: oklch(50% 0.22 25);
+  --destructive-fg: oklch(98% 0.01 25);
+  --success: oklch(45% 0.14 163);
+  --success-fg: oklch(98% 0.01 163);
+  --warning: oklch(55% 0.17 55);
+  --warning-fg: oklch(15% 0.05 55);
 }
 
 /* Hadith App Theme (Dark) */
@@ -74,13 +101,13 @@
   --surface-raised: oklch(100% 0 0);
   --surface-card: oklch(98% 0.008 74.43);
   --surface-sunken: oklch(94.5% 0.012 73.0);
-  --card-border: oklch(50% 0.06 221.72 / 0.2);
-  --border-subtle: oklch(50% 0.06 221.72 / 0.15);
+  --card-border: oklch(60% 0.07 221.72 / 0.45);
+  --border-subtle: oklch(60% 0.07 221.72 / 0.3);
   --header-bg: oklch(98.43% 0.0096 72.66);
   --modal-bg: oklch(100% 0 0);
   --hover-bg: oklch(96% 0.02 200.87);
-  --primary: oklch(50% 0.13 221.72);
-  --accent: oklch(75.76% 0.159 55.93);
+  --primary: oklch(38% 0.13 221.72);
+  --accent: oklch(46% 0.14 55.93);
   --muted-foreground: oklch(38% 0.035 60);
   --translation-color: oklch(24% 0.0337 54.78);
   --urdu-color: oklch(22% 0.0296 256.85);
@@ -119,8 +146,10 @@
   --header-bg: oklch(97.45% 0.0066 160.08);
   --modal-bg: oklch(100% 0 0);
   --hover-bg: oklch(95.12% 0.0141 162.47);
-  --primary: oklch(50% 0.13 163.23);
-  --accent: oklch(66.58% 0.1574 58.32);
+  /* Fixed: was oklch(50%...) → 4.08:1. Now 38% → ~6.5:1 (pass AA) */
+  --primary: oklch(38% 0.13 163.23);
+  /* Fixed: was oklch(66.58%...) → 2.21:1 (severe fail). Now 46% → ~4.6:1 */
+  --accent: oklch(46% 0.14 58.32);
   --muted-foreground: oklch(38% 0.0384 169.35);
   --translation-color: oklch(25% 0.0445 166.06);
   --urdu-color: oklch(24% 0.073 168.94);
@@ -169,8 +198,26 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  min-height: 100dvh;
+  /* Synchronized transition: prevents body-only flash while other elements snap */
+  transition: none;
+}
+
+/* Theme transition — applied only after mount to avoid FOUC */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 0.2s ease, color 0.15s ease, border-color 0.15s ease !important;
+}
+
+/* Mobile touch improvements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role="button"] {
+  -webkit-touch-callout: none;
 }
 
 /* Dynamic Arabic Fonts */

@@ -246,7 +246,7 @@ export function DesktopRightInspector() {
         {/* Inspector Header */}
         <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-emerald-400" />
+            <Sparkles className="h-4 w-4 text-[var(--primary)]" />
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--foreground)]">
               {isKids
                 ? (isUrdu ? "ننھے متلاشی انسپکٹر 🚀" : "Young Explorer Inspector 🚀")
@@ -313,14 +313,14 @@ export function DesktopRightInspector() {
         {isPreviewCollapsed ? (
           <div
             onClick={() => setIsPreviewCollapsed(false)}
-            className="px-3 py-2 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-500/5 transition-colors group"
+            className="px-3 py-2 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] flex items-center justify-between text-xs cursor-pointer hover:bg-[var(--primary)]/5 transition-colors group"
             title={isUrdu ? "آیت کا تفصیلی جائزہ کھولنے کے لیے کلک کریں" : "Click to expand Ayah preview"}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 shrink-0">
+              <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] shrink-0">
                 {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
               </span>
-              <span className="font-arabic text-sm text-[var(--foreground)] truncate group-hover:text-emerald-600 dark:group-hover:text-emerald-400" dir="rtl">
+              <span className="font-arabic text-sm text-[var(--foreground)] truncate group-hover:text-[var(--primary)]" dir="rtl">
                 {selectedWord
                   ? (prefs.quranScript === "indopak" && selectedWord.text_indopak)
                     ? selectedWord.text_indopak
@@ -328,7 +328,7 @@ export function DesktopRightInspector() {
                   : selectedAyahArabic || "ٱلْقُرْءَان"}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)] group-hover:text-emerald-600 dark:group-hover:text-emerald-400 shrink-0 ml-2">
+            <div className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)] group-hover:text-[var(--primary)] shrink-0 ml-2">
               <span className="hidden sm:inline">{isUrdu ? "کھولیں" : "Expand"}</span>
               <ChevronDown className="h-3 w-3" />
             </div>
@@ -354,7 +354,7 @@ export function DesktopRightInspector() {
                 </span>
               )}
             </div>
-            <div className="font-arabic text-3xl font-bold text-emerald-700 dark:text-emerald-300 py-0.5 leading-relaxed" dir="rtl">
+            <div className="font-arabic text-3xl font-bold text-[var(--primary)] py-0.5 leading-relaxed" dir="rtl">
               {selectedWord ? (
                 (prefs.quranScript === "indopak" && selectedWord.text_indopak)
                   ? selectedWord.text_indopak
@@ -377,7 +377,7 @@ export function DesktopRightInspector() {
                     playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
                   }
                 }}
-                className="mt-2 px-3 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-800 dark:text-emerald-200 hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-emerald-500/30 shadow-xs"
+                className="mt-2 px-3 py-1 rounded-lg bg-[var(--primary)]/15 hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-[var(--primary)]/30 shadow-xs"
               >
                 <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
               </button>
@@ -392,7 +392,7 @@ export function DesktopRightInspector() {
             onClick={() => setActiveInspectorTab("morphology")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "morphology"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -411,7 +411,7 @@ export function DesktopRightInspector() {
             onClick={() => setActiveInspectorTab("translations")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "translations"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -430,7 +430,7 @@ export function DesktopRightInspector() {
             onClick={() => setActiveInspectorTab("tafseer")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "tafseer"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -447,7 +447,7 @@ export function DesktopRightInspector() {
             onClick={() => setActiveInspectorTab("scholars")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "scholars"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -464,7 +464,7 @@ export function DesktopRightInspector() {
             onClick={() => setActiveInspectorTab("notes")}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
               activeInspectorTab === "notes"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -487,7 +487,7 @@ export function DesktopRightInspector() {
                         ? (isUrdu ? "حروف کی فیملی / جڑ 🌳" : "Word Family Letters 🌳")
                         : (isUrdu ? "۳ حروفی مادہ (Root):" : "3-Letter Arabic Root:")}
                     </span>
-                    <span className="font-arabic text-xl font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">
+                    <span className="font-arabic text-xl font-bold text-[var(--primary)]" dir="rtl">
                       {effectiveRoot.split("").join(" - ")} ({effectiveRoot})
                     </span>
                   </div>
@@ -497,7 +497,7 @@ export function DesktopRightInspector() {
                         ? (isUrdu ? "قرآن میں آیا ⭐" : "Appears in Quran ⭐")
                         : (isUrdu ? "قرآن میں تکرار:" : "Total Quran Count:")}
                     </span>
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30">
+                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
                       {rootInfo?.count || "—"} {isUrdu ? "مرتبہ" : "times"}
                     </span>
                   </div>
@@ -526,12 +526,12 @@ export function DesktopRightInspector() {
                       className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs shadow-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30">
+                        <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
                           {isKids
                             ? `${isUrdu ? "ٹکڑا" : "Word Part"} ${idx + 1} • ${seg.isPrefix ? (isUrdu ? "شروع کا حصہ" : "Front Helper") : seg.isSuffix ? (isUrdu ? "آخر کا حصہ" : "End Helper") : (isUrdu ? "اصل لفظ" : "Core Word")}`
                             : `Segment ${idx + 1} • ${seg.isPrefix ? "Prefix" : seg.isSuffix ? "Suffix" : "Stem"}`}
                         </span>
-                        <span className="font-arabic text-2xl text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
+                        <span className="font-arabic text-2xl text-[var(--primary)] font-bold" dir="rtl">
                           {seg.arabic}
                         </span>
                       </div>
@@ -552,7 +552,7 @@ export function DesktopRightInspector() {
                             <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
                               {isKids ? (isUrdu ? "حرکت کا راز (اعراب):" : "Vowel Magic (Case):") : (isUrdu ? "حالتِ اعراب:" : "Case (إعراب):")}
                             </span>
-                            <span className="font-bold text-emerald-700 dark:text-emerald-300">
+                            <span className="font-bold text-[var(--primary)]">
                               {adaptedCase ? adaptedCase.label : seg.grammarCase}
                             </span>
                           </div>
@@ -600,7 +600,7 @@ export function DesktopRightInspector() {
                   <span className="font-semibold uppercase tracking-wider">
                     {isKids ? (isUrdu ? "اس آیت میں مطلب" : "Meaning in this Ayah") : (isUrdu ? "سیاق وسباق کا مفہوم" : "Contextual Verse Translation")}
                   </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px] font-bold">
+                  <span className="text-[var(--primary)] font-mono text-[10px] font-bold">
                     {selectedAyahKey || "1:1"} Verse Context
                   </span>
                 </div>
@@ -616,7 +616,7 @@ export function DesktopRightInspector() {
                 {/* Urdu Translation */}
                 {selectedWord?.translation_urdu?.text && (
                   <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-right">
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block mb-0.5">اردو لفظی ترجمہ:</span>
+                    <span className="text-[10px] text-[var(--primary)] font-bold block mb-0.5">اردو لفظی ترجمہ:</span>
                     <p className="font-urdu text-base text-[var(--urdu-color)] leading-relaxed">
                       {selectedWord.translation_urdu.text}
                     </p>
@@ -626,7 +626,7 @@ export function DesktopRightInspector() {
                 {/* English Translation */}
                 {prefs.showTranslation && selectedWord?.translation?.text && (
                   <div className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-left">
-                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block mb-0.5">English Translation:</span>
+                    <span className="text-[10px] text-[var(--primary)] font-bold block mb-0.5">English Translation:</span>
                     <p className="text-xs text-[var(--translation-color)] font-medium">
                       {selectedWord.translation.text}
                     </p>
@@ -635,13 +635,13 @@ export function DesktopRightInspector() {
               </div>
 
               {/* 2. All Possible Lexical Meanings & Senses */}
-              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-card)] to-teal-500/5 border border-emerald-500/30 space-y-2.5">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--primary)]/10 via-[var(--surface-card)] to-teal-500/5 border border-[var(--primary)]/30 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--foreground)]">
-                    <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <Sparkles className="h-4 w-4 text-[var(--primary)]" />
                     <span>{isKids ? (isUrdu ? "اس لفظ کے تمام ممکنہ معانی" : "All Possible Meanings") : (isUrdu ? "تمام لغوی معانی ومفاہیم" : "All Possible Lexical Meanings")}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-bold border border-emerald-500/30">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--primary)]/15 text-[var(--primary)] font-bold border border-[var(--primary)]/30">
                     Lexicon Senses
                   </span>
                 </div>
@@ -684,8 +684,8 @@ export function DesktopRightInspector() {
 
                 {/* Root Concept Explanation */}
                 {comprehensiveMeanings.primaryRootConceptEn && (
-                  <div className="mt-2 pt-2 border-t border-emerald-500/20 text-[11px] text-[var(--muted-foreground)] leading-relaxed">
-                    <span className="font-bold text-emerald-700 dark:text-emerald-300 block mb-0.5">
+                  <div className="mt-2 pt-2 border-t border-[var(--primary)]/20 text-[11px] text-[var(--muted-foreground)] leading-relaxed">
+                    <span className="font-bold text-[var(--primary)] block mb-0.5">
                       {isUrdu ? "بنیادی مادہ ومفہوم:" : "Primary Root Concept:"}
                     </span>
                     <p>{isUrdu && comprehensiveMeanings.primaryRootConceptUr ? comprehensiveMeanings.primaryRootConceptUr : comprehensiveMeanings.primaryRootConceptEn}</p>
@@ -728,9 +728,9 @@ export function DesktopRightInspector() {
                         className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex items-center justify-between text-xs"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="font-arabic text-base font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">{item.arabic}</span>
+                          <span className="font-arabic text-base font-bold text-[var(--primary)]" dir="rtl">{item.arabic}</span>
                           <span className="text-[10px] font-mono text-[var(--muted-foreground)]">({item.transliteration})</span>
-                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30 font-semibold">
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 font-semibold">
                             {item.formOrType}
                           </span>
                         </div>
@@ -763,10 +763,10 @@ export function DesktopRightInspector() {
                     return (
                       <div
                         key={item.code}
-                        className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                        className="p-2 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 transition-colors flex items-center justify-between text-xs"
                       >
                         <div className="space-y-0.5 flex-1 pr-2">
-                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 block">
+                          <span className="text-[10px] font-semibold text-[var(--primary)] block">
                             {item.nativeName} ({item.languageName})
                           </span>
                           <div
@@ -786,7 +786,7 @@ export function DesktopRightInspector() {
                           className="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] cursor-pointer"
                           title="Copy"
                         >
-                          {isCopied ? <CheckCircle2 className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                          {isCopied ? <CheckCircle2 className="h-3 w-3 text-[var(--primary)]" /> : <Copy className="h-3 w-3" />}
                         </button>
                       </div>
                     );
@@ -816,7 +816,7 @@ export function DesktopRightInspector() {
                       >
                         A-
                       </button>
-                      <span className="px-1 font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="px-1 font-mono font-bold text-[var(--primary)]">
                         {prefs.tafsirFontSize || 18}px
                       </span>
                       <button
@@ -832,7 +832,7 @@ export function DesktopRightInspector() {
                     <button
                       type="button"
                       onClick={() => setIsFullModalOpen(true)}
-                      className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-emerald-700 dark:text-emerald-300 font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
+                      className="text-[11px] px-2 py-0.5 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--primary)] hover:text-white border border-[var(--border-subtle)] text-[var(--primary)] font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
                       title={isUrdu ? "مکمل تفسیر الگ ونڈو میں دیکھیں" : "Open in full modal dialog"}
                     >
                       <ExternalLink className="h-3 w-3" />
@@ -843,7 +843,7 @@ export function DesktopRightInspector() {
                 <select
                   value={prefs.selectedTafsirId}
                   onChange={(e) => setSelectedTafsirId(Number(e.target.value))}
-                  className="w-full p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] focus:outline-none focus:border-emerald-500 cursor-pointer"
+                  className="w-full p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] cursor-pointer"
                 >
                   {(isUrdu
                     ? AVAILABLE_TAFSIRS.filter((t) => t.language === "urdu")
@@ -859,11 +859,11 @@ export function DesktopRightInspector() {
               <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs leading-relaxed min-h-[140px] transition-all duration-150">
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 text-[10px] text-[var(--muted-foreground)]">
                   <span>{isUrdu ? `مصنف: ${tafsirAuthor || "حافظ ابن کثیر"}` : `Author: ${tafsirAuthor || "Scholar"}`}</span>
-                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{isUrdu ? `آیت: ${selectedAyahKey}` : `Ayah ${selectedAyahKey}`}</span>
+                  <span className="font-mono font-bold text-[var(--primary)]">{isUrdu ? `آیت: ${selectedAyahKey}` : `Ayah ${selectedAyahKey}`}</span>
                 </div>
                 {loadingTafsir ? (
                   <div className="p-8 text-center text-xs text-[var(--muted-foreground)] animate-pulse flex flex-col items-center justify-center gap-2 min-h-[100px]">
-                    <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
                     <span>{isUrdu ? "مستند تفسیر لوڈ ہو رہی ہے..." : "Fetching authentic Tafseer text..."}</span>
                   </div>
                 ) : (
@@ -887,7 +887,7 @@ export function DesktopRightInspector() {
             <div className="space-y-2.5">
               {loadingScholars ? (
                 <div className="p-6 text-center text-xs text-[var(--muted-foreground)] animate-pulse flex flex-col items-center justify-center gap-2 min-h-[120px]">
-                  <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
                   <span>Loading comparative translations for Ayah {selectedAyahKey}...</span>
                 </div>
               ) : scholarTranslations.length === 0 ? (
@@ -903,7 +903,7 @@ export function DesktopRightInspector() {
                       className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{item.authorName}</span>
+                        <span className="font-bold text-[var(--primary)]">{item.authorName}</span>
                         <span className="uppercase text-[var(--muted-foreground)] font-semibold">{item.language}</span>
                       </div>
                       <div
@@ -955,7 +955,7 @@ export function DesktopRightInspector() {
                           setNoteModalEditingId(null);
                           setNoteModalTarget("word");
                         }}
-                        className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                        className="text-[11px] font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         {isUrdu ? "نیا نوٹ" : "Add Note"}
@@ -963,7 +963,7 @@ export function DesktopRightInspector() {
                     </div>
 
                     <div className="text-center py-1">
-                      <span className="font-arabic text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                      <span className="font-arabic text-xl font-bold text-[var(--primary)]">
                         {selectedWord.text_uthmani || selectedWord.text}
                       </span>
                     </div>
@@ -987,7 +987,7 @@ export function DesktopRightInspector() {
                                     setNoteModalEditingId(wNote.id);
                                     setNoteModalTarget("word");
                                   }}
-                                  className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                                  className="text-[var(--primary)] hover:underline font-semibold cursor-pointer"
                                 >
                                   {isUrdu ? "تبدیل کریں" : "Edit"}
                                 </button>
@@ -1031,7 +1031,7 @@ export function DesktopRightInspector() {
                             setNoteModalEditingId(null);
                             setNoteModalTarget("word");
                           }}
-                          className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
+                          className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white shadow-xs cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           {isUrdu ? "لفظ کا پہلا نوٹ شامل کریں" : "Add Word Note"}
@@ -1045,15 +1045,15 @@ export function DesktopRightInspector() {
                 <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2.5">
                   <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
                     <div className="flex items-center gap-1.5">
-                      <StickyNote className="w-3.5 h-3.5 text-emerald-500" />
+                      <StickyNote className="w-3.5 h-3.5 text-[var(--primary)]" />
                       <span className="text-xs font-bold text-[var(--foreground)]">
                         {isUrdu ? "آیت کے نوٹس و تدبر" : "Ayah Reflections & Notes"}
                       </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
+                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 font-semibold">
                         {currentAyahKey}
                       </span>
                       {verseNotesList.length > 0 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[var(--primary)]/15 text-[var(--primary)]">
                           {verseNotesList.length}
                         </span>
                       )}
@@ -1064,7 +1064,7 @@ export function DesktopRightInspector() {
                         setNoteModalEditingId(null);
                         setNoteModalTarget("verse");
                       }}
-                      className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-semibold text-[var(--primary)] hover:underline inline-flex items-center gap-1 cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       {isUrdu ? "نیا نوٹ" : "Add Note"}
@@ -1080,7 +1080,7 @@ export function DesktopRightInspector() {
                           dir={isUrdu ? "rtl" : "ltr"}
                         >
                           <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)]">
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            <span className="font-bold text-[var(--primary)]">
                               {isUrdu ? `نوٹ #${idx + 1}` : `Note #${idx + 1}`}
                             </span>
                             <div className="flex items-center gap-2">
@@ -1090,7 +1090,7 @@ export function DesktopRightInspector() {
                                   setNoteModalEditingId(vNote.id);
                                   setNoteModalTarget("verse");
                                 }}
-                                className="text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+                                className="text-[var(--primary)] hover:underline font-semibold cursor-pointer"
                               >
                                 {isUrdu ? "تبدیل کریں" : "Edit"}
                               </button>
@@ -1111,7 +1111,7 @@ export function DesktopRightInspector() {
                               {vNote.tags.map((tag) => (
                                 <span
                                   key={tag}
-                                  className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                  className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20"
                                 >
                                   #{tag}
                                 </span>
@@ -1134,7 +1134,7 @@ export function DesktopRightInspector() {
                           setNoteModalEditingId(null);
                           setNoteModalTarget("verse");
                         }}
-                        className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs cursor-pointer"
+                        className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white shadow-xs cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         {isUrdu ? "آیت کا پہلا نوٹ شامل کریں" : "Add Ayah Note"}

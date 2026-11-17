@@ -43,14 +43,14 @@ export function MobileBottomNav() {
           href={readHref}
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isReadingActive
-              ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+              ? "text-[var(--primary)] font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           }`}
         >
           <div className="relative">
             <BookOpen className="h-5 w-5" />
             {isReadingActive && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-emerald-500" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[var(--primary)]" />
             )}
           </div>
           <span className="text-[10px] mt-1 truncate">
@@ -75,14 +75,14 @@ export function MobileBottomNav() {
           href="/learn"
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isLearnActive
-              ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+              ? "text-[var(--primary)] font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           }`}
         >
           <div className="relative">
             <GraduationCap className="h-5 w-5" />
             {isLearnActive && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-emerald-500" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[var(--primary)]" />
             )}
           </div>
           <span className="text-[10px] mt-1 truncate">
@@ -95,7 +95,7 @@ export function MobileBottomNav() {
           href="/calendar"
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-all ${
             isCalendarActive
-              ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+              ? "text-[var(--primary)] font-semibold"
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           }`}
         >
@@ -107,7 +107,7 @@ export function MobileBottomNav() {
               </span>
             )}
             {isCalendarActive && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-emerald-500" />
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[var(--primary)]" />
             )}
           </div>
           <span className="text-[10px] mt-1 truncate">

@@ -167,7 +167,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
       maxWidth="2xl"
       title={
         <div className="flex items-center gap-2">
-          <CloudDownload className="h-5 w-5 text-emerald-400" />
+          <CloudDownload className="h-5 w-5 text-[var(--primary)]" />
           <span>Offline Storage & Downloads Manager</span>
         </div>
       }
@@ -176,12 +176,12 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
         {/* Storage Bar & Disk Info */}
         <div className="p-3.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="h-10 w-10 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center text-[var(--primary)]">
               <HardDrive className="h-5 w-5" />
             </div>
             <div>
               <div className="text-xs font-semibold text-[var(--foreground)]">
-                Offline Cache: <span className="text-emerald-400 font-mono">{storageUsage.usageMB} MB</span>
+                Offline Cache: <span className="text-[var(--primary)] font-mono">{storageUsage.usageMB} MB</span>
                 {storageUsage.quotaMB > 0 && (
                   <span className="text-[var(--muted-foreground)] font-normal text-[11px]">
                     {" "}
@@ -215,15 +215,15 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
 
         {/* Live Active Download Monitor Card (Sticky if active) */}
         {isDownloading && (
-          <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/50 ring-1 ring-emerald-500/30 space-y-3 animate-fadeIn">
+          <div className="p-4 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 ring-1 ring-[var(--primary)]/20 space-y-3 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 text-emerald-400 animate-spin" />
-                <span className="text-xs font-semibold text-emerald-300">
+                <Loader2 className="h-4 w-4 text-[var(--primary)] animate-spin" />
+                <span className="text-xs font-semibold text-[var(--primary)]">
                   {downloadProgress.taskTitle}
                 </span>
               </div>
-              <span className="font-mono text-xs font-bold text-emerald-400">
+              <span className="font-mono text-xs font-bold text-[var(--primary)]">
                 {formatBytes(downloadProgress.totalBytes)}
                 {downloadProgress.estimatedTotalBytes ? ` / ~${formatBytes(downloadProgress.estimatedTotalBytes)}` : ""} ({progressPercent}%)
               </span>
@@ -232,13 +232,13 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             {/* Progress Bar */}
             <div className="w-full h-2 rounded-full bg-[var(--surface-raised)] overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
+                className="h-full bg-[var(--primary)] transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-[var(--muted-foreground)]">
-              <span className="truncate max-w-[320px] text-zinc-300 font-medium">
+              <span className="truncate max-w-[320px] text-[var(--foreground)] font-medium">
                 {downloadProgress.currentItemName || "Downloading audio & text..."}
               </span>
               <span className="font-mono text-[10px]">
@@ -247,12 +247,12 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             </div>
 
             {/* Controls: Pause / Resume / Cancel */}
-            <div className="flex items-center gap-2 pt-1 border-t border-emerald-500/20">
+            <div className="flex items-center gap-2 pt-1 border-t border-[var(--border-subtle)]">
               {downloadProgress.status === "paused" ? (
                 <button
                   type="button"
                   onClick={() => offlineStorage.resume()}
-                  className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <Play className="h-3 w-3" /> Resume
                 </button>
@@ -287,7 +287,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 type="checkbox"
                 checked={includeData}
                 onChange={(e) => setIncludeData(e.target.checked)}
-                className="accent-emerald-500 rounded"
+                className="accent-[var(--primary)] rounded"
               />
               <span>Text & Translations</span>
             </label>
@@ -296,7 +296,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 type="checkbox"
                 checked={includeVerseAudio}
                 onChange={(e) => setIncludeVerseAudio(e.target.checked)}
-                className="accent-emerald-500 rounded"
+                className="accent-[var(--primary)] rounded"
               />
               <span>Verse Recitations</span>
             </label>
@@ -305,7 +305,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 type="checkbox"
                 checked={includeWordAudio}
                 onChange={(e) => setIncludeWordAudio(e.target.checked)}
-                className="accent-emerald-500 rounded"
+                className="accent-[var(--primary)] rounded"
               />
               <span>Word-by-Word Audio</span>
             </label>
@@ -319,7 +319,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             onClick={() => setActiveTab("current")}
             className={`py-2 px-4 font-semibold border-b-2 transition-colors ${
               activeTab === "current"
-                ? "border-emerald-500 text-emerald-400"
+                ? "border-[var(--primary)] text-[var(--primary)]"
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -330,7 +330,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             onClick={() => setActiveTab("catalog")}
             className={`py-2 px-4 font-semibold border-b-2 transition-colors ${
               activeTab === "catalog"
-                ? "border-emerald-500 text-emerald-400"
+                ? "border-[var(--primary)] text-[var(--primary)]"
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -341,7 +341,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             onClick={() => setActiveTab("full")}
             className={`py-2 px-4 font-semibold border-b-2 transition-colors ${
               activeTab === "full"
-                ? "border-emerald-500 text-emerald-400"
+                ? "border-[var(--primary)] text-[var(--primary)]"
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -362,10 +362,10 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 </p>
               </div>
               <div className="text-right">
-                <span className="font-arabic text-2xl text-emerald-400 font-semibold" dir="rtl">
+                <span className="font-arabic text-2xl text-[var(--primary)] font-semibold" dir="rtl">
                   {activeChapter.name_arabic}
                 </span>
-                <span className="text-[11px] font-mono text-emerald-400 block mt-0.5">
+                <span className="text-[11px] font-mono text-[var(--primary)] block mt-0.5">
                   Package Size: ~{formatBytes(currentEst.totalBytes)}
                 </span>
               </div>
@@ -375,7 +375,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             <div className="grid grid-cols-3 gap-2 text-[11px]">
               <div className="p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
                 <span className="text-[var(--muted-foreground)] block">Text & Words:</span>
-                <span className={activeMeta?.hasText ? "text-emerald-400 font-semibold font-mono" : "text-zinc-400 font-mono"}>
+                <span className={activeMeta?.hasText ? "text-[var(--primary)] font-semibold font-mono" : "text-[var(--muted-foreground)] font-mono"}>
                   {activeMeta?.hasText ? `✓ Ready (~${formatBytes(currentEst.textBytes)})` : `~${formatBytes(currentEst.textBytes)}`}
                 </span>
               </div>
@@ -384,8 +384,8 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 <span
                   className={
                     activeMeta?.verseAudioReciters?.includes(currentReciter?.id || 7)
-                      ? "text-emerald-400 font-semibold font-mono"
-                      : "text-zinc-400 font-mono"
+                      ? "text-[var(--primary)] font-semibold font-mono"
+                      : "text-[var(--muted-foreground)] font-mono"
                   }
                 >
                   {activeMeta?.verseAudioReciters?.includes(currentReciter?.id || 7)
@@ -395,7 +395,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
               </div>
               <div className="p-2 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
                 <span className="text-[var(--muted-foreground)] block">Word Audios:</span>
-                <span className={activeMeta?.hasWordAudio ? "text-emerald-400 font-semibold font-mono" : "text-zinc-400 font-mono"}>
+                <span className={activeMeta?.hasWordAudio ? "text-[var(--primary)] font-semibold font-mono" : "text-[var(--muted-foreground)] font-mono"}>
                   {activeMeta?.hasWordAudio
                     ? `✓ Ready (~${formatBytes(currentEst.wordAudioBytes)})`
                     : `~${formatBytes(currentEst.wordAudioBytes)}`}
@@ -407,7 +407,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
               type="button"
               onClick={handleDownloadActiveSurah}
               disabled={isDownloading}
-              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99]"
+              className="w-full py-2.5 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/80 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.99]"
             >
               <Download className="h-4 w-4" />
               <span>
@@ -430,7 +430,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 placeholder="Search Surah by name or number..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs text-[var(--foreground)] focus:outline-none focus:border-emerald-500 font-sans"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-base sm:text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] font-sans"
               />
             </div>
 
@@ -448,23 +448,23 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                 return (
                   <div
                     key={ch.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs hover:border-emerald-500/40 transition-colors"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs hover:border-[var(--primary)]/40 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-lg bg-[var(--surface-card)] flex items-center justify-center font-mono text-[11px] text-emerald-400 font-semibold">
+                      <span className="w-7 h-7 rounded-lg bg-[var(--surface-card)] flex items-center justify-center font-mono text-[11px] text-[var(--primary)] font-semibold">
                         {ch.id}
                       </span>
                       <div>
                         <div className="font-semibold text-[var(--foreground)] flex items-center gap-2">
                           <span>{ch.name_simple}</span>
-                          <span className="font-arabic text-sm text-emerald-400" dir="rtl">
+                          <span className="font-arabic text-sm text-[var(--primary)]" dir="rtl">
                             {ch.name_arabic}
                           </span>
                         </div>
                         <div className="text-[10px] text-[var(--muted-foreground)] flex items-center gap-2">
                           <span>{ch.verses_count} Ayahs</span>
                           <span>&bull;</span>
-                          <span className="font-mono text-zinc-400">
+                          <span className="font-mono text-[var(--muted-foreground)]">
                             {meta?.totalBytes
                               ? `On disk: ${formatBytes(meta.totalBytes)}`
                               : `Est: ~${formatBytes(chEst.totalBytes)}`}
@@ -475,7 +475,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
 
                     <div className="flex items-center gap-2">
                       {isDownloaded ? (
-                        <span className="px-2.5 py-1 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-[10px] text-emerald-300 font-semibold flex items-center gap-1 font-mono">
+                        <span className="px-2.5 py-1 rounded-md bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-[10px] text-[var(--primary)] font-semibold flex items-center gap-1 font-mono">
                           <Check className="h-3 w-3" /> Ready ({formatBytes(meta.totalBytes)})
                         </span>
                       ) : (
@@ -483,7 +483,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
                           type="button"
                           onClick={() => handleDownloadSpecificSurah(ch.id)}
                           disabled={isDownloading}
-                          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-emerald-600 hover:text-white border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] transition-all flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--primary)] hover:text-white border border-[var(--border-subtle)] text-[11px] text-[var(--muted-foreground)] transition-all flex items-center gap-1"
                         >
                           <Download className="h-3 w-3" />
                           <span>Download (~{formatBytes(chEst.totalBytes)})</span>
@@ -500,7 +500,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
         {/* Tab 3: Full Quran (All 114 Surahs at Once) */}
         {activeTab === "full" && (
           <div className="p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-4 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 flex items-center justify-center text-[var(--primary)] mx-auto">
               <CloudDownload className="h-6 w-6" />
             </div>
 
@@ -517,19 +517,19 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
             <div className="p-3.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] max-w-md mx-auto text-left text-[11px] space-y-1.5">
               <div className="flex justify-between font-semibold text-xs border-b border-[var(--border-subtle)] pb-1.5">
                 <span className="text-[var(--foreground)]">Total Package Download:</span>
-                <span className="text-emerald-400 font-mono">~{formatBytes(fullEst.totalBytes)}</span>
+                <span className="text-[var(--primary)] font-mono">~{formatBytes(fullEst.totalBytes)}</span>
               </div>
               <div className="flex justify-between text-[var(--muted-foreground)]">
                 <span>Verse Recitations ({currentReciter?.reciter_name || "Mishari Rashid"}):</span>
-                <span className="font-mono text-zinc-300">~{formatBytes(fullEst.verseAudioBytes)}</span>
+                <span className="font-mono text-[var(--muted-foreground)]">~{formatBytes(fullEst.verseAudioBytes)}</span>
               </div>
               <div className="flex justify-between text-[var(--muted-foreground)]">
                 <span>Word-by-Word Pronunciation Audio:</span>
-                <span className="font-mono text-zinc-300">~{formatBytes(fullEst.wordAudioBytes)}</span>
+                <span className="font-mono text-[var(--muted-foreground)]">~{formatBytes(fullEst.wordAudioBytes)}</span>
               </div>
               <div className="flex justify-between text-[var(--muted-foreground)]">
                 <span>Uthmani Text & Translations:</span>
-                <span className="font-mono text-zinc-300">~{formatBytes(fullEst.textBytes)}</span>
+                <span className="font-mono text-[var(--muted-foreground)]">~{formatBytes(fullEst.textBytes)}</span>
               </div>
               <div className="flex justify-between text-[var(--muted-foreground)] pt-1 border-t border-[var(--border-subtle)]">
                 <span>Chapters & Verses Count:</span>
@@ -541,7 +541,7 @@ export function DownloadManagerModal({ isOpen, onClose }: DownloadManagerModalPr
               type="button"
               onClick={handleDownloadFullQuran}
               disabled={isDownloading}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs inline-flex items-center gap-2 shadow-lg transition-all active:scale-95"
+              className="px-6 py-3 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/80 disabled:opacity-50 text-white font-bold text-xs inline-flex items-center gap-2 shadow-lg transition-all active:scale-95"
             >
               <Download className="h-4 w-4" />
               <span>Start Complete 114-Surah Download (~{formatBytes(fullEst.totalBytes)})</span>

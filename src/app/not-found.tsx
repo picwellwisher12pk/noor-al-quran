@@ -4,7 +4,7 @@ import { BookOpen, Home } from "lucide-react";
 export default function NotFound() {
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
-      <div className="h-16 w-16 rounded-2xl bg-emerald-950/60 border border-emerald-800/40 flex items-center justify-center text-emerald-400 mb-6 shadow-lg">
+      <div className="h-16 w-16 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/25 flex items-center justify-center text-[var(--primary)] mb-6 shadow-lg">
         <BookOpen className="h-8 w-8" />
       </div>
       <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Page Not Found</h1>
@@ -20,3 +20,4 @@ export default function NotFound() {
     </div>
   );
 }
+

@@ -46,7 +46,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
   } = useDesktopWorkspace();
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[var(--background)] text-[var(--foreground)] select-none">
+    <div className="h-dvh w-screen overflow-hidden flex flex-col bg-[var(--background)] text-[var(--foreground)] select-none">
       {/* Background Update Notification Banner */}
       <UpdateNotificationBanner />
 

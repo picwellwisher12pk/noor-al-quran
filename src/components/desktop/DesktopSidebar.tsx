@@ -123,8 +123,8 @@ export function DesktopSidebar() {
             }}
             className={`p-2 rounded-xl transition-all cursor-pointer ${
               isReadingPage
-                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-                : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
+                ? "bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/30"
+                : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--surface-card)]"
             }`}
             title={isUrdu ? "تلاوتِ قرآن" : "Noble Quran Reader (تلاوت)"}
           >
@@ -136,8 +136,8 @@ export function DesktopSidebar() {
             href="/learn"
             className={`p-2 rounded-xl transition-all cursor-pointer ${
               isLearnRoute
-                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-                : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
+                ? "bg-[var(--primary)] text-white shadow-sm shadow-[var(--primary)]/30"
+                : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--surface-card)]"
             }`}
             title={isUrdu ? "تعلیم القرآن (الفاظ و قواعد)" : "Learn Quranic Arabic (Words, Grammar & Games)"}
           >
@@ -187,7 +187,7 @@ export function DesktopSidebar() {
               }}
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 (activeSidebarTab === "surahs" || activeSidebarTab === "juz") && isLeftSidebarOpen
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "فہرستِ قرآن (سورتیں اور پارے)" : "Quran Directory (114 Surahs & 30 Juz)"}
@@ -201,7 +201,7 @@ export function DesktopSidebar() {
               onClick={() => handleTabClick("bookmarks")}
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeSidebarTab === "bookmarks" && isLeftSidebarOpen
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? `محفوظ آیات (${bookmarks.length})` : `Bookmarks & Saved Verses (${bookmarks.length})`}
@@ -215,7 +215,7 @@ export function DesktopSidebar() {
               onClick={() => handleTabClick("khatmah")}
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeSidebarTab === "khatmah" && isLeftSidebarOpen
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "منصوبہ ختمِ قرآن (سنت کے مطابق)" : "Khatmah Sunnah Goal (7-day minimum pacing)"}
@@ -232,7 +232,7 @@ export function DesktopSidebar() {
               href="/learn/sirat"
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 pathname.startsWith("/learn/sirat")
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "صراطِ نور (سیکھنے کا راستہ)" : "My Path (Sirat Al-Noor Skill Tree)"}
@@ -244,7 +244,7 @@ export function DesktopSidebar() {
               href="/learn/flashcards"
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 pathname.startsWith("/learn/flashcards")
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "مشقی فلیش کارڈز" : "Practice Flashcards"}
@@ -256,7 +256,7 @@ export function DesktopSidebar() {
               href="/learn/arcade"
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 pathname.startsWith("/learn/arcade")
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "قرآنی گیمز آرکیڈ" : "Mini Games Arcade"}
@@ -268,7 +268,7 @@ export function DesktopSidebar() {
               href="/learn/word-bank"
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 pathname.startsWith("/learn/word-bank")
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "ذخیرہ الفاظ" : "Word Explorer & Vocabulary"}
@@ -280,7 +280,7 @@ export function DesktopSidebar() {
               href="/learn/grammar"
               className={`p-2 rounded-xl transition-all cursor-pointer ${
                 pathname.startsWith("/learn/grammar")
-                  ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-xs"
+                  ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 shadow-xs"
                   : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
               }`}
               title={isUrdu ? "قواعد و صرف" : "Grammar & Verbs"}
@@ -314,7 +314,7 @@ export function DesktopSidebar() {
           <div className="flex flex-col items-center space-y-2">
             <Link
               href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
-              className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15 transition-all cursor-pointer"
+              className="p-2 rounded-xl text-[var(--primary)] hover:bg-[var(--primary)]/15 transition-all cursor-pointer"
               title={`${isUrdu ? "جاری رکھیں:" : "Resume Reading:"} ${lastRead.chapterName} (${lastRead.verseNumber})`}
             >
               <History className="h-4 w-4" />
@@ -372,7 +372,7 @@ export function DesktopSidebar() {
                   onClick={() => setActiveSidebarTab("surahs")}
                   className={`flex-1 py-1 rounded-md text-center transition-all cursor-pointer ${
                     activeSidebarTab === "surahs"
-                      ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                      ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
@@ -383,7 +383,7 @@ export function DesktopSidebar() {
                   onClick={() => setActiveSidebarTab("juz")}
                   className={`flex-1 py-1 rounded-md text-center transition-all cursor-pointer ${
                     activeSidebarTab === "juz"
-                      ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                      ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                       : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
@@ -402,7 +402,7 @@ export function DesktopSidebar() {
                     placeholder="Filter Surah name or number..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
+                    className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
                   />
                 </div>
 
@@ -413,7 +413,7 @@ export function DesktopSidebar() {
                     onClick={() => setRevelationFilter("all")}
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "all"
-                        ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
+                        ? "bg-[var(--primary)]/15 text-[var(--primary)] font-semibold border border-[var(--primary)]/30"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
@@ -424,7 +424,7 @@ export function DesktopSidebar() {
                     onClick={() => setRevelationFilter("makkah")}
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "makkah"
-                        ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
+                        ? "bg-[var(--primary)]/15 text-[var(--primary)] font-semibold border border-[var(--primary)]/30"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
@@ -435,7 +435,7 @@ export function DesktopSidebar() {
                     onClick={() => setRevelationFilter("madinah")}
                     className={`px-2 py-0.5 rounded-md transition-colors ${
                       revelationFilter === "madinah"
-                        ? "bg-emerald-600/20 text-emerald-300 font-semibold border border-emerald-500/30"
+                        ? "bg-[var(--primary)]/15 text-[var(--primary)] font-semibold border border-[var(--primary)]/30"
                         : "text-[var(--muted-foreground)] hover:bg-[var(--surface-card)]"
                     }`}
                   >
@@ -446,10 +446,10 @@ export function DesktopSidebar() {
                 {lastRead && (
                   <Link
                     href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
-                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 hover:border-emerald-500/60 transition-colors text-[11px] group"
+                    className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-[var(--primary)]/10 border border-[var(--primary)]/30 hover:border-[var(--primary)]/60 transition-colors text-[11px] group"
                   >
-                    <div className="flex items-center gap-1.5 min-w-0 text-emerald-800 dark:text-emerald-300 font-semibold">
-                      <History className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    <div className="flex items-center gap-1.5 min-w-0 text-[var(--primary)] font-semibold">
+                      <History className="h-3.5 w-3.5 shrink-0 text-[var(--primary)]" />
                       <span className="truncate">
                         {isUrdu ? "جاری رکھیں:" : "Resume:"} {lastRead.chapterName} ({lastRead.verseNumber})
                       </span>
@@ -483,7 +483,7 @@ export function DesktopSidebar() {
                       onClick={() => setActiveChapterId(chap.id)}
                       className={`flex items-center justify-between p-2 rounded-xl transition-all group ${
                         isActive
-                          ? "bg-emerald-600/15 border border-emerald-500/40 text-[var(--foreground)] font-semibold shadow-sm"
+                          ? "bg-[var(--primary)]/15 border border-[var(--primary)]/30 text-[var(--foreground)] font-semibold shadow-sm"
                           : "hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] border border-transparent"
                       }`}
                     >
@@ -491,7 +491,7 @@ export function DesktopSidebar() {
                         <span
                           className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-mono flex-shrink-0 ${
                             isActive
-                              ? "bg-emerald-600 text-white font-bold"
+                              ? "bg-[var(--primary)] text-white font-bold"
                               : "bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--muted-foreground)]"
                           }`}
                         >
@@ -500,7 +500,7 @@ export function DesktopSidebar() {
                         <div className="truncate">
                           <div className="text-xs truncate font-medium text-[var(--foreground)] flex items-center gap-1.5">
                             <span>{chap.name_simple}</span>
-                            <span className="text-[11px] font-urdu text-emerald-700 dark:text-emerald-400">
+                            <span className="text-[11px] font-urdu text-[var(--primary)]">
                               {getSurahUrduMeta(chap.id).name_urdu_short}
                             </span>
                           </div>
@@ -510,7 +510,7 @@ export function DesktopSidebar() {
                         </div>
                       </div>
 
-                      <div className="font-arabic text-sm text-emerald-700 dark:text-emerald-400 font-bold flex-shrink-0 ml-1" dir="rtl">
+                      <div className="font-arabic text-sm text-[var(--primary)] font-bold flex-shrink-0 ml-1" dir="rtl">
                         {chap.name_arabic}
                       </div>
                     </Link>
@@ -526,10 +526,10 @@ export function DesktopSidebar() {
                   return (
                     <div
                       key={juzNum}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors flex items-center justify-between text-xs"
+                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 transition-colors flex items-center justify-between text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 border border-emerald-500/30 font-mono text-[11px] font-bold flex items-center justify-center">
+                        <span className="w-6 h-6 rounded-md bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 font-mono text-[11px] font-bold flex items-center justify-center">
                           {juzNum}
                         </span>
                         <div>
@@ -544,7 +544,7 @@ export function DesktopSidebar() {
 
                       <Link
                         href={`/surah/1?juz=${juzNum}`}
-                        className="text-[10px] px-2 py-0.5 rounded bg-emerald-600/15 hover:bg-emerald-600 hover:text-white text-emerald-300 font-medium transition-colors"
+                        className="text-[10px] px-2 py-0.5 rounded bg-[var(--primary)]/15 hover:bg-[var(--primary)] hover:text-white text-[var(--primary)] font-medium transition-colors"
                       >
                         Read
                       </Link>
@@ -557,8 +557,8 @@ export function DesktopSidebar() {
             {/* TAB 3: KHATMAH SUNNAH GOAL */}
             {activeSidebarTab === "khatmah" && (
               <div className="space-y-3 p-1">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600/15 via-emerald-900/10 to-transparent border border-emerald-500/30 text-xs space-y-2">
-                  <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 font-bold text-xs">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--primary)]/15 via-[var(--primary)]/5 to-transparent border border-[var(--primary)]/30 text-xs space-y-2">
+                  <div className="flex items-center gap-1.5 text-[var(--primary)] font-bold text-xs">
                     <Target className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Sunnah 7-Day Minimum Pacing</span>
                   </div>
@@ -567,10 +567,10 @@ export function DesktopSidebar() {
                   </p>
 
                   {plan && (
-                    <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs">
+                    <div className="pt-2 border-t border-[var(--primary)]/20 flex items-center justify-between text-xs">
                       <div>
                         <span className="text-[10px] text-[var(--muted-foreground)] block">Current Pace:</span>
-                        <span className="font-bold text-emerald-800 dark:text-emerald-300">{plan.targetDays} Days Khatmah</span>
+                        <span className="font-bold text-[var(--primary)]">{plan.targetDays} Days Khatmah</span>
                       </div>
                       {targetInfo && (
                         <div className="text-right">
@@ -587,13 +587,13 @@ export function DesktopSidebar() {
                   <div className="p-3 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-[var(--muted-foreground)] font-medium">Overall Completion:</span>
-                      <span className="font-mono font-bold text-emerald-800 dark:text-emerald-300">
+                      <span className="font-mono font-bold text-[var(--primary)]">
                         {targetInfo.percentageCompleted.toFixed(1)}%
                       </span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-[var(--surface-raised)] overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-[var(--primary)] to-amber-400 rounded-full transition-all duration-500"
                         style={{ width: `${targetInfo.percentageCompleted}%` }}
                       />
                     </div>
@@ -610,8 +610,8 @@ export function DesktopSidebar() {
             {activeSidebarTab === "bookmarks" && (
               <div className="space-y-2">
                 {lastRead && (
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                  <div className="p-2.5 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between text-[10px] text-[var(--primary)] font-semibold">
                       <span className="flex items-center gap-1">
                         <History className="h-3 w-3" />
                         {isUrdu ? "آخری تلاوت" : "Last Read"}
@@ -625,7 +625,7 @@ export function DesktopSidebar() {
                     </div>
                     <Link
                       href={`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 hover:underline"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[var(--primary)] hover:underline"
                     >
                       {isUrdu ? "تلاوت جاری رکھیں" : "Resume Reading"}
                       <ChevronRight className="h-3 w-3" />
@@ -635,7 +635,7 @@ export function DesktopSidebar() {
 
                 {bookmarks.length === 0 ? (
                   <div className="p-6 text-center text-xs text-[var(--muted-foreground)] space-y-1">
-                    <Bookmark className="h-5 w-5 mx-auto text-emerald-600/60 dark:text-emerald-400/60 mb-1" />
+                    <Bookmark className="h-5 w-5 mx-auto text-[var(--primary)]/60 mb-1" />
                     <p className="font-medium text-[var(--foreground)]">No Bookmarks Saved</p>
                     <p className="text-[10px]">Click the bookmark ribbon on any Ayah to save it here.</p>
                   </div>
@@ -643,12 +643,12 @@ export function DesktopSidebar() {
                   bookmarks.map((bm) => (
                     <div
                       key={bm.verse_key}
-                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-emerald-500/40 transition-colors space-y-1 text-xs"
+                      className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 transition-colors space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between">
                         <Link
                           href={`/surah/${bm.chapter_id}?ayah=${bm.verse_number}`}
-                          className="font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                          className="font-bold text-[var(--primary)] hover:underline"
                         >
                           Surah {bm.chapter_name} • Ayah {bm.verse_number}
                         </Link>
@@ -676,3 +676,4 @@ export function DesktopSidebar() {
     </aside>
   );
 }
+
