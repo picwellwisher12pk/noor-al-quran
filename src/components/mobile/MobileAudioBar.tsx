@@ -124,7 +124,7 @@ export function MobileAudioBar() {
         <div className="w-full h-[2px] bg-[var(--surface-card)] overflow-hidden">
           <div
             className={`h-full transition-all duration-200 ${
-              isPlayingTranslation ? "bg-teal-500" : "bg-emerald-500"
+              isPlayingTranslation ? "bg-[var(--accent,teal)]" : "bg-[var(--primary)]"
             }`}
             style={{ width: `${progressPercent}%` }}
           />
@@ -138,7 +138,7 @@ export function MobileAudioBar() {
             className="flex items-center gap-2.5 min-w-0 flex-1 text-left active:scale-95 transition-all"
           >
             {/* Reciter initials badge */}
-            <div className="flex-none h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-600 to-teal-500 flex items-center justify-center text-white text-[10px] font-black shadow-sm">
+            <div className="flex-none h-8 w-8 rounded-lg bg-[var(--primary)] flex items-center justify-center text-white text-[10px] font-black shadow-sm">
               {reciterInitials}
             </div>
 
@@ -175,7 +175,7 @@ export function MobileAudioBar() {
               className={`h-9 w-9 rounded-full text-white flex items-center justify-center shadow-xs transition-all active:scale-95 ${
                 isPlayingTranslation
                   ? "bg-teal-600 hover:bg-teal-500"
-                  : "bg-emerald-600 hover:bg-emerald-500"
+                  : "bg-[var(--primary)] hover:bg-[var(--primary)]/80"
               }`}
             >
               {activeLoading ? (
@@ -238,7 +238,7 @@ export function MobileAudioBar() {
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-[var(--border-subtle)]">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <BookOpen className="h-5 w-5 text-[var(--primary)]" />
                 <h3 className="font-bold text-sm text-[var(--foreground)]">
                   Audio Studio &amp; Reciter
                 </h3>
@@ -269,8 +269,8 @@ export function MobileAudioBar() {
                 onClick={togglePlayPause}
                 className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                   isPlaying
-                    ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                    : "bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-emerald-600 border-[var(--border-subtle)]"
+                    ? "bg-[var(--primary)] text-white border-[var(--primary)] shadow-xs"
+                    : "bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--primary)] border-[var(--border-subtle)]"
                 }`}
               >
                 🎙️ {currentReciter?.reciter_name?.split(" ")[0] || "Arabic"}
@@ -297,7 +297,7 @@ export function MobileAudioBar() {
                 value={activeCurrentTime}
                 onChange={(e) => handleSeek(Number(e.target.value))}
                 className={`w-full h-[2.5px] bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer ${
-                  isPlayingTranslation ? "accent-teal-500" : "accent-emerald-500"
+                  isPlayingTranslation ? "accent-teal-500" : "accent-[var(--primary)]"
                 }`}
               />
               <div className="flex justify-between text-[11px] font-mono text-[var(--muted-foreground)]">
@@ -323,7 +323,7 @@ export function MobileAudioBar() {
                 className={`h-14 w-14 rounded-full text-white flex items-center justify-center shadow-lg transition-all active:scale-95 ${
                   isPlayingTranslation
                     ? "bg-teal-600 hover:bg-teal-500"
-                    : "bg-emerald-600 hover:bg-emerald-500"
+                    : "bg-[var(--primary)] hover:bg-[var(--primary)]/80"
                 }`}
               >
                 {activeLoading ? (
@@ -351,7 +351,7 @@ export function MobileAudioBar() {
                 onClick={cycleRepeatMode}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95 ${
                   repeatMode !== "none"
-                    ? "bg-emerald-500/15 border-emerald-500 text-emerald-600 dark:text-emerald-400"
+                    ? "bg-emerald-500/15 border-emerald-500 text-[var(--primary)]"
                     : "border-[var(--border-subtle)] text-[var(--muted-foreground)]"
                 }`}
               >
@@ -362,7 +362,7 @@ export function MobileAudioBar() {
                   </>
                 ) : repeatMode === "infinite" ? (
                   <>
-                    <Repeat className="h-4 w-4 text-emerald-400" />
+                    <Repeat className="h-4 w-4 text-[var(--primary)]" />
                     <span>Infinite</span>
                   </>
                 ) : (
@@ -394,7 +394,7 @@ export function MobileAudioBar() {
                   const r = reciters.find((rec) => rec.id === Number(e.target.value));
                   if (r) setReciter(r);
                 }}
-                className="w-full p-2.5 rounded-xl text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500"
+                className="w-full p-2.5 rounded-xl text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)]"
               >
                 {reciters.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -428,7 +428,7 @@ export function MobileAudioBar() {
                     value={loopFrom}
                     onChange={(e) => setLoopFrom(Math.max(1, Number(e.target.value)))}
                     disabled
-                    className="w-full p-2 rounded-lg text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full p-2 rounded-lg text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="flex-1 space-y-0.5">
@@ -442,7 +442,7 @@ export function MobileAudioBar() {
                     value={loopTo}
                     onChange={(e) => setLoopTo(Math.max(1, Number(e.target.value)))}
                     disabled
-                    className="w-full p-2 rounded-lg text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full p-2 rounded-lg text-xs bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)] focus:outline-none focus:border-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
                 <div className="flex-none self-end">
@@ -450,7 +450,7 @@ export function MobileAudioBar() {
                     type="button"
                     disabled
                     title="Loop range feature coming soon"
-                    className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600/40 text-white opacity-50 cursor-not-allowed active:scale-95 transition-all"
+                    className="px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--primary)]/40 text-white opacity-50 cursor-not-allowed active:scale-95 transition-all"
                   >
                     Start Loop
                   </button>

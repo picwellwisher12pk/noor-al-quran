@@ -101,13 +101,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search keywords, English translations, topics (e.g. 'patience', 'mercy', 'forgiveness')..."
-            className="w-full rounded-xl bg-[var(--surface-raised)] px-4 py-3 pl-11 text-sm text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-emerald-500 placeholder-[var(--muted-foreground)]"
+            className="w-full rounded-xl bg-[var(--surface-raised)] px-4 py-3 pl-11 text-base sm:text-sm text-[var(--foreground)] border border-[var(--border-subtle)] focus:outline-none focus:border-[var(--primary)] placeholder-[var(--muted-foreground)]"
           />
           <Search className="absolute left-3.5 h-4 w-4 text-[var(--muted-foreground)] pointer-events-none" />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="absolute right-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 transition-colors"
+            className="absolute right-2 px-4 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white disabled:opacity-50 transition-colors"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
           </button>
@@ -143,10 +143,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   className="block p-4 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-emerald-500/50 hover:bg-[var(--hover-bg)] transition-all group"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25">
                       Surah {surahNum}, Ayah {ayahNum}
                     </span>
-                    <span className="flex items-center text-xs text-emerald-400 group-hover:translate-x-1 transition-transform">
+                    <span className="flex items-center text-xs text-[var(--primary)] group-hover:translate-x-1 transition-transform">
                       Read ayah <ArrowRight className="h-3 w-3 ml-1" />
                     </span>
                   </div>

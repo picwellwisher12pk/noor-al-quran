@@ -90,7 +90,7 @@ export function MobileReaderBar({
           </Link>
 
           {/* Surah Badge */}
-          <span className="flex items-center justify-center h-6 min-w-[24px] px-1.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-mono font-bold text-[11px] shrink-0">
+          <span className="flex items-center justify-center h-6 min-w-[24px] px-1.5 rounded-md bg-[var(--primary)]/15 border border-[var(--primary)]/30 text-[var(--primary)] font-mono font-bold text-[11px] shrink-0">
             {chapterId}
           </span>
 
@@ -100,7 +100,7 @@ export function MobileReaderBar({
               {chapterName}
             </span>
             <span
-              className="font-arabic text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-semibold shrink-0"
+              className="font-arabic text-[var(--primary)] text-xs sm:text-sm font-semibold shrink-0"
               dir="rtl"
             >
               {chapterArabic}
@@ -121,11 +121,11 @@ export function MobileReaderBar({
                 onChange={(e) => setAyahInput(e.target.value)}
                 placeholder={`1-${totalAyahs}`}
                 autoFocus
-                className="w-13 px-1.5 py-0.5 text-xs rounded bg-[var(--surface-card)] border border-emerald-500 text-[var(--foreground)] focus:outline-none font-mono text-center"
+                className="w-13 px-1.5 py-0.5 text-base sm:text-xs rounded bg-[var(--surface-card)] border border-[var(--primary)] text-[var(--foreground)] focus:outline-none font-mono text-center"
               />
               <button
                 type="submit"
-                className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold"
+                className="px-2 py-0.5 rounded bg-[var(--primary)] text-white text-[10px] font-bold"
               >
                 Go
               </button>
@@ -175,8 +175,8 @@ export function MobileReaderBar({
             aria-label={isThisChapterPlaying ? "Pause Surah" : "Play Surah"}
             className={`p-1.5 rounded-lg transition-all active:scale-95 ${
               isThisChapterPlaying
-                ? "bg-emerald-600 text-white shadow-xs"
-                : "text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/15"
+                ? "bg-[var(--primary)] text-white shadow-xs"
+                : "text-[var(--primary)] hover:bg-[var(--primary)]/15"
             }`}
           >
             {isThisChapterPlaying ? (

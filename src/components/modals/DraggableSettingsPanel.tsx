@@ -37,7 +37,7 @@ interface DraggableSettingsPanelProps {
 }
 
 export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: DraggableSettingsPanelProps) {
-  const { themeStyle, themeMode, setThemeStyle, toggleThemeMode } = useTheme();
+  const { themeStyle, themeMode, resolvedMode, setThemeStyle, toggleThemeMode } = useTheme();
   const { isUrdu } = useLanguage();
   const { readingMode, setReadingMode, setIsDownloadManagerOpen } = useDesktopWorkspace();
   const {
@@ -177,11 +177,11 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
               !isMobile
                 ? "cursor-grab active:cursor-grabbing"
                 : ""
-            } ${isDragging ? "bg-emerald-950/40" : ""}`}
+            } ${isDragging ? "bg-[var(--primary)]/10" : ""}`}
           >
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
               {!isMobile && <GripHorizontal className="h-4 w-4 text-[var(--muted-foreground)]" />}
-              <Settings className="h-3.5 w-3.5 text-emerald-400" />
+              <Settings className="h-3.5 w-3.5 text-[var(--primary)]" />
               <span>{isMobile ? "Reading & Display Settings" : "Live Settings (Drag Me)"}</span>
             </div>
 
@@ -191,7 +191,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   type="button"
                   onClick={onOpenFullSettings}
                   title={isUrdu ? "مکمل ترتیبات موڈال کھولیں" : "Open Full Tabbed Settings"}
-                  className="px-1.5 py-0.5 rounded text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-1.5 py-0.5 rounded text-[10px] text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span className="hidden sm:inline">{isUrdu ? "مکمل ترتیبات" : "Full Modal"}</span>
@@ -223,7 +223,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             <button
               type="button"
               onClick={() => setIsMinimized(false)}
-              className="text-emerald-400 font-semibold underline text-[11px]"
+              className="text-[var(--primary)] font-semibold underline text-[11px]"
             >
               Expand
             </button>
@@ -238,9 +238,9 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                 <button
                   type="button"
                   onClick={toggleThemeMode}
-                  className="inline-flex items-center gap-1 text-emerald-400 font-medium capitalize"
+                  className="inline-flex items-center gap-1 text-[var(--primary)] font-medium capitalize"
                 >
-                  {themeMode === "dark" ? <Moon className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
+                  {resolvedMode === "dark" ? <Moon className="h-3 w-3" /> : themeMode === "system" ? <Sparkles className="h-3 w-3" /> : <Sun className="h-3 w-3" />}
                   {themeMode}
                 </button>
               </div>
@@ -252,7 +252,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setThemeStyle(t.id)}
                     className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border ${
                       themeStyle === t.id
-                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]"
                         : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
                     }`}
                   >
@@ -273,7 +273,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   onClick={() => setQuranScript("uthmani")}
                   className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
                     prefs.quranScript !== "indopak"
-                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]"
                       : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
                   }`}
                 >
@@ -287,7 +287,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   onClick={() => setQuranScript("indopak")}
                   className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left cursor-pointer ${
                     prefs.quranScript === "indopak"
-                      ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                      ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]"
                       : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
                   }`}
                 >
@@ -312,7 +312,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setArabicFont(f.id)}
                     className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left ${
                       prefs.arabicFont === f.id
-                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]"
                         : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
                     }`}
                   >
@@ -335,7 +335,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setUrduFont(f.id)}
                     className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border text-left ${
                       (prefs.urduFont || "nastaliq") === f.id
-                        ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 ring-1 ring-emerald-500"
+                        ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]"
                         : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--foreground)]"
                     }`}
                   >
@@ -349,9 +349,9 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1.5">
-                  <LayoutList className="h-3 w-3 text-emerald-400" /> Verse Stream Layout
+                  <LayoutList className="h-3 w-3 text-[var(--primary)]" /> Verse Stream Layout
                 </span>
-                <span className="text-[10px] text-emerald-400 font-mono capitalize">
+                <span className="text-[10px] text-[var(--primary)] font-mono capitalize">
                   {readingMode === "compact" ? "Compact (Default)" : "Cards"}
                 </span>
               </div>
@@ -361,7 +361,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   onClick={() => setReadingMode("compact")}
                   className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border flex items-center justify-center gap-1.5 ${
                     readingMode === "compact"
-                      ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                      ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm font-semibold"
                       : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
@@ -372,7 +372,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   onClick={() => setReadingMode("continuous")}
                   className={`py-1.5 px-2 rounded-lg font-medium text-[11px] transition-all border flex items-center justify-center gap-1.5 ${
                     readingMode === "continuous"
-                      ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                      ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm font-semibold"
                       : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                   }`}
                 >
@@ -385,7 +385,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1">
-                  <Languages className="h-3 w-3 text-emerald-400" /> Global App Language
+                  <Languages className="h-3 w-3 text-[var(--primary)]" /> Global App Language
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">All App Views</span>
               </div>
@@ -396,7 +396,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--muted-foreground)] flex items-center gap-1">
-                  <Globe className="h-3 w-3 text-emerald-400" /> Word-By-Word (WBW) Language
+                  <Globe className="h-3 w-3 text-[var(--primary)]" /> Word-By-Word (WBW) Language
                 </span>
                 <label className="flex items-center gap-1 cursor-pointer">
                   <span className="text-[10px] text-[var(--muted-foreground)]">Show WBW</span>
@@ -404,7 +404,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     type="checkbox"
                     checked={prefs.showWordByWord}
                     onChange={toggleShowWordByWord}
-                    className="accent-emerald-500 rounded"
+                    className="accent-[var(--primary)] rounded"
                   />
                 </label>
               </div>
@@ -416,7 +416,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setWbwLanguage("english")}
                     className={`py-1.5 px-2 rounded-md text-[11px] font-medium border transition-all ${
                       prefs.wbwLanguage === "english"
-                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm font-semibold"
                         : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -427,7 +427,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setWbwLanguage("urdu")}
                     className={`py-1.5 px-2 rounded-md text-[11px] font-medium font-urdu border transition-all ${
                       prefs.wbwLanguage === "urdu"
-                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm font-semibold"
                         : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -438,7 +438,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     onClick={() => setWbwLanguage("both")}
                     className={`py-1.5 px-2 rounded-md text-[11px] font-medium border transition-all ${
                       prefs.wbwLanguage === "both"
-                        ? "border-emerald-500 bg-emerald-600 text-white shadow-sm font-semibold"
+                        ? "border-[var(--primary)] bg-[var(--primary)] text-white shadow-sm font-semibold"
                         : "border-[var(--border-subtle)] bg-[var(--surface-raised)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                     }`}
                   >
@@ -452,7 +452,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] flex items-center justify-between">
               <div>
                 <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--foreground)] flex items-center gap-1">
-                  <BookOpen className="h-3 w-3 text-emerald-400" />
+                  <BookOpen className="h-3 w-3 text-[var(--primary)]" />
                   <span>{isUrdu ? "رہنمائے اوقاف" : "Stop Signs Help"}</span>
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)] block">
@@ -464,7 +464,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   type="checkbox"
                   checked={prefs.showStopSignsHelp !== false}
                   onChange={toggleShowStopSignsHelp}
-                  className="accent-emerald-500 rounded"
+                  className="accent-[var(--primary)] rounded"
                 />
               </label>
             </div>
@@ -479,7 +479,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex justify-between items-center text-[11px]">
                   <span>Arabic Size</span>
-                  <span className="font-mono text-emerald-400 font-semibold">{prefs.arabicFontSize}px</span>
+                  <span className="font-mono text-[var(--primary)] font-semibold">{prefs.arabicFontSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -488,7 +488,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   step={2}
                   value={prefs.arabicFontSize}
                   onChange={(e) => setArabicFontSize(Number(e.target.value))}
-                  className="w-full h-1 bg-zinc-700 rounded-lg accent-emerald-500 cursor-pointer"
+                  className="w-full h-1 bg-[var(--surface-sunken,var(--card-border))] rounded-lg accent-[var(--primary)] cursor-pointer"
                 />
               </div>
 
@@ -496,7 +496,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex justify-between items-center text-[11px]">
                   <span>Urdu Size</span>
-                  <span className="font-mono text-emerald-400 font-semibold">{prefs.urduFontSize}px</span>
+                  <span className="font-mono text-[var(--primary)] font-semibold">{prefs.urduFontSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -505,7 +505,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   step={1}
                   value={prefs.urduFontSize}
                   onChange={(e) => setUrduFontSize(Number(e.target.value))}
-                  className="w-full h-1 bg-zinc-700 rounded-lg accent-emerald-500 cursor-pointer"
+                  className="w-full h-1 bg-[var(--surface-sunken,var(--card-border))] rounded-lg accent-[var(--primary)] cursor-pointer"
                 />
               </div>
 
@@ -513,7 +513,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
               <div className="p-2.5 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
                 <div className="flex justify-between items-center text-[11px]">
                   <span>English Size</span>
-                  <span className="font-mono text-emerald-400 font-semibold">{prefs.englishFontSize}px</span>
+                  <span className="font-mono text-[var(--primary)] font-semibold">{prefs.englishFontSize}px</span>
                 </div>
                 <input
                   type="range"
@@ -522,7 +522,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   step={1}
                   value={prefs.englishFontSize}
                   onChange={(e) => setEnglishFontSize(Number(e.target.value))}
-                  className="w-full h-1 bg-zinc-700 rounded-lg accent-emerald-500 cursor-pointer"
+                  className="w-full h-1 bg-[var(--surface-sunken,var(--card-border))] rounded-lg accent-[var(--primary)] cursor-pointer"
                 />
               </div>
             </div>
@@ -535,7 +535,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   type="checkbox"
                   checked={prefs.showUrduTranslation}
                   onChange={toggleShowUrduTranslation}
-                  className="h-3.5 w-3.5 accent-emerald-500 rounded"
+                  className="h-3.5 w-3.5 accent-[var(--primary)] rounded"
                 />
               </label>
 
@@ -562,7 +562,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   type="checkbox"
                   checked={prefs.showTranslation}
                   onChange={toggleShowTranslation}
-                  className="h-3.5 w-3.5 accent-emerald-500 rounded"
+                  className="h-3.5 w-3.5 accent-[var(--primary)] rounded"
                 />
               </label>
 
@@ -573,7 +573,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                     type="checkbox"
                     checked={prefs.showTransliteration}
                     onChange={toggleShowTransliteration}
-                    className="h-3.5 w-3.5 accent-emerald-500 rounded"
+                    className="h-3.5 w-3.5 accent-[var(--primary)] rounded"
                   />
                 </label>
               )}
@@ -599,13 +599,13 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
             </div>
 
             {/* Offline Audio & Downloads Feature Card */}
-            <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/10 via-[var(--surface-card)] to-teal-500/5 border border-emerald-500/25 space-y-2">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--primary)]/10 via-[var(--surface-card)] to-teal-500/5 border border-[var(--primary)]/25 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--foreground)]">
-                  <CloudDownload className="h-4 w-4 text-emerald-500" />
+                  <CloudDownload className="h-4 w-4 text-[var(--primary)]" />
                   <span>Offline Audios & Storage</span>
                 </div>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 font-bold">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30 font-bold">
                   Offline Mode
                 </span>
               </div>
@@ -618,7 +618,7 @@ export function DraggableSettingsPanel({ isOpen, onClose, onOpenFullSettings }: 
                   onClose();
                   setIsDownloadManagerOpen(true);
                 }}
-                className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-98"
+                className="w-full py-2 px-3 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-98"
               >
                 <CloudDownload className="h-3.5 w-3.5" />
                 <span>Download Audio & Surahs</span>

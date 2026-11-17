@@ -170,7 +170,7 @@ export type ArabicFontFamily =
 export type UrduFontFamily = "nastaliq" | "noto-sans-arabic" | "scheherazade" | "amiri";
 
 export type ThemeStyle = "hadith" | "emerald" | "monochrome";
-export type ThemeMode = "dark" | "light";
+export type ThemeMode = "dark" | "light" | "system";
 
 export type WbwLanguage = "english" | "urdu" | "both";
 

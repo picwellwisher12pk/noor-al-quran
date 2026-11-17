@@ -41,7 +41,13 @@ export default async function SurahPage({
 
   const [chapter, versesData] = await Promise.all([
     fetchChapter(chapterId),
-    fetchVersesByChapter(chapterId, 1, 50),
+    fetchVersesByChapter(chapterId, 1, 50).catch((err) => {
+      console.warn(`Initial SSR verses fetch failed for Surah ${chapterId}, will load on client:`, err);
+      return {
+        verses: [],
+        pagination: { total_records: 0, total_pages: 1, current_page: 1 },
+      };
+    }),
   ]);
 
   if (!chapter) {

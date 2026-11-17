@@ -29,7 +29,7 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 
 export function Header() {
-  const { themeMode, toggleThemeMode } = useTheme();
+  const { themeMode, resolvedMode, toggleThemeMode } = useTheme();
   const { bookmarks } = useBookmarks();
   const { plan, targetInfo } = useKhatmah();
   const { currentStreak } = useReadingActivity();
@@ -56,11 +56,8 @@ export function Header() {
                 <span className="font-bold text-base tracking-tight text-[var(--foreground)]">
                   {APP_CONFIG.name}
                 </span>
-                <span className="font-arabic text-sm text-emerald-400 font-medium">
+                <span className="font-arabic text-sm text-[var(--primary)] font-medium">
                   نور القرآن
-                </span>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-950/70 border border-emerald-800/40 text-emerald-400">
-                  v{APP_CONFIG.version}
                 </span>
               </div>
             </div>
@@ -71,11 +68,10 @@ export function Header() {
             {/* Reading Streak & Calendar Link */}
             <Link
               href="/calendar"
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shadow-sm ${
-                currentStreak > 0
-                  ? "bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-300"
-                  : "bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-white"
-              }`}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shadow-sm ${currentStreak > 0
+                  ? "bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/40 text-amber-700 dark:text-amber-300"
+                  : "bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                }`}
               title="Quran Reading Calendar & Daily Streak"
             >
               {currentStreak > 0 ? (
@@ -85,7 +81,7 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <CalendarDays className="h-3.5 w-3.5 text-emerald-400" />
+                  <CalendarDays className="h-3.5 w-3.5 text-[var(--primary)]" />
                   <span className="hidden sm:inline">{isUrdu ? "کیلنڈر" : "Calendar"}</span>
                 </>
               )}
@@ -94,7 +90,7 @@ export function Header() {
             {/* Learn 70% Words Button */}
             <Link
               href="/learn"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--primary)]/15 hover:bg-[var(--primary)]/25 border border-[var(--primary)]/30 text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary)]/80 transition-all shadow-sm"
               title="Learn 70% Quran Words & Games"
             >
               <Sparkles className="h-3.5 w-3.5" />
@@ -105,7 +101,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => setIsVerseIdentifierOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--primary)]/15 hover:bg-[var(--primary)]/25 border border-[var(--primary)]/30 text-xs font-semibold text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors"
               title="Recite to Identify Ayah"
             >
               <Mic className="h-4 w-4" />
@@ -118,7 +114,7 @@ export function Header() {
               onClick={() => setIsSearchOpen(true)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
             >
-              <Search className="h-4 w-4 text-emerald-400" />
+              <Search className="h-4 w-4 text-[var(--primary)]" />
               <span className="hidden sm:inline">{isUrdu ? "تلاش کریں..." : "Search Quran..."}</span>
             </button>
 
@@ -127,11 +123,11 @@ export function Header() {
               type="button"
               onClick={() => setIsKhatmahOpen(true)}
               aria-label="Khatmah reading plan"
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-xs text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-xs text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
             >
-              <Calendar className="h-4 w-4 text-emerald-400" />
+              <Calendar className="h-4 w-4 text-[var(--primary)]" />
               {plan && targetInfo ? (
-                <span className="hidden md:inline font-medium text-emerald-400">
+                <span className="hidden md:inline font-medium text-[var(--primary)]">
                   {isUrdu ? `دن ${targetInfo.dayNumber}/${targetInfo.totalDays}` : `Day ${targetInfo.dayNumber}/${targetInfo.totalDays}`}
                 </span>
               ) : (
@@ -144,11 +140,11 @@ export function Header() {
               type="button"
               onClick={() => setIsBookmarksOpen(true)}
               aria-label="Open bookmarks"
-              className="relative p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+              className="relative p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
             >
               <Bookmark className="h-4 w-4" />
               {bookmarks.length > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 text-[10px] font-bold text-white flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-[var(--primary)] text-[10px] font-bold text-white flex items-center justify-center">
                   {bookmarks.length > 9 ? "9+" : bookmarks.length}
                 </span>
               )}
@@ -157,14 +153,15 @@ export function Header() {
             {/* Quick Dark/Light Toggle */}
             <button
               type="button"
+              suppressHydrationWarning
               onClick={toggleThemeMode}
-              aria-label={`Switch to ${themeMode === "dark" ? "light" : "dark"} mode`}
-              className="p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+              aria-label={`Switch to ${resolvedMode === "dark" ? "light" : "dark"} mode`}
+              className="p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
             >
-              {themeMode === "dark" ? (
+              {resolvedMode === "dark" ? (
                 <Sun className="h-4 w-4 text-amber-400" />
               ) : (
-                <Moon className="h-4 w-4 text-emerald-600" />
+                <Moon className="h-4 w-4 text-[var(--primary)]" />
               )}
             </button>
 
@@ -173,7 +170,7 @@ export function Header() {
               type="button"
               onClick={() => setIsSettingsOpen(true)}
               aria-label="Open settings"
-              className="p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-emerald-400 transition-colors"
+              className="p-2 rounded-xl bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--primary)] transition-colors"
             >
               <Settings className="h-4 w-4" />
             </button>

@@ -6,8 +6,9 @@ const BASE_URL = "https://api.quran.com/api/v4";
 export const AUDIO_CDN_URL = "https://verses.quran.com";
 export const WBW_CDN_URL = "https://audio.qurancdn.com";
 
-/** Resilient fetch with exponential backoff retry for transient network/API 502/503/504 hiccups */
+/** Resilient fetch with exponential backoff retry for transient network/API hiccups */
 async function resilientFetch(url: string, retries = 3, delayMs = 1000): Promise<Response> {
+  let lastError: any;
   for (let i = 0; i < retries; i++) {
     try {
       const res = await fetch(url);
@@ -15,14 +16,16 @@ async function resilientFetch(url: string, retries = 3, delayMs = 1000): Promise
         return res;
       }
       if (i < retries - 1) {
-        await new Promise((r) => setTimeout(r, delayMs * Math.pow(2, i)));
+        await new Promise((r) => setTimeout(r, delayMs * Math.pow(1.5, i)));
       }
-    } catch (err) {
-      if (i === retries - 1) throw err;
-      await new Promise((r) => setTimeout(r, delayMs * Math.pow(2, i)));
+    } catch (err: any) {
+      lastError = err;
+      if (i < retries - 1) {
+        await new Promise((r) => setTimeout(r, delayMs * Math.pow(1.5, i)));
+      }
     }
   }
-  return fetch(url);
+  throw lastError || new Error(`Failed to fetch ${url} after ${retries} attempts`);
 }
 
 // In-memory cache for chapters & reciters
@@ -168,14 +171,21 @@ export async function fetchVersesByChapter(
       per_page: String(perPage),
     });
 
-    const [resEn, resUr] = await Promise.all([
-      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`),
-      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`),
-    ]);
-
+    // Fetch English verses & Uthmani text first
+    const resEn = await resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`);
     if (!resEn.ok) throw new Error(`Failed to fetch verses: ${resEn.statusText}`);
     const dataEn = await resEn.json();
-    const dataUr = resUr.ok ? await resUr.json() : { verses: [] };
+
+    // Fetch Urdu translations gracefully in parallel or fallback to empty if endpoint drops
+    let dataUr: any = { verses: [] };
+    try {
+      const resUr = await resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`, 2, 600);
+      if (resUr.ok) {
+        dataUr = await resUr.json();
+      }
+    } catch (urErr) {
+      console.warn(`Urdu translation fetch fallback for Surah ${chapterId}:`, urErr);
+    }
 
     // Merge Urdu translations into each verse
     const urduMap = new Map<string, any>();

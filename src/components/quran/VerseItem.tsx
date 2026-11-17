@@ -345,12 +345,12 @@ export function VerseItem({
           : "rounded-2xl p-4 sm:p-5 shadow-sm"
       } ${
         isCurrentPlaying
-          ? "bg-emerald-950/20 border-emerald-500 ring-2 ring-emerald-500/50"
+          ? "bg-[var(--primary)]/10 border-[var(--primary)] ring-2 ring-[var(--primary)]/50"
           : isSelected
-          ? "bg-emerald-500/10 dark:bg-emerald-950/30 border-emerald-500 ring-2 ring-emerald-500/40 shadow-md"
+          ? "bg-[var(--primary)]/10 border-[var(--primary)] ring-2 ring-[var(--primary)]/40 shadow-md"
           : isLastRead
-          ? "bg-[var(--surface-raised)] border-emerald-500/45 ring-1 ring-emerald-500/15"
-          : "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-emerald-500/40 hover:bg-emerald-500/5"
+          ? "bg-[var(--surface-raised)] border-[var(--primary)]/45 ring-1 ring-[var(--primary)]/15"
+          : "bg-[var(--surface-raised)] border-[var(--card-border)] hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/5"
       }`}
     >
       {/* Header Bar */}
@@ -361,7 +361,7 @@ export function VerseItem({
       >
         {/* Verse Badge */}
         <div className="flex items-center gap-1.5 flex-none">
-          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-mono font-bold text-emerald-700 dark:text-emerald-300">
+          <span className="px-2 py-0.5 rounded-md bg-[var(--primary)]/10 border border-[var(--primary)]/30 text-[11px] font-mono font-bold text-[var(--primary)]">
             {verse.verse_key}
           </span>
           {verse.juz_number && (
@@ -370,7 +370,7 @@ export function VerseItem({
             </span>
           )}
           {isLastRead && (
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
               <Flag className="h-2.5 w-2.5 fill-current" />
               <span>{isUrdu ? "آخری تلاوت" : "Last Read"}</span>
             </span>
@@ -399,10 +399,10 @@ export function VerseItem({
             }
             className={`p-2 sm:p-1.5 rounded-lg transition-all cursor-pointer ${
               isVerseLoading
-                ? "bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40 animate-pulse"
+                ? "bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/40 animate-pulse"
                 : isCurrentPlaying && isPlaying
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                ? "bg-[var(--primary)] text-white shadow-sm"
+                : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)]"
             }`}
             title={
               isVerseLoading
@@ -434,8 +434,8 @@ export function VerseItem({
             aria-label={isUrdu ? "یہاں روکنے کی علامت لگائیں" : "Mark as stopping point"}
             className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
               isLastRead || pinnedSaved
-                ? "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/50 border border-emerald-500/30"
-                : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                ? "text-[var(--primary)] bg-[var(--primary)]/15 border border-[var(--primary)]/30"
+                : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)]"
             }`}
             title={
               pinnedSaved
@@ -448,9 +448,9 @@ export function VerseItem({
             }
           >
             {pinnedSaved ? (
-              <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-emerald-500" />
+              <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[var(--primary)]" />
             ) : (
-              <Flag className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isLastRead ? "fill-emerald-600 dark:fill-emerald-400" : ""}`} />
+              <Flag className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isLastRead ? "fill-[var(--primary)]" : ""}`} />
             )}
           </button>
 
@@ -461,12 +461,12 @@ export function VerseItem({
             aria-label={bookmarked ? "Remove bookmark" : "Bookmark verse"}
             className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
               bookmarked
-                ? "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/50 border border-emerald-500/30"
-                : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                ? "text-[var(--primary)] bg-[var(--primary)]/15 border border-[var(--primary)]/30"
+                : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)]"
             }`}
             title="Bookmark Ayah"
           >
-            <BookmarkIcon className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${bookmarked ? "fill-emerald-600 dark:fill-emerald-400" : ""}`} />
+            <BookmarkIcon className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${bookmarked ? "fill-[var(--primary)]" : ""}`} />
           </button>
 
           {/* Note / Tadabbur Button */}
@@ -493,7 +493,7 @@ export function VerseItem({
           >
             <StickyNote className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${verseNotes.length > 0 ? "fill-amber-500/30" : ""}`} />
             {verseNotes.length > 1 && (
-              <span className="absolute -top-1 -right-1 px-1 min-w-[14px] h-3.5 rounded-full bg-amber-500 text-slate-950 text-[9px] font-mono font-bold flex items-center justify-center leading-none">
+              <span className="absolute -top-1 -right-1 px-1 min-w-[14px] h-3.5 rounded-full bg-[var(--warning,#f59e0b)] text-[var(--warning-fg,#0f172a)] text-[9px] font-mono font-bold flex items-center justify-center leading-none">
                 {verseNotes.length}
               </span>
             )}
@@ -518,11 +518,11 @@ export function VerseItem({
               title={isReadInKhatmah ? "Completed in your Khatmah plan" : "Mark as read in Khatmah"}
               className={`p-2 sm:p-1.5 rounded-lg transition-colors cursor-pointer ${
                 isReadInKhatmah
-                  ? "text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-950/40 border border-emerald-500/30"
-                  : "text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)]"
+                  ? "text-[var(--primary)] bg-[var(--primary)]/15 border border-[var(--primary)]/30"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)]"
               }`}
             >
-              <CheckCircle2 className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isReadInKhatmah ? "fill-emerald-500/20" : ""}`} />
+              <CheckCircle2 className={`h-4 w-4 sm:h-3.5 sm:w-3.5 ${isReadInKhatmah ? "fill-[var(--primary)]/20" : ""}`} />
             </button>
           )}
 
@@ -532,7 +532,7 @@ export function VerseItem({
             onClick={() => onOpenTafsir(verse.verse_key, activeArabicText)}
             title={isUrdu ? "تفسیر قرآن دیکھیں" : "Read Commentary (Tafseer)"}
             aria-label={isUrdu ? "تفسیر قرآن دیکھیں" : "Read Commentary (Tafseer)"}
-            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
             <BookOpen className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -542,9 +542,9 @@ export function VerseItem({
             type="button"
             onClick={handleCopy}
             title={copied ? "Copied to clipboard!" : "Copy verse"}
-            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
-            {copied ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
+            {copied ? <Check className="h-4 w-4 sm:h-3.5 sm:w-3.5 text-[var(--primary)]" /> : <Copy className="h-4 w-4 sm:h-3.5 sm:w-3.5" />}
           </button>
 
           {/* Share */}
@@ -552,7 +552,7 @@ export function VerseItem({
             type="button"
             onClick={handleShare}
             title="Share verse"
-            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
+            className="p-2 sm:p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--hover-bg)] transition-colors cursor-pointer"
           >
             <Share2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -561,7 +561,7 @@ export function VerseItem({
         {/* Mobile Minimal Indicators & Quick Action Trigger */}
         <div className="flex sm:hidden items-center gap-1.5">
           {bookmarked && (
-            <BookmarkIcon className="h-3.5 w-3.5 fill-emerald-600 dark:fill-emerald-400 text-emerald-600 dark:text-emerald-400" />
+            <BookmarkIcon className="h-3.5 w-3.5 fill-[var(--primary)] text-[var(--primary)]" />
           )}
           {verseNotes.length > 0 && (
             <StickyNote className="h-3.5 w-3.5 fill-amber-500/40 text-amber-600 dark:text-amber-400" />
@@ -576,7 +576,7 @@ export function VerseItem({
             aria-label="Ayah actions"
             className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
               isSelected
-                ? "bg-emerald-600 text-white"
+                ? "bg-[var(--primary)] text-white"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)]"
             }`}
           >
@@ -609,12 +609,12 @@ export function VerseItem({
       {isCurrentPlaying && (duration > 0 || isPlaying || currentTime > 0 || isVerseLoading) && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="mt-2 mb-1.5 pt-1.5 pb-1.5 border border-emerald-500/25 flex flex-col gap-1.5 px-2.5 sm:px-3 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/25 transition-all duration-200 select-none shadow-2xs"
+          className="mt-2 mb-1.5 pt-1.5 pb-1.5 border border-[var(--primary)]/25 flex flex-col gap-1.5 px-2.5 sm:px-3 rounded-xl bg-[var(--primary)]/5 transition-all duration-200 select-none shadow-2xs"
         >
           {isVerseLoading && duration === 0 ? (
-            <div className="flex items-center justify-between text-[11px] text-emerald-700 dark:text-emerald-300 font-medium py-0.5 animate-pulse">
+            <div className="flex items-center justify-between text-[11px] text-[var(--primary)] font-medium py-0.5 animate-pulse">
               <div className="flex items-center gap-1.5">
-                <Loader2 className="h-3 w-3 animate-spin text-emerald-600 dark:text-emerald-400" />
+                <Loader2 className="h-3 w-3 animate-spin text-[var(--primary)]" />
                 <span>
                   {isUrdu ? "تلاوت آڈیو ڈاؤن لوڈ ہو رہی ہے..." : "Downloading recitation audio..."}
                 </span>
@@ -631,7 +631,7 @@ export function VerseItem({
                 onClick={togglePlayPause}
                 disabled={isVerseLoading}
                 aria-label={isPlaying ? "Pause Arabic recitation" : "Play Arabic recitation"}
-                className="h-6 w-6 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                className="h-6 w-6 rounded-full bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white flex items-center justify-center shrink-0 shadow-xs transition-transform active:scale-95 cursor-pointer"
                 title={
                   currentReciter?.reciter_name
                     ? `${currentReciter.reciter_name} - ${isPlaying ? "Pause" : "Play"}`
@@ -649,11 +649,11 @@ export function VerseItem({
 
               {/* Language & Reciter Badge */}
               <div className="flex items-center gap-1 shrink-0">
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-sans">
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[var(--primary)]/15 text-[var(--primary)] font-sans">
                   {isUrdu ? "عربی تلاوت" : "Arabic"}
                 </span>
                 <span
-                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
+                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden sm:inline"
                   title={currentReciter?.reciter_name}
                 >
                   {currentReciter?.reciter_name?.split(" ")[0] || "Reciter"}
@@ -665,14 +665,14 @@ export function VerseItem({
                 {/* Ultra-Thin Track (2.5px) */}
                 <div className="w-full h-[2.5px] rounded-full bg-[var(--card-border)]/70 dark:bg-white/15 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300 transition-[width] duration-75"
+                    className="h-full bg-[var(--primary)] transition-[width] duration-75"
                     style={{ width: `${audioProgressPercent}%` }}
                   />
                 </div>
 
                 {/* Draggable Knob */}
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-emerald-200 border-[1.5px] border-emerald-600 dark:border-emerald-400 shadow-xs pointer-events-none transition-transform group-hover:scale-125"
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white dark:bg-white border-[1.5px] border-[var(--primary)] shadow-xs pointer-events-none transition-transform group-hover:scale-125"
                   style={{ left: `${audioProgressPercent}%` }}
                 />
 
@@ -723,7 +723,7 @@ export function VerseItem({
           dir="rtl"
         >
           <p
-            className={`${urduFontClass} text-[var(--urdu-color)] leading-relaxed select-text`}
+            className={`${urduFontClass} text-[var(--urdu-color)] select-text`}
             style={{ fontSize: `${activeUrduFontSize}px` }}
             dangerouslySetInnerHTML={{ __html: urduTranslation.text }}
           />
@@ -798,7 +798,7 @@ export function VerseItem({
                   {isUrdu ? "ترجمہ آڈیو" : "Translation"}
                 </span>
                 <span
-                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden xs:inline"
+                  className="text-[10px] text-[var(--muted-foreground)] truncate max-w-[85px] sm:max-w-[130px] hidden sm:inline"
                   title={translationVoiceLabel}
                 >
                   {translationVoiceLabel}

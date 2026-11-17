@@ -92,7 +92,7 @@ export function MobileSurahDrawer() {
         {/* Drawer Header */}
         <div className="px-4 py-2 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <BookOpen className="h-5 w-5 text-[var(--primary)]" />
             <h2 className="font-bold text-base text-[var(--foreground)]">
               {isUrdu ? "قرآن پاک کی فہرست" : "Quran Directory"}
             </h2>
@@ -114,7 +114,7 @@ export function MobileSurahDrawer() {
             onClick={() => setActiveTab("surahs")}
             className={`py-1.5 rounded-xl font-semibold transition-all ${
               activeTab === "surahs"
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-[var(--primary)] text-white shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -125,7 +125,7 @@ export function MobileSurahDrawer() {
             onClick={() => setActiveTab("juz")}
             className={`py-1.5 rounded-xl font-semibold transition-all ${
               activeTab === "juz"
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-[var(--primary)] text-white shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -136,7 +136,7 @@ export function MobileSurahDrawer() {
             onClick={() => setActiveTab("bookmarks")}
             className={`py-1.5 rounded-xl font-semibold transition-all ${
               activeTab === "bookmarks"
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-[var(--primary)] text-white shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -147,7 +147,7 @@ export function MobileSurahDrawer() {
             onClick={() => setActiveTab("khatmah")}
             className={`py-1.5 rounded-xl font-semibold transition-all ${
               activeTab === "khatmah"
-                ? "bg-emerald-600 text-white shadow-xs"
+                ? "bg-[var(--primary)] text-white shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -165,7 +165,7 @@ export function MobileSurahDrawer() {
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder={isUrdu ? "سورت تلاش کریں..." : "Filter Surah by name or number..."}
-                className="w-full pl-9 pr-3 py-2 rounded-xl text-xs bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:border-emerald-500"
+                className="w-full pl-9 pr-3 py-2 rounded-xl text-base sm:text-xs bg-[var(--surface-sunken)] border border-[var(--border-subtle)] text-[var(--foreground)] placeholder-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)]"
               />
             </div>
             {/* Revelation filter chips */}
@@ -183,8 +183,8 @@ export function MobileSurahDrawer() {
                   onClick={() => setRevelationFilter(key)}
                   className={`px-2 py-0.5 rounded-md text-[10px] font-medium transition-all border ${
                     revelationFilter === key
-                      ? "bg-emerald-600/20 text-emerald-300 font-semibold border-emerald-500/30 dark:text-emerald-300"
-                      : "bg-[var(--surface-sunken)] text-[var(--muted-foreground)] border-[var(--border-subtle)] hover:border-emerald-500/30"
+                      ? "bg-[var(--primary)]/20 text-[var(--primary)] font-semibold border-[var(--primary)]/30"
+                      : "bg-[var(--surface-sunken)] text-[var(--muted-foreground)] border-[var(--border-subtle)] hover:border-[var(--primary)]/30"
                   }`}
                 >
                   {label}
@@ -206,10 +206,10 @@ export function MobileSurahDrawer() {
                     setIsMobileSurahDrawerOpen(false);
                     router.push(`/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`);
                   }}
-                  className="w-full flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-3 py-2 text-xs mb-2 text-left hover:bg-emerald-500/20 transition-all"
+                  className="w-full flex items-center gap-2 bg-[var(--primary)]/10 border border-[var(--primary)]/30 rounded-xl px-3 py-2 text-xs mb-2 text-left hover:bg-[var(--primary)]/20 transition-all"
                 >
-                  <History className="h-3.5 w-3.5 text-emerald-500 flex-none" />
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                  <History className="h-3.5 w-3.5 text-[var(--primary)] flex-none" />
+                  <span className="text-[var(--primary)] font-medium truncate">
                     {isUrdu
                       ? `دوبارہ شروع کریں: سورہ ${lastRead.chapterName} (آیت ${lastRead.verseNumber})`
                       : `Resume: Surah ${lastRead.chapterName} (Ayah ${lastRead.verseNumber})`}
@@ -226,18 +226,18 @@ export function MobileSurahDrawer() {
                     onClick={() => handleSelectChapter(chapter.id)}
                     className={`w-full p-2.5 rounded-2xl flex items-center justify-between border transition-all text-left ${
                       isCurrent
-                        ? "bg-emerald-500/15 border-emerald-500/40 text-[var(--foreground)]"
+                        ? "bg-[var(--primary)]/15 border-[var(--primary)]/40 text-[var(--foreground)]"
                         : "bg-[var(--surface-raised)] border-[var(--border-subtle)] hover:bg-[var(--surface-card)] text-[var(--foreground)]"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="flex-none flex items-center justify-center h-8 w-8 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="flex-none flex items-center justify-center h-8 w-8 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] font-mono text-xs font-bold text-[var(--primary)]">
                         {chapter.id}
                       </span>
                       <div className="min-w-0">
                         <div className="font-semibold text-xs text-[var(--foreground)] truncate flex items-center gap-1.5">
                           <span>{chapter.name_simple}</span>
-                          <span className="text-[11px] font-urdu text-emerald-700 dark:text-emerald-400">
+                          <span className="text-[11px] font-urdu text-[var(--primary)]">
                             {getSurahUrduMeta(chapter.id).name_urdu_short}
                           </span>
                         </div>
@@ -247,7 +247,7 @@ export function MobileSurahDrawer() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-arabic text-base text-emerald-600 dark:text-emerald-400" dir="rtl">
+                      <span className="font-arabic text-base text-[var(--primary)]" dir="rtl">
                         {chapter.name_arabic}
                       </span>
                       <ChevronRight className="h-4 w-4 text-[var(--muted-foreground)]" />
@@ -274,14 +274,14 @@ export function MobileSurahDrawer() {
                         handleSelectChapter(Number(firstChapterId));
                       }
                     }}
-                    className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-emerald-500/40 flex items-center justify-between text-left transition-all"
+                    className="p-3 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--primary)]/40 flex items-center justify-between text-left transition-all"
                   >
                     <div>
                       <span className="font-bold text-xs text-[var(--foreground)]">
                         Juz {juz.juz_number}
                       </span>
                       {firstChapter && (
-                        <span className="block text-[10px] text-emerald-600 dark:text-emerald-400 truncate font-medium">
+                        <span className="block text-[10px] text-[var(--primary)] truncate font-medium">
                           {firstChapter.name_simple}
                         </span>
                       )}
@@ -336,7 +336,7 @@ export function MobileSurahDrawer() {
               {!plan ? (
                 /* No plan state */
                 <div className="rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] p-5 flex flex-col items-center text-center gap-3">
-                  <Target className="h-10 w-10 text-emerald-500 opacity-60" />
+                  <Target className="h-10 w-10 text-[var(--primary)] opacity-60" />
                   <p className="text-xs text-[var(--muted-foreground)]">
                     {isUrdu
                       ? "کوئی ختمہ پلان نہیں ہے۔ ترتیبات → ختمہ میں جائیں۔"
@@ -348,7 +348,7 @@ export function MobileSurahDrawer() {
                       setIsSettingsOpen(true);
                       handleClose();
                     }}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 active:scale-95 transition-all"
+                    className="px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-xs font-semibold hover:bg-[var(--primary)]/80 active:scale-95 transition-all"
                   >
                     {isUrdu ? "ترتیبات کھولیں" : "Open Settings"}
                   </button>
@@ -358,7 +358,7 @@ export function MobileSurahDrawer() {
                 <div className="rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] p-4 space-y-3">
                   {/* Header */}
                   <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-emerald-500" />
+                    <Flame className="h-5 w-5 text-[var(--primary)]" />
                     <span className="font-bold text-sm text-[var(--foreground)]">
                       {plan.targetDays}-{isUrdu ? "روزہ ختمہ" : "Day Khatmah"}
                     </span>
@@ -372,13 +372,13 @@ export function MobileSurahDrawer() {
                           <span className="text-[10px] text-[var(--muted-foreground)]">
                             {isUrdu ? "پیشرفت" : "Progress"}
                           </span>
-                          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          <span className="text-[10px] font-semibold text-[var(--primary)]">
                             {targetInfo.percentageCompleted.toFixed(1)}%
                           </span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-[var(--surface-sunken)] overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
+                            className="h-full rounded-full bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 transition-all duration-500"
                             style={{ width: `${targetInfo.percentageCompleted}%` }}
                           />
                         </div>
@@ -404,7 +404,7 @@ export function MobileSurahDrawer() {
                           <div
                             className={`font-bold text-xs mt-0.5 ${
                               targetInfo.paceStatus === "ahead"
-                                ? "text-emerald-500"
+                                ? "text-[var(--primary)]"
                                 : targetInfo.paceStatus === "behind"
                                 ? "text-red-500"
                                 : "text-amber-500"

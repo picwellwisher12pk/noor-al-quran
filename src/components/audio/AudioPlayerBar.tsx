@@ -87,7 +87,7 @@ export function AudioPlayerBar() {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
         {/* Left: Info */}
         <div className="flex items-center gap-3 w-full md:w-1/4 min-w-0">
-          <div className="h-10 w-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="h-10 w-10 shrink-0 rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 flex items-center justify-center text-[var(--primary)]">
             <Volume2 className="h-5 w-5" />
           </div>
           <div className="truncate">
@@ -131,8 +131,8 @@ export function AudioPlayerBar() {
               aria-label={activePlaying ? "Pause" : "Play"}
               className={`h-10 w-10 rounded-full text-white flex items-center justify-center shadow-md transition-all active:scale-95 ${
                 isPlayingTranslation
-                  ? "bg-teal-600 hover:bg-teal-500"
-                  : "bg-emerald-600 hover:bg-emerald-500"
+                  ? "bg-[var(--accent,oklch(60%_0.14_195))] hover:bg-[var(--accent,oklch(60%_0.14_195))]/80"
+                  : "bg-[var(--primary)] hover:bg-[var(--primary)]/80"
               }`}
             >
               {activeLoading ? (
@@ -165,9 +165,7 @@ export function AudioPlayerBar() {
               max={activeDuration || 100}
               value={activeCurrentTime}
               onChange={(e) => handleSeek(Number(e.target.value))}
-              className={`w-full h-[2.5px] bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer transition-colors ${
-                isPlayingTranslation ? "accent-teal-500" : "accent-emerald-500"
-              }`}
+              className={`w-full h-[2.5px] bg-[var(--card-border)] rounded-lg appearance-none cursor-pointer transition-colors accent-[var(--primary)]`}
             />
             <span className="text-[10px] font-mono text-[var(--muted-foreground)] w-8">
               {formatTime(activeDuration)}
@@ -189,7 +187,7 @@ export function AudioPlayerBar() {
             }
             className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border transition-colors ${
               repeatMode !== "none"
-                ? "bg-emerald-950/60 border-emerald-500 text-emerald-300"
+                ? "bg-[var(--primary)]/10 border-[var(--primary)] text-[var(--primary)]"
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
@@ -200,7 +198,7 @@ export function AudioPlayerBar() {
               </>
             ) : repeatMode === "infinite" ? (
               <>
-                <Repeat className="h-3.5 w-3.5 text-emerald-400" />
+                <Repeat className="h-3.5 w-3.5 text-[var(--primary)]" />
                 <span className="text-[10px]">∞</span>
               </>
             ) : (
