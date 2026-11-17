@@ -2250,7 +2250,7 @@ dependencies = [
 
 [[package]]
 name = "noor-al-quran"
-version = "1.38.1"
+version = "1.38.2"
 dependencies = [
  "log",
  "serde",
