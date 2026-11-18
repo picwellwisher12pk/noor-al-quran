@@ -113,7 +113,7 @@ export function DesktopTitleBar() {
 
   return (
     <header
-      className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-40 text-xs"
+      className="h-10 w-full flex-none flex items-center justify-between px-3 bg-[var(--surface-raised)] border-b border-[var(--border-subtle)] select-none z-[9999] relative text-xs"
       data-tauri-drag-region
       onDoubleClick={isTauri ? handleWindowMaximize : undefined}
     >

@@ -183,14 +183,14 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ${
+      className={`fixed inset-0 sm:top-10 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ${
         draggable ? "overflow-hidden" : "overflow-y-auto"
       }`}
     >
       {/* Backdrop */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 transition-opacity ${
+        className={`fixed inset-0 sm:top-10 transition-opacity ${
           backdropBlur
             ? "bg-black/60 backdrop-blur-sm"
             : "bg-black/20 dark:bg-black/45"
