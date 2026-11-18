@@ -173,7 +173,7 @@ export default function NoteEditorModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 sm:top-10 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-x-0 bottom-0 top-0 sm:top-10 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div

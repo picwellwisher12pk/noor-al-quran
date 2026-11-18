@@ -183,14 +183,14 @@ export function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      className={`fixed inset-0 sm:top-10 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ${
+      className={`fixed inset-x-0 bottom-0 top-0 sm:top-10 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 ${
         draggable ? "overflow-hidden" : "overflow-y-auto"
       }`}
     >
       {/* Backdrop */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 sm:top-10 transition-opacity ${
+        className={`absolute inset-0 transition-opacity ${
           backdropBlur
             ? "bg-black/60 backdrop-blur-sm"
             : "bg-black/20 dark:bg-black/45"
@@ -206,7 +206,7 @@ export function Modal({
             ? { transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }
             : undefined
         }
-        className={`relative w-full ${maxWidthClasses} overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[var(--modal-bg)] border-t sm:border border-[var(--card-border)] shadow-2xl my-0 sm:my-8 z-10 flex flex-col max-h-[88vh] sm:max-h-[90vh] outline-none transition-all duration-200 ease-out animate-in fade-in-0 slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 ${
+        className={`relative w-full ${maxWidthClasses} overflow-hidden rounded-t-3xl sm:rounded-2xl bg-[var(--modal-bg)] border-t sm:border border-[var(--card-border)] shadow-2xl my-0 sm:my-6 z-10 flex flex-col max-h-[88vh] sm:max-h-[calc(100vh-5rem)] outline-none transition-all duration-200 ease-out animate-in fade-in-0 slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 ${
           isDragging ? "select-none transition-none" : ""
         }`}
       >

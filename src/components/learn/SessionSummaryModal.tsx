@@ -49,7 +49,7 @@ export function SessionSummaryModal({
   const isUrdu = langPreference === "urdu";
 
   return (
-    <div className="fixed inset-0 sm:top-10 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-x-0 bottom-0 top-0 sm:top-10 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg rounded-3xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] p-6 sm:p-8 shadow-2xl text-center space-y-6">
         {/* Top Trophy / Badge Icon */}
         <div
