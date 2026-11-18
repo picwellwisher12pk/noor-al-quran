@@ -27,10 +27,15 @@ export async function safeCloseWindow(): Promise<void> {
   if (isTauri()) {
     try {
       const { getCurrentWindow } = await import("@tauri-apps/api/window");
-      await getCurrentWindow().close();
-    } catch {
-      // Fallback
-      if (typeof window !== "undefined") window.location.href = "/";
+      const win = getCurrentWindow();
+      try {
+        await win.close();
+      } catch {
+        // Fallback to destroy if close event was canceled or errored
+        await win.destroy();
+      }
+    } catch (err) {
+      console.error("[Platform] Failed to close Tauri window:", err);
     }
   } else if (typeof window !== "undefined") {
     window.location.href = "/";
@@ -44,9 +49,10 @@ export async function safeMinimizeWindow(): Promise<void> {
   if (isTauri()) {
     try {
       const { getCurrentWindow } = await import("@tauri-apps/api/window");
-      await getCurrentWindow().minimize();
-    } catch {
-      // No-op on web
+      const win = getCurrentWindow();
+      await win.minimize();
+    } catch (err) {
+      console.error("[Platform] Failed to minimize Tauri window:", err);
     }
   }
 }
@@ -59,14 +65,14 @@ export async function safeToggleMaximize(): Promise<void> {
   if (isTauri()) {
     try {
       const { getCurrentWindow } = await import("@tauri-apps/api/window");
-      await getCurrentWindow().toggleMaximize();
-    } catch {
-      // Fallback to web fullscreen
-      toggleWebFullscreen();
+      const win = getCurrentWindow();
+      await win.toggleMaximize();
+      return;
+    } catch (err) {
+      console.error("[Platform] Failed to toggle maximize in Tauri:", err);
     }
-  } else {
-    toggleWebFullscreen();
   }
+  toggleWebFullscreen();
 }
 
 function toggleWebFullscreen(): void {
