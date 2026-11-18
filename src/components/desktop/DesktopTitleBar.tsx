@@ -121,21 +121,27 @@ export function DesktopTitleBar() {
       <div className="flex items-center gap-2.5 shrink-0" data-tauri-drag-region-exclude>
         {/* macOS Traffic Light Buttons (Only on native macOS Desktop) */}
         {isTauri && isMac && (
-          <div className="flex items-center gap-1.5 pr-2.5 mr-1 border-r border-[var(--border-subtle)]">
+          <div className="flex items-center gap-1.5 pr-2.5 mr-1 border-r border-[var(--border-subtle)]" data-tauri-drag-region-exclude>
             <button
               type="button"
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleWindowClose}
               className="w-3 h-3 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors shadow-sm cursor-pointer"
               title="Close Application"
             />
             <button
               type="button"
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleWindowMinimize}
               className="w-3 h-3 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors shadow-sm cursor-pointer"
               title="Minimize Window"
             />
             <button
               type="button"
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleWindowMaximize}
               className="w-3 h-3 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors shadow-sm cursor-pointer"
               title="Maximize / Restore Window"
@@ -266,10 +272,12 @@ export function DesktopTitleBar() {
 
         {/* Windows / Linux Native Window Controls (Only in Tauri Desktop on Windows/Linux) */}
         {isTauri && !isMac && (
-          <div className="flex items-center h-10 ml-1.5 border-l border-[var(--border-subtle)] -mr-3">
+          <div className="flex items-center h-10 ml-1.5 border-l border-[var(--border-subtle)] -mr-3" data-tauri-drag-region-exclude>
             <button
               type="button"
-              onClick={safeMinimizeWindow}
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={handleWindowMinimize}
               className="h-full px-3.5 hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center justify-center cursor-pointer"
               title="Minimize Window"
               aria-label="Minimize Window"
@@ -278,7 +286,9 @@ export function DesktopTitleBar() {
             </button>
             <button
               type="button"
-              onClick={safeToggleMaximize}
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={handleWindowMaximize}
               className="h-full px-3.5 hover:bg-[var(--surface-card)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center justify-center cursor-pointer"
               title={isMaximized ? "Restore Window" : "Maximize Window"}
               aria-label={isMaximized ? "Restore Window" : "Maximize Window"}
@@ -287,6 +297,8 @@ export function DesktopTitleBar() {
             </button>
             <button
               type="button"
+              data-tauri-drag-region-exclude
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={handleWindowClose}
               className="h-full px-3.5 hover:bg-rose-600 hover:text-white text-[var(--muted-foreground)] transition-colors flex items-center justify-center cursor-pointer"
               title="Close Application"
