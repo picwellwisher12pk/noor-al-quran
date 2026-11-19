@@ -292,11 +292,11 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       }
       setShowScrollTop(container.scrollTop > 400);
 
-      // Failsafe auto-load when reading and approaching the bottom of the loaded verses
+      // Aggressively pre-load next page long before the user reaches the bottom (3000px headroom ~ 25 ayahs)
       const distanceToBottom =
         container.scrollHeight - container.scrollTop - container.clientHeight;
       if (
-        distanceToBottom < 850 &&
+        distanceToBottom < 3000 &&
         !loadingMoreRef.current &&
         currentPageRef.current < totalPagesRef.current
       ) {
@@ -308,7 +308,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     return () => container.removeEventListener("scroll", handleScroll);
   }, [loadMoreVerses]);
 
-  // Infinite Scroll IntersectionObserver on sentinel: automatically loads more verses as user reads
+  // Infinite Scroll IntersectionObserver on sentinel: loads next batch thousands of pixels in advance
   useEffect(() => {
     const sentinel = infiniteSentinelRef.current;
     const container = scrollContainerRef.current;
@@ -328,7 +328,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       },
       {
         root: container,
-        rootMargin: "900px 0px 900px 0px", // Proactive buffering well before the user hits the absolute bottom
+        rootMargin: "3000px 0px 3000px 0px", // Generous 3000px margin ensures verses load far before user reaches them
         threshold: 0.01,
       }
     );
@@ -337,7 +337,17 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     return () => observer.disconnect();
   }, [loadMoreVerses, verses.length]);
 
-  // Track visible Ayah in status bar without overwriting the user's saved resume point
+  // Proactively pre-fetch page 2 in background immediately upon opening Surah
+  useEffect(() => {
+    if (currentPage === 1 && totalPages > 1 && !loadingMoreRef.current) {
+      const timer = setTimeout(() => {
+        loadMoreVerses();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [chapter.id, totalPages, loadMoreVerses, currentPage]);
+
+  // Track visible Ayah in status bar and trigger eager load if reading advances near end of batch
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container || verses.length === 0) return;
@@ -366,6 +376,15 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         debounceTimer = setTimeout(() => {
           setActiveAyahNumber(topVisibleAyah);
         }, 400);
+
+        // Preload next page when reading passes midpoint / 25 ayahs from end of currently loaded verses
+        if (
+          topVisibleAyah >= versesRef.current.length - 25 &&
+          currentPageRef.current < totalPagesRef.current &&
+          !loadingMoreRef.current
+        ) {
+          loadMoreVerses();
+        }
       },
       {
         root: container,
@@ -381,7 +400,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       observer.disconnect();
       if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, [verses, setActiveAyahNumber]);
+  }, [verses, setActiveAyahNumber, loadMoreVerses]);
 
   // Proactively auto-fetch more verses and expand queue while audio recitation is happening
   useEffect(() => {
@@ -389,9 +408,9 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     const parts = currentVerseKey.split(":");
     const ayahNum = Number(parts[1]) || 1;
 
-    // A. Proactively buffer ahead when recitation approaches the end of loaded verses (within 6 ayahs)
+    // A. Proactively buffer ahead when recitation is within 15 ayahs of the loaded boundary
     if (
-      ayahNum >= verses.length - 6 &&
+      ayahNum >= verses.length - 15 &&
       currentPageRef.current < totalPagesRef.current &&
       !loadingMoreRef.current
     ) {
@@ -643,20 +662,6 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         {/* Infinite Scroll Sentinel for Auto-Loading while Reading */}
         {currentPage < totalPages && (
           <div ref={infiniteSentinelRef} className="h-6 w-full pointer-events-none" aria-hidden="true" />
-        )}
-
-        {/* Loading Indicator for Auto-Loading */}
-        {loadingMore && (
-          <div className="py-6 flex flex-col items-center justify-center gap-2 text-xs text-[var(--muted-foreground)] animate-in fade-in duration-200">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-xs">
-              <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
-              <span className="font-medium text-[var(--foreground)]">
-                {isUrdu
-                  ? `اگلی آیات لوڈ ہو رہی ہیں (${verses.length} از ${chapter.verses_count})...`
-                  : `Loading next Ayahs (${verses.length} of ${chapter.verses_count})...`}
-              </span>
-            </div>
-          </div>
         )}
 
         {/* Retry Button in case of network drop */}

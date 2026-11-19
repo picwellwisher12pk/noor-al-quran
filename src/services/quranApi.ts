@@ -32,6 +32,7 @@ async function resilientFetch(url: string, retries = 3, delayMs = 1000): Promise
 let cachedChapters: Chapter[] | null = null;
 let cachedReciters: Reciter[] | null = null;
 let cachedJuzs: Juz[] | null = null;
+const chapterVersesCache = new Map<string, { verses: Verse[]; pagination: { total_records: number; total_pages: number; current_page: number } }>();
 
 export interface TafsirOption {
   id: number;
@@ -145,6 +146,11 @@ export async function fetchVersesByChapter(
   urduTranslationId = 234 // Fatah Muhammad Jalandhari
 ): Promise<{ verses: Verse[]; pagination: { total_records: number; total_pages: number; current_page: number } }> {
   try {
+    const cacheKey = `${chapterId}_${page}_${perPage}_${englishTranslationId}_${urduTranslationId}`;
+    if (chapterVersesCache.has(cacheKey)) {
+      return chapterVersesCache.get(cacheKey)!;
+    }
+
     // Check if Surah data is available in offline storage first
     if (typeof window !== "undefined") {
       try {
@@ -186,20 +192,23 @@ export async function fetchVersesByChapter(
       per_page: String(perPage),
     });
 
-    // Fetch English verses & Uthmani text first
-    const resEn = await resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`);
-    if (!resEn.ok) throw new Error(`Failed to fetch verses: ${resEn.statusText}`);
+    // Concurrently fetch English verses & Uthmani text along with Urdu translations in parallel!
+    const [resEn, resUr] = await Promise.all([
+      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsEn.toString()}`),
+      resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`, 2, 600).catch((urErr) => {
+        console.warn(`Urdu translation fetch fallback for Surah ${chapterId}:`, urErr);
+        return null;
+      }),
+    ]);
+
+    if (!resEn || !resEn.ok) throw new Error(`Failed to fetch verses: ${resEn?.statusText || "Network error"}`);
     const dataEn = await resEn.json();
 
-    // Fetch Urdu translations gracefully in parallel or fallback to empty if endpoint drops
     let dataUr: any = { verses: [] };
-    try {
-      const resUr = await resilientFetch(`${BASE_URL}/verses/by_chapter/${chapterId}?${paramsUr.toString()}`, 2, 600);
-      if (resUr.ok) {
+    if (resUr && resUr.ok) {
+      try {
         dataUr = await resUr.json();
-      }
-    } catch (urErr) {
-      console.warn(`Urdu translation fetch fallback for Surah ${chapterId}:`, urErr);
+      } catch {}
     }
 
     // Merge Urdu translations into each verse
@@ -239,10 +248,12 @@ export async function fetchVersesByChapter(
       };
     });
 
-    return {
+    const result = {
       verses: mergedVerses,
       pagination: dataEn.pagination || { total_records: 0, total_pages: 1, current_page: page },
     };
+    chapterVersesCache.set(cacheKey, result);
+    return result;
   } catch (err) {
     console.error("fetchVersesByChapter error:", err);
     throw err;
