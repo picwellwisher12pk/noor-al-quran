@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useDesktopWorkspace, InspectorTab } from "@/context/DesktopWorkspaceContext";
 import { useReadingPreferences } from "@/context/ReadingPreferencesContext";
-import { getWordMorphology, WordMorphology } from "@/services/morphologyService";
-import { getWordRoot, getRootByName, WordRootInfo } from "@/services/rootService";
+import { getWordMorphology, loadMorphologyIndex, WordMorphology } from "@/services/morphologyService";
+import { getWordRoot, getRootByName, loadRootsIndex, WordRootInfo } from "@/services/rootService";
 import {
   getWordMultilingualTranslations,
   getAyahComparativeTranslations,
@@ -105,16 +105,23 @@ export function DesktopRightInspector() {
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  // Pre-warm morphology & roots dataset in idle background on mount
+  useEffect(() => {
+    loadMorphologyIndex().catch(console.error);
+    loadRootsIndex().catch(console.error);
+  }, []);
+
   // When selected word changes, load morphology, translations, root
   useEffect(() => {
     if (!isRightInspectorOpen) return;
 
     if (selectedWord) {
       let isWordCurrent = true;
-      const [chapStr, verseStr, posStr] = selectedWord.location.split(":");
-      const chapterId = Number(chapStr) || 1;
-      const verseNumber = Number(verseStr) || 1;
-      const wordPosition = Number(posStr) || selectedWord.position || 1;
+      const loc = selectedWord.location || `${selectedWord.verse_key || "1:1"}:${selectedWord.position || 1}`;
+      const parts = loc.split(":");
+      const chapterId = Number(parts[0]) || 1;
+      const verseNumber = Number(parts[1]) || 1;
+      const wordPosition = Number(parts[2]) || selectedWord.position || 1;
       const verseKey = selectedWord.verse_key || `${chapterId}:${verseNumber}`;
 
       // 1. Multilingual Translations
@@ -135,7 +142,7 @@ export function DesktopRightInspector() {
 
       // 2. Morphology & Grammar
       setLoadingMorph(true);
-      getWordMorphology(selectedWord.location)
+      getWordMorphology(loc)
         .then((morph) => {
           if (!isWordCurrent) return;
           setMorphology(morph);

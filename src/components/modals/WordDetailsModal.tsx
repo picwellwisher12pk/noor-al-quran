@@ -67,7 +67,8 @@ export function WordDetailsModal({
       return;
     }
 
-    const [chapStr, verseStr, posStr] = word.location.split(":");
+    const loc = word.location || `${word.verse_key || "1:1"}:${word.position || 1}`;
+    const [chapStr, verseStr, posStr] = loc.split(":");
     const chapterId = Number(chapStr) || 1;
     const verseNumber = Number(verseStr) || 1;
     const wordPosition = Number(posStr) || word.position || 1;
@@ -87,7 +88,7 @@ export function WordDetailsModal({
 
     // 2. Fetch Grammar & Morphology (Quranic Arabic Corpus)
     setLoadingMorphology(true);
-    getWordMorphology(word.location)
+    getWordMorphology(loc)
       .then((morph) => {
         setMorphology(morph);
         // If morphology has a root, look up occurrences count

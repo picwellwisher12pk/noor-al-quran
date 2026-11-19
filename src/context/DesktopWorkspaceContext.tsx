@@ -52,7 +52,7 @@ interface DesktopWorkspaceContextType {
   setSelectedAyahKey: (key: string | null) => void;
   setSelectedAyahArabic: (text: string) => void;
   setActiveAyahFromPlayback: (verseKey: string, arabicText: string) => void;
-  openWordInInspector: (word: Word) => void;
+  openWordInInspector: (word: Word, ayahArabic?: string) => void;
   openTafsirInInspector: (verseKey: string, arabicText: string) => void;
   openAyahInInspector: (verseKey: string, arabicText: string) => void;
   openNotesInInspector: (verseKey?: string, arabicText?: string, word?: Word) => void;
@@ -255,10 +255,14 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setInspectorWidth((prev) => (prev > 500 ? 400 : 640));
   };
 
-  const openWordInInspector = (word: Word) => {
+  const openWordInInspector = (word: Word, ayahArabic?: string) => {
     setSelectedWord(word);
     setSelectedAyahKey(word.verse_key);
-    setSelectedAyahArabic(word.text_uthmani || word.text);
+    if (ayahArabic) {
+      setSelectedAyahArabic(ayahArabic);
+    } else if (!selectedAyahArabic || selectedAyahKey !== word.verse_key) {
+      setSelectedAyahArabic(word.text_uthmani || word.text);
+    }
     setActiveInspectorTab("morphology");
     setRightInspectorOpen(true);
     setIsMobileInspectorOpen(true);

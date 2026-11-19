@@ -81,11 +81,12 @@ export function MobileInspectorSheet() {
   useEffect(() => {
     if (!isMobileInspectorOpen || !selectedWord) return;
 
-    const parts = selectedWord.location.split(":");
-    const chapterId = Number(parts[0]);
-    const verseNumber = Number(parts[1]);
-    const wordPosition = Number(parts[2]);
-    const verseKey = `${chapterId}:${verseNumber}`;
+    const loc = selectedWord.location || `${selectedWord.verse_key || "1:1"}:${selectedWord.position || 1}`;
+    const parts = loc.split(":");
+    const chapterId = Number(parts[0]) || 1;
+    const verseNumber = Number(parts[1]) || 1;
+    const wordPosition = Number(parts[2]) || selectedWord.position || 1;
+    const verseKey = selectedWord.verse_key || `${chapterId}:${verseNumber}`;
 
     setLoadingMorph(true);
     setLoadingLangs(true);
@@ -105,7 +106,7 @@ export function MobileInspectorSheet() {
       .finally(() => setLoadingLangs(false));
 
     // Morphology
-    getWordMorphology(selectedWord.location)
+    getWordMorphology(loc)
       .then((morph) => {
         setMorphology(morph);
         // Fetch comprehensive meanings once we have morphology (root + lemma)

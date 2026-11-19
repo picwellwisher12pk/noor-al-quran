@@ -15,6 +15,7 @@ interface WordByWordProps {
   arabicFontSize: number;
   arabicFontClass?: string;
   chapterName?: string;
+  ayahArabic?: string;
 }
 
 export function WordByWord({
@@ -22,6 +23,7 @@ export function WordByWord({
   arabicFontSize,
   arabicFontClass = "font-arabic-amiri",
   chapterName,
+  ayahArabic,
 }: WordByWordProps) {
   const { playWord } = useAudio();
   const { prefs } = useReadingPreferences();
@@ -29,9 +31,10 @@ export function WordByWord({
   const { getNotesForWord } = useNotes();
   const [modalWord, setModalWord] = useState<Word | null>(null);
 
-  const handleWordClick = (word: Word) => {
-    // Open in desktop right inspector
-    openWordInInspector(word);
+  const handleWordClick = (e: React.MouseEvent | React.KeyboardEvent, word: Word) => {
+    e.stopPropagation();
+    // Open in desktop right inspector / mobile sheet
+    openWordInInspector(word, ayahArabic);
   };
 
   return (
@@ -62,16 +65,28 @@ export function WordByWord({
           const isIndoPak = prefs.quranScript === "indopak";
           const displayArabicWord = (isIndoPak && word.text_indopak) ? word.text_indopak : (word.text_uthmani || word.text);
 
+          const showGloss = prefs.showWordByWord !== false;
+
           return (
             <div
               key={word.id}
-              onClick={() => handleWordClick(word)}
+              role="button"
+              tabIndex={0}
+              data-word-token="true"
+              onClick={(e) => handleWordClick(e, word)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleWordClick(e, word);
+                }
+              }}
               title={
                 hasNote
                   ? `${wordNotes.length} personal note(s) • Click to inspect`
                   : "Click to inspect Root, Grammar & Translations in Right Inspector"
               }
-              className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer ${isSelectedInInspector
+              aria-label={`Inspect word: ${displayArabicWord}`}
+              className={`group relative flex flex-col items-center justify-center p-1.5 rounded-xl transition-all border cursor-pointer select-none ${isSelectedInInspector
                   ? "border-[var(--primary)]/60 bg-[var(--primary)]/15 shadow-xs ring-1 ring-[var(--primary)]/30"
                   : "border-transparent hover:border-[var(--primary)]/40 hover:bg-[var(--primary)]/10"
                 }`}
@@ -93,8 +108,8 @@ export function WordByWord({
                 {displayArabicWord}
               </span>
 
-              {/* Transliteration (Hidden when English Translation is disabled) */}
-              {prefs.showTransliteration && prefs.showTranslation && word.transliteration?.text && (
+              {/* Transliteration (Hidden when English Translation or WBW gloss is disabled) */}
+              {showGloss && prefs.showTransliteration && prefs.showTranslation && word.transliteration?.text && (
                 <span
                   className="text-[10px] font-sans text-[var(--primary)] font-medium group-hover:text-[var(--primary)]/80 mt-0.5 leading-none"
                   dir="ltr"
@@ -104,7 +119,7 @@ export function WordByWord({
               )}
 
               {/* Urdu Translation */}
-              {(prefs.wbwLanguage === "urdu" || prefs.wbwLanguage === "both") && urduText && (
+              {showGloss && (prefs.wbwLanguage === "urdu" || prefs.wbwLanguage === "both") && urduText && (
                 <span
                   className="text-[11px] font-urdu text-[var(--urdu-color)] group-hover:text-[var(--primary)] text-center max-w-[85px] truncate mt-0.5 font-medium"
                   dir="rtl"
@@ -115,7 +130,7 @@ export function WordByWord({
               )}
 
               {/* English Translation */}
-              {(prefs.wbwLanguage === "english" || prefs.wbwLanguage === "both") && englishText && (
+              {showGloss && (prefs.wbwLanguage === "english" || prefs.wbwLanguage === "both") && englishText && (
                 <span
                   className="text-[10px] font-sans text-[var(--muted-foreground)] group-hover:text-[var(--foreground)] text-center max-w-[85px] truncate mt-0.5 leading-none"
                   dir="ltr"

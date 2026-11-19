@@ -159,7 +159,7 @@ export function VerseItem({
   );
 
   const isLearnMode = (prefs.quranStudyMode || "read") === "learn";
-  const showWbwInVerse = isLearnMode && Boolean(verse.words && verse.words.length > 0);
+  const showWbwInVerse = (isLearnMode || prefs.showWordByWord !== false) && Boolean(verse.words && verse.words.length > 0);
   const showUrduInVerse = isLearnMode
     ? prefs.showUrduTranslation && Boolean(urduTranslation)
     : isUrdu
@@ -336,9 +336,9 @@ export function VerseItem({
     : "Ibrahim Walk";
 
   const handleVerseClick = (e: React.MouseEvent) => {
-    // Avoid re-selecting if the user clicked an interactive control inside the card
+    // Avoid re-selecting if the user clicked an interactive control or word token inside the card
     const target = e.target as HTMLElement;
-    if (target.closest("button, a, input, [role='button']")) {
+    if (target.closest("button, a, input, [role='button'], [data-word-token]")) {
       return;
     }
     if (isMobile) {
@@ -651,6 +651,7 @@ export function VerseItem({
             arabicFontSize={activeArabicFontSize}
             arabicFontClass={arabicFontClass}
             chapterName={chapterName}
+            ayahArabic={activeArabicText}
           />
         ) : (
           <WaqfInteractiveText
