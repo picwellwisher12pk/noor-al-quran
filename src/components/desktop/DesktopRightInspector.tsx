@@ -30,8 +30,6 @@ import {
   ExternalLink,
   StickyNote,
   Plus,
-  ChevronUp,
-  ChevronDown,
 } from "lucide-react";
 import { useAudio } from "@/context/AudioContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -93,7 +91,6 @@ export function DesktopRightInspector() {
   const [isFullModalOpen, setIsFullModalOpen] = useState(false);
   const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
   const [noteModalEditingId, setNoteModalEditingId] = useState<string | null>(null);
-  const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
   const [isSajdahModalOpen, setIsSajdahModalOpen] = useState(false);
   const sajdahInfo = selectedAyahKey ? getSajdahInfo(selectedAyahKey) : null;
 
@@ -360,234 +357,117 @@ export function DesktopRightInspector() {
           )}
         </div>
 
-        {/* Inspector Header */}
-        <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[var(--primary)]" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--foreground)]">
-              {isKids
-                ? (isUrdu ? "ننھے متلاشی انسپکٹر 🚀" : "Young Explorer Inspector 🚀")
-                : isAdv
-                  ? (isUrdu ? "تحقیق صرفی ولغوی" : "Linguistic & Tafseer Lexicon")
-                  : (isUrdu ? "تحقیقِ الفاظ وتفسیر" : "Linguistic & Tafseer Inspector")}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            {/* Collapse / Expand Preview Section */}
+        {/* Inspector Tabs & Actions Header */}
+        <div className="flex items-center justify-between px-2 py-1.5 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] gap-1 flex-none">
+          <div className="flex items-center gap-1 overflow-x-auto min-w-0 flex-1 no-scrollbar">
             <button
               type="button"
-              onClick={() => setIsPreviewCollapsed(!isPreviewCollapsed)}
-              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
-              title={
-                isPreviewCollapsed
-                  ? isUrdu
-                    ? "آیت کا جائزہ دکھائیں"
-                    : "Expand Ayah Preview"
-                  : isUrdu
-                    ? "آیت کا جائزہ سکیڑیں (ٹیبز کے لیے زیادہ جگہ)"
-                    : "Collapse Ayah Preview (More Space for Tabs)"
-              }
-              aria-label="Toggle Ayah Preview"
+              onClick={() => setActiveInspectorTab("morphology")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer text-[11px] ${
+                activeInspectorTab === "morphology"
+                  ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
             >
-              {isPreviewCollapsed ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronUp className="h-4 w-4" />
-              )}
+              <BookOpen className="h-3 w-3" />
+              <span>
+                {isKids
+                  ? (isUrdu ? "لفظ کی کھوج 🔍" : "Word Detective 🔍")
+                  : isAdv
+                    ? (isUrdu ? "صرف ونحو" : "Morphology")
+                    : (isUrdu ? "صرف وگرامر" : "Grammar")}
+              </span>
             </button>
-            {/* Close Button */}
+
+            <button
+              type="button"
+              onClick={() => setActiveInspectorTab("translations")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer text-[11px] ${
+                activeInspectorTab === "translations"
+                  ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <Languages className="h-3 w-3" />
+              <span>
+                {isKids
+                  ? (isUrdu ? "تمام معانی 💡" : "All Meanings 💡")
+                  : isAdv
+                    ? (isUrdu ? "معانی ومترادفات" : "Lexicon Senses")
+                    : (isUrdu ? "تمام معانی (معانی)" : "All Meanings")}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveInspectorTab("tafseer")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer text-[11px] ${
+                activeInspectorTab === "tafseer"
+                  ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <ScrollText className="h-3 w-3" />
+              <span>
+                {isKids
+                  ? (isUrdu ? "پیارا سبق 📖" : "Story & Lesson 📖")
+                  : (isUrdu ? "تفسیر" : "Tafseer")}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveInspectorTab("scholars")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer text-[11px] ${
+                activeInspectorTab === "scholars"
+                  ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <Layers className="h-3 w-3" />
+              <span>
+                {isKids
+                  ? (isUrdu ? "اساتذہ 🎓" : "Wise Teachers 🎓")
+                  : (isUrdu ? "مترجمین" : "Scholars")}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveInspectorTab("notes")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer text-[11px] ${
+                activeInspectorTab === "notes"
+                  ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              <StickyNote className="h-3 w-3" />
+              <span>{isUrdu ? "نوٹس و تدبر" : "Notes"}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0 ml-1">
+            {sajdahInfo && (
+              <button
+                type="button"
+                onClick={() => setIsSajdahModalOpen(true)}
+                className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 shrink-0 flex items-center gap-0.5 cursor-pointer"
+                title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber} کی رہنمائی` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
+              >
+                <span className="font-arabic font-bold">۩</span>
+                <span>{sajdahInfo.sajdahNumber}</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={closeInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-raised)] transition-colors cursor-pointer"
               title="Close Inspector (Ctrl+\)"
+              aria-label="Close Inspector"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
-        </div>
-
-        {/* Active Token Hero Banner (Collapsible) */}
-        {isPreviewCollapsed ? (
-          <div
-            onClick={() => setIsPreviewCollapsed(false)}
-            className="px-3 py-2 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] flex items-center justify-between text-xs cursor-pointer hover:bg-[var(--primary)]/5 transition-colors group"
-            title={isUrdu ? "آیت کا تفصیلی جائزہ کھولنے کے لیے کلک کریں" : "Click to expand Ayah preview"}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] shrink-0">
-                {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
-              </span>
-              {sajdahInfo && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsSajdahModalOpen(true);
-                  }}
-                  className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 shrink-0"
-                  title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
-                >
-                  ۩ {sajdahInfo.sajdahNumber}
-                </button>
-              )}
-              <span className="font-arabic text-sm text-[var(--foreground)] truncate group-hover:text-[var(--primary)]" dir="rtl">
-                {selectedWord
-                  ? (prefs.quranScript === "indopak" && selectedWord.text_indopak)
-                    ? selectedWord.text_indopak
-                    : (selectedWord.text_uthmani || selectedWord.text)
-                  : selectedAyahArabic || "ٱلْقُرْءَان"}
-              </span>
-            </div>
-            <div className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)] group-hover:text-[var(--primary)] shrink-0 ml-2">
-              <span className="hidden sm:inline">{isUrdu ? "کھولیں" : "Expand"}</span>
-              <ChevronDown className="h-3 w-3" />
-            </div>
-          </div>
-        ) : (
-          <div className="p-3.5 bg-[var(--surface-sunken)] border-b border-[var(--border-subtle)] text-center relative overflow-hidden">
-            {/* Quick Collapse Button */}
-            <button
-              type="button"
-              onClick={() => setIsPreviewCollapsed(true)}
-              className="absolute top-2 right-2 p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
-              title={isUrdu ? "آیت کا جائزہ سکیڑیں" : "Collapse Ayah preview"}
-              aria-label="Collapse Ayah Preview"
-            >
-              <ChevronUp className="h-3.5 w-3.5" />
-            </button>
-
-            <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2 flex-wrap">
-              <span>{selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}</span>
-              {sajdahInfo && (
-                <button
-                  type="button"
-                  onClick={() => setIsSajdahModalOpen(true)}
-                  className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
-                  title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
-                >
-                  <span className="font-arabic font-bold">۩</span>
-                  <span>{isUrdu ? `سجدہ ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber}`}</span>
-                </button>
-              )}
-              {isKids && (
-                <span className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[9px] font-bold">
-                  {isUrdu ? "متلاشی موڈ ⭐" : "Explorer Mode ⭐"}
-                </span>
-              )}
-            </div>
-            <div className="font-arabic text-3xl font-bold text-[var(--primary)] py-0.5 leading-relaxed" dir="rtl">
-              {selectedWord ? (
-                (prefs.quranScript === "indopak" && selectedWord.text_indopak)
-                  ? selectedWord.text_indopak
-                  : (selectedWord.text_uthmani || selectedWord.text)
-              ) : selectedAyahArabic || "ٱلْقُرْءَان"}
-            </div>
-            {prefs.showTranslation && prefs.showTransliteration && selectedWord?.transliteration?.text && (
-              <div className="text-[11px] text-[var(--muted-foreground)] font-medium mt-0.5">
-                {selectedWord.transliteration.text}
-              </div>
-            )}
-            {selectedWord && (
-              <button
-                type="button"
-                onClick={() => {
-                  const audio = getWordAudioUrl(selectedWord);
-                  if (audio) {
-                    playWord(audio);
-                  } else {
-                    playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
-                  }
-                }}
-                className="mt-2 px-3 py-1 rounded-lg bg-[var(--primary)]/15 hover:bg-[var(--primary)] text-[var(--primary)] hover:text-white dark:hover:text-white text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer border border-[var(--primary)]/30 shadow-xs"
-              >
-                <Volume2 className="h-3 w-3" /> {isUrdu ? "سنیں (لفظ)" : "Pronounce Word"}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Inspector Tabs */}
-        <div className="flex items-center p-1 bg-[var(--surface-card)] border-b border-[var(--border-subtle)] gap-1 text-[11px] overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setActiveInspectorTab("morphology")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "morphology"
-                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
-          >
-            <BookOpen className="h-3 w-3" />
-            <span>
-              {isKids
-                ? (isUrdu ? "لفظ کی کھوج 🔍" : "Word Detective 🔍")
-                : isAdv
-                  ? (isUrdu ? "صرف ونحو" : "Morphology")
-                  : (isUrdu ? "صرف وگرامر" : "Grammar")}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveInspectorTab("translations")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "translations"
-                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
-          >
-            <Languages className="h-3 w-3" />
-            <span>
-              {isKids
-                ? (isUrdu ? "تمام معانی 💡" : "All Meanings 💡")
-                : isAdv
-                  ? (isUrdu ? "معانی ومترادفات" : "Lexicon Senses")
-                  : (isUrdu ? "تمام معانی (معانی)" : "All Meanings")}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveInspectorTab("tafseer")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "tafseer"
-                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
-          >
-            <ScrollText className="h-3 w-3" />
-            <span>
-              {isKids
-                ? (isUrdu ? "پیارا سبق 📖" : "Story & Lesson 📖")
-                : (isUrdu ? "تفسیر" : "Tafseer")}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveInspectorTab("scholars")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "scholars"
-                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
-          >
-            <Layers className="h-3 w-3" />
-            <span>
-              {isKids
-                ? (isUrdu ? "اساتذہ 🎓" : "Wise Teachers 🎓")
-                : (isUrdu ? "مترجمین" : "Scholars")}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveInspectorTab("notes")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "notes"
-                ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-              }`}
-          >
-            <StickyNote className="h-3 w-3" />
-            <span>{isUrdu ? "نوٹس و تدبر" : "Notes"}</span>
-          </button>
         </div>
 
         {/* Inspector Tab Content Area (Scrollable) */}
@@ -608,15 +488,34 @@ export function DesktopRightInspector() {
                       {effectiveRoot.split("").join(" - ")} ({effectiveRoot})
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
-                      {isKids
-                        ? (isUrdu ? "قرآن میں آیا ⭐" : "Appears in Quran ⭐")
-                        : (isUrdu ? "قرآن میں تکرار:" : "Total Quran Count:")}
-                    </span>
-                    <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
-                      {rootInfo?.count || "—"} {isUrdu ? "مرتبہ" : "times"}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    {selectedWord && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const audio = getWordAudioUrl(selectedWord);
+                          if (audio) {
+                            playWord(audio);
+                          } else {
+                            playAudioSafely(undefined, selectedWord.text_uthmani || selectedWord.text);
+                          }
+                        }}
+                        className="p-1.5 rounded-lg bg-[var(--surface-raised)] hover:bg-[var(--primary)]/15 text-[var(--muted-foreground)] hover:text-[var(--primary)] border border-[var(--border-subtle)] transition-colors cursor-pointer"
+                        title={isUrdu ? "لفظ سنیں" : "Pronounce word"}
+                      >
+                        <Volume2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <div className="text-right">
+                      <span className="text-[11px] font-semibold text-[var(--muted-foreground)] block">
+                        {isKids
+                          ? (isUrdu ? "قرآن میں آیا ⭐" : "Appears in Quran ⭐")
+                          : (isUrdu ? "قرآن میں تکرار:" : "Total Quran Count:")}
+                      </span>
+                      <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
+                        {rootInfo?.count || "—"} {isUrdu ? "مرتبہ" : "times"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
