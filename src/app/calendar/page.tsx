@@ -11,6 +11,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useReadingActivity } from "@/context/ReadingActivityContext";
+import {
+  seedSampleActivityDataForTesting,
+  resetReadingActivityStore,
+} from "@/services/readingActivityService";
 import { StreakHeroBanner } from "@/components/calendar/StreakHeroBanner";
 import { ReadingCalendarHeatmap } from "@/components/calendar/ReadingCalendarHeatmap";
 import { TimeframeInfographics } from "@/components/calendar/TimeframeInfographics";
@@ -18,13 +22,49 @@ import { ReadingMilestonesGrid } from "@/components/calendar/ReadingMilestonesGr
 import { DayDetailModal } from "@/components/calendar/DayDetailModal";
 
 export default function CalendarPage() {
-  const { summary, records, currentStreak } = useReadingActivity();
+  const { summary, records, currentStreak, refreshSummary } = useReadingActivity();
   const [inspectDate, setInspectDate] = useState<string | null>(null);
 
   const selectedRecord = inspectDate ? records[inspectDate] || null : null;
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 py-5 pb-24 space-y-6 text-[var(--foreground)]">
+      {/* Development-Only Testing & Simulation Bar */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 text-xs shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+              DEV TOOL
+            </span>
+            <span className="font-medium">
+              Simulate calendar activity &amp; streaks for local UI verification
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                seedSampleActivityDataForTesting();
+                refreshSummary();
+              }}
+              className="px-3 py-1.5 rounded-xl font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+            >
+              Load Test Activity
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                resetReadingActivityStore();
+                refreshSummary();
+              }}
+              className="px-3 py-1.5 rounded-xl font-semibold bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] border border-[var(--border-subtle)] transition-all active:scale-95 cursor-pointer"
+            >
+              Clear Data
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. COMPACT CALENDAR NAVBAR */}
       <div className="p-3.5 sm:p-4 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-md flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">

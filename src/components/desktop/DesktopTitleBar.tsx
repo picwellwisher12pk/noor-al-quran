@@ -255,20 +255,22 @@ export function DesktopTitleBar() {
           </button>
         )}
 
-        {/* Fullscreen Mode Toggle (Universal across Web and Desktop) */}
-        <button
-          type="button"
-          onClick={safeToggleMaximize}
-          className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
-          title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
-          aria-label="Toggle Fullscreen"
-        >
-          {isFullscreen ? (
-            <Minimize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
-          ) : (
-            <Maximize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
-          )}
-        </button>
+        {/* Fullscreen Mode Toggle (Web browser mode only; on Desktop, native OS caption controls handle window sizing) */}
+        {!isTauri && (
+          <button
+            type="button"
+            onClick={safeToggleMaximize}
+            className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors cursor-pointer flex items-center justify-center shadow-xs"
+            title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
+            aria-label="Toggle Fullscreen"
+          >
+            {isFullscreen ? (
+              <Minimize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)]" />
+            )}
+          </button>
+        )}
 
         {/* Windows / Linux Native Window Controls (Only in Tauri Desktop on Windows/Linux) */}
         {isTauri && !isMac && (
@@ -293,7 +295,15 @@ export function DesktopTitleBar() {
               title={isMaximized ? "Restore Window" : "Maximize Window"}
               aria-label={isMaximized ? "Restore Window" : "Maximize Window"}
             >
-              {isMaximized ? <Minimize2 className="h-3 w-3" /> : <Square className="h-3 w-3" />}
+              {isMaximized ? (
+                /* Native Windows 10/11 "Restore Down" Icon (Two Overlapping Squares) */
+                <svg className="h-3 w-3" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1">
+                  <path d="M3 1.5h5.5v5.5" />
+                  <rect x="1.5" y="3" width="5.5" height="5.5" />
+                </svg>
+              ) : (
+                <Square className="h-3 w-3" />
+              )}
             </button>
             <button
               type="button"

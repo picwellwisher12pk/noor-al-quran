@@ -4,24 +4,26 @@
  * with authentic Urdu/Arabic typography, line height, paragraph spacing, and citation badges.
  */
 
-export function parseAndFormatTafsir(rawText: string, isUrdu = false): string {
+export function parseAndFormatTafsir(rawText: string, isRtl = false): string {
   if (!rawText || typeof rawText !== "string") {
     return "";
   }
 
   let text = rawText.trim();
+  const dirAttr = isRtl ? ' dir="rtl"' : ' dir="ltr"';
+  const alignClass = isRtl ? 'tafsir-rtl' : 'tafsir-ltr';
 
   // 1. Detect and format leading titles / headings (e.g. ** الحمد اللہ کی تفسیر ** or الحمد اللہ کی تفسیر ٭٭ or سورہ فاتحہ کے نام:)
   // Case A: Starting with ** ... ** or ٭٭ ... ٭٭
   text = text.replace(
     /^(\*{2}|٭{1,2})\s*([^<*٭\n]+?)\s*(\*{2}|٭{1,2})/g,
-    '<div class="tafsir-heading-box"><h3 class="tafsir-heading">$2</h3></div>'
+    `<div class="tafsir-heading-box ${alignClass}"${dirAttr}><h3 class="tafsir-heading">$2</h3></div>`
   );
 
   // Case B: Starting with title followed by ٭٭ or ** or :<div
   text = text.replace(
     /^([^<٭\*\n]{4,60}?)(?:\s*٭{1,2}|\s*\*{2}|:\s*(?=<div|<p))/,
-    '<div class="tafsir-heading-box"><h3 class="tafsir-heading">$1</h3></div>'
+    `<div class="tafsir-heading-box ${alignClass}"${dirAttr}><h3 class="tafsir-heading">$1</h3></div>`
   );
 
   // 2. Parse inline markdown bold: **bold text**
@@ -47,11 +49,11 @@ export function parseAndFormatTafsir(rawText: string, isUrdu = false): string {
       .filter((p) => p.length > 0);
 
     text = paragraphs
-      .map((p) => `<p class="tafsir-paragraph">${p.replace(/\n/g, "<br />")}</p>`)
+      .map((p) => `<p class="tafsir-paragraph ${alignClass}"${dirAttr}>${p.replace(/\n/g, "<br />")}</p>`)
       .join("");
   } else {
-    // If it contains existing <p> tags, ensure they have proper class and spacing
-    text = text.replace(/<p([^>]*)>/g, '<p class="tafsir-paragraph"$1>');
+    // If it contains existing <p> tags, ensure they have proper class, direction, and spacing
+    text = text.replace(/<p([^>]*)>/g, `<p class="tafsir-paragraph ${alignClass}"${dirAttr}$1>`);
   }
 
   return text;

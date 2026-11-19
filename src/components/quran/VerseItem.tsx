@@ -10,10 +10,11 @@ import { useReadingActivity } from "@/context/ReadingActivityContext";
 import { useNotes } from "@/context/NotesContext";
 import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { getAbsoluteVerseIndex } from "@/utils/quranMeta";
+import { getAbsoluteVerseIndex, getSajdahInfo, isSajdahPerformed, toggleSajdahPerformed } from "@/utils/quranMeta";
 import { WordByWord } from "./WordByWord";
 import { WaqfInteractiveText } from "./WaqfInteractiveText";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
+import { SajdahGuideModal } from "@/components/modals/SajdahGuideModal";
 import { useIsMobile } from "@/hooks/useMediaQuery";
 import {
   Play,
@@ -87,8 +88,25 @@ export function VerseItem({
   const [pinnedSaved, setPinnedSaved] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [isSajdahModalOpen, setIsSajdahModalOpen] = useState(false);
+  const sajdahInfo = getSajdahInfo(verse.verse_key, verse.sajdah_number);
+  const [isSajdahDone, setIsSajdahDone] = useState(false);
   const verseRef = useRef<HTMLDivElement>(null);
   const hasLoggedPlaybackRef = useRef(false);
+
+  useEffect(() => {
+    if (!sajdahInfo) return;
+    setIsSajdahDone(isSajdahPerformed(verse.verse_key));
+
+    const handleSajdahUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<{ verseKey: string; isNowDone: boolean }>;
+      if (!customEvent.detail || customEvent.detail.verseKey === verse.verse_key) {
+        setIsSajdahDone(isSajdahPerformed(verse.verse_key));
+      }
+    };
+    window.addEventListener("naq:sajdah-updated", handleSajdahUpdate);
+    return () => window.removeEventListener("naq:sajdah-updated", handleSajdahUpdate);
+  }, [sajdahInfo, verse.verse_key]);
 
   const isSelected = selectedAyahKey === verse.verse_key;
   const verseNotes = getNotesForVerse(verse.verse_key);
@@ -369,6 +387,29 @@ export function VerseItem({
               Juz {verse.juz_number}
             </span>
           )}
+          {sajdahInfo && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSajdahModalOpen(true);
+              }}
+              className={`inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md transition-all cursor-pointer shadow-2xs border ${
+                isSajdahDone
+                  ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25"
+                  : "bg-amber-500/15 text-amber-900 dark:text-amber-300 border-amber-500/40 hover:bg-amber-500/25 animate-pulse"
+              }`}
+              title={
+                isUrdu
+                  ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber} (سجدۂ تلاوت کی رہنمائی اور دعائیں دیکھیں)`
+                  : `Ayah of Sajdah #${sajdahInfo.sajdahNumber} (Click for Sajdah Tilawat guide & supplications)`
+              }
+            >
+              <span className="font-arabic font-bold text-xs sm:text-sm leading-none">۩</span>
+              <span>{isUrdu ? `سجدہ ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber}`}</span>
+              {isSajdahDone && <Check className="h-3 w-3 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />}
+            </button>
+          )}
           {isLastRead && (
             <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
               <Flag className="h-2.5 w-2.5 fill-current" />
@@ -560,6 +601,23 @@ export function VerseItem({
 
         {/* Mobile Minimal Indicators & Quick Action Trigger */}
         <div className="flex sm:hidden items-center gap-1.5">
+          {sajdahInfo && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSajdahModalOpen(true);
+              }}
+              className={`px-1.5 py-0.5 rounded text-[11px] font-arabic font-bold leading-none ${
+                isSajdahDone
+                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                  : "bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40 animate-pulse"
+              }`}
+              title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Ayah of Sajdah #${sajdahInfo.sajdahNumber}`}
+            >
+              ۩
+            </button>
+          )}
           {bookmarked && (
             <BookmarkIcon className="h-3.5 w-3.5 fill-[var(--primary)] text-[var(--primary)]" />
           )}
@@ -711,6 +769,91 @@ export function VerseItem({
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Sajdah Notification & Action Strip */}
+      {sajdahInfo && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className={`mt-2 mb-1.5 p-2.5 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs transition-colors shadow-2xs ${
+            isSajdahDone
+              ? "bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/25"
+              : "bg-amber-500/10 dark:bg-amber-950/25 border-amber-500/30"
+          }`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-7 w-7 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-arabic font-bold text-base shrink-0">
+              ۩
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-[var(--foreground)]">
+                  {isUrdu
+                    ? `آیتِ سجدہ (سجدہ نمبر ${sajdahInfo.sajdahNumber} از ۱۵)`
+                    : `Ayah of Sajdah (Sajdah #${sajdahInfo.sajdahNumber} of 15)`}
+                </span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded font-semibold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30">
+                  {isUrdu ? "سجدۂ تلاوت مطلوب ہے" : "Sajdah Tilawat Required"}
+                </span>
+              </div>
+              <p className="text-[11px] text-[var(--muted-foreground)]">
+                {isUrdu
+                  ? "تلاوت کرنے یا سننے پر ایک سجدہ کرنا مسنون / واجب ہے"
+                  : "Sunnah / Wajib to perform a single prostration upon reciting or hearing"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end flex-wrap">
+            {/* Pause recitation button if currently reciting on this verse */}
+            {isCurrentPlaying && isPlaying && (
+              <button
+                type="button"
+                onClick={handlePlayToggle}
+                className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-[11px] shadow-xs cursor-pointer flex items-center gap-1 transition-transform active:scale-95"
+                title={isUrdu ? "سجدہ کرنے کے لیے تلاوت روکیں" : "Pause recitation to perform Sajdah"}
+              >
+                <Pause className="h-3 w-3" />
+                <span>{isUrdu ? "سجدے کے لیے روکیں" : "Pause for Sajdah"}</span>
+              </button>
+            )}
+
+            {/* Guide & Du'as button */}
+            <button
+              type="button"
+              onClick={() => setIsSajdahModalOpen(true)}
+              className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] border border-[var(--border-subtle)] font-medium text-[11px] cursor-pointer transition-colors"
+            >
+              {isUrdu ? "دعائیں و طریقہ" : "Du'as & Guide"}
+            </button>
+
+            {/* Toggle Performed */}
+            <button
+              type="button"
+              onClick={() => {
+                const nowDone = toggleSajdahPerformed(verse.verse_key);
+                setIsSajdahDone(nowDone);
+              }}
+              className={`px-2.5 py-1 rounded-lg font-semibold text-[11px] cursor-pointer transition-colors flex items-center gap-1.5 shadow-xs ${
+                isSajdahDone
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                  : "bg-[var(--surface-raised)] hover:bg-[var(--primary)]/10 text-[var(--foreground)] border border-[var(--border-subtle)]"
+              }`}
+            >
+              {isSajdahDone ? (
+                <>
+                  <Check className="h-3 w-3 stroke-[2.5]" />
+                  <span>{isUrdu ? "سجدہ ادا کیا ✓" : "Sajdah Done ✓"}</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-arabic font-bold text-xs">۩</span>
+                  <span>{isUrdu ? "سجدہ ادا کیا؟" : "Mark Done"}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       )}
 
@@ -875,6 +1018,16 @@ export function VerseItem({
         chapterName={chapterName}
         noteId={editingNoteId}
       />
+
+      {/* Sajdah Tilawat Guide & Supplications Modal */}
+      {sajdahInfo && (
+        <SajdahGuideModal
+          isOpen={isSajdahModalOpen}
+          onClose={() => setIsSajdahModalOpen(false)}
+          verseKey={verse.verse_key}
+          arabicText={activeArabicText}
+        />
+      )}
     </div>
   );
 }

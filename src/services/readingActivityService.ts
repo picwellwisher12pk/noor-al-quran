@@ -389,3 +389,55 @@ export function resetReadingActivityStore(): ReadingStreakSummary {
   }
   return loadReadingStreakSummary();
 }
+
+/**
+ * Developer helper for testing calendar, heatmap, and streak visuals during development.
+ * Populates realistic reading sessions for the current month across all 4 intensity tiers.
+ */
+export function seedSampleActivityDataForTesting(): ReadingStreakSummary {
+  if (typeof window === "undefined") return loadReadingStreakSummary();
+
+  const now = new Date();
+  const records: Record<string, DailyReadingRecord> = {};
+
+  // Sample activity patterns matching realistic reading sessions across all tiers
+  const sampleVolumes = [
+    { dayOffset: 0, ayahs: 16, words: 12, minutes: 20 }, // Today (Tier 3)
+    { dayOffset: 1, ayahs: 30, words: 0, minutes: 35 },  // Yesterday (Tier 3)
+    { dayOffset: 2, ayahs: 25, words: 8, minutes: 28 },  // 2 days ago (Tier 3)
+    { dayOffset: 3, ayahs: 42, words: 15, minutes: 45 }, // 3 days ago (Tier 4 Khatmah)
+    { dayOffset: 4, ayahs: 18, words: 5, minutes: 22 },  // 4 days ago (Tier 3)
+    { dayOffset: 6, ayahs: 6, words: 0, minutes: 10 },   // 6 days ago (Tier 2)
+    { dayOffset: 7, ayahs: 8, words: 4, minutes: 12 },   // 7 days ago (Tier 2)
+    { dayOffset: 8, ayahs: 22, words: 0, minutes: 25 },  // 8 days ago (Tier 3)
+    { dayOffset: 10, ayahs: 4, words: 10, minutes: 15 }, // 10 days ago (Tier 1)
+    { dayOffset: 12, ayahs: 35, words: 20, minutes: 40 },// 12 days ago (Tier 4)
+    { dayOffset: 13, ayahs: 12, words: 0, minutes: 16 }, // 13 days ago (Tier 2)
+    { dayOffset: 14, ayahs: 3, words: 0, minutes: 8 },   // 14 days ago (Tier 1)
+  ];
+
+  for (const s of sampleVolumes) {
+    const d = new Date();
+    d.setDate(now.getDate() - s.dayOffset);
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    records[dateStr] = {
+      date: dateStr,
+      ayahsRead: s.ayahs,
+      verses: Array.from({ length: Math.min(s.ayahs, 5) }).map((_, idx) => `1:${idx + 1}`),
+      chapters: [1, 18, 36],
+      wordsStudied: s.words,
+      minutesSpent: s.minutes,
+      lastUpdated: new Date().toISOString(),
+    };
+  }
+
+  const store = {
+    currentStreak: 5,
+    longestStreak: 12,
+    lastActiveDate: getTodayString(),
+    records,
+  };
+
+  saveActivityStore(store);
+  return loadReadingStreakSummary();
+}

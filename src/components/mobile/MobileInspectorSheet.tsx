@@ -13,7 +13,7 @@ import {
   WordTranslationItem,
   ScholarVerseTranslation,
 } from "@/services/wordTranslationsService";
-import { fetchTafsirForAyah, AVAILABLE_TAFSIRS } from "@/services/quranApi";
+import { fetchTafsirForAyah, AVAILABLE_TAFSIRS, isRtlTafsir, getTafsirOption } from "@/services/quranApi";
 import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
 import { useLanguage } from "@/context/LanguageContext";
 import { useNotes } from "@/context/NotesContext";
@@ -49,6 +49,9 @@ export function MobileInspectorSheet() {
   const { playWord, playVerse } = useAudio();
   const { isUrdu } = useLanguage();
   const { getNotesForVerse, getNotesForWord, deleteNote } = useNotes();
+
+  const currentTafsirOption = getTafsirOption(prefs.selectedTafsirId);
+  const isTafsirRtl = currentTafsirOption.language === "urdu" || currentTafsirOption.language === "arabic";
 
   // Data states
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -149,7 +152,7 @@ export function MobileInspectorSheet() {
     fetchTafsirForAyah(prefs.selectedTafsirId, selectedAyahKey)
       .then((data) => {
         if (data && data.text) {
-          setTafsirText(parseAndFormatTafsir(data.text, isUrdu));
+          setTafsirText(parseAndFormatTafsir(data.text, isTafsirRtl));
           setTafsirAuthor(data.author);
         } else {
           setTafsirText(isUrdu ? "اس آیت کی تفسیر فی الحال دستیاب نہیں ہے۔" : "Tafseer commentary is currently unavailable for this Ayah.");
@@ -161,7 +164,7 @@ export function MobileInspectorSheet() {
         setTafsirAuthor("");
       })
       .finally(() => setLoadingTafsir(false));
-  }, [isMobileInspectorOpen, selectedAyahKey, prefs.selectedTafsirId, isUrdu]);
+  }, [isMobileInspectorOpen, selectedAyahKey, prefs.selectedTafsirId, isUrdu, isTafsirRtl]);
 
   if (!isMobileInspectorOpen) return null;
 
@@ -507,12 +510,14 @@ export function MobileInspectorSheet() {
                   )}
                   <div
                     className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
-                      isUrdu
-                        ? "font-urdu leading-[2.3] text-right"
-                        : "leading-relaxed text-left"
+                      isTafsirRtl
+                        ? currentTafsirOption.language === "urdu"
+                          ? "font-urdu leading-[2.4] text-right"
+                          : "font-arabic leading-[2.2] text-right"
+                        : "leading-relaxed text-left font-sans"
                     }`}
                     style={{ fontSize: `${prefs.tafsirFontSize || 18}px` }}
-                    dir={isUrdu ? "rtl" : "ltr"}
+                    dir={isTafsirRtl ? "rtl" : "ltr"}
                     dangerouslySetInnerHTML={{ __html: tafsirText }}
                   />
                 </div>

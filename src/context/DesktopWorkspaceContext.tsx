@@ -7,7 +7,7 @@ import { fetchChapters, fetchJuzs } from "@/services/quranApi";
 export type SidebarTab = "surahs" | "juz" | "khatmah" | "bookmarks";
 export type InspectorTab = "morphology" | "translations" | "tafseer" | "scholars" | "notes";
 export type ReadingLayoutMode = "continuous" | "compact" | "mushaf";
-export type InspectorWidthMode = "default" | "expanded" | "maximized";
+export type InspectorWidthMode = number;
 export type SettingsModalTab =
   | "navigation"
   | "account"
@@ -37,8 +37,8 @@ interface DesktopWorkspaceContextType {
   setRightInspectorOpen: (open: boolean) => void;
   activeInspectorTab: InspectorTab;
   setActiveInspectorTab: (tab: InspectorTab) => void;
-  inspectorWidth: InspectorWidthMode;
-  setInspectorWidth: (width: InspectorWidthMode) => void;
+  inspectorWidth: number;
+  setInspectorWidth: React.Dispatch<React.SetStateAction<number>>;
   toggleExpandInspector: () => void;
 
   // Reading layout mode
@@ -99,7 +99,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>("surahs");
   const [activeInspectorTab, setActiveInspectorTab] = useState<InspectorTab>("morphology");
   const [readingMode, setReadingMode] = useState<ReadingLayoutMode>("compact");
-  const [inspectorWidth, setInspectorWidth] = useState<InspectorWidthMode>("default");
+  const [inspectorWidth, setInspectorWidth] = useState<number>(400);
 
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [selectedAyahKey, setSelectedAyahKey] = useState<string | null>("1:1");
@@ -154,9 +154,21 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setRightInspectorOpen(savedInspector === "true");
       }
 
-      const savedInspectorWidth = localStorage.getItem("naq_desktop_inspector_width") as InspectorWidthMode;
-      if (savedInspectorWidth === "default" || savedInspectorWidth === "expanded" || savedInspectorWidth === "maximized") {
-        setInspectorWidth(savedInspectorWidth);
+      const savedInspectorWidth = localStorage.getItem("naq_desktop_inspector_width_px")
+        || localStorage.getItem("naq_desktop_inspector_width");
+      if (savedInspectorWidth) {
+        if (savedInspectorWidth === "default") {
+          setInspectorWidth(400);
+        } else if (savedInspectorWidth === "expanded") {
+          setInspectorWidth(560);
+        } else if (savedInspectorWidth === "maximized") {
+          setInspectorWidth(780);
+        } else {
+          const parsed = parseInt(savedInspectorWidth, 10);
+          if (!isNaN(parsed) && parsed >= 320 && parsed <= 1200) {
+            setInspectorWidth(parsed);
+          }
+        }
       }
 
       const savedInspectorTab = localStorage.getItem("naq_desktop_inspector_tab") as InspectorTab;
@@ -176,7 +188,8 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
       localStorage.setItem("naq_reading_mode", readingMode);
       localStorage.setItem("naq_desktop_sidebar_open", String(isLeftSidebarOpen));
       localStorage.setItem("naq_desktop_inspector_open", String(isRightInspectorOpen));
-      localStorage.setItem("naq_desktop_inspector_width", inspectorWidth);
+      localStorage.setItem("naq_desktop_inspector_width", String(inspectorWidth));
+      localStorage.setItem("naq_desktop_inspector_width_px", String(inspectorWidth));
       localStorage.setItem("naq_desktop_inspector_tab", activeInspectorTab);
     } catch (e) {
       console.error("Error saving workspace settings:", e);
@@ -239,7 +252,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const toggleRightInspector = () => setRightInspectorOpen((prev) => !prev);
 
   const toggleExpandInspector = () => {
-    setInspectorWidth((prev) => (prev === "default" ? "expanded" : prev === "expanded" ? "maximized" : "default"));
+    setInspectorWidth((prev) => (prev > 500 ? 400 : 640));
   };
 
   const openWordInInspector = (word: Word) => {

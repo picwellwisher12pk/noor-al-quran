@@ -59,6 +59,21 @@ export const AVAILABLE_TAFSIRS: TafsirOption[] = [
   { id: 90, name: "تفسير القرطبي", author: "القرطبي", language: "arabic", slug: "ar-qurtubi" },
 ];
 
+/**
+ * Determines whether the specified Tafsir commentary is Right-to-Left (Urdu/Arabic).
+ */
+export function isRtlTafsir(tafsirId: number): boolean {
+  const option = AVAILABLE_TAFSIRS.find((t) => t.id === tafsirId);
+  return option ? option.language === "urdu" || option.language === "arabic" : false;
+}
+
+/**
+ * Returns the TafsirOption metadata for a given tafsirId.
+ */
+export function getTafsirOption(tafsirId: number): TafsirOption {
+  return AVAILABLE_TAFSIRS.find((t) => t.id === tafsirId) || AVAILABLE_TAFSIRS[0];
+}
+
 export interface TranslationOption {
   id: number;
   name: string;
@@ -157,7 +172,7 @@ export async function fetchVersesByChapter(
       language: "en",
       words: "true",
       translations: String(englishTranslationId),
-      fields: "text_uthmani,text_indopak,chapter_id,verse_number,verse_key,juz_number,hizb_number,rub_el_hizb_number,page_number",
+      fields: "text_uthmani,text_indopak,chapter_id,verse_number,verse_key,juz_number,hizb_number,rub_el_hizb_number,page_number,sajdah_number",
       word_fields: "verse_key,verse_id,page_number,location,text_uthmani,text_indopak,audio_url",
       page: String(page),
       per_page: String(perPage),

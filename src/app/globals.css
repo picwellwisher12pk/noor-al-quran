@@ -335,7 +335,43 @@ a,
 .tafsir-paragraph {
   margin-bottom: 1.25rem !important;
   line-height: 2.3 !important;
-  text-align: justify;
+}
+
+/* Proper alignment according to language direction: Right for RTL, Left for LTR */
+.tafsir-rendered-content[dir="rtl"],
+.tafsir-rendered-content[dir="rtl"] p,
+[dir="rtl"] .tafsir-rendered-content,
+[dir="rtl"] .tafsir-rendered-content p,
+.tafsir-paragraph[dir="rtl"],
+[dir="rtl"] .tafsir-paragraph,
+.tafsir-rtl,
+.tafsir-rtl p {
+  text-align: right !important;
+  direction: rtl !important;
+}
+
+.tafsir-rendered-content[dir="ltr"],
+.tafsir-rendered-content[dir="ltr"] p,
+[dir="ltr"] .tafsir-rendered-content,
+[dir="ltr"] .tafsir-rendered-content p,
+.tafsir-paragraph[dir="ltr"],
+[dir="ltr"] .tafsir-paragraph,
+.tafsir-ltr,
+.tafsir-ltr p {
+  text-align: left !important;
+  direction: ltr !important;
+}
+
+.tafsir-heading-box[dir="rtl"],
+.tafsir-heading-box.tafsir-rtl {
+  text-align: right;
+  direction: rtl;
+}
+
+.tafsir-heading-box[dir="ltr"],
+.tafsir-heading-box.tafsir-ltr {
+  text-align: left;
+  direction: ltr;
 }
 
 .tafsir-rendered-content p:last-child,

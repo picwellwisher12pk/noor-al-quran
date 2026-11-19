@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useMemo, useState, useRef } from "react";
+import { SAJDAH_VERSES } from "@/utils/quranMeta";
 
 interface VerseScrollNavigatorProps {
   totalVerses: number;
   currentVerse: number;
   onSelectVerse: (verseNumber: number) => void;
+  chapterId?: number;
   isUrdu?: boolean;
 }
 
@@ -13,6 +15,7 @@ export function VerseScrollNavigator({
   totalVerses,
   currentVerse,
   onSelectVerse,
+  chapterId,
   isUrdu = false,
 }: VerseScrollNavigatorProps) {
   const [hoveredAyah, setHoveredAyah] = useState<number | null>(null);
@@ -93,6 +96,11 @@ export function VerseScrollNavigator({
     return Math.max(0, Math.min(100, ((currentVerse - 1) / (totalVerses - 1)) * 100));
   }, [currentVerse, totalVerses]);
 
+  const sajdahVersesInSurah = useMemo(() => {
+    if (!chapterId) return [];
+    return Object.values(SAJDAH_VERSES).filter((s) => s.chapterId === chapterId);
+  }, [chapterId]);
+
   return (
     <div
       ref={navRef}
@@ -116,6 +124,33 @@ export function VerseScrollNavigator({
         className="absolute w-2 h-2 -translate-x-1/2 left-1/2 rounded-full bg-emerald-600 dark:bg-emerald-400 shadow-xs ring-1 ring-[var(--surface-raised)] transition-all duration-150 pointer-events-none z-10"
         style={{ top: `calc(${activePercent}% + 4px)` }}
       />
+
+      {/* Sajdah Markers on Rail */}
+      {sajdahVersesInSurah.map((s) => {
+        const sajdahPercent =
+          totalVerses <= 1
+            ? 0
+            : Math.max(0, Math.min(100, ((s.verseNumber - 1) / (totalVerses - 1)) * 100));
+        return (
+          <button
+            key={s.verseKey}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectVerse(s.verseNumber);
+            }}
+            className="absolute -translate-x-1/2 left-1/2 text-amber-500 hover:text-amber-400 font-arabic font-bold text-xs pointer-events-auto cursor-pointer z-10 transition-transform hover:scale-125 select-none"
+            style={{ top: `calc(${sajdahPercent}% + 2px)` }}
+            title={
+              isUrdu
+                ? `آیتِ سجدہ نمبر ${s.sajdahNumber} (آیت ${s.verseNumber})`
+                : `Ayah of Sajdah #${s.sajdahNumber} (Ayah ${s.verseNumber})`
+            }
+          >
+            ۩
+          </button>
+        );
+      })}
 
       {/* Numbered Milestone Cues */}
       <div className="w-full h-full flex flex-col justify-between items-center relative pointer-events-none z-0">

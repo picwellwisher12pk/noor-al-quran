@@ -29,6 +29,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const [verses, setVerses] = useState<Verse[]>(initialVerses);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [jumpingToAyah, setJumpingToAyah] = useState<number | null>(null);
   const [dismissResumeBanner, setDismissResumeBanner] = useState(false);
   const [tafsirAyahKey, setTafsirAyahKey] = useState<string | null>(null);
@@ -36,10 +37,21 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const infiniteSentinelRef = useRef<HTMLDivElement>(null);
   const hasUserScrolledRef = useRef(false);
   const isProgrammaticScrollRef = useRef(false);
   const versesRef = useRef<Verse[]>(verses);
   const currentPageRef = useRef<number>(currentPage);
+  const loadingMoreRef = useRef<boolean>(loadingMore);
+  const totalPagesRef = useRef<number>(totalPages);
+
+  useEffect(() => {
+    loadingMoreRef.current = loadingMore;
+  }, [loadingMore]);
+
+  useEffect(() => {
+    totalPagesRef.current = totalPages;
+  }, [totalPages]);
 
   useEffect(() => {
     versesRef.current = verses;
@@ -165,7 +177,111 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     }
   }, [targetAyah, jumpToAyah]);
 
-  // Track scroll container for Scroll-to-Top visibility and user-scroll activation
+  // Load the next page of verses for continuous reading / infinite scrolling
+  const loadMoreVerses = useCallback(async () => {
+    if (currentPageRef.current >= totalPagesRef.current || loadingMoreRef.current) return;
+    setLoadingMore(true);
+    loadingMoreRef.current = true;
+    setLoadError(null);
+    try {
+      const nextPage = currentPageRef.current + 1;
+      const res = await fetchVersesByChapter(
+        chapter.id,
+        nextPage,
+        50,
+        20,
+        prefs.selectedUrduTranslationId
+      );
+      if (res.verses && res.verses.length > 0) {
+        setVerses((prev) => {
+          const seen = new Set(prev.map((v) => v.verse_key));
+          const merged = [...prev];
+          for (const v of res.verses) {
+            if (!seen.has(v.verse_key)) {
+              seen.add(v.verse_key);
+              merged.push(v);
+            }
+          }
+          return merged;
+        });
+        setCurrentPage(nextPage);
+        currentPageRef.current = nextPage;
+      }
+    } catch (e: any) {
+      console.error("Failed to auto-load more verses:", e);
+      setLoadError(
+        isUrdu
+          ? "مزید آیات لوڈ کرنے میں خرابی ہوئی۔ دوبارہ کوشش کریں۔"
+          : "Failed to load more verses. Tap to retry."
+      );
+    } finally {
+      setLoadingMore(false);
+      loadingMoreRef.current = false;
+    }
+  }, [chapter.id, prefs.selectedUrduTranslationId, isUrdu]);
+
+  // Load all pages up to a needed page target (for jump-to-ayah or audio playback advancement)
+  const loadPagesUpTo = useCallback(
+    async (targetPage: number) => {
+      const startPage = currentPageRef.current;
+      if (
+        targetPage <= startPage ||
+        targetPage > totalPagesRef.current ||
+        loadingMoreRef.current
+      )
+        return;
+
+      setLoadingMore(true);
+      loadingMoreRef.current = true;
+      setLoadError(null);
+      try {
+        const pagesToFetch = Array.from(
+          { length: targetPage - startPage },
+          (_, idx) => startPage + 1 + idx
+        );
+        const results = await Promise.all(
+          pagesToFetch.map((p) =>
+            fetchVersesByChapter(
+              chapter.id,
+              p,
+              50,
+              20,
+              prefs.selectedUrduTranslationId
+            )
+          )
+        );
+        const newlyFetched = results.flatMap((r) => r.verses || []);
+        if (newlyFetched.length > 0) {
+          setVerses((prev) => {
+            const seen = new Set(prev.map((v) => v.verse_key));
+            const merged = [...prev];
+            for (const v of newlyFetched) {
+              if (!seen.has(v.verse_key)) {
+                seen.add(v.verse_key);
+                merged.push(v);
+              }
+            }
+            return merged;
+          });
+          setCurrentPage(targetPage);
+          currentPageRef.current = targetPage;
+        }
+      } catch (e) {
+        console.error("Failed to load pages up to target:", e);
+        setLoadError(
+          isUrdu
+            ? "مزید آیات لوڈ کرنے میں خرابی ہوئی۔ دوبارہ کوشش کریں۔"
+            : "Failed to load more verses. Tap to retry."
+        );
+      } finally {
+        setLoadingMore(false);
+        loadingMoreRef.current = false;
+      }
+    },
+    [chapter.id, prefs.selectedUrduTranslationId, isUrdu]
+  );
+
+  // Track scroll container for Scroll-to-Top visibility, user-scroll activation, and bottom auto-load
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -175,11 +291,51 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         hasUserScrolledRef.current = true;
       }
       setShowScrollTop(container.scrollTop > 400);
+
+      // Failsafe auto-load when reading and approaching the bottom of the loaded verses
+      const distanceToBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight;
+      if (
+        distanceToBottom < 850 &&
+        !loadingMoreRef.current &&
+        currentPageRef.current < totalPagesRef.current
+      ) {
+        loadMoreVerses();
+      }
     };
 
     container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [loadMoreVerses]);
+
+  // Infinite Scroll IntersectionObserver on sentinel: automatically loads more verses as user reads
+  useEffect(() => {
+    const sentinel = infiniteSentinelRef.current;
+    const container = scrollContainerRef.current;
+    if (!sentinel || !container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (
+          entry &&
+          entry.isIntersecting &&
+          !loadingMoreRef.current &&
+          currentPageRef.current < totalPagesRef.current
+        ) {
+          loadMoreVerses();
+        }
+      },
+      {
+        root: container,
+        rootMargin: "900px 0px 900px 0px", // Proactive buffering well before the user hits the absolute bottom
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMoreVerses, verses.length]);
 
   // Track visible Ayah in status bar without overwriting the user's saved resume point
   useEffect(() => {
@@ -227,30 +383,72 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     };
   }, [verses, setActiveAyahNumber]);
 
-  const loadMoreVerses = async () => {
-    if (currentPage >= totalPages || loadingMore) return;
-    setLoadingMore(true);
-    try {
-      const nextPage = currentPage + 1;
-      const res = await fetchVersesByChapter(chapter.id, nextPage, 50, 20, prefs.selectedUrduTranslationId);
-      setVerses((prev) => [...prev, ...res.verses]);
-      setCurrentPage(nextPage);
-    } catch (e) {
-      console.error("Failed to load more verses:", e);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
-  // Auto-fetch more verses if audio playback advances near the end of loaded verses
+  // Proactively auto-fetch more verses and expand queue while audio recitation is happening
   useEffect(() => {
     if (!isPlaying || currentChapterId !== chapter.id || !currentVerseKey) return;
     const parts = currentVerseKey.split(":");
     const ayahNum = Number(parts[1]) || 1;
-    if (ayahNum >= verses.length - 2 && currentPage < totalPages && !loadingMore) {
+
+    // A. Proactively buffer ahead when recitation approaches the end of loaded verses (within 6 ayahs)
+    if (
+      ayahNum >= verses.length - 6 &&
+      currentPageRef.current < totalPagesRef.current &&
+      !loadingMoreRef.current
+    ) {
       loadMoreVerses();
+      return;
     }
-  }, [currentVerseKey, currentChapterId, chapter.id, verses.length, currentPage, totalPages, loadingMore]);
+
+    // B. Recitation has advanced or jumped to an ayah beyond currently loaded verses
+    if (
+      ayahNum > verses.length &&
+      currentPageRef.current < totalPagesRef.current &&
+      !loadingMoreRef.current
+    ) {
+      const neededPage = Math.min(totalPagesRef.current, Math.ceil(ayahNum / 50));
+      if (neededPage > currentPageRef.current) {
+        loadPagesUpTo(neededPage);
+      }
+    }
+  }, [
+    currentVerseKey,
+    currentChapterId,
+    chapter.id,
+    verses.length,
+    isPlaying,
+    loadMoreVerses,
+    loadPagesUpTo,
+  ]);
+
+  // Keep reciting verse in view via smooth auto-scrolling
+  useEffect(() => {
+    if (!isPlaying || currentChapterId !== chapter.id || !currentVerseKey) return;
+    if (!prefs.autoScroll) return;
+
+    const parts = currentVerseKey.split(":");
+    const ayahNum = Number(parts[1]) || 1;
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`ayah-${ayahNum}`);
+      if (el) {
+        const container = scrollContainerRef.current;
+        if (container) {
+          const rect = el.getBoundingClientRect();
+          const contRect = container.getBoundingClientRect();
+          if (rect.top < contRect.top || rect.bottom > contRect.bottom) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [
+    currentVerseKey,
+    currentChapterId,
+    chapter.id,
+    isPlaying,
+    prefs.autoScroll,
+    verses.length,
+  ]);
 
   // Explicitly opens dedicated Tafseer modal WITHOUT touching the right inspector pane!
   const handleOpenTafsir = (verseKey: string, arabicText: string) => {
@@ -442,24 +640,53 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
           ))}
         </div>
 
-        {/* Load More Pagination */}
+        {/* Infinite Scroll Sentinel for Auto-Loading while Reading */}
         {currentPage < totalPages && (
-          <div className="text-center pt-4">
-            <button
-              type="button"
-              onClick={loadMoreVerses}
-              disabled={loadingMore}
-              className="px-6 py-2 rounded-xl bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-semibold text-xs transition-all shadow-md inline-flex items-center gap-2 disabled:opacity-50"
-            >
-              {loadingMore ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Loading Ayahs...
-                </>
-              ) : (
-                `Load More Ayahs (${verses.length} of ${chapter.verses_count})`
-              )}
-            </button>
+          <div ref={infiniteSentinelRef} className="h-6 w-full pointer-events-none" aria-hidden="true" />
+        )}
+
+        {/* Loading Indicator for Auto-Loading */}
+        {loadingMore && (
+          <div className="py-6 flex flex-col items-center justify-center gap-2 text-xs text-[var(--muted-foreground)] animate-in fade-in duration-200">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-xs">
+              <Loader2 className="h-4 w-4 animate-spin text-[var(--primary)]" />
+              <span className="font-medium text-[var(--foreground)]">
+                {isUrdu
+                  ? `اگلی آیات لوڈ ہو رہی ہیں (${verses.length} از ${chapter.verses_count})...`
+                  : `Loading next Ayahs (${verses.length} of ${chapter.verses_count})...`}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Retry Button in case of network drop */}
+        {loadError && !loadingMore && currentPage < totalPages && (
+          <div className="py-4 text-center">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-600 dark:text-red-400">
+              <span>{loadError}</span>
+              <button
+                type="button"
+                onClick={loadMoreVerses}
+                className="px-2.5 py-1 rounded-lg bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-white font-semibold cursor-pointer shadow-xs transition-colors"
+              >
+                {isUrdu ? "دوبارہ کوشش کریں" : "Retry"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Surah Completion Indicator when all verses are loaded */}
+        {currentPage >= totalPages && verses.length >= chapter.verses_count && (
+          <div className="py-8 text-center my-4 border-t border-[var(--border-subtle)]/60">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs text-[var(--muted-foreground)] shadow-xs">
+              <span className="font-arabic text-emerald-600 dark:text-emerald-400 text-sm">۞</span>
+              <span className="font-medium text-[var(--foreground)]">
+                {isUrdu
+                  ? `سورت ${chapter.name_arabic} کی تمام ${chapter.verses_count} آیات مکمل ہوئیں`
+                  : `All ${chapter.verses_count} Ayahs of Surah ${chapter.name_simple} Loaded`}
+              </span>
+              <span className="font-arabic text-emerald-600 dark:text-emerald-400 text-sm">۞</span>
+            </div>
           </div>
         )}
       </div>
@@ -480,6 +707,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
       {/* Verse Milestone Scroll Navigator alongside the scrollbar */}
       {chapter.verses_count > 1 && (
         <VerseScrollNavigator
+          chapterId={chapter.id}
           totalVerses={chapter.verses_count}
           currentVerse={activeAyahNumber || 1}
           onSelectVerse={(ayahNum) => jumpToAyah(ayahNum)}

@@ -55,7 +55,7 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
         } else {
           setTafsirData({
             ...data,
-            text: parseAndFormatTafsir(data.text, isUrdu),
+            text: parseAndFormatTafsir(data.text, isRtl),
           });
         }
       })
@@ -64,7 +64,7 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
         setError(isUrdu ? "تفسیر لوڈ کرنے میں مسئلہ پیش آیا۔ براہ کرم دوبارہ کوشش کریں۔" : "Unable to load Tafsir. Please check your network connection.");
       })
       .finally(() => setLoading(false));
-  }, [isOpen, verseKey, currentTafsirId, isUrdu]);
+  }, [isOpen, verseKey, currentTafsirId, isUrdu, isRtl]);
 
   const handleTafsirChange = (newId: number) => {
     setCurrentTafsirId(newId);
@@ -191,9 +191,9 @@ export function TafsirModal({ isOpen, onClose, verseKey, arabicText }: TafsirMod
             className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
               isRtl
                 ? selectedTafsir.language === "urdu"
-                  ? "font-urdu leading-[2.3] text-right"
-                  : "font-arabic text-right"
-                : "text-left leading-relaxed"
+                  ? "font-urdu leading-[2.4] text-right"
+                  : "font-arabic leading-[2.2] text-right"
+                : "text-left leading-relaxed font-sans"
             }`}
             style={{ fontSize: `${prefs.tafsirFontSize || 18}px` }}
             dir={isRtl ? "rtl" : "ltr"}

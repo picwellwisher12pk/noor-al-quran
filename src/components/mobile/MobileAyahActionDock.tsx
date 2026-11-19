@@ -6,6 +6,8 @@ import { useAudio } from "@/context/AudioContext";
 import { useBookmarks } from "@/context/BookmarksContext";
 import { useNotes } from "@/context/NotesContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { getSajdahInfo } from "@/utils/quranMeta";
+import { SajdahGuideModal } from "@/components/modals/SajdahGuideModal";
 import { Verse } from "@/types/quran";
 import {
   Play,
@@ -66,12 +68,14 @@ export function MobileAyahActionDock({
 
   const [copied, setCopied] = useState(false);
   const [pinnedSaved, setPinnedSaved] = useState(false);
+  const [isSajdahOpen, setIsSajdahOpen] = useState(false);
 
   // Active key is selectedAyahKey, or falling back to current playing verse key if audio is active
   const activeKey = selectedAyahKey || (isPlaying ? currentVerseKey : null);
   if (!activeKey) return null;
 
   const currentVerse = verses.find((v) => v.verse_key === activeKey);
+  const sajdahInfo = getSajdahInfo(activeKey);
   const isCurrentPlaying = currentVerseKey === activeKey;
   const isVerseLoading = isCurrentPlaying && isLoading;
   const bookmarked = isBookmarked(activeKey);
@@ -224,6 +228,23 @@ export function MobileAyahActionDock({
             <span>{isUrdu ? "تفسیر" : "Tafsir"}</span>
           </button>
 
+          {/* Sajdah Guide Button (if active Ayah is a Sajdah verse) */}
+          {sajdahInfo && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSajdahOpen(true);
+              }}
+              aria-label="Sajdah Tilawat Guide"
+              className="px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/40 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0 animate-pulse"
+              title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
+            >
+              <span className="font-arabic font-bold text-sm leading-none">۩</span>
+              <span>{isUrdu ? `سجدہ ${sajdahInfo.sajdahNumber}` : `Sajdah`}</span>
+            </button>
+          )}
+
           {/* Bookmark */}
           <button
             type="button"
@@ -310,6 +331,16 @@ export function MobileAyahActionDock({
           <X className="h-4 w-4" />
         </button>
       </div>
+
+      {/* Sajdah Tilawat Modal */}
+      {sajdahInfo && (
+        <SajdahGuideModal
+          isOpen={isSajdahOpen}
+          onClose={() => setIsSajdahOpen(false)}
+          verseKey={activeKey}
+          arabicText={arabicText}
+        />
+      )}
     </div>
   );
 }

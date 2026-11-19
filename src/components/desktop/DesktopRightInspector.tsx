@@ -11,10 +11,12 @@ import {
   WordTranslationItem,
   ScholarVerseTranslation,
 } from "@/services/wordTranslationsService";
-import { fetchTafsirForAyah, AVAILABLE_TAFSIRS } from "@/services/quranApi";
+import { fetchTafsirForAyah, AVAILABLE_TAFSIRS, isRtlTafsir, getTafsirOption } from "@/services/quranApi";
 import { parseAndFormatTafsir } from "@/utils/tafsirFormatter";
 import { TafsirModal } from "@/components/modals/TafsirModal";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
+import { SajdahGuideModal } from "@/components/modals/SajdahGuideModal";
+import { getSajdahInfo } from "@/utils/quranMeta";
 import {
   X,
   BookOpen,
@@ -25,8 +27,6 @@ import {
   Volume2,
   Copy,
   CheckCircle2,
-  Maximize2,
-  Minimize2,
   ExternalLink,
   StickyNote,
   Plus,
@@ -71,13 +71,17 @@ export function DesktopRightInspector() {
     selectedAyahKey,
     selectedAyahArabic,
     inspectorWidth,
-    toggleExpandInspector,
+    setInspectorWidth,
   } = useDesktopWorkspace();
 
   const { prefs, setSelectedTafsirId, setTafsirFontSize } = useReadingPreferences();
   const { playWord, playVerse } = useAudio();
   const { isUrdu } = useLanguage();
   const { getNotesForVerse, getNotesForWord, deleteNote } = useNotes();
+
+  const currentTafsirOption = getTafsirOption(prefs.selectedTafsirId);
+  const isTafsirRtl = currentTafsirOption.language === "urdu" || currentTafsirOption.language === "arabic";
+  const isTafsirUrdu = currentTafsirOption.language === "urdu";
 
   // Inspector Data States
   const [morphology, setMorphology] = useState<WordMorphology | null>(null);
@@ -90,6 +94,8 @@ export function DesktopRightInspector() {
   const [noteModalTarget, setNoteModalTarget] = useState<"verse" | "word" | null>(null);
   const [noteModalEditingId, setNoteModalEditingId] = useState<string | null>(null);
   const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
+  const [isSajdahModalOpen, setIsSajdahModalOpen] = useState(false);
+  const sajdahInfo = selectedAyahKey ? getSajdahInfo(selectedAyahKey) : null;
 
   // Loading States
   const [loadingMorph, setLoadingMorph] = useState(false);
@@ -180,11 +186,12 @@ export function DesktopRightInspector() {
 
     // 2. Fetch Tafseer
     setLoadingTafsir(true);
+    const isRtlCurrentTafsir = isRtlTafsir(prefs.selectedTafsirId);
     fetchTafsirForAyah(prefs.selectedTafsirId, selectedAyahKey)
       .then((data) => {
         if (!isAyahCurrent) return;
         if (data && data.text) {
-          setTafsirText(parseAndFormatTafsir(data.text, isUrdu));
+          setTafsirText(parseAndFormatTafsir(data.text, isRtlCurrentTafsir));
           setTafsirAuthor(data.author);
         } else {
           setTafsirText(isUrdu ? "اس آیت کی تفسیر فی الحال دستیاب نہیں ہے۔" : "Tafseer commentary is currently unavailable for this Ayah.");
@@ -230,19 +237,122 @@ export function DesktopRightInspector() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (!isRightInspectorOpen) return null;
+  // Drag-to-Resize State & Handlers
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = React.useRef<{ startX: number; startWidth: number }>({ startX: 0, startWidth: 400 });
 
-  const widthClass = {
-    default: "w-96",
-    expanded: "w-[560px]",
-    maximized: "w-[780px]",
-  }[inspectorWidth] || "w-96";
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    dragStartRef.current = {
+      startX: e.clientX,
+      startWidth: inspectorWidth,
+    };
+  };
+
+  const handleResetWidth = () => {
+    setInspectorWidth((prev) => (prev > 480 ? 400 : 640));
+  };
+
+  const handleResizeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const minWidth = 320;
+    const maxWidth = typeof window !== "undefined" ? Math.max(minWidth, Math.min(1000, window.innerWidth - 360)) : 900;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      setInspectorWidth((prev) => Math.min(maxWidth, prev + 24));
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      setInspectorWidth((prev) => Math.max(minWidth, prev - 24));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setInspectorWidth(400);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setInspectorWidth(640);
+    }
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const onPointerMove = (e: PointerEvent) => {
+      const deltaX = dragStartRef.current.startX - e.clientX;
+      const minWidth = 320;
+      const maxWidth = typeof window !== "undefined" ? Math.max(minWidth, Math.min(1000, window.innerWidth - 360)) : 900;
+      const nextWidth = Math.min(maxWidth, Math.max(minWidth, Math.round(dragStartRef.current.startWidth + deltaX)));
+      setInspectorWidth(nextWidth);
+    };
+
+    const onPointerUp = () => {
+      setIsDragging(false);
+    };
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerUp);
+
+    const prevCursor = document.body.style.cursor;
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
+      document.body.style.cursor = prevCursor;
+      document.body.style.userSelect = prevUserSelect;
+    };
+  }, [isDragging, setInspectorWidth]);
+
+  if (!isRightInspectorOpen) return null;
 
   return (
     <>
       <aside
-        className={`${widthClass} h-full flex-none flex flex-col bg-[var(--surface-raised)] border-l border-[var(--border-subtle)] select-none z-30 transition-all duration-200 overflow-hidden shadow-2xl`}
+        style={{ width: `${Math.max(320, inspectorWidth || 400)}px` }}
+        className={`relative h-full flex-none flex flex-col bg-[var(--surface-raised)] border-l border-[var(--border-subtle)] select-none z-30 overflow-hidden shadow-2xl ${isDragging ? "transition-none select-none" : "transition-[width] duration-150 ease-out"
+          }`}
       >
+        {/* Left Border Drag-to-Resize Handle */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-valuenow={Math.round(inspectorWidth)}
+          aria-valuemin={320}
+          aria-valuemax={1000}
+          aria-label={isUrdu ? "سائیڈبار کا سائز تبدیل کرنے کے لیے گھسیٹیں" : "Drag to resize sidebar"}
+          title={isUrdu ? "سائیڈبار کا سائز تبدیل کرنے کے لیے گھسیٹیں (ری سیٹ کے لیے ڈبل کلک کریں)" : "Drag to resize sidebar (Double click to toggle default/wide)"}
+          tabIndex={0}
+          onPointerDown={handlePointerDown}
+          onDoubleClick={handleResetWidth}
+          onKeyDown={handleResizeKeyDown}
+          className="absolute -left-1.5 top-0 bottom-0 w-3 cursor-col-resize z-40 group select-none touch-none flex items-center justify-center focus:outline-none"
+        >
+          {/* Subtle line that lights up on hover/focus/drag */}
+          <div
+            className={`w-[2px] h-full transition-colors duration-150 ${isDragging
+                ? "bg-[var(--primary)] w-[3px]"
+                : "bg-transparent group-hover:bg-[var(--primary)]/70 group-focus:bg-[var(--primary)]"
+              }`}
+          />
+          {/* Visual grab pill / grip indicator centered vertically */}
+          <div
+            className={`absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 w-1 h-8 rounded-full transition-all duration-150 pointer-events-none ${isDragging
+                ? "bg-[var(--primary)] h-10 w-1.5 shadow-sm"
+                : "bg-transparent group-hover:bg-[var(--primary)] group-focus:bg-[var(--primary)]"
+              }`}
+          />
+          {/* Floating width indicator tooltip while dragging */}
+          {isDragging && (
+            <div className="absolute top-1/2 -translate-y-1/2 -left-14 px-1.5 py-0.5 rounded-md bg-[var(--foreground)] text-[var(--background)] text-[10px] font-mono font-medium shadow-md pointer-events-none select-none z-50">
+              {Math.round(inspectorWidth)}px
+            </div>
+          )}
+        </div>
+
         {/* Inspector Header */}
         <div className="p-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -251,8 +361,8 @@ export function DesktopRightInspector() {
               {isKids
                 ? (isUrdu ? "ننھے متلاشی انسپکٹر 🚀" : "Young Explorer Inspector 🚀")
                 : isAdv
-                ? (isUrdu ? "تحقیق صرفی ولغوی" : "Linguistic & Tafseer Lexicon")
-                : (isUrdu ? "تحقیقِ الفاظ وتفسیر" : "Linguistic & Tafseer Inspector")}
+                  ? (isUrdu ? "تحقیق صرفی ولغوی" : "Linguistic & Tafseer Lexicon")
+                  : (isUrdu ? "تحقیقِ الفاظ وتفسیر" : "Linguistic & Tafseer Inspector")}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -267,8 +377,8 @@ export function DesktopRightInspector() {
                     ? "آیت کا جائزہ دکھائیں"
                     : "Expand Ayah Preview"
                   : isUrdu
-                  ? "آیت کا جائزہ سکیڑیں (ٹیبز کے لیے زیادہ جگہ)"
-                  : "Collapse Ayah Preview (More Space for Tabs)"
+                    ? "آیت کا جائزہ سکیڑیں (ٹیبز کے لیے زیادہ جگہ)"
+                    : "Collapse Ayah Preview (More Space for Tabs)"
               }
               aria-label="Toggle Ayah Preview"
             >
@@ -276,25 +386,6 @@ export function DesktopRightInspector() {
                 <ChevronDown className="h-4 w-4" />
               ) : (
                 <ChevronUp className="h-4 w-4" />
-              )}
-            </button>
-            {/* Expand / Collapse Width Button */}
-            <button
-              type="button"
-              onClick={toggleExpandInspector}
-              className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
-              title={
-                inspectorWidth === "default"
-                  ? "Expand to Wider View"
-                  : inspectorWidth === "expanded"
-                  ? "Maximize Width"
-                  : "Restore Default Width"
-              }
-            >
-              {inspectorWidth === "default" ? (
-                <Maximize2 className="h-4 w-4" />
-              ) : (
-                <Minimize2 className="h-4 w-4" />
               )}
             </button>
             {/* Close Button */}
@@ -320,6 +411,19 @@ export function DesktopRightInspector() {
               <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--primary)]/15 text-[var(--primary)] shrink-0">
                 {selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}
               </span>
+              {sajdahInfo && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsSajdahModalOpen(true);
+                  }}
+                  className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 shrink-0"
+                  title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
+                >
+                  ۩ {sajdahInfo.sajdahNumber}
+                </button>
+              )}
               <span className="font-arabic text-sm text-[var(--foreground)] truncate group-hover:text-[var(--primary)]" dir="rtl">
                 {selectedWord
                   ? (prefs.quranScript === "indopak" && selectedWord.text_indopak)
@@ -346,8 +450,19 @@ export function DesktopRightInspector() {
               <ChevronUp className="h-3.5 w-3.5" />
             </button>
 
-            <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2">
+            <div className="text-[10px] text-[var(--muted-foreground)] mb-1 flex items-center justify-center gap-2 flex-wrap">
               <span>{selectedWord ? `Ayah ${selectedWord.verse_key} • Word ${selectedWord.position}` : `Ayah ${selectedAyahKey}`}</span>
+              {sajdahInfo && (
+                <button
+                  type="button"
+                  onClick={() => setIsSajdahModalOpen(true)}
+                  className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 text-[9px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                  title={isUrdu ? `آیتِ سجدہ نمبر ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber} Guide`}
+                >
+                  <span className="font-arabic font-bold">۩</span>
+                  <span>{isUrdu ? `سجدہ ${sajdahInfo.sajdahNumber}` : `Sajdah #${sajdahInfo.sajdahNumber}`}</span>
+                </button>
+              )}
               {isKids && (
                 <span className="px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-[9px] font-bold">
                   {isUrdu ? "متلاشی موڈ ⭐" : "Explorer Mode ⭐"}
@@ -390,49 +505,46 @@ export function DesktopRightInspector() {
           <button
             type="button"
             onClick={() => setActiveInspectorTab("morphology")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-              activeInspectorTab === "morphology"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "morphology"
                 ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
+              }`}
           >
             <BookOpen className="h-3 w-3" />
             <span>
               {isKids
                 ? (isUrdu ? "لفظ کی کھوج 🔍" : "Word Detective 🔍")
                 : isAdv
-                ? (isUrdu ? "صرف ونحو" : "Morphology")
-                : (isUrdu ? "صرف وگرامر" : "Grammar")}
+                  ? (isUrdu ? "صرف ونحو" : "Morphology")
+                  : (isUrdu ? "صرف وگرامر" : "Grammar")}
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveInspectorTab("translations")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-              activeInspectorTab === "translations"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "translations"
                 ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
+              }`}
           >
             <Languages className="h-3 w-3" />
             <span>
               {isKids
                 ? (isUrdu ? "تمام معانی 💡" : "All Meanings 💡")
                 : isAdv
-                ? (isUrdu ? "معانی ومترادفات" : "Lexicon Senses")
-                : (isUrdu ? "تمام معانی (معانی)" : "All Meanings")}
+                  ? (isUrdu ? "معانی ومترادفات" : "Lexicon Senses")
+                  : (isUrdu ? "تمام معانی (معانی)" : "All Meanings")}
             </span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveInspectorTab("tafseer")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-              activeInspectorTab === "tafseer"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "tafseer"
                 ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
+              }`}
           >
             <ScrollText className="h-3 w-3" />
             <span>
@@ -445,11 +557,10 @@ export function DesktopRightInspector() {
           <button
             type="button"
             onClick={() => setActiveInspectorTab("scholars")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-              activeInspectorTab === "scholars"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "scholars"
                 ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
+              }`}
           >
             <Layers className="h-3 w-3" />
             <span>
@@ -462,11 +573,10 @@ export function DesktopRightInspector() {
           <button
             type="button"
             onClick={() => setActiveInspectorTab("notes")}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${
-              activeInspectorTab === "notes"
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md whitespace-nowrap transition-colors cursor-pointer ${activeInspectorTab === "notes"
                 ? "bg-[var(--primary)] text-white font-semibold shadow-xs"
                 : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
+              }`}
           >
             <StickyNote className="h-3 w-3" />
             <span>{isUrdu ? "نوٹس و تدبر" : "Notes"}</span>
@@ -868,13 +978,14 @@ export function DesktopRightInspector() {
                   </div>
                 ) : (
                   <div
-                    className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${
-                      isUrdu
-                        ? "font-urdu leading-[2.3] text-right"
-                        : "leading-relaxed text-left"
-                    }`}
+                    className={`tafsir-rendered-content max-w-none text-[var(--foreground)] ${isTafsirRtl
+                        ? isTafsirUrdu
+                          ? "font-urdu leading-[2.4] text-right"
+                          : "font-arabic leading-[2.2] text-right"
+                        : "text-left leading-relaxed font-sans"
+                      }`}
                     style={{ fontSize: `${prefs.tafsirFontSize || 18}px` }}
-                    dir={isUrdu ? "rtl" : "ltr"}
+                    dir={isTafsirRtl ? "rtl" : "ltr"}
                     dangerouslySetInnerHTML={{ __html: tafsirText }}
                   />
                 )}
@@ -1173,6 +1284,15 @@ export function DesktopRightInspector() {
           wordLocation={noteModalTarget === "word" ? selectedWord?.location : undefined}
           wordText={noteModalTarget === "word" ? (selectedWord?.text_uthmani || selectedWord?.text) : undefined}
           noteId={noteModalEditingId}
+        />
+      )}
+      {/* Sajdah Tilawat Modal triggered from inspector */}
+      {sajdahInfo && (
+        <SajdahGuideModal
+          isOpen={isSajdahModalOpen}
+          onClose={() => setIsSajdahModalOpen(false)}
+          verseKey={selectedAyahKey || ""}
+          arabicText={selectedAyahArabic || ""}
         />
       )}
     </>
