@@ -41,7 +41,7 @@ import { useLanguage } from "@/context/LanguageContext";
 
 export function DesktopTitleBar() {
   const pathname = usePathname();
-  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isReadingPage = pathname === "/app" || pathname.startsWith("/surah");
   const isLearnRoute = pathname.startsWith("/learn");
   const isCalendarRoute = pathname.startsWith("/calendar");
 
@@ -161,7 +161,7 @@ export function DesktopTitleBar() {
         </button>
 
         {/* App Title & Branding */}
-        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+        <Link href="/app" className="flex items-center gap-2 group cursor-pointer" title="Go to Quran Reader">
           <div className="w-5 h-5 rounded-md bg-[var(--primary)]/20 border border-[var(--primary)]/30 flex items-center justify-center text-[var(--primary)] group-hover:scale-105 transition-transform">
             <BookOpen className="h-3 w-3" />
           </div>
@@ -212,17 +212,15 @@ export function DesktopTitleBar() {
 
       {/* Right: Tools & Toggles */}
       <div className="flex items-center gap-1.5 shrink-0" data-tauri-drag-region-exclude>
-        {/* Direct Download Link for Web Users */}
-        {!isTauri && (
-          <Link
-            href="/download"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all shadow-xs cursor-pointer"
-            title="Download Native Apps (Windows, Android, Mac, Linux)"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden xl:inline">{isUrdu ? "ایپ حاصل کریں" : "Get App"}</span>
-          </Link>
-        )}
+        {/* Direct Link to Home & Downloads Hub */}
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+          title="Home, Downloads & Features"
+        >
+          <Download className="h-3.5 w-3.5" />
+          <span className="hidden xl:inline">{isUrdu ? "ڈاؤنلوڈ" : "Downloads"}</span>
+        </Link>
 
         {/* Audio Playing Pill (only while audio is active) */}
         {isPlaying && (

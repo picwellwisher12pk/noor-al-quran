@@ -11,12 +11,20 @@ export default function NotFound() {
       <p className="text-sm text-[var(--muted-foreground)] max-w-md mb-8">
         The requested chapter or ayah could not be located. Please check the number or return to the main index.
       </p>
-      <Link
-        href="/"
-        className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-md flex items-center gap-2"
-      >
-        <Home className="h-4 w-4" /> Return to Noble Quran
-      </Link>
+      <div className="flex items-center gap-3">
+        <Link
+          href="/app"
+          className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-md flex items-center gap-2"
+        >
+          <BookOpen className="h-4 w-4" /> Return to Quran Reader
+        </Link>
+        <Link
+          href="/"
+          className="px-4 py-2.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-sm transition-colors flex items-center gap-2"
+        >
+          <Home className="h-4 w-4" /> Home
+        </Link>
+      </div>
     </div>
   );
 }

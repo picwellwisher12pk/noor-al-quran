@@ -26,14 +26,14 @@ export function MobileBottomNav() {
     activeChapterId,
   } = useDesktopWorkspace();
 
-  const isReadingActive = pathname === "/" || pathname.startsWith("/surah");
+  const isReadingActive = pathname === "/app" || pathname.startsWith("/surah");
   const isLearnActive = pathname.startsWith("/learn");
   const isCalendarActive = pathname.startsWith("/calendar");
   const readHref = lastRead
     ? `/surah/${lastRead.chapterId}?ayah=${lastRead.verseNumber}`
     : activeChapterId
     ? `/surah/${activeChapterId}`
-    : "/";
+    : "/app";
 
   return (
     <nav className="w-full flex-none bg-[var(--surface-raised)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] text-[var(--foreground)] z-30 select-none pb-[env(safe-area-inset-bottom,0px)] shadow-lg">

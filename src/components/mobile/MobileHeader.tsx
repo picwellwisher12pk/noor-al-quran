@@ -65,7 +65,7 @@ export function MobileHeader() {
               </div>
             </div>
           ) : (
-            <Link href="/" className="flex items-center gap-2 min-w-0 group">
+            <Link href="/app" className="flex items-center gap-2 min-w-0 group" title="Quran Reader">
               <div className="flex-none h-7 w-7 rounded-lg bg-[var(--primary)] text-white flex items-center justify-center shadow-xs">
                 <BookOpen className="h-4 w-4" />
               </div>
@@ -131,12 +131,12 @@ export function MobileHeader() {
             <Search className="h-4 w-4" />
           </button>
 
-          {/* Download App */}
+          {/* Home & Downloads */}
           <Link
-            href="/download"
-            aria-label="Download App"
+            href="/"
+            aria-label="Home & Downloads"
             className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-            title="Download App"
+            title="Home & Downloads"
           >
             <Download className="h-4 w-4" />
           </Link>

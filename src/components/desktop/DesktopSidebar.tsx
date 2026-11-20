@@ -36,7 +36,7 @@ import { useLearningStore } from "@/store/useLearningStore";
 export function DesktopSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const isReadingPage = pathname === "/" || pathname.startsWith("/surah");
+  const isReadingPage = pathname === "/app" || pathname.startsWith("/surah");
   const isLearnRoute = pathname.startsWith("/learn");
   const isCalendarRoute = pathname.startsWith("/calendar");
 
@@ -77,7 +77,7 @@ export function DesktopSidebar() {
       // navigates directly to the Quran reading canvas and opens that drawer tab there
       setActiveSidebarTab(tab);
       setLeftSidebarOpen(true);
-      router.push("/");
+      router.push("/app");
       return;
     }
 
@@ -119,7 +119,7 @@ export function DesktopSidebar() {
               if (isReadingPage) {
                 toggleLeftSidebar();
               } else {
-                router.push("/");
+                router.push("/app");
               }
             }}
             className={`p-2 rounded-xl transition-all cursor-pointer ${
@@ -327,13 +327,13 @@ export function DesktopSidebar() {
         <div className="mt-auto pt-2 flex flex-col items-center space-y-2 border-t border-[var(--border-subtle)] w-full">
           {/* Download & Releases Hub */}
           <Link
-            href="/download"
+            href="/"
             className={`p-2 rounded-xl transition-all cursor-pointer ${
-              pathname.startsWith("/download")
+              pathname === "/" || pathname === "/download" || pathname === "/home"
                 ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
                 : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
             }`}
-            title={isUrdu ? "ڈاؤنلوڈ اور پلیٹ فارمز" : "Download Apps (Windows, Android, Mac, Linux)"}
+            title={isUrdu ? "مرکزی صفحہ اور ڈاؤنلوڈ" : "Home & Downloads Hub"}
           >
             <Download className="h-4 w-4" />
           </Link>

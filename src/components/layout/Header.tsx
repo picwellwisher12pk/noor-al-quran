@@ -47,7 +47,7 @@ export function Header() {
       <header className="sticky top-0 z-30 w-full bg-[var(--header-bg)]/90 backdrop-blur-md border-b border-[var(--card-border)] transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           {/* Logo & App Title */}
-          <Link href="/" className="flex items-center gap-2.5 group">
+          <Link href="/app" className="flex items-center gap-2.5 group" title="Quran Reader">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-900/30 group-hover:scale-105 transition-transform">
               <BookOpen className="h-5 w-5" />
             </div>

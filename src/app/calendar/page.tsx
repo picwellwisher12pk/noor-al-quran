@@ -69,7 +69,7 @@ export default function CalendarPage() {
       <div className="p-3.5 sm:p-4 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-md flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link
-            href="/"
+            href="/app"
             className="p-2 sm:p-2.5 rounded-2xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] text-[var(--foreground)] transition-colors border border-[var(--border-subtle)]"
             title="Return to Quran Reader"
           >
@@ -106,7 +106,7 @@ export default function CalendarPage() {
             <span>Learn Studio</span>
           </Link>
           <Link
-            href="/"
+            href="/app"
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-950/40 transition-all"
           >
             <BookOpen className="h-3.5 w-3.5" />

@@ -1,10 +1,10 @@
 # Noor Al-Quran (نور القرآن)
 
-> **Version: 1.40.0**  
+> **Version: 1.41.0**  
 > An authentic, high-performance, and multi-platform Noble Quran workstation, web application, desktop app, and mobile app. Built with **Next.js 16 (React 19)**, **Tauri v2 (Rust)**, **TypeScript**, **Tailwind CSS 4**, and **Bun**. Powered by authentic data from the Quran Foundation (Quran.com API v4).
 
 [![Web App Deployment](https://img.shields.io/badge/Live%20Web%20App-GitHub%20Pages-emerald?style=flat-square&logo=github)](https://picwellwisher12pk.github.io/noor-al-quran/)
-[![Version](https://img.shields.io/badge/Version-1.40.0-blue?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/Version-1.41.0-blue?style=flat-square)](package.json)
 [![Framework](https://img.shields.io/badge/Next.js-16%20(React%2019)-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![Desktop & Mobile](https://img.shields.io/badge/Tauri-v2%20(Rust)-orange?style=flat-square&logo=tauri)](https://v2.tauri.app/)
 [![Runtime](https://img.shields.io/badge/Runtime-Bun-f472b6?style=flat-square&logo=bun)](https://bun.sh/)
@@ -16,8 +16,8 @@
 
 Access Noor Al-Quran instantly in your browser or download native installers for your operating system:
 
-- **Live Web Application**: [https://picwellwisher12pk.github.io/noor-al-quran/](https://picwellwisher12pk.github.io/noor-al-quran/)
-- **Marketing & Downloads Hub**: [https://picwellwisher12pk.github.io/noor-al-quran/download/](https://picwellwisher12pk.github.io/noor-al-quran/download/)
+- **Main Website & Downloads Hub**: [https://picwellwisher12pk.github.io/noor-al-quran/](https://picwellwisher12pk.github.io/noor-al-quran/)
+- **Live Web Application (Quran Reader)**: [https://picwellwisher12pk.github.io/noor-al-quran/app/](https://picwellwisher12pk.github.io/noor-al-quran/app/)
 - **Native Desktop Installers**:
   - **🪟 Windows (x64 / ARM64)**: [NSIS Installer (`.exe`)](https://github.com/picwellwisher12pk/noor-al-quran/releases/latest/download/Noor-Al-Quran_x64-setup.exe) & [WiX MSI (`.msi`)](https://github.com/picwellwisher12pk/noor-al-quran/releases/latest/download/Noor-Al-Quran_x64_en-US.msi)
   - **🐧 Linux (x64)**: [Standalone Portable (`.AppImage`)](https://github.com/picwellwisher12pk/noor-al-quran/releases/latest/download/noor-al-quran_amd64.AppImage) & [Debian Package (`.deb`)](https://github.com/picwellwisher12pk/noor-al-quran/releases/latest/download/noor-al-quran_amd64.deb)

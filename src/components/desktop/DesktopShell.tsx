@@ -27,7 +27,7 @@ interface DesktopShellProps {
 export function DesktopShell({ children }: DesktopShellProps) {
   const pathname = usePathname();
   const isSurahReadingPage = pathname.startsWith("/surah");
-  const isReadingPage = pathname === "/" || isSurahReadingPage;
+  const isReadingPage = pathname === "/app" || isSurahReadingPage;
   const isMobile = useIsMobile();
 
   const {

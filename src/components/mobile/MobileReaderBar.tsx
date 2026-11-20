@@ -82,7 +82,7 @@ export function MobileReaderBar({
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
           {/* Back to Home Button */}
           <Link
-            href="/"
+            href="/app"
             aria-label="Back to Surahs"
             className="p-1.5 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-card)] transition-colors active:scale-95 shrink-0"
           >
