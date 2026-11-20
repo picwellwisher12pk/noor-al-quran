@@ -25,6 +25,7 @@ import {
   BookMarked,
   ShieldAlert,
   Settings,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -324,6 +325,19 @@ export function DesktopSidebar() {
 
         {/* Bottom Anchor: App Navigation & Settings */}
         <div className="mt-auto pt-2 flex flex-col items-center space-y-2 border-t border-[var(--border-subtle)] w-full">
+          {/* Download & Releases Hub */}
+          <Link
+            href="/download"
+            className={`p-2 rounded-xl transition-all cursor-pointer ${
+              pathname.startsWith("/download")
+                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                : "text-[var(--muted-foreground)] hover:text-emerald-500 hover:bg-[var(--surface-card)]"
+            }`}
+            title={isUrdu ? "ڈاؤنلوڈ اور پلیٹ فارمز" : "Download Apps (Windows, Android, Mac, Linux)"}
+          >
+            <Download className="h-4 w-4" />
+          </Link>
+
           <button
             type="button"
             onClick={() => openSettingsModal("navigation")}

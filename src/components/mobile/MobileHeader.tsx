@@ -17,6 +17,7 @@ import {
   Sparkles,
   BookOpen,
   GraduationCap,
+  Download,
 } from "lucide-react";
 
 export function MobileHeader() {
@@ -129,6 +130,16 @@ export function MobileHeader() {
           >
             <Search className="h-4 w-4" />
           </button>
+
+          {/* Download App */}
+          <Link
+            href="/download"
+            aria-label="Download App"
+            className="p-2 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+            title="Download App"
+          >
+            <Download className="h-4 w-4" />
+          </Link>
 
           {/* Theme Mode Toggle */}
           <button

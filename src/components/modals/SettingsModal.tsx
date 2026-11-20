@@ -396,6 +396,15 @@ export function SettingsModal({
       icon: CalendarDays,
       color: "text-rose-500 bg-rose-500/10 border-rose-500/20",
     },
+    {
+      href: "/download",
+      labelEn: "Downloads & Platform Hub",
+      labelUrdu: "ڈاؤنلوڈ و پلیٹ فارمز",
+      descEn: "Native installers for Windows, Android, Mac, Linux & Web",
+      descUrdu: "ونڈوز، اینڈرائیڈ، میک اور لینکس کے لیے انسٹالرز",
+      icon: Download,
+      color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+    },
   ];
 
   const tabs: Array<{ id: SettingsModalTab; labelEn: string; labelUr: string; icon: React.ElementType }> = [

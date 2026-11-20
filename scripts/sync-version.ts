@@ -5,6 +5,7 @@ const rootDir = path.resolve(__dirname, "..");
 const packageJsonPath = path.join(rootDir, "package.json");
 const tauriConfPath = path.join(rootDir, "src-tauri", "tauri.conf.json");
 const cargoTomlPath = path.join(rootDir, "src-tauri", "Cargo.toml");
+const updaterLatestPath = path.join(rootDir, "updater", "latest.json");
 
 if (!fs.existsSync(packageJsonPath)) {
   console.error("package.json not found!");
@@ -45,6 +46,23 @@ if (fs.existsSync(cargoTomlPath)) {
       console.log(`[sync-version] Updated src-tauri/Cargo.toml to v${version}`);
       modified = true;
     }
+  }
+}
+
+// 3. Sync updater/latest.json
+if (fs.existsSync(updaterLatestPath)) {
+  try {
+    const updaterJson = JSON.parse(fs.readFileSync(updaterLatestPath, "utf-8"));
+    const vTag = `v${version}`;
+    if (updaterJson.version !== vTag) {
+      updaterJson.version = vTag;
+      updaterJson.notes = `See GitHub release for full changelog: https://github.com/picwellwisher12pk/noor-al-quran/releases/tag/${vTag}`;
+      fs.writeFileSync(updaterLatestPath, JSON.stringify(updaterJson, null, 2) + "\n", "utf-8");
+      console.log(`[sync-version] Updated updater/latest.json to ${vTag}`);
+      modified = true;
+    }
+  } catch (err) {
+    console.warn(`[sync-version] Failed to sync updater/latest.json:`, err);
   }
 }
 

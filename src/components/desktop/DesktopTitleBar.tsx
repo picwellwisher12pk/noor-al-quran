@@ -26,6 +26,7 @@ import {
   X,
   Maximize2,
   Minimize2,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -211,6 +212,18 @@ export function DesktopTitleBar() {
 
       {/* Right: Tools & Toggles */}
       <div className="flex items-center gap-1.5 shrink-0" data-tauri-drag-region-exclude>
+        {/* Direct Download Link for Web Users */}
+        {!isTauri && (
+          <Link
+            href="/download"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+            title="Download Native Apps (Windows, Android, Mac, Linux)"
+          >
+            <Download className="h-3.5 w-3.5" />
+            <span className="hidden xl:inline">{isUrdu ? "ایپ حاصل کریں" : "Get App"}</span>
+          </Link>
+        )}
+
         {/* Audio Playing Pill (only while audio is active) */}
         {isPlaying && (
           <button

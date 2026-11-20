@@ -3,7 +3,7 @@ import { Chapter, Juz } from "@/types/quran";
 import { QuranDirectoryTabs } from "@/components/home/QuranDirectoryTabs";
 import { KhatmahWidget } from "@/components/home/KhatmahWidget";
 import { ResumeReadingCard } from "@/components/home/ResumeReadingCard";
-import { BookOpen, Sparkles, Compass, CheckCircle } from "lucide-react";
+import { BookOpen, Sparkles, Compass, CheckCircle, Download } from "lucide-react";
 import Link from "next/link";
 
 export default async function HomePage() {
@@ -39,28 +39,28 @@ export default async function HomePage() {
         {/* Quick Launch Actions - 2x2 Grid on Mobile, Row on Desktop */}
         <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center sm:justify-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Link
-            href="/learn"
+            href="/download"
             className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-emerald-950/40 flex items-center gap-2 active:scale-95"
           >
-            <Sparkles className="h-4 w-4 text-amber-300" /> Learn 70% Words & Games
+            <Download className="h-4 w-4 text-emerald-200" /> Download App (Windows, Android, Mac)
+          </Link>
+          <Link
+            href="/learn"
+            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
+          >
+            <Sparkles className="h-4 w-4 text-amber-500" /> Learn 70% Words &amp; Games
           </Link>
           <Link
             href="/surah/1"
             className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
           >
-            <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Start Reading: Surah Al-Fatihah
+            <BookOpen className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Surah Al-Fatihah
           </Link>
           <Link
             href="/surah/18"
             className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
           >
-            <Compass className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Read Surah Al-Kahf
-          </Link>
-          <Link
-            href="/surah/36"
-            className="w-full sm:w-auto justify-center px-4 py-2.5 sm:py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs sm:text-sm transition-colors flex items-center gap-2 active:scale-95"
-          >
-            <Sparkles className="h-4 w-4 text-amber-500 dark:text-amber-400" /> Read Surah Ya-Sin
+            <Compass className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /> Surah Al-Kahf
           </Link>
         </div>
 
