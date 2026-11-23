@@ -207,19 +207,19 @@ export function VerbFormQuizGame() {
         <div className="grid grid-cols-3 gap-3">
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
-              Score
+              {isUrdu ? "اسکور" : "Score"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 block mb-1">
-              Accuracy
+              {isUrdu ? "درستگی" : "Accuracy"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{accuracy}%</span>
           </div>
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">
-              Best Streak
+              {isUrdu ? "بہترین تسلسل" : "Best Streak"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
@@ -241,7 +241,7 @@ export function VerbFormQuizGame() {
                 >
                   <span className="font-arabic font-bold text-[var(--foreground)]">{ex.arabic}</span>
                   <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">
-                    Form {ex.formNumber}
+                    {isUrdu ? `باب ${ex.formNumber}` : `Form ${ex.formNumber}`}
                   </span>
                 </span>
               ))}
@@ -268,7 +268,7 @@ export function VerbFormQuizGame() {
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Question {currentIndex + 1}/{TOTAL_QUESTIONS}
+            {isUrdu ? `سوال ${currentIndex + 1} از ${TOTAL_QUESTIONS}` : `Question ${currentIndex + 1}/${TOTAL_QUESTIONS}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -285,7 +285,7 @@ export function VerbFormQuizGame() {
             </span>
           )}
           <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-            {score} pts
+            {score} {isUrdu ? "پوائنٹس" : "pts"}
           </span>
         </div>
 
@@ -308,7 +308,7 @@ export function VerbFormQuizGame() {
             {currentQ.example.surahName} ({currentQ.example.surah}:{currentQ.example.ayah})
           </span>
           <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-mono">
-            Root: {currentQ.example.root}
+            {isUrdu ? `مادہ: ${currentQ.example.root}` : `Root: ${currentQ.example.root}`}
           </span>
         </div>
 
@@ -389,12 +389,20 @@ export function VerbFormQuizGame() {
       {isAnswered && (
         <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in-50 duration-200">
           <div className="space-y-0.5 text-xs">
-            <span className="font-semibold text-[var(--foreground)]">
-              {currentQ.example.english}
-            </span>
-            <span className="font-urdu-nastaliq text-[var(--muted-foreground)] block" dir="rtl">
-              {currentQ.example.urdu}
-            </span>
+            {isUrdu ? (
+              <span className="font-urdu-nastaliq text-sm font-semibold text-[var(--foreground)]" dir="rtl">
+                {currentQ.example.urdu}
+              </span>
+            ) : (
+              <>
+                <span className="font-semibold text-[var(--foreground)]">
+                  {currentQ.example.english}
+                </span>
+                <span className="font-urdu-nastaliq text-[var(--muted-foreground)] block" dir="rtl">
+                  {currentQ.example.urdu}
+                </span>
+              </>
+            )}
           </div>
 
           <button

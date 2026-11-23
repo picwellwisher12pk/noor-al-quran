@@ -11,20 +11,24 @@ import {
   Zap,
 } from "lucide-react";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 import { LanguageToggle } from "@/components/common/LanguageToggle";
 
 export function GamificationHUD() {
+  const { language, isUrdu } = useLanguage();
   const {
     totalXP,
     barakahGems,
     currentStreak,
-    langPreference,
+    langPreference: storeLangPref,
     setLangPreference,
     getHeartCount,
     getWeakWords,
     toggleReviewVault,
     resetLearningProgress
   } = useLearningStore();
+
+  const langPreference = isUrdu ? "urdu" : (storeLangPref || language);
 
   const [heartsCount, setHeartsCount] = useState(5);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -62,7 +66,7 @@ export function GamificationHUD() {
                     : "Path of Light"}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
-                  Lvl {level}
+                  {isUrdu ? `درجہ ${level}` : `Lvl ${level}`}
                 </span>
               </div>
 
@@ -85,7 +89,7 @@ export function GamificationHUD() {
                   ? "bg-amber-500/15 border-amber-500/30 text-amber-800 dark:text-amber-300 shadow-sm"
                   : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)]"
               }`}
-              title="Daily Istiqamah Streak (Active days in a row)"
+              title={isUrdu ? "روزانہ استقامت (مسلسل فعال دن)" : "Daily Istiqamah Streak (Active days in a row)"}
             >
               <Flame
                 className={`w-4 h-4 ${
@@ -93,14 +97,14 @@ export function GamificationHUD() {
                 }`}
               />
               <span>
-                {currentStreak}d {langPreference === "urdu" ? "استقامت" : "Streak"}
+                {isUrdu ? `${currentStreak} دن استقامت` : `${currentStreak}d Streak`}
               </span>
             </div>
 
             {/* Total XP */}
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-800 dark:text-purple-300 shadow-sm"
-              title="Total Experience Points earned"
+              title={isUrdu ? "مجموعی حاصل شدہ تجرباتی پوائنٹس" : "Total Experience Points earned"}
             >
               <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400 fill-purple-500" />
               <span>{totalXP.toLocaleString()} XP</span>
@@ -109,7 +113,7 @@ export function GamificationHUD() {
             {/* Barakah Gems */}
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-800 dark:text-blue-300 shadow-sm"
-              title="Barakah Gems (Earned from Tests & Checkpoints)"
+              title={isUrdu ? "برکت ہیرے (ٹیسٹس اور اسباق سے حاصل شدہ)" : "Barakah Gems (Earned from Tests & Checkpoints)"}
             >
               <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>{barakahGems}</span>
@@ -122,7 +126,7 @@ export function GamificationHUD() {
                   ? "bg-rose-500/20 border-rose-500/40 text-rose-800 dark:text-rose-300 animate-pulse shadow-sm"
                   : "bg-rose-500/15 border-rose-500/30 text-rose-800 dark:text-rose-300"
               }`}
-              title={`${heartsCount}/5 Hearts (Regenerates 1 every 30 mins)`}
+              title={isUrdu ? `${heartsCount}/۵ دل (ہر ۳۰ منٹ میں ۱ بحال ہوتا ہے)` : `${heartsCount}/5 Hearts (Regenerates 1 every 30 mins)`}
             >
               <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
               <span>{heartsCount}/5</span>
@@ -137,13 +141,13 @@ export function GamificationHUD() {
                   ? "bg-amber-500/20 border-amber-500/40 text-amber-900 dark:text-amber-200 hover:bg-amber-500/30 shadow-sm"
                   : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--foreground)] hover:bg-[var(--hover-bg)]"
               }`}
-              title="SRS Review Vault: Review missed words"
+              title={isUrdu ? "دہرائی کا والٹ: کمزور الفاظ کی مشق کریں" : "SRS Review Vault: Review missed words"}
             >
               <ShieldAlert
                 className={`w-4 h-4 ${weakWords.length > 0 ? "text-amber-600 dark:text-amber-400" : "text-[var(--muted-foreground)]"}`}
               />
               <span>
-                {langPreference === "urdu" ? "کمزور الفاظ" : "Review"} ({weakWords.length})
+                {isUrdu ? "دہرائی" : "Review"} ({weakWords.length})
               </span>
             </button>
 

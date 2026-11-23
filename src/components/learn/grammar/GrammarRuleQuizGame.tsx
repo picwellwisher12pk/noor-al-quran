@@ -140,19 +140,19 @@ export function GrammarRuleQuizGame() {
         <div className="grid grid-cols-3 gap-3">
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 block mb-1">
-              Score
+              {isUrdu ? "اسکور" : "Score"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
-              Accuracy
+              {isUrdu ? "درستگی" : "Accuracy"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{accuracy}%</span>
           </div>
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
             <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">
-              Best Streak
+              {isUrdu ? "بہترین تسلسل" : "Best Streak"}
             </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
@@ -198,7 +198,7 @@ export function GrammarRuleQuizGame() {
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Question {currentIndex + 1}/{TOTAL_ROUNDS}
+            {isUrdu ? `سوال ${currentIndex + 1} از ${TOTAL_ROUNDS}` : `Question ${currentIndex + 1}/${TOTAL_ROUNDS}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -215,7 +215,7 @@ export function GrammarRuleQuizGame() {
             </span>
           )}
           <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-sm">
-            {score} pts
+            {score} {isUrdu ? "پوائنٹس" : "pts"}
           </span>
         </div>
 
@@ -250,9 +250,17 @@ export function GrammarRuleQuizGame() {
         </div>
 
         {/* Translation */}
-        <p className="text-xs text-[var(--muted-foreground)] italic">
-          "{currentQ.promptVerseEn}"
-        </p>
+        {isUrdu ? (
+          currentQ.promptVerseUrdu ? (
+            <p className="font-urdu-nastaliq text-sm text-[var(--muted-foreground)] leading-relaxed text-right" dir="rtl">
+              &quot;{currentQ.promptVerseUrdu}&quot;
+            </p>
+          ) : null
+        ) : (
+          <p className="text-xs text-[var(--muted-foreground)] italic">
+            &quot;{currentQ.promptVerseEn}&quot;
+          </p>
+        )}
 
         {/* Specific Question Prompt */}
         <div className="pt-2 border-t border-[var(--border-subtle)]">

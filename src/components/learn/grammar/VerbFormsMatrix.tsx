@@ -250,11 +250,13 @@ export function VerbFormsMatrix({ onStartQuiz }: VerbFormsMatrixProps) {
                     <span className="font-arabic-amiri text-2xl font-bold text-emerald-600 dark:text-emerald-400" dir="rtl">
                       {ex.arabic}
                     </span>
-                    <span className="text-xs text-[var(--muted-foreground)] font-medium">
-                      ({ex.transliteration})
-                    </span>
+                    {!isUrdu && (
+                      <span className="text-xs text-[var(--muted-foreground)] font-medium">
+                        ({ex.transliteration})
+                      </span>
+                    )}
                     <span className="px-2 py-0.5 rounded-md font-mono text-[10px] bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-[var(--foreground)]">
-                      Root: {ex.root}
+                      {isUrdu ? `مادہ: ${ex.root}` : `Root: ${ex.root}`}
                     </span>
                   </div>
 
@@ -270,15 +272,25 @@ export function VerbFormsMatrix({ onStartQuiz }: VerbFormsMatrixProps) {
 
                 {/* Meanings */}
                 <div className="space-y-0.5 text-xs">
-                  <p className="font-semibold text-[var(--foreground)]">{ex.english}</p>
-                  <p className="font-urdu-nastaliq text-[var(--muted-foreground)]" dir="rtl">{ex.urdu}</p>
+                  {isUrdu ? (
+                    <p className="font-urdu-nastaliq text-sm font-semibold text-[var(--foreground)]" dir="rtl">
+                      {ex.urdu}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-[var(--foreground)]">{ex.english}</p>
+                      <p className="font-urdu-nastaliq text-[var(--muted-foreground)]" dir="rtl">{ex.urdu}</p>
+                    </>
+                  )}
                 </div>
 
                 {/* Verse Citation */}
                 <div className="p-2.5 rounded-xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs space-y-1">
                   <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] font-semibold">
                     <span>{ex.surahName} ({ex.surah}:{ex.ayah})</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-mono">Form {ex.formNumber}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-mono">
+                      {isUrdu ? `باب ${ex.formNumber}` : `Form ${ex.formNumber}`}
+                    </span>
                   </div>
                   <p className="font-arabic-amiri text-sm text-[var(--foreground)] text-right leading-relaxed" dir="rtl">
                     {ex.verseText}

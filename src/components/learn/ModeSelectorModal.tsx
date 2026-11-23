@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function ModeSelectorModal() {
   const {
@@ -33,8 +34,9 @@ export function ModeSelectorModal() {
     startSession(selectedMode, selectedNode);
   };
 
-  const isUrdu = langPreference === "urdu";
-  const isBilingual = langPreference === "bilingual";
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const isUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
+  const isBilingual = !isUrdu && langPreference === "bilingual";
 
   return (
     <Modal

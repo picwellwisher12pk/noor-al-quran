@@ -13,6 +13,7 @@ import { SoundSniperGame } from "./SoundSniperGame";
 import { GrammarSortBucket } from "./GrammarSortBucket";
 import { AyahPuzzleBuilder } from "./AyahPuzzleBuilder";
 import { SessionSummaryModal } from "./SessionSummaryModal";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function SessionRunner() {
   const {
@@ -29,6 +30,7 @@ export function SessionRunner() {
     langPreference
   } = useLearningStore();
 
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
   const [hearts, setHearts] = useState(3);
@@ -40,7 +42,7 @@ export function SessionRunner() {
   const [nodeUnlocked, setNodeUnlocked] = useState(false);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
-  const isUrdu = langPreference === "urdu";
+  const isUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
 
   // Prevent accidental tab closure or browser refresh mid-session
   useEffect(() => {
@@ -432,8 +434,8 @@ export function SessionRunner() {
                           >
                             {opt.wordArabic}
                           </span>
-                          <span className="text-xs text-[var(--muted-foreground)] block">
-                            {opt.translationEn}
+                          <span className={`text-xs text-[var(--muted-foreground)] block ${isUrdu ? "font-urdu-nastaliq" : ""}`} dir={isUrdu ? "rtl" : "ltr"}>
+                            {isUrdu ? (opt.translationUrdu || opt.translationEn) : opt.translationEn}
                           </span>
                         </div>
                         {opt.formNote && (

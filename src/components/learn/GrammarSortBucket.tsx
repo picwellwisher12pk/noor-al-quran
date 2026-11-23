@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Layers, Zap, Compass, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
 import { GrammarSortPayload, GrammarSortToken } from "../../lib/quiz-engine";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface GrammarSortBucketProps {
   payload: GrammarSortPayload;
@@ -19,6 +20,8 @@ export function GrammarSortBucket({
   hintsAllowed = true
 }: GrammarSortBucketProps) {
   const { langPreference } = useLearningStore();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const activeIsUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
   const [assignments, setAssignments] = useState<Record<string, "ism" | "fil" | "harf">>({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
@@ -58,7 +61,7 @@ export function GrammarSortBucket({
       {payload.verseText && (
         <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-center space-y-1">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] block">
-            {langPreference === "urdu" ? `قرآنی آیت کا سیاق (${payload.verseKey})` : `Quranic Context (${payload.verseKey})`}
+            {activeIsUrdu ? `قرآنی آیت کا سیاق (${payload.verseKey})` : `Quranic Context (${payload.verseKey})`}
           </span>
           <p
             className="text-xl sm:text-2xl font-bold text-[var(--foreground)] tracking-wide leading-relaxed"
@@ -74,7 +77,7 @@ export function GrammarSortBucket({
       {currentToken && !hasSubmitted && (
         <div className="p-5 rounded-3xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-center space-y-2 shadow-sm">
           <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-            {langPreference === "urdu"
+            {activeIsUrdu
               ? `کلمہ ${activeTokenIndex + 1} از ${tokens.length}`
               : `Token ${activeTokenIndex + 1} of ${tokens.length}`}
           </span>
@@ -87,16 +90,22 @@ export function GrammarSortBucket({
           </div>
 
           <div className="space-y-0.5">
-            {(langPreference === "urdu" || langPreference === "bilingual") && currentToken.translationUrdu ? (
-              <p className="text-sm text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
-                "{currentToken.translationUrdu}"
+            {activeIsUrdu && currentToken.translationUrdu ? (
+              <p className="font-urdu-nastaliq text-sm text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
+                &quot;{currentToken.translationUrdu}&quot;
               </p>
+            ) : !activeIsUrdu ? (
+              <>
+                {langPreference === "bilingual" && currentToken.translationUrdu && (
+                  <p className="font-urdu-nastaliq text-sm text-emerald-700 dark:text-emerald-300 font-bold" dir="rtl">
+                    &quot;{currentToken.translationUrdu}&quot;
+                  </p>
+                )}
+                <p className="text-xs text-[var(--muted-foreground)] font-medium">
+                  &quot;{currentToken.translationEn || currentToken.transliteration}&quot;
+                </p>
+              </>
             ) : null}
-            {langPreference !== "urdu" && (
-              <p className="text-xs text-[var(--muted-foreground)] font-medium">
-                "{currentToken.translationEn || currentToken.transliteration}"
-              </p>
-            )}
           </div>
         </div>
       )}

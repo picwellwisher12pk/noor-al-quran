@@ -184,10 +184,25 @@ jobs:
             -o -name "*.app.tar.gz.sig" \
           \) -exec cp {} dist-desktop/ \;
 
+          # ── Also create canonical unversioned copies so /latest/download/<canonical-name> always works
+          PLATFORM="${{ matrix.platform.artifact-id }}"
+          case "$PLATFORM" in
+            windows-x86_64)
+              for f in dist-desktop/*.exe; do [ -f "$f" ] && cp "$f" dist-desktop/Noor-Al-Quran_x64-setup.exe; done
+              for f in dist-desktop/*en-US.msi; do [ -f "$f" ] && cp "$f" dist-desktop/Noor-Al-Quran_x64_en-US.msi; done
+              ;;
+            linux-x86_64)
+              for f in dist-desktop/*.AppImage; do [ -f "$f" ] && [[ "$f" != *".tar.gz"* ]] && cp "$f" dist-desktop/noor-al-quran_amd64.AppImage; done
+              for f in dist-desktop/*.deb; do [ -f "$f" ] && cp "$f" dist-desktop/noor-al-quran_amd64.deb; done
+              ;;
+            darwin-aarch64)
+              for f in dist-desktop/*.dmg; do [ -f "$f" ] && cp "$f" dist-desktop/Noor-Al-Quran.dmg; done
+              ;;
+          esac
+
           ls -lh dist-desktop/
 
           # ── Collect .sig content and installer URL for the updater manifest
-          PLATFORM="${{ matrix.platform.artifact-id }}"
           SIG_FILE=$(find dist-desktop -name "*.sig" | head -n 1)
           if [ -n "$SIG_FILE" ]; then
             SIG_CONTENT=$(cat "$SIG_FILE")

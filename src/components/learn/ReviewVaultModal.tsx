@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 import phase1Foundations from "../../data/learning/phase1-foundations.json";
 import { getWordUrduGloss } from "../../lib/quiz-engine";
 import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
@@ -29,8 +30,9 @@ export function ReviewVaultModal() {
 
   if (!isReviewVaultOpen) return null;
 
-  const isUrdu = langPreference === "urdu";
-  const isBilingual = langPreference === "bilingual";
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const isUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
+  const isBilingual = !isUrdu && langPreference === "bilingual";
 
   const particlesMap = new Map(
     phase1Foundations.top30ParticlesAndPronouns.map((p) => [p.id, p])

@@ -118,20 +118,20 @@ export function LearningNavBar() {
                 ? "bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300"
                 : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)]"
             }`}
-            title="Daily Istiqamah Streak"
+            title={isUrdu ? "روزانہ استقامت" : "Daily Istiqamah Streak"}
           >
             <Flame
               className={`w-3.5 h-3.5 ${
                 currentStreak > 0 ? "text-amber-500 fill-amber-500" : "text-[var(--muted-foreground)]"
               }`}
             />
-            <span>{currentStreak}d</span>
+            <span>{isUrdu ? `${currentStreak} دن` : `${currentStreak}d`}</span>
           </div>
 
           {/* XP Badge */}
           <div
             className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-700 dark:text-purple-300 text-xs font-semibold"
-            title="Total Experience Points"
+            title={isUrdu ? "مجموعی حاصل شدہ تجرباتی پوائنٹس" : "Total Experience Points"}
           >
             <Zap className="w-3.5 h-3.5 text-purple-500 fill-purple-500" />
             <span>{totalXP.toLocaleString()} XP</span>
@@ -144,7 +144,7 @@ export function LearningNavBar() {
                 ? "bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-300 animate-pulse"
                 : "bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-300"
             }`}
-            title={`${heartsCount}/5 Hearts (Regenerates 1 every 30 mins)`}
+            title={isUrdu ? `${heartsCount}/۵ دل (ہر ۳۰ منٹ میں ۱ بحال ہوتا ہے)` : `${heartsCount}/5 Hearts (Regenerates 1 every 30 mins)`}
           >
             <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
             <span>{heartsCount}/5</span>
@@ -159,7 +159,7 @@ export function LearningNavBar() {
                 ? "bg-amber-500/15 border-amber-500/30 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 shadow-sm"
                 : "bg-[var(--surface-card)] border-[var(--border-subtle)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--hover-bg)]"
             }`}
-            title="SRS Review Vault (Words due for practice)"
+            title={isUrdu ? "دہرائی کا والٹ (مشق کے لیے الفاظ)" : "SRS Review Vault (Words due for practice)"}
           >
             <ShieldAlert
               className={`w-3.5 h-3.5 ${

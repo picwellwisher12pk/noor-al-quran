@@ -215,11 +215,14 @@ jobs:
                 "$aligned"
               rm -f "$aligned"
               cp "dist-apks/$signed" "dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-release.apk"
-              echo "[CI] Signed release APK → dist-apks/$signed (and -release.apk)"
+              cp "dist-apks/$signed" "dist-apks/noor-al-quran-universal-release.apk"
+              cp "dist-apks/$signed" "dist-apks/noor-al-quran-release.apk"
+              echo "[CI] Signed release APK → dist-apks/$signed (and canonical unversioned copies)"
             elif [[ "$filename" == *"debug"* ]]; then
               dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-debug.apk"
               cp "$apk" "$dest"
-              echo "[CI] Staged debug APK → $dest"
+              cp "$apk" "dist-apks/noor-al-quran-debug.apk"
+              echo "[CI] Staged debug APK → $dest (and noor-al-quran-debug.apk)"
             else
               dest="dist-apks/Noor-Al-Quran-v${{ env.APP_VERSION }}-${filename}"
               cp "$apk" "$dest"

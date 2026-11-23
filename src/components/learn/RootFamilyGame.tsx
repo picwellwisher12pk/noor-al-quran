@@ -41,8 +41,9 @@ export function RootFamilyGame({
   langPreference: propLangPreference,
   onScoreSaved,
 }: RootFamilyGameProps = {}) {
-  const { language } = useLanguage();
-  const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
+  const { language, isUrdu: globalIsUrdu } = useLanguage();
+  const isUrdu = globalIsUrdu || language === "urdu" || propLangPreference === "urdu";
+  const langPreference = propLangPreference || (language as VocabLangPreference) || (isUrdu ? "urdu" : "bilingual");
   const { playWord } = useAudio();
   const [rounds, setRounds] = useState<FamilyRound[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -172,17 +173,25 @@ export function RootFamilyGame({
 
         <div>
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 mb-2">
-            Semantic Groups & Roots
+            {isUrdu ? "معنوی جھرمٹ اور مادے" : "Semantic Groups & Roots"}
           </span>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">Word Family Challenge Complete!</h2>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            {isUrdu ? "مادہ و خاندان چیلنج مکمل!" : "Word Family Challenge Complete!"}
+          </h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            You successfully grouped high-frequency words sharing similar roots and meanings.
+            {isUrdu
+              ? "آپ نے ایک ہی مادہ اور مفہوم رکھنے والے قرآنی الفاظ کامیابی سے جوڑ لیے۔"
+              : "You successfully grouped high-frequency words sharing similar roots and meanings."}
           </p>
         </div>
 
         <div className="p-6 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] max-w-xs mx-auto">
-          <span className="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Total Score</span>
-          <span className="text-4xl font-extrabold text-[var(--foreground)]">{score} pts</span>
+          <span className="text-xs uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+            {isUrdu ? "کل اسکور" : "Total Score"}
+          </span>
+          <span className="text-4xl font-extrabold text-[var(--foreground)] font-mono">
+            {score} {isUrdu ? "پوائنٹس" : "pts"}
+          </span>
         </div>
 
         <div className="flex items-center justify-center gap-3 pt-2">
@@ -191,7 +200,7 @@ export function RootFamilyGame({
             onClick={generateRounds}
             className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <RotateCcw className="h-4 w-4" /> Play Another Match
+            <RotateCcw className="h-4 w-4" /> {isUrdu ? "دوبارہ کھیلیں" : "Play Another Match"}
           </button>
         </div>
       </div>
@@ -206,7 +215,7 @@ export function RootFamilyGame({
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Round {currentIndex + 1} of {TOTAL_ROUNDS}
+            {isUrdu ? `راؤنڈ ${currentIndex + 1} از ${TOTAL_ROUNDS}` : `Round ${currentIndex + 1} of ${TOTAL_ROUNDS}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -222,26 +231,38 @@ export function RootFamilyGame({
               <Flame className="h-3.5 w-3.5" /> {streak}x
             </span>
           )}
-          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">{score} pts</span>
+          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+            {score} {isUrdu ? "پوائنٹس" : "pts"}
+          </span>
         </div>
       </div>
 
       {/* Target Semantic Cluster Banner */}
       <div className="p-6 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
-          <Layers className="h-3.5 w-3.5" /> Target Meaning Family
+          <Layers className="h-3.5 w-3.5" /> {isUrdu ? "مطلوبہ ہم معنی جھرمٹ" : "Target Meaning Family"}
         </div>
-        <h3 className="text-xl md:text-2xl font-bold text-[var(--foreground)]">
-          {currentRound.cluster.title}
-        </h3>
-        <p className="font-arabic-amiri text-lg text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
-          {currentRound.cluster.titleAr}
-        </p>
-        <p className="text-xs text-[var(--muted-foreground)] max-w-lg mx-auto">
-          {langPreference === "urdu" ? currentRound.cluster.descriptionUrdu : currentRound.cluster.description}
+        {isUrdu ? (
+          <h3 className="font-arabic-amiri text-2xl md:text-3xl text-emerald-600 dark:text-emerald-400 font-bold" dir="rtl">
+            {currentRound.cluster.titleAr}
+          </h3>
+        ) : (
+          <>
+            <h3 className="text-xl md:text-2xl font-bold text-[var(--foreground)]">
+              {currentRound.cluster.title}
+            </h3>
+            <p className="font-arabic-amiri text-lg text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
+              {currentRound.cluster.titleAr}
+            </p>
+          </>
+        )}
+        <p className="text-xs text-[var(--muted-foreground)] max-w-lg mx-auto" dir={isUrdu ? "rtl" : "ltr"}>
+          {isUrdu ? currentRound.cluster.descriptionUrdu : currentRound.cluster.description}
         </p>
         <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 pt-1">
-          Select all {currentRound.correctWords.length} words below that belong to this family:
+          {isUrdu
+            ? `اس جھرمٹ سے تعلق رکھنے والے تمام ${currentRound.correctWords.length} الفاظ منتخب کریں:`
+            : `Select all ${currentRound.correctWords.length} words below that belong to this family:`}
         </p>
       </div>
 
@@ -276,7 +297,11 @@ export function RootFamilyGame({
               className={`p-3.5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between select-none relative group ${chipStyle}`}
             >
               <div className="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] mb-1">
-                <span className="font-mono">{word.root ? `Root: ${word.root}` : word.posLabelEn}</span>
+                <span className="font-mono">
+                  {isUrdu
+                    ? (word.root ? `مادہ: ${word.root}` : word.posLabelAr || "کلمہ")
+                    : (word.root ? `Root: ${word.root}` : word.posLabelEn)}
+                </span>
                 <button
                   type="button"
                   onClick={(e) => handlePlayAudio(e, word)}
@@ -291,11 +316,13 @@ export function RootFamilyGame({
                 <span className="font-arabic-amiri text-2xl font-bold block" dir="rtl">
                   {word.arabic}
                 </span>
-                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium block">
-                  {word.transliteration}
-                </span>
-                <span className="text-[10px] text-[var(--muted-foreground)] block truncate">
-                  {langPreference === "urdu" ? word.urdu : word.english}
+                {!isUrdu && (
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium block">
+                    {word.transliteration}
+                  </span>
+                )}
+                <span className={`text-[10px] text-[var(--muted-foreground)] block truncate ${isUrdu ? "font-urdu-nastaliq text-xs" : ""}`} dir={isUrdu ? "rtl" : "ltr"}>
+                  {isUrdu ? word.urdu : word.english}
                 </span>
               </div>
 
@@ -306,7 +333,9 @@ export function RootFamilyGame({
                   ) : !isCorrect && isSelected ? (
                     <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   ) : isCorrect && !isSelected ? (
-                    <span className="text-[10px] text-amber-700 dark:text-amber-300 font-semibold">Missed</span>
+                    <span className="text-[10px] text-amber-700 dark:text-amber-300 font-semibold">
+                      {isUrdu ? "چھوٹ گیا" : "Missed"}
+                    </span>
                   ) : null
                 ) : (
                   <div
@@ -328,7 +357,9 @@ export function RootFamilyGame({
       {/* Action Footer */}
       <div className="flex items-center justify-between gap-3 pt-2">
         <span className="text-xs text-[var(--muted-foreground)]">
-          Selected: {selectedWordIds.length} / {currentRound.correctWords.length} target words
+          {isUrdu
+            ? `منتخب: ${selectedWordIds.length} از ${currentRound.correctWords.length} الفاظ`
+            : `Selected: ${selectedWordIds.length} / ${currentRound.correctWords.length} target words`}
         </span>
 
         {!isSubmitted ? (
@@ -336,17 +367,17 @@ export function RootFamilyGame({
             type="button"
             disabled={selectedWordIds.length === 0}
             onClick={handleSubmit}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
           >
-            Check Family Match
+            {isUrdu ? "تصدیق کریں" : "Check Family Match"}
           </button>
         ) : (
           <button
             type="button"
             onClick={handleNext}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <span>Next Family</span>
+            <span>{isUrdu ? "اگلا جھرمٹ" : "Next Family"}</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         )}

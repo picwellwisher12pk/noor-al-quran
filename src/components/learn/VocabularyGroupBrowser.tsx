@@ -178,7 +178,15 @@ export function VocabularyGroupBrowser({
           /* Quick Filter Pill */
           <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)] pt-1">
             <span>
-              Showing <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> words
+              {isUrdu ? (
+                <>
+                  <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> الفاظ دکھائے جا رہے ہیں
+                </>
+              ) : (
+                <>
+                  Showing <strong className="text-[var(--foreground)]">{filteredWords.length}</strong> words
+                </>
+              )}
             </span>
 
             <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -222,11 +230,13 @@ export function VocabularyGroupBrowser({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
-                        {cluster.title}
+                        {isUrdu ? cluster.titleAr : cluster.title}
                       </span>
-                      <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
-                        {cluster.titleAr}
-                      </span>
+                      {!isUrdu && (
+                        <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
+                          {cluster.titleAr}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
                       {langPreference === "urdu" ? cluster.descriptionUrdu : cluster.description}
@@ -234,7 +244,9 @@ export function VocabularyGroupBrowser({
                   </div>
 
                   <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
-                    {totalOccurrences.toLocaleString()} occurrences ({clusterPercent}% of Quran)
+                    {isUrdu
+                      ? `${totalOccurrences.toLocaleString()} مرتبہ (قرآن کا ${clusterPercent}%)`
+                      : `${totalOccurrences.toLocaleString()} occurrences (${clusterPercent}% of Quran)`}
                   </span>
                 </div>
 
@@ -247,6 +259,7 @@ export function VocabularyGroupBrowser({
                       isMastered={masteredIds.includes(word.id)}
                       showEnglish={showEnglish}
                       showUrdu={showUrdu}
+                      isUrdu={isUrdu}
                       onToggleMastered={() => handleToggleMastered(word.id)}
                       onPlayAudio={(e) => handlePlayAudio(e, word)}
                     />
@@ -274,15 +287,19 @@ export function VocabularyGroupBrowser({
                 <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-base md:text-lg text-[var(--foreground)]">
-                      {cat.labelEn}
+                      {isUrdu ? cat.labelAr : cat.labelEn}
                     </span>
-                    <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
-                      {cat.labelAr}
-                    </span>
+                    {!isUrdu && (
+                      <span className="font-arabic text-sm text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">
+                        {cat.labelAr}
+                      </span>
+                    )}
                   </div>
 
                   <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
-                    {totalOccurrences.toLocaleString()} occurrences ({catPercent}% of Quran)
+                    {isUrdu
+                      ? `${totalOccurrences.toLocaleString()} مرتبہ (قرآن کا ${catPercent}%)`
+                      : `${totalOccurrences.toLocaleString()} occurrences (${catPercent}% of Quran)`}
                   </span>
                 </div>
 
@@ -294,6 +311,7 @@ export function VocabularyGroupBrowser({
                       isMastered={masteredIds.includes(word.id)}
                       showEnglish={showEnglish}
                       showUrdu={showUrdu}
+                      isUrdu={isUrdu}
                       onToggleMastered={() => handleToggleMastered(word.id)}
                       onPlayAudio={(e) => handlePlayAudio(e, word)}
                     />
@@ -317,6 +335,7 @@ export function VocabularyGroupBrowser({
                   isMastered={masteredIds.includes(word.id)}
                   showEnglish={showEnglish}
                   showUrdu={showUrdu}
+                  isUrdu={isUrdu}
                   onToggleMastered={() => handleToggleMastered(word.id)}
                   onPlayAudio={(e) => handlePlayAudio(e, word)}
                 />
@@ -334,6 +353,7 @@ interface WordCardProps {
   isMastered: boolean;
   showEnglish: boolean;
   showUrdu: boolean;
+  isUrdu?: boolean;
   onToggleMastered: () => void;
   onPlayAudio: (e: React.MouseEvent) => void;
 }
@@ -344,6 +364,7 @@ function WordCard({
   isMastered,
   showEnglish,
   showUrdu,
+  isUrdu = false,
   onToggleMastered,
   onPlayAudio,
 }: WordCardProps) {
@@ -369,7 +390,7 @@ function WordCard({
           </span>
           {word.root && (
             <span className="font-mono text-[var(--foreground)]">
-              Root: {word.root}
+              {isUrdu ? `مادہ: ${word.root}` : `Root: ${word.root}`}
             </span>
           )}
         </div>
@@ -378,7 +399,7 @@ function WordCard({
           type="button"
           onClick={onPlayAudio}
           className="p-1 rounded-md text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-          title="Play pronunciation"
+          title={isUrdu ? "تلفظ سنیں" : "Play pronunciation"}
         >
           <Volume2 className="h-3.5 w-3.5" />
         </button>
@@ -389,9 +410,11 @@ function WordCard({
         <h4 className="font-arabic-amiri text-3xl font-bold text-[var(--foreground)]" dir="rtl">
           {word.arabic}
         </h4>
-        <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-          {word.transliteration}
-        </p>
+        {!isUrdu && (
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+            {word.transliteration}
+          </p>
+        )}
       </div>
 
       {/* Translations */}
@@ -411,7 +434,7 @@ function WordCard({
       {/* Card Footer: Frequency & Mastered Button */}
       <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[10px]">
         <span className="font-mono text-[var(--muted-foreground)]">
-          {word.frequency.toLocaleString()}x ({percentContribution}%)
+          {isUrdu ? `${word.frequency.toLocaleString()} مرتبہ (${percentContribution}%)` : `${word.frequency.toLocaleString()}x (${percentContribution}%)`}
         </span>
 
         <button
@@ -423,7 +446,7 @@ function WordCard({
             }`}
         >
           <CheckCircle2 className="h-3 w-3" />
-          <span>{isMastered ? "Mastered" : "Learn"}</span>
+          <span>{isUrdu ? (isMastered ? "یاد شدہ" : "سیکھیں") : (isMastered ? "Mastered" : "Learn")}</span>
         </button>
       </div>
     </div>

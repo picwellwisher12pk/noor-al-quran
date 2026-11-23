@@ -254,12 +254,20 @@ export function GrammarRulesBrowser({ onStartQuiz }: GrammarRulesBrowserProps) {
 
                         {/* Translation & Grammar Parsing */}
                         <div className="space-y-1.5 text-xs">
-                          <p className="font-semibold text-[var(--foreground)]">
-                            {sample.englishTranslation}
-                          </p>
-                          <p className="font-urdu-nastaliq text-[var(--muted-foreground)]" dir="rtl">
-                            {sample.urduTranslation}
-                          </p>
+                          {isUrdu ? (
+                            <p className="font-urdu-nastaliq text-sm font-semibold text-[var(--foreground)]" dir="rtl">
+                              {sample.urduTranslation}
+                            </p>
+                          ) : (
+                            <>
+                              <p className="font-semibold text-[var(--foreground)]">
+                                {sample.englishTranslation}
+                              </p>
+                              <p className="font-urdu-nastaliq text-[var(--muted-foreground)]" dir="rtl">
+                                {sample.urduTranslation}
+                              </p>
+                            </>
+                          )}
                           <div className="pt-2 border-t border-[var(--border-subtle)] text-blue-700 dark:text-blue-300 font-medium">
                             <span className="font-bold">{isUrdu ? "نحوی توضیح: " : "Grammar Breakdown: "}</span>
                             <span>{isUrdu ? sample.roleExplanationUrdu : sample.roleExplanationEn}</span>

@@ -51,8 +51,9 @@ export function MeaningQuizGame({
   customTitle,
   rangeLimit,
 }: MeaningQuizGameProps = {}) {
-  const { language } = useLanguage();
+  const { language, isUrdu: globalIsUrdu } = useLanguage();
   const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
+  const isUrdu = globalIsUrdu || langPreference === "urdu";
   const { playWord } = useAudio();
 
   const activePool = useMemo(() => {
@@ -217,26 +218,36 @@ export function MeaningQuizGame({
           <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${ratingBadge.color} mb-2`}>
             {ratingBadge.text}
           </span>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">Quiz Round Complete!</h2>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            {isUrdu ? "کوئز راؤنڈ مکمل!" : "Quiz Round Complete!"}
+          </h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            You tested your knowledge on authentic high-frequency Quranic words.
+            {isUrdu
+              ? "آپ نے قرآنی کثیر الاستعمال الفاظ کے معانی کا ٹیسٹ مکمل کیا۔"
+              : "You tested your knowledge on authentic high-frequency Quranic words."}
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-3 gap-3">
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Score</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "اسکور" : "Score"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "درستگی" : "Accuracy"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
               {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_QUESTIONS_PER_ROUND})</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">Best Streak</span>
+            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">
+              {isUrdu ? "بہترین تسلسل" : "Best Streak"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
             </span>
@@ -247,7 +258,7 @@ export function MeaningQuizGame({
         {missedWords.length > 0 && (
           <div className="text-left p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
             <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 block">
-              Words to Review ({missedWords.length}):
+              {isUrdu ? `دہرانے والے الفاظ (${missedWords.length}):` : `Words to Review (${missedWords.length}):`}
             </span>
             <div className="flex flex-wrap gap-2">
               {missedWords.map((w) => (
@@ -256,7 +267,9 @@ export function MeaningQuizGame({
                   className="px-2.5 py-1 rounded-xl bg-[var(--surface-card)] border border-amber-500/20 text-xs text-[var(--foreground)] flex items-center gap-1.5"
                 >
                   <span className="font-arabic font-semibold">{w.arabic}</span>
-                  <span className="text-[var(--muted-foreground)]">({w.english})</span>
+                  <span className={`text-[var(--muted-foreground)] ${isUrdu ? "font-urdu-nastaliq text-[11px]" : ""}`} dir={isUrdu ? "rtl" : "ltr"}>
+                    ({isUrdu ? w.urdu : w.english})
+                  </span>
                 </span>
               ))}
             </div>
@@ -267,9 +280,10 @@ export function MeaningQuizGame({
           <button
             type="button"
             onClick={generateNewRound}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <RotateCcw className="h-4 w-4" /> Play Another Round
+            <RotateCcw className="h-4 w-4" />
+            <span>{isUrdu ? "اگلا راؤنڈ کھیلیں" : "Play Another Round"}</span>
           </button>
         </div>
       </div>
@@ -279,7 +293,9 @@ export function MeaningQuizGame({
   // ACTIVE QUIZ QUESTION
   const renderOptionText = (word: QuranVocabWord) => {
     if (quizMode === "ar_to_en") {
-      if (langPreference === "urdu") return word.urdu;
+      if (isUrdu) {
+        return <span className="font-urdu-nastaliq text-sm text-[var(--foreground)] leading-relaxed" dir="rtl">{word.urdu}</span>;
+      }
       if (langPreference === "english") return word.english;
       return (
         <span className="flex flex-col text-left">
@@ -303,10 +319,10 @@ export function MeaningQuizGame({
         <div className="flex items-center justify-between px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs">
           <div className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-300">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>{customTitle || `Top ${rangeLimit} Most Frequent Words Challenge`}</span>
+            <span>{customTitle || (isUrdu ? `ٹاپ ${rangeLimit} کثیر الاستعمال الفاظ کا چیلنج` : `Top ${rangeLimit} Most Frequent Words Challenge`)}</span>
           </div>
           <span className="font-mono text-[11px] text-[var(--muted-foreground)]">
-            Pool: {activePool.length} words
+            {isUrdu ? `ذخیرہ: ${activePool.length} الفاظ` : `Pool: ${activePool.length} words`}
           </span>
         </div>
       )}
@@ -316,7 +332,7 @@ export function MeaningQuizGame({
         {/* Question Counter */}
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Question {currentIndex + 1}/{TOTAL_QUESTIONS_PER_ROUND}
+            {isUrdu ? `سوال ${currentIndex + 1}/${TOTAL_QUESTIONS_PER_ROUND}` : `Question ${currentIndex + 1}/${TOTAL_QUESTIONS_PER_ROUND}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -354,10 +370,10 @@ export function MeaningQuizGame({
       <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-3">
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span className="px-2 py-0.5 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            {currentQ.targetWord.posLabelAr} ({currentQ.targetWord.posLabelEn})
+            {isUrdu ? currentQ.targetWord.posLabelAr : `${currentQ.targetWord.posLabelAr} (${currentQ.targetWord.posLabelEn})`}
           </span>
           <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 font-mono">
-            {currentQ.targetWord.frequency.toLocaleString()}x in Quran
+            {isUrdu ? `قرآن میں ${currentQ.targetWord.frequency.toLocaleString()} مرتبہ` : `${currentQ.targetWord.frequency.toLocaleString()}x in Quran`}
           </span>
         </div>
 
@@ -368,12 +384,14 @@ export function MeaningQuizGame({
             </h3>
           ) : (
             <h3 className="text-2xl md:text-3xl font-bold text-[var(--foreground)]">
-              {langPreference === "urdu" ? currentQ.targetWord.urdu : currentQ.targetWord.english}
+              {isUrdu ? currentQ.targetWord.urdu : currentQ.targetWord.english}
             </h3>
           )}
-          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
-            {currentQ.targetWord.transliteration}
-          </p>
+          {!isUrdu && (
+            <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+              {currentQ.targetWord.transliteration}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-2 pt-1">
@@ -382,7 +400,8 @@ export function MeaningQuizGame({
             onClick={handlePlayAudio}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm cursor-pointer"
           >
-            <Volume2 className="h-3.5 w-3.5" /> Listen Pronunciation
+            <Volume2 className="h-3.5 w-3.5" />
+            <span>{isUrdu ? "تلفظ سنیں" : "Listen Pronunciation"}</span>
           </button>
         </div>
       </div>
@@ -433,19 +452,23 @@ export function MeaningQuizGame({
         <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
             <span className="font-semibold text-emerald-700 dark:text-emerald-400 block">
-              Meaning Group: {currentQ.targetWord.semanticClusterTitle}
+              {isUrdu
+                ? `معنوی گروہ: ${currentQ.targetWord.semanticClusterTitleAr}`
+                : `Meaning Group: ${currentQ.targetWord.semanticClusterTitle}`}
             </span>
             <span className="text-[var(--muted-foreground)]">
-              Sample: Surah {currentQ.targetWord.sampleAyah.surahName} [{currentQ.targetWord.sampleAyah.surah}:{currentQ.targetWord.sampleAyah.ayah}]
+              {isUrdu
+                ? `نمونہ آیت: سورۃ ${currentQ.targetWord.sampleAyah.surahNameAr || currentQ.targetWord.sampleAyah.surahName} [${currentQ.targetWord.sampleAyah.surah}:${currentQ.targetWord.sampleAyah.ayah}]`
+                : `Sample: Surah ${currentQ.targetWord.sampleAyah.surahName} [${currentQ.targetWord.sampleAyah.surah}:${currentQ.targetWord.sampleAyah.ayah}]`}
             </span>
           </div>
 
           <button
             type="button"
             onClick={handleNextQuestion}
-            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <span>Next Question</span>
+            <span>{isUrdu ? "اگلا سوال" : "Next Question"}</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

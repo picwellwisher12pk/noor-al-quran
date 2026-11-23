@@ -52,7 +52,8 @@ export function VocabMatchBlitz({
   onScoreSaved,
 }: VocabMatchBlitzProps) {
   const { langPreference, addXP, addGems } = useLearningStore();
-  const { isUrdu } = useLanguage();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const activeIsUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
 
   const [roundKey, setRoundKey] = useState(0);
   const words = useMemo(() => {
@@ -80,7 +81,7 @@ export function VocabMatchBlitz({
       pairId: w.id,
       type: "arabic",
       label: w.arabic || w.textArabic || w.textUthmani || "",
-      subLabel: w.transliteration || w.transliterationEn,
+      subLabel: activeIsUrdu ? undefined : (w.transliteration || w.transliterationEn),
       audioUrl: getWordAudioUrl(w) || w.audioUrl,
       isRtl: true,
     }));
@@ -92,8 +93,9 @@ export function VocabMatchBlitz({
       let subLabel: string | undefined = undefined;
       let isRtl = false;
 
-      if (langPreference === "urdu") {
+      if (activeIsUrdu) {
         label = ur || en;
+        subLabel = undefined;
         isRtl = Boolean(ur);
       } else if (langPreference === "bilingual") {
         if (ur) {
@@ -125,7 +127,7 @@ export function VocabMatchBlitz({
     setIsGameOver(false);
     setSelectedArabicId(null);
     setSelectedMeaningId(null);
-  }, [words, timeLimitSec, langPreference]);
+  }, [words, timeLimitSec, langPreference, activeIsUrdu]);
 
   const handleEnd = useCallback((timeRanOut: boolean, completedCount?: number) => {
     setIsGameOver(true);
@@ -252,9 +254,11 @@ export function VocabMatchBlitz({
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
-            {combo}x COMBO
+            {combo}x {activeIsUrdu ? "تسلسل" : "COMBO"}
           </div>
-          <span className="text-xs font-bold text-[var(--muted-foreground)] font-mono">Score: {score}</span>
+          <span className="text-xs font-bold text-[var(--muted-foreground)] font-mono">
+            {activeIsUrdu ? `اسکور: ${score}` : `Score: ${score}`}
+          </span>
         </div>
 
         {/* Dynamic Countdown Timer */}
@@ -284,7 +288,7 @@ export function VocabMatchBlitz({
 
       {/* Instructions Prompt */}
       <p className="text-xs text-center text-[var(--muted-foreground)] font-medium">
-        {langPreference === "urdu"
+        {activeIsUrdu
           ? "عربی اور اردو کے ملتے ہوئے کارڈز کو تیزی سے منتخب کریں!"
           : langPreference === "bilingual"
           ? "تیزی سے جوڑیں: Match each Arabic word with its meaning!"
@@ -329,7 +333,7 @@ export function VocabMatchBlitz({
                   >
                     {card.label}
                   </span>
-                  {card.subLabel && (
+                  {!activeIsUrdu && card.subLabel && (
                     <span className="text-[10px] text-[var(--muted-foreground)] font-medium mt-0.5" dir="ltr">
                       {card.subLabel}
                     </span>
@@ -340,7 +344,7 @@ export function VocabMatchBlitz({
                   <span className={`text-xs sm:text-sm font-bold tracking-tight line-clamp-2 ${card.isRtl ? "leading-relaxed" : ""}`}>
                     {card.label}
                   </span>
-                  {card.subLabel && (
+                  {!activeIsUrdu && card.subLabel && (
                     <span className="text-[9px] text-[var(--muted-foreground)] font-medium mt-0.5 line-clamp-1" dir="ltr">
                       {card.subLabel}
                     </span>
@@ -362,15 +366,17 @@ export function VocabMatchBlitz({
           <div>
             <h4 className="text-lg font-black text-[var(--foreground)]">
               {matchedPairIds.length === 4
-                ? (isUrdu ? "ماشاء الله! شاندار رفتار" : "Masha'Allah! Blitz Cleared!")
-                : (isUrdu ? "وقت ختم ہو گیا!" : "Time's Up!")}
+                ? (activeIsUrdu ? "ماشاء الله! شاندار رفتار" : "Masha'Allah! Blitz Cleared!")
+                : (activeIsUrdu ? "وقت ختم ہو گیا!" : "Time's Up!")}
             </h4>
             <p className="text-xs text-[var(--muted-foreground)] mt-1">
               {matchedPairIds.length === 4
-                ? (isUrdu
+                ? (activeIsUrdu
                     ? `تمام ۴ جوڑے ${timeLimitSec - timeLeft} سیکنڈ میں کلیئر ہو گئے • غلطیاں: ${mistakes}`
                     : `All 4 pairs cleared in ${timeLimitSec - timeLeft}s with ${mistakes} mistakes!`)
-                : `Matched ${matchedPairIds.length} of 4 pairs.`}
+                : (activeIsUrdu
+                    ? `۴ میں سے ${matchedPairIds.length} جوڑے ملائے گئے۔`
+                    : `Matched ${matchedPairIds.length} of 4 pairs.`)}
             </p>
           </div>
 
@@ -379,17 +385,17 @@ export function VocabMatchBlitz({
               +{finalXpEarned} XP
             </span>
             <span className="px-3 py-1 rounded-full bg-[var(--surface-card)] border border-[var(--border-subtle)] text-[var(--foreground)]">
-              {finalAccuracy}% Accuracy
+              {finalAccuracy}% {activeIsUrdu ? "درستگی" : "Accuracy"}
             </span>
           </div>
 
           <button
             type="button"
             onClick={restartRound}
-            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md transition-colors"
+            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Play Next Blitz Round</span>
+            <span>{activeIsUrdu ? "اگلا راؤنڈ کھیلیں" : "Play Next Blitz Round"}</span>
           </button>
         </div>
       )}

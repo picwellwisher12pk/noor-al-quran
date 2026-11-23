@@ -9,6 +9,7 @@ import {
 import { saveGameScore, VocabLangPreference } from "@/services/vocabularyStorage";
 import { useAudio } from "@/context/AudioContext";
 import { getWordAudioUrl, playAudioSafely } from "@/utils/audioResolver";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   Sparkles,
   Trophy,
@@ -35,7 +36,10 @@ interface GrammarQuestion {
 
 const TOTAL_ROUNDS = 10;
 
-export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGameProps = {}) {
+export function GrammarClassifierGame({ langPreference: propLangPreference, onScoreSaved }: GrammarClassifierGameProps = {}) {
+  const { language, isUrdu: globalIsUrdu } = useLanguage();
+  const langPreference = propLangPreference || language;
+  const isUrdu = globalIsUrdu || langPreference === "urdu";
   const { playWord } = useAudio();
   const [questions, setQuestions] = useState<GrammarQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -148,27 +152,37 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
 
         <div>
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 mb-2">
-            Arabic Grammar Mastery
+            {isUrdu ? "علم النحو و الصرف" : "Arabic Grammar Mastery"}
           </span>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">Grammar Challenge Complete!</h2>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            {isUrdu ? "قواعد کا چیلنج مکمل!" : "Grammar Challenge Complete!"}
+          </h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            You practiced identifying the three fundamental branches of Quranic words (الاسم، الفعل، الحرف).
+            {isUrdu
+              ? "آپ نے قرآنی کلمات کی تین بنیادی اقسام (الاسم، الفعل، الحرف) کی شناخت کی کامیاب مشق کی۔"
+              : "You practiced identifying the three fundamental branches of Quranic words (الاسم، الفعل، الحرف)."}
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Score</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "اسکور" : "Score"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "درستگی" : "Accuracy"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
               {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">Streak</span>
+            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">
+              {isUrdu ? "تسلسل" : "Streak"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
             </span>
@@ -179,9 +193,10 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
           <button
             type="button"
             onClick={generateRound}
-            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <RotateCcw className="h-4 w-4" /> Play Again
+            <RotateCcw className="h-4 w-4" />
+            <span>{isUrdu ? "دوبارہ کھیلیں" : "Play Again"}</span>
           </button>
         </div>
       </div>
@@ -194,7 +209,7 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Word {currentIndex + 1} of {TOTAL_ROUNDS}
+            {isUrdu ? `لفظ ${currentIndex + 1} از ${TOTAL_ROUNDS}` : `Word ${currentIndex + 1} of ${TOTAL_ROUNDS}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -218,10 +233,10 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
       <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-3">
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span className="px-2.5 py-1 rounded-lg bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            Meaning: {currentQ.word.english} ({currentQ.word.urdu})
+            {isUrdu ? `معنی: ${currentQ.word.urdu}` : `Meaning: ${currentQ.word.english} (${currentQ.word.urdu})`}
           </span>
           <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 font-mono">
-            {currentQ.word.frequency.toLocaleString()}x in Quran
+            {isUrdu ? `قرآن میں ${currentQ.word.frequency.toLocaleString()} مرتبہ` : `${currentQ.word.frequency.toLocaleString()}x in Quran`}
           </span>
         </div>
 
@@ -229,9 +244,11 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
           <h3 className="font-arabic-amiri text-5xl md:text-6xl text-[var(--foreground)] font-bold tracking-wide leading-relaxed" dir="rtl">
             {currentQ.word.arabic}
           </h3>
-          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
-            {currentQ.word.transliteration}
-          </p>
+          {!isUrdu && (
+            <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+              {currentQ.word.transliteration}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-center gap-2">
@@ -240,12 +257,15 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
             onClick={handlePlayAudio}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm cursor-pointer"
           >
-            <Volume2 className="h-3.5 w-3.5" /> Audio Pronunciation
+            <Volume2 className="h-3.5 w-3.5" />
+            <span>{isUrdu ? "تلفظ سنیں" : "Audio Pronunciation"}</span>
           </button>
         </div>
 
         <p className="text-xs text-[var(--muted-foreground)] pt-2">
-          Which part of speech is this word in Quranic Arabic grammar?
+          {isUrdu
+            ? "قرآنی عربی قواعد کے مطابق یہ لفظ کلمہ کی کونسی قسم ہے؟"
+            : "Which part of speech is this word in Quranic Arabic grammar?"}
         </p>
       </div>
 
@@ -272,11 +292,13 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
               className={`p-5 rounded-2xl border-2 transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm cursor-pointer ${btnStyle}`}
             >
               <span className="font-arabic-amiri text-3xl font-bold text-[var(--foreground)]" dir="rtl">
-                اِسْم (Ism)
+                اِسْم
               </span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Noun / Pronoun</span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                {isUrdu ? "اسم / ضمیر / صفت" : "Noun / Pronoun"}
+              </span>
               <span className="text-[11px] text-[var(--muted-foreground)]">
-                Person, place, thing, attribute, or pronoun
+                {isUrdu ? "کسی شخص، جگہ، چیز، صفت یا ضمیر کا نام" : "Person, place, thing, attribute, or pronoun"}
               </span>
             </button>
           );
@@ -303,11 +325,13 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
               className={`p-5 rounded-2xl border-2 transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm cursor-pointer ${btnStyle}`}
             >
               <span className="font-arabic-amiri text-3xl font-bold text-[var(--foreground)]" dir="rtl">
-                فِعْل (Fi‘l)
+                فِعْل
               </span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Verb / Action</span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                {isUrdu ? "فعل (زمانہ دار کام)" : "Verb / Action"}
+              </span>
               <span className="text-[11px] text-[var(--muted-foreground)]">
-                Action bounded by time (past, present, imperative)
+                {isUrdu ? "ماضی، مضارع یا امر میں واقع ہونے والا کام" : "Action bounded by time (past, present, imperative)"}
               </span>
             </button>
           );
@@ -334,11 +358,13 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
               className={`p-5 rounded-2xl border-2 transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm cursor-pointer ${btnStyle}`}
             >
               <span className="font-arabic-amiri text-3xl font-bold text-[var(--foreground)]" dir="rtl">
-                حَرْف (Harf)
+                حَرْف
               </span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Particle / Preposition</span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                {isUrdu ? "حرف / ادات" : "Particle / Preposition"}
+              </span>
               <span className="text-[11px] text-[var(--muted-foreground)]">
-                Connective words, prepositions, and grammatical particles
+                {isUrdu ? "ربط پیدا کرنے والا کلمہ جو اکیلا نامکمل ہو" : "Connective words, prepositions, and grammatical particles"}
               </span>
             </button>
           );
@@ -351,15 +377,15 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
           <div className="text-xs space-y-1">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                Correct: {currentQ.subCategory} ({currentQ.word.posLabelEn})
+                {isUrdu ? `درست زمرہ: ${currentQ.subCategory}` : `Correct: ${currentQ.subCategory} (${currentQ.word.posLabelEn})`}
               </span>
               {currentQ.word.root && (
                 <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-card)] font-mono text-[var(--foreground)]">
-                  Root: {currentQ.word.root}
+                  {isUrdu ? `مادہ: ${currentQ.word.root}` : `Root: ${currentQ.word.root}`}
                 </span>
               )}
             </div>
-            {currentQ.word.grammarNotes && (
+            {currentQ.word.grammarNotes && !isUrdu && (
               <p className="text-[11px] text-[var(--muted-foreground)]">
                 {currentQ.word.grammarNotes}
               </p>
@@ -369,9 +395,9 @@ export function GrammarClassifierGame({ onScoreSaved }: GrammarClassifierGamePro
           <button
             type="button"
             onClick={handleNext}
-            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <span>Next Word</span>
+            <span>{isUrdu ? "اگلا لفظ" : "Next Word"}</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

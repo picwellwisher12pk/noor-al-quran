@@ -151,8 +151,8 @@ export function FrequencyGraphView({
     }
   };
 
-  const showEnglish = langPreference === "bilingual" || langPreference === "english";
-  const showUrdu = langPreference === "bilingual" || langPreference === "urdu";
+  const showEnglish = !isUrdu && (langPreference === "bilingual" || langPreference === "english");
+  const showUrdu = isUrdu || langPreference === "bilingual" || langPreference === "urdu";
 
   const getPosBadgeColor = (pos: PartOfSpeechType) => {
     switch (pos) {
@@ -228,7 +228,7 @@ export function FrequencyGraphView({
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
             <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
               <span>{isUrdu ? "پہلے 20 الفاظ" : "Top 20 Words"}</span>
-              <span className="font-mono font-bold text-sky-600 dark:text-sky-400">~25% Coverage</span>
+              <span className="font-mono font-bold text-sky-600 dark:text-sky-400">~25% {isUrdu ? "احاطہ" : "Coverage"}</span>
             </div>
             <div className="w-full bg-[var(--surface-raised)] h-2 rounded-full overflow-hidden">
               <div className="bg-sky-500 h-full rounded-full" style={{ width: "25%" }} />
@@ -242,7 +242,7 @@ export function FrequencyGraphView({
           <div className="p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)] space-y-1">
             <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
               <span>{isUrdu ? "پہلے 70 الفاظ" : "Top 70 Words"}</span>
-              <span className="font-mono font-bold text-amber-600 dark:text-amber-400">~50% Coverage</span>
+              <span className="font-mono font-bold text-amber-600 dark:text-amber-400">~50% {isUrdu ? "احاطہ" : "Coverage"}</span>
             </div>
             <div className="w-full bg-[var(--surface-raised)] h-2 rounded-full overflow-hidden">
               <div className="bg-amber-500 h-full rounded-full" style={{ width: "50%" }} />
@@ -257,7 +257,7 @@ export function FrequencyGraphView({
             <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
               <span>{isUrdu ? "مجموعی پول (375 الفاظ)" : "Full Pool (375 Words)"}</span>
               <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                {paretoStats.totalPoolPct}% Coverage
+                {paretoStats.totalPoolPct}% {isUrdu ? "احاطہ" : "Coverage"}
               </span>
             </div>
             <div className="w-full bg-[var(--surface-raised)] h-2 rounded-full overflow-hidden">
@@ -425,9 +425,11 @@ export function FrequencyGraphView({
                     >
                       {word.arabic}
                     </span>
-                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium hidden sm:inline">
-                      {word.transliteration}
-                    </span>
+                    {!isUrdu && (
+                      <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium hidden sm:inline">
+                        {word.transliteration}
+                      </span>
+                    )}
                   </div>
 
                   {/* Word Type Badge */}
@@ -445,7 +447,7 @@ export function FrequencyGraphView({
 
                   {word.root && (
                     <span className="font-mono text-[10px] text-[var(--muted-foreground)] hidden md:inline">
-                      Root: {word.root}
+                      {isUrdu ? `مادہ: ${word.root}` : `Root: ${word.root}`}
                     </span>
                   )}
                 </div>

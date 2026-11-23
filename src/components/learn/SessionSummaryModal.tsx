@@ -13,6 +13,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface SessionSummaryModalProps {
   score: number;
@@ -42,11 +43,12 @@ export function SessionSummaryModal({
   onRetry
 }: SessionSummaryModalProps) {
   const { currentStreak, langPreference } = useLearningStore();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
   const accuracyPct = total > 0 ? Math.round((score / total) * 100) : 0;
   const isPassed = propIsPassed !== undefined
     ? propIsPassed
     : !isTestMode || (heartsRemaining > 0 && accuracyPct >= 85);
-  const isUrdu = langPreference === "urdu";
+  const isUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
 
   return (
     <div className="fixed inset-x-0 bottom-0 top-0 sm:top-10 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
@@ -126,8 +128,8 @@ export function SessionSummaryModal({
                   className="px-2.5 py-1 rounded-xl bg-[var(--surface-card)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--foreground)] flex items-center gap-1"
                 >
                   <span style={{ fontFamily: "Amiri, Scheherazade, serif" }}>{w.textArabic}</span>
-                  <span className="text-[10px] text-[var(--muted-foreground)] font-normal">
-                    ({w.translationUrdu || w.translationEn})
+                  <span className={`text-[10px] text-[var(--muted-foreground)] font-normal ${isUrdu ? "font-urdu-nastaliq" : ""}`}>
+                    ({isUrdu ? (w.translationUrdu || w.translationEn) : w.translationEn})
                   </span>
                 </span>
               ))}

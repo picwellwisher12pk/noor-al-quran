@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Modal } from "@/components/common/Modal";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   CURRICULUM_PHASES,
   SkillNode,
@@ -59,6 +60,8 @@ export function SkillTreeRoadmap() {
     langPreference,
     openModeSelector
   } = useLearningStore();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const activeIsUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
 
   const allNodes = React.useMemo(() => getAllSkillNodes(), []);
   const [lockedNodeDetails, setLockedNodeDetails] = React.useState<{
@@ -81,12 +84,12 @@ export function SkillTreeRoadmap() {
             <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-[var(--surface-card)]/80 border border-[var(--border-subtle)] text-[var(--foreground)]">
-                  {langPreference === "urdu"
+                  {activeIsUrdu
                     ? `مرحلہ ${phase.phaseNumber} از ۵`
                     : `Stage ${phase.phaseNumber} of 5`}
                 </span>
                 <span className="text-xs font-bold text-[var(--muted-foreground)]">
-                  {langPreference === "urdu"
+                  {activeIsUrdu
                     ? `ہدف تفہیم: ~${phase.targetComprehensionPct}%`
                     : `Target Comprehension: ~${phase.targetComprehensionPct}%`}
                 </span>
@@ -103,15 +106,15 @@ export function SkillTreeRoadmap() {
 
             <div className="relative z-10 pt-1">
               <h2 className="text-2xl sm:text-3xl font-black text-[var(--foreground)] tracking-tight">
-                {langPreference === "urdu" ? (phase.titleUrdu || phase.title) : phase.title}
+                {activeIsUrdu ? (phase.titleUrdu || phase.title) : phase.title}
               </h2>
-              {langPreference === "bilingual" && phase.titleUrdu && (
+              {!activeIsUrdu && langPreference === "bilingual" && phase.titleUrdu && (
                 <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5" dir="rtl">
                   {phase.titleUrdu}
                 </p>
               )}
               <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1 max-w-2xl leading-relaxed">
-                {langPreference === "urdu" ? (phase.goalUrdu || phase.goal) : phase.goal}
+                {activeIsUrdu ? (phase.goalUrdu || phase.goal) : phase.goal}
               </p>
             </div>
           </div>
@@ -124,15 +127,15 @@ export function SkillTreeRoadmap() {
                 <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-2">
                   <div className="space-y-0.5">
                     <h3 className="text-sm font-bold text-[var(--foreground)]">
-                      {langPreference === "urdu" ? (unit.titleUrdu || unit.title) : unit.title}
+                      {activeIsUrdu ? (unit.titleUrdu || unit.title) : unit.title}
                     </h3>
-                    {langPreference === "bilingual" && unit.titleUrdu && (
+                    {!activeIsUrdu && langPreference === "bilingual" && unit.titleUrdu && (
                       <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300" dir="rtl">
                         {unit.titleUrdu}
                       </p>
                     )}
                     <p className="text-[11px] text-[var(--muted-foreground)]">
-                      {langPreference === "urdu" ? (unit.descriptionUrdu || unit.description) : unit.description}
+                      {activeIsUrdu ? (unit.descriptionUrdu || unit.description) : unit.description}
                     </p>
                   </div>
                   <span
@@ -230,19 +233,19 @@ export function SkillTreeRoadmap() {
                               </div>
                             ) : isActive ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-emerald-600 text-white shadow-sm">
-                                {langPreference === "urdu" ? "موجودہ" : "Current"}
+                                {activeIsUrdu ? "موجودہ" : "Current"}
                               </span>
                             ) : isBoss ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300">
-                                {langPreference === "urdu" ? "بوس گیٹ" : "Boss Gate"}
+                                {activeIsUrdu ? "بوس گیٹ" : "Boss Gate"}
                               </span>
                             ) : isCheckpoint ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-300">
-                                {langPreference === "urdu" ? "چیک پوائنٹ" : "Checkpoint"}
+                                {activeIsUrdu ? "چیک پوائنٹ" : "Checkpoint"}
                               </span>
                             ) : (
                               <span className="text-[10px] text-[var(--muted-foreground)] font-mono">
-                                ~{node.estimatedMinutes}m
+                                ~{node.estimatedMinutes}{activeIsUrdu ? " منٹ" : "m"}
                               </span>
                             )}
                           </div>
@@ -259,7 +262,7 @@ export function SkillTreeRoadmap() {
                                 : "text-[var(--foreground)]"
                             }`}
                           >
-                            {langPreference === "urdu" ? (node.titleUrdu || node.title) : node.title}
+                            {activeIsUrdu ? (node.titleUrdu || node.title) : node.title}
                           </h4>
 
                           <div className="flex items-center justify-between gap-2 pt-0.5">
@@ -270,15 +273,19 @@ export function SkillTreeRoadmap() {
                             >
                               {node.titleArabic}
                             </span>
-                            {(langPreference === "bilingual" || langPreference === "urdu") && node.subtitleUrdu && (
+                            {activeIsUrdu && node.subtitleUrdu ? (
+                              <span className="font-urdu-nastaliq text-xs text-[var(--muted-foreground)] font-medium" dir="rtl">
+                                {node.subtitleUrdu}
+                              </span>
+                            ) : langPreference === "bilingual" && node.subtitleUrdu ? (
                               <span className="text-[11px] text-[var(--muted-foreground)] font-medium" dir="rtl">
                                 {node.subtitleUrdu}
                               </span>
-                            )}
+                            ) : null}
                           </div>
 
                           <p className="text-xs text-[var(--muted-foreground)] line-clamp-2 leading-relaxed pt-0.5">
-                            {langPreference === "urdu"
+                            {activeIsUrdu
                               ? (node.descriptionUrdu || node.description)
                               : node.subtitle}
                           </p>
@@ -287,7 +294,7 @@ export function SkillTreeRoadmap() {
                             <div className="flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400 font-semibold pt-1">
                               <Lock className="w-3 h-3 shrink-0" />
                               <span className="truncate">
-                                {langPreference === "urdu"
+                                {activeIsUrdu
                                   ? `پہلے "${prereqNode.titleUrdu || prereqNode.title}" مکمل کریں`
                                   : `Complete "${prereqNode.title}" first`}
                               </span>
@@ -303,7 +310,7 @@ export function SkillTreeRoadmap() {
                           </span>
                           <span className="flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-400">
                             <Sparkles className="w-3 h-3" />
-                            +{node.gemReward} Gems
+                            +{node.gemReward} {activeIsUrdu ? "جواہرات" : "Gems"}
                           </span>
                         </div>
                       </div>
@@ -326,7 +333,7 @@ export function SkillTreeRoadmap() {
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-amber-500" />
               <span>
-                {langPreference === "urdu" ? "مقفل سبق کی تفصیلات" : "Locked Milestone"}
+                {activeIsUrdu ? "مقفل سبق کی تفصیلات" : "Locked Milestone"}
               </span>
             </div>
           }
@@ -335,17 +342,17 @@ export function SkillTreeRoadmap() {
             <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-2">
               <div className="flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400">
                 <span>
-                  {langPreference === "urdu"
+                  {activeIsUrdu
                     ? `مرحلہ ${lockedNodeDetails.node.phaseNumber}`
                     : `Stage ${lockedNodeDetails.node.phaseNumber}`}
                 </span>
                 <span className="font-mono text-[var(--muted-foreground)]">
-                  ~{lockedNodeDetails.node.estimatedMinutes} mins
+                  ~{lockedNodeDetails.node.estimatedMinutes} {activeIsUrdu ? "منٹ" : "mins"}
                 </span>
               </div>
 
               <h3 className="text-lg font-bold text-[var(--foreground)]">
-                {langPreference === "urdu"
+                {activeIsUrdu
                   ? lockedNodeDetails.node.titleUrdu || lockedNodeDetails.node.title
                   : lockedNodeDetails.node.title}
               </h3>
@@ -361,7 +368,7 @@ export function SkillTreeRoadmap() {
               )}
 
               <p className="text-xs text-[var(--muted-foreground)] leading-relaxed pt-1">
-                {langPreference === "urdu"
+                {activeIsUrdu
                   ? lockedNodeDetails.node.descriptionUrdu || lockedNodeDetails.node.description
                   : lockedNodeDetails.node.description}
               </p>
@@ -372,12 +379,12 @@ export function SkillTreeRoadmap() {
               <div className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-2">
                 <Lock className="w-4 h-4 shrink-0 text-amber-500" />
                 <span>
-                  {langPreference === "urdu" ? "کھولنے کی شرط (Prerequisite)" : "Unlock Requirement"}
+                  {activeIsUrdu ? "کھولنے کی شرط (Prerequisite)" : "Unlock Requirement"}
                 </span>
               </div>
               <p className="text-[var(--foreground)]">
                 {lockedNodeDetails.prereq ? (
-                  langPreference === "urdu" ? (
+                  activeIsUrdu ? (
                     <>
                       اس سبق کو ان لاک کرنے کے لیے پہلے{" "}
                       <strong>&quot;{lockedNodeDetails.prereq.titleUrdu || lockedNodeDetails.prereq.title}&quot;</strong>{" "}
@@ -390,7 +397,7 @@ export function SkillTreeRoadmap() {
                     </>
                   )
                 ) : (
-                  langPreference === "urdu"
+                  activeIsUrdu
                     ? "اس مرحلے تک پہنچنے کے لیے سابقہ اسباق مکمل کریں۔"
                     : "Complete preceding milestones in sequence to access this lesson."
                 )}
@@ -411,7 +418,7 @@ export function SkillTreeRoadmap() {
                   }}
                   className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
                 >
-                  {langPreference === "urdu"
+                  {activeIsUrdu
                     ? `بنیادی سبق شروع کریں: ${lockedNodeDetails.prereq.titleUrdu || lockedNodeDetails.prereq.title}`
                     : `Start: ${lockedNodeDetails.prereq.title}`}
                 </button>
@@ -421,7 +428,7 @@ export function SkillTreeRoadmap() {
                 onClick={() => setLockedNodeDetails(null)}
                 className="px-4 py-3 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-xs transition-colors cursor-pointer"
               >
-                {langPreference === "urdu" ? "سمجھ گیا" : "Dismiss"}
+                {activeIsUrdu ? "سمجھ گیا" : "Dismiss"}
               </button>
             </div>
           </div>

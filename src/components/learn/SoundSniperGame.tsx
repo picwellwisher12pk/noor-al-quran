@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Volume2, VolumeX, CheckCircle2, AlertCircle, HelpCircle, Sparkles } from "lucide-react";
 import { SoundSniperPayload } from "../../lib/quiz-engine";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 import { normalizeAudioUrl } from "@/utils/audioResolver";
 
 export interface SoundSniperGameProps {
@@ -20,14 +21,15 @@ export function SoundSniperGame({
   hintsAllowed = true
 }: SoundSniperGameProps) {
   const { langPreference } = useLearningStore();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const isUrdu = langPreference === "urdu";
-  const isBilingual = langPreference === "bilingual";
+  const isUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
+  const isBilingual = !isUrdu && langPreference === "bilingual";
 
   const playAudio = () => {
     if (!payload.promptAudioUrl) return;

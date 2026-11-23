@@ -26,8 +26,9 @@ export function GamesHub({
   gameStats: propGameStats,
   onScoreSaved: propOnScoreSaved,
 }: GamesHubProps = {}) {
-  const { language } = useLanguage();
+  const { language, isUrdu: globalIsUrdu } = useLanguage();
   const langPreference: VocabLangPreference = propLangPreference || language;
+  const isUrdu = globalIsUrdu || langPreference === "urdu";
   const [internalStats, setInternalStats] = useState<Record<string, GameStatRecord>>(() => {
     return propGameStats || loadUserVocabProgress().gameStats;
   });
@@ -51,13 +52,17 @@ export function GamesHub({
       <div className="text-center space-y-1.5">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/70 border border-emerald-500/20 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300">
           <Gamepad2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span>Interactive Learning Arena</span>
+          <span>{isUrdu ? "انٹرایکٹو تعلیمی میدان" : "Interactive Learning Arena"}</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-bold text-[var(--foreground)]">
-          Select a Quran Vocabulary & Grammar Challenge
+          {isUrdu
+            ? "قرآنی الفاظ اور قواعد کا چیلنج منتخب کریں"
+            : "Select a Quran Vocabulary & Grammar Challenge"}
         </h2>
         <p className="text-xs text-[var(--muted-foreground)] max-w-md mx-auto">
-          Reinforce your understanding of the 70% most frequent Quranic words through timed tests, grammatical classification, and verse completion.
+          {isUrdu
+            ? "قرآن مجید کے 70% کثیر الاستعمال الفاظ، نحوی و صرفی قواعد اور آیات کے فہم کو دلچسپ و بروقت مشقوں کے ذریعے پختہ کریں۔"
+            : "Reinforce your understanding of the 70% most frequent Quranic words through timed tests, grammatical classification, and verse completion."}
         </p>
       </div>
 
@@ -75,24 +80,26 @@ export function GamesHub({
               </div>
               {meaningHighScore > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400">
-                  <Trophy className="h-3 w-3" /> Best: {meaningHighScore} pts
+                  <Trophy className="h-3 w-3" /> {isUrdu ? `بہترین: ${meaningHighScore} پوائنٹس` : `Best: ${meaningHighScore} pts`}
                 </span>
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[var(--foreground)]">Meaning Quiz</h3>
+                <h3 className="font-bold text-base text-[var(--foreground)]">{isUrdu ? "معنی کوئز" : "Meaning Quiz"}</h3>
                 <span className="font-arabic text-xs text-emerald-600 dark:text-emerald-400 font-semibold" dir="rtl">تحدي معاني الكلمات</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Rapid multiple-choice test: recognize meanings from Arabic words with countdown timers and combo multipliers.
+                {isUrdu
+                  ? "تیز رفتار معروضی سوالات: الٹی گنتی اور کومبو پوائنٹس کے ساتھ عربی الفاظ کے معانی کی شناخت کریں۔"
+                  : "Rapid multiple-choice test: recognize meanings from Arabic words with countdown timers and combo multipliers."}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-[var(--border-subtle)] text-xs font-semibold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
-            <span>Play Quiz (10 Questions)</span>
+            <span>{isUrdu ? "کوئز کھیلیں (10 سوالات)" : "Play Quiz (10 Questions)"}</span>
             <ArrowRight className="h-4 w-4" />
           </div>
         </Link>
@@ -109,24 +116,26 @@ export function GamesHub({
               </div>
               {grammarHighScore > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-400">
-                  <Trophy className="h-3 w-3" /> Best: {grammarHighScore} pts
+                  <Trophy className="h-3 w-3" /> {isUrdu ? `بہترین: ${grammarHighScore} پوائنٹس` : `Best: ${grammarHighScore} pts`}
                 </span>
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[var(--foreground)]">Grammar Classifier</h3>
+                <h3 className="font-bold text-base text-[var(--foreground)]">{isUrdu ? "قواعدی درجہ بندی" : "Grammar Classifier"}</h3>
                 <span className="font-arabic text-xs text-teal-600 dark:text-teal-400 font-semibold" dir="rtl">قواعد وإعراب القرآن</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Master Arabic word divisions: classify Ism (اسم), Fi'l (فعل), or Harf (حرف) and learn authentic linguistic rules.
+                {isUrdu
+                  ? "عربی کلمات کی اقسام (اسم، فعل، حرف) کی شناخت کریں اور مستند لسانی قواعد سیکھیں۔"
+                  : "Master Arabic word divisions: classify Ism (اسم), Fi'l (فعل), or Harf (حرف) and learn authentic linguistic rules."}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-[var(--border-subtle)] text-xs font-semibold text-teal-600 dark:text-teal-400 group-hover:translate-x-1 transition-transform">
-            <span>Classify Words (10 Rounds)</span>
+            <span>{isUrdu ? "الفاظ کی شناخت کریں (10 راؤنڈز)" : "Classify Words (10 Rounds)"}</span>
             <ArrowRight className="h-4 w-4" />
           </div>
         </Link>
@@ -143,24 +152,26 @@ export function GamesHub({
               </div>
               {rootHighScore > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-amber-500/15 border border-amber-500/30 text-amber-800 dark:text-amber-400">
-                  <Trophy className="h-3 w-3" /> Best: {rootHighScore} pts
+                  <Trophy className="h-3 w-3" /> {isUrdu ? `بہترین: ${rootHighScore} پوائنٹس` : `Best: ${rootHighScore} pts`}
                 </span>
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[var(--foreground)]">Word Family Matcher</h3>
+                <h3 className="font-bold text-base text-[var(--foreground)]">{isUrdu ? "ہم ریشہ الفاظ (روٹ فیملیز)" : "Word Family Matcher"}</h3>
                 <span className="font-arabic text-xs text-amber-600 dark:text-amber-400 font-semibold" dir="rtl">عائلات الجذور والمترادفات</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Group similar words with the same 3-letter root or shared meaning (e.g. Mercy, Faith, Sovereignty).
+                {isUrdu
+                  ? "ایک ہی مادے (3 حروفی روٹ) یا مشترکہ مفہوم (رحمت، ایمان، ربوبیت) سے تعلق رکھنے والے الفاظ کو جوڑیں۔"
+                  : "Group similar words with the same 3-letter root or shared meaning (e.g. Mercy, Faith, Sovereignty)."}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-[var(--border-subtle)] text-xs font-semibold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-            <span>Group Words (5 Families)</span>
+            <span>{isUrdu ? "الفاظ جوڑیں (5 فیملیز)" : "Group Words (5 Families)"}</span>
             <ArrowRight className="h-4 w-4" />
           </div>
         </Link>
@@ -177,24 +188,26 @@ export function GamesHub({
               </div>
               {ayahHighScore > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/15 border border-cyan-500/30 text-cyan-800 dark:text-cyan-400">
-                  <Trophy className="h-3 w-3" /> Best: {ayahHighScore} pts
+                  <Trophy className="h-3 w-3" /> {isUrdu ? `بہترین: ${ayahHighScore} پوائنٹس` : `Best: ${ayahHighScore} pts`}
                 </span>
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[var(--foreground)]">Ayah Verse Completion</h3>
+                <h3 className="font-bold text-base text-[var(--foreground)]">{isUrdu ? "تکمیلِ آیات (آیت فل)" : "Ayah Verse Completion"}</h3>
                 <span className="font-arabic text-xs text-cyan-600 dark:text-cyan-400 font-semibold" dir="rtl">إكمال الآيات القرآنية</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Fill in the missing high-frequency word in authentic Quranic verses with full recitation audio.
+                {isUrdu
+                  ? "مستند قرآنی آیات میں خالی جگہ پر صحیح کثیر الاستعمال لفظ لگائیں مع مکمل صوتی تلاوت۔"
+                  : "Fill in the missing high-frequency word in authentic Quranic verses with full recitation audio."}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-[var(--border-subtle)] text-xs font-semibold text-cyan-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform">
-            <span>Complete Verses (8 Ayahs)</span>
+            <span>{isUrdu ? "آیات مکمل کریں (8 آیات)" : "Complete Verses (8 Ayahs)"}</span>
             <ArrowRight className="h-4 w-4" />
           </div>
         </Link>
@@ -211,24 +224,26 @@ export function GamesHub({
               </div>
               {blitzHighScore > 0 && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/15 border border-rose-500/30 text-rose-800 dark:text-rose-400">
-                  <Trophy className="h-3 w-3" /> Best: {blitzHighScore} pts
+                  <Trophy className="h-3 w-3" /> {isUrdu ? `بہترین: ${blitzHighScore} پوائنٹس` : `Best: ${blitzHighScore} pts`}
                 </span>
               )}
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-base text-[var(--foreground)]">Speed Match Blitz</h3>
+                <h3 className="font-bold text-base text-[var(--foreground)]">{isUrdu ? "رفتار مقابلہ (میچ بلٹز)" : "Speed Match Blitz"}</h3>
                 <span className="font-arabic text-xs text-rose-600 dark:text-rose-400 font-semibold" dir="rtl">مطابقة الكلمات السريعة</span>
               </div>
               <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                Race against a 30-second countdown to pair Arabic Quranic words with their meanings. Chain consecutive pairs for combo multipliers!
+                {isUrdu
+                  ? "30 سیکنڈ کے وقت میں عربی قرآنی الفاظ کو ان کے معانی کے ساتھ ملائیں۔ مسلسل جوڑوں پر کومبو پوائنٹس حاصل کریں!"
+                  : "Race against a 30-second countdown to pair Arabic Quranic words with their meanings. Chain consecutive pairs for combo multipliers!"}
               </p>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-4 mt-2 border-t border-[var(--border-subtle)] text-xs font-semibold text-rose-600 dark:text-rose-400 group-hover:translate-x-1 transition-transform">
-            <span>Play Speed Blitz (30s Timer)</span>
+            <span>{isUrdu ? "میچ بلٹز کھیلیں (30 سیکنڈ)" : "Play Speed Blitz (30s Timer)"}</span>
             <ArrowRight className="h-4 w-4" />
           </div>
         </Link>

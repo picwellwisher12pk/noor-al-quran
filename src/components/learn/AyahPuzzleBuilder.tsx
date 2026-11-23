@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Volume2, CheckCircle2, AlertCircle, RotateCcw, ArrowRight } from "lucide-react";
 import { AyahPuzzlePayload } from "../../lib/quiz-engine";
 import { useLearningStore } from "../../store/useLearningStore";
+import { useLanguage } from "@/context/LanguageContext";
 import { getVerseAudioUrl, playAudioSafely } from "@/utils/audioResolver";
 
 export interface AyahPuzzleBuilderProps {
@@ -20,6 +21,8 @@ export function AyahPuzzleBuilder({
   hintsAllowed = true
 }: AyahPuzzleBuilderProps) {
   const { langPreference } = useLearningStore();
+  const { isUrdu: globalIsUrdu, language } = useLanguage();
+  const activeIsUrdu = globalIsUrdu || language === "urdu" || langPreference === "urdu";
   const [placedBlockIds, setPlacedBlockIds] = useState<string[]>([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
@@ -77,21 +80,28 @@ export function AyahPuzzleBuilder({
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
         <div className="space-y-0.5">
           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-            {payload.surahNameEn} ({payload.surahNameAr}) • Ayah {payload.verseKey}
+            {activeIsUrdu
+              ? `${payload.surahNameAr} • آیت ${payload.verseKey}`
+              : `${payload.surahNameEn} (${payload.surahNameAr}) • Ayah ${payload.verseKey}`}
           </span>
-          {payload.fullTranslationUrdu && (langPreference === "urdu" || langPreference === "bilingual") ? (
-            <p className="text-xs text-[var(--foreground)] font-medium line-clamp-1" dir="rtl">
-              "{payload.fullTranslationUrdu}"
-            </p>
+          {activeIsUrdu ? (
+            payload.fullTranslationUrdu ? (
+              <p className="font-urdu-nastaliq text-xs text-[var(--foreground)] font-medium line-clamp-1" dir="rtl">
+                &quot;{payload.fullTranslationUrdu}&quot;
+              </p>
+            ) : null
           ) : (
-            <p className="text-xs text-[var(--muted-foreground)] font-medium line-clamp-1">
-              "{payload.fullTranslationEn}"
-            </p>
-          )}
-          {langPreference === "bilingual" && payload.fullTranslationUrdu && (
-            <p className="text-[10px] text-[var(--muted-foreground)] font-medium line-clamp-1">
-              {payload.fullTranslationEn}
-            </p>
+            <>
+              {payload.fullTranslationUrdu && langPreference === "bilingual" ? (
+                <p className="text-xs text-[var(--foreground)] font-medium line-clamp-1" dir="rtl">
+                  &quot;{payload.fullTranslationUrdu}&quot;
+                </p>
+              ) : (
+                <p className="text-xs text-[var(--muted-foreground)] font-medium line-clamp-1">
+                  &quot;{payload.fullTranslationEn}&quot;
+                </p>
+              )}
+            </>
           )}
         </div>
 
@@ -112,7 +122,7 @@ export function AyahPuzzleBuilder({
       {/* Mode Switcher: Arabic Assembly (RTL) vs Urdu (RTL) vs English (LTR) */}
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider">
-          {langPreference === "urdu"
+          {activeIsUrdu
             ? `ترتیب شدہ الفاظ (${placedBlockIds.length}/${totalRequired}):`
             : `Assembled Ayah (${placedBlockIds.length}/${totalRequired} words):`}
         </span>
@@ -139,17 +149,19 @@ export function AyahPuzzleBuilder({
           >
             اردو (RTL)
           </button>
-          <button
-            type="button"
-            onClick={() => setMode("english")}
-            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-              mode === "english"
-                ? "bg-emerald-600 text-white font-bold"
-                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-            }`}
-          >
-            English
-          </button>
+          {!activeIsUrdu && (
+            <button
+              type="button"
+              onClick={() => setMode("english")}
+              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                mode === "english"
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              English
+            </button>
+          )}
         </div>
       </div>
 
@@ -164,7 +176,7 @@ export function AyahPuzzleBuilder({
       >
         {placedBlockIds.length === 0 ? (
           <div className="w-full text-center py-4 text-xs text-[var(--muted-foreground)] font-medium">
-            {langPreference === "urdu"
+            {activeIsUrdu
               ? "نیچے موجود قرآنی الفاظ کے کارڈز کو صحیح ترتیب میں ٹیپ کریں"
               : "Tap available word blocks below in correct grammatical sequence"}
           </div>

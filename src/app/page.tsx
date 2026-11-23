@@ -35,6 +35,7 @@ interface DownloadAsset {
   url: string;
   recommended?: boolean;
   desc: string;
+  size?: string;
 }
 
 interface PlatformDetail {
@@ -288,6 +289,7 @@ export default function MarketingHomePage() {
   const [selectedPlatform, setSelectedPlatform] = useState<string>("windows");
   const [detectedOs, setDetectedOs] = useState<string>("windows");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [platforms, setPlatforms] = useState<PlatformDetail[]>(PLATFORM_DETAILS);
 
   // Auto-launch the Quran reader workstation if running inside the native Tauri desktop app
   useEffect(() => {
@@ -317,8 +319,122 @@ export default function MarketingHomePage() {
     }
   }, []);
 
+  // Dynamically resolve release assets from GitHub Releases API for 100% reliable direct download links
+  useEffect(() => {
+    let isMounted = true;
+    async function loadReleaseAssets() {
+      try {
+        const repo = APP_CONFIG.githubRepo || "picwellwisher12pk/noor-al-quran";
+        const res = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
+          headers: { Accept: "application/vnd.github.v3+json" },
+        });
+        if (!res.ok) return;
+        const release = await res.json();
+        const tag = release.tag_name || `v${APP_CONFIG.version}`;
+        const assets: Array<{ name: string; browser_download_url: string; size: number }> =
+          Array.isArray(release.assets) ? release.assets : [];
+
+        if (!isMounted || assets.length === 0) return;
+
+        const formatSize = (bytes?: number) => {
+          if (!bytes || bytes <= 0) return undefined;
+          if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+          return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        };
+
+        const findAsset = (predicate: (name: string) => boolean) =>
+          assets.find((a) => predicate(a.name.toLowerCase()));
+
+        // Windows: prefer setup / x64-setup .exe, then any .exe (excluding signatures/zips)
+        const winSetup =
+          findAsset((n) => n.endsWith(".exe") && (n.includes("setup") || n.includes("x64"))) ||
+          findAsset((n) => n.endsWith(".exe"));
+        const winMsi =
+          findAsset((n) => n.endsWith(".msi") && !n.endsWith(".zip")) ||
+          findAsset((n) => n.endsWith(".msi"));
+
+        // Android: prefer universal-release.apk or signed.apk or release.apk
+        const apkUniversal =
+          findAsset((n) => n.endsWith(".apk") && (n.includes("universal") || n.includes("signed") || n.includes("release"))) ||
+          findAsset((n) => n.endsWith(".apk") && !n.includes("debug"));
+        const apkDebug =
+          findAsset((n) => n.endsWith(".apk") && n.includes("debug")) ||
+          findAsset((n) => n.endsWith(".apk") && n !== apkUniversal?.name.toLowerCase());
+
+        // macOS: .dmg
+        const macDmg = findAsset((n) => n.endsWith(".dmg"));
+
+        // Linux: .AppImage and .deb
+        const linuxAppImage = findAsset((n) => n.endsWith(".appimage") && !n.includes(".tar.gz"));
+        const linuxDeb = findAsset((n) => n.endsWith(".deb"));
+
+        setPlatforms((prev) =>
+          prev.map((platform) => {
+            const updated: PlatformDetail = {
+              ...platform,
+              version: tag,
+              primaryAsset: { ...platform.primaryAsset },
+              secondaryAssets: platform.secondaryAssets.map((s) => ({ ...s })),
+            };
+
+            if (platform.id === "windows") {
+              if (winSetup) {
+                updated.primaryAsset.url = winSetup.browser_download_url;
+                updated.primaryAsset.size = formatSize(winSetup.size);
+              }
+              if (winMsi) {
+                updated.secondaryAssets = updated.secondaryAssets.map((sec) =>
+                  sec.type === "MSI"
+                    ? { ...sec, url: winMsi.browser_download_url, size: formatSize(winMsi.size) }
+                    : sec
+                );
+              }
+            } else if (platform.id === "android") {
+              if (apkUniversal) {
+                updated.primaryAsset.url = apkUniversal.browser_download_url;
+                updated.primaryAsset.size = formatSize(apkUniversal.size);
+              }
+              if (apkDebug) {
+                updated.secondaryAssets = updated.secondaryAssets.map((sec) =>
+                  sec.type === "Direct APK"
+                    ? { ...sec, url: apkDebug.browser_download_url, size: formatSize(apkDebug.size) }
+                    : sec
+                );
+              }
+            } else if (platform.id === "macos") {
+              if (macDmg) {
+                updated.primaryAsset.url = macDmg.browser_download_url;
+                updated.primaryAsset.size = formatSize(macDmg.size);
+              }
+            } else if (platform.id === "linux") {
+              if (linuxAppImage) {
+                updated.primaryAsset.url = linuxAppImage.browser_download_url;
+                updated.primaryAsset.size = formatSize(linuxAppImage.size);
+              }
+              if (linuxDeb) {
+                updated.secondaryAssets = updated.secondaryAssets.map((sec) =>
+                  sec.type === "DEB"
+                    ? { ...sec, url: linuxDeb.browser_download_url, size: formatSize(linuxDeb.size) }
+                    : sec
+                );
+              }
+            }
+            return updated;
+          })
+        );
+      } catch (err) {
+        console.warn("[Download] Could not dynamically load latest release assets:", err);
+      }
+    }
+
+    loadReleaseAssets();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const activePlatform =
-    PLATFORM_DETAILS.find((p) => p.id === selectedPlatform) || PLATFORM_DETAILS[0];
+    platforms.find((p) => p.id === selectedPlatform) || platforms[0];
   const ActivePlatformIcon = activePlatform.icon;
 
   return (
@@ -361,7 +477,7 @@ export default function MarketingHomePage() {
             className="px-5 py-3 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] font-semibold text-sm transition-colors flex items-center gap-2 active:scale-95 shadow-xs"
           >
             <Download className="h-4 w-4 text-emerald-500" />
-            Download for {activePlatform.name} ({activePlatform.primaryAsset.type})
+            Download for {activePlatform.name} ({activePlatform.primaryAsset.type}{activePlatform.primaryAsset.size ? ` • ${activePlatform.primaryAsset.size}` : ""})
           </a>
 
           <a
@@ -407,7 +523,7 @@ export default function MarketingHomePage() {
         {/* Platform Selection Tabs */}
         <div className="flex justify-center">
           <div className="inline-flex p-1.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] shadow-sm max-w-full overflow-x-auto gap-1">
-            {PLATFORM_DETAILS.map((p) => {
+            {platforms.map((p) => {
               const Icon = p.icon;
               const isSelected = selectedPlatform === p.id;
               const isDetected = detectedOs === p.id;
@@ -499,7 +615,7 @@ export default function MarketingHomePage() {
                 <Download className="h-4 w-4" />
                 {activePlatform.id === "web"
                   ? "Launch Web Version"
-                  : `Download for ${activePlatform.name}`}
+                  : `Download for ${activePlatform.name}${activePlatform.primaryAsset.size ? ` (${activePlatform.primaryAsset.size})` : ""}`}
               </a>
             </div>
 
@@ -532,7 +648,7 @@ export default function MarketingHomePage() {
                       className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface-raised)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-[var(--foreground)] text-xs font-medium transition-colors"
                     >
                       <Download className="h-3.5 w-3.5 text-emerald-500" />
-                      Get {asset.name.split(" ")[0]}
+                      Get {asset.name.split(" ")[0]} {asset.size ? `(${asset.size})` : ""}
                     </a>
                   </div>
                 ))}

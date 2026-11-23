@@ -37,8 +37,9 @@ export function AyahFillGame({
   langPreference: propLangPreference,
   onScoreSaved,
 }: AyahFillGameProps = {}) {
-  const { language } = useLanguage();
+  const { language, isUrdu: globalIsUrdu } = useLanguage();
   const langPreference = propLangPreference || (language as VocabLangPreference) || "bilingual";
+  const isUrdu = globalIsUrdu || langPreference === "urdu";
   const { playVerse } = useAudio();
   const [questions, setQuestions] = useState<AyahQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -161,27 +162,37 @@ export function AyahFillGame({
 
         <div>
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold border bg-emerald-500/15 dark:bg-emerald-950/60 border-emerald-500/30 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 mb-2">
-            Ayah Verse Completion
+            {isUrdu ? "تکمیلِ آیات (آیت فل)" : "Ayah Verse Completion"}
           </span>
-          <h2 className="text-2xl font-bold text-[var(--foreground)]">Verse Challenge Complete!</h2>
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
+            {isUrdu ? "آیات کا چیلنج مکمل!" : "Verse Challenge Complete!"}
+          </h2>
           <p className="text-xs text-[var(--muted-foreground)] mt-1">
-            You practiced recognizing high-frequency vocabulary in authentic Quranic verses.
+            {isUrdu
+              ? "آپ نے مستند قرآنی آیات میں کثیر الاستعمال الفاظ کی پہچان کی مشق مکمل کی۔"
+              : "You practiced recognizing high-frequency vocabulary in authentic Quranic verses."}
           </p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Score</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "اسکور" : "Score"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">{score}</span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block mb-1">
+              {isUrdu ? "درستگی" : "Accuracy"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)]">
               {accuracy}% <span className="text-xs text-[var(--muted-foreground)] font-normal">({correctCount}/{TOTAL_ROUNDS})</span>
             </span>
           </div>
           <div className="p-4 rounded-2xl bg-[var(--surface-card)] border border-[var(--border-subtle)]">
-            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">Best Streak</span>
+            <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block mb-1">
+              {isUrdu ? "بہترین تسلسل" : "Best Streak"}
+            </span>
             <span className="text-2xl font-extrabold text-[var(--foreground)] flex items-center justify-center gap-1">
               <Flame className="h-4 w-4 text-amber-500" /> {maxStreak}
             </span>
@@ -194,7 +205,8 @@ export function AyahFillGame({
             onClick={generateRounds}
             className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <RotateCcw className="h-4 w-4" /> Play Again
+            <RotateCcw className="h-4 w-4" />
+            <span>{isUrdu ? "دوبارہ کھیلیں" : "Play Again"}</span>
           </button>
         </div>
       </div>
@@ -202,8 +214,8 @@ export function AyahFillGame({
   }
 
   const sample = currentQ.word.sampleAyah;
-  const showUrdu = langPreference === "bilingual" || langPreference === "urdu";
-  const showEnglish = langPreference === "bilingual" || langPreference === "english";
+  const showUrdu = isUrdu || langPreference === "bilingual";
+  const showEnglish = !isUrdu && (langPreference === "bilingual" || langPreference === "english");
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -211,7 +223,7 @@ export function AyahFillGame({
       <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] text-xs shadow-sm">
         <div className="flex items-center gap-2">
           <span className="font-bold text-[var(--foreground)]">
-            Ayah {currentIndex + 1} of {TOTAL_ROUNDS}
+            {isUrdu ? `آیت ${currentIndex + 1} از ${TOTAL_ROUNDS}` : `Ayah ${currentIndex + 1} of ${TOTAL_ROUNDS}`}
           </span>
           <div className="w-24 h-1.5 rounded-full bg-[var(--surface-card)] overflow-hidden">
             <div
@@ -235,14 +247,18 @@ export function AyahFillGame({
       <div className="p-6 md:p-8 rounded-3xl bg-[var(--surface-raised)] border-2 border-[var(--card-border)] text-center shadow-lg relative overflow-hidden space-y-4">
         <div className="flex items-center justify-between text-xs text-[var(--muted-foreground)]">
           <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5" /> Surah {sample.surahName} [{sample.surah}:{sample.ayah}]
+            <BookOpen className="h-3.5 w-3.5" />
+            {isUrdu
+              ? `سورۃ ${sample.surahNameAr || sample.surahName} [${sample.surah}:${sample.ayah}]`
+              : `Surah ${sample.surahName} [${sample.surah}:${sample.ayah}]`}
           </span>
           <button
             type="button"
             onClick={handlePlayAyahRecitation}
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-500/15 hover:bg-emerald-600 text-emerald-700 dark:text-emerald-300 hover:text-white border border-emerald-500/30 text-xs font-semibold transition-all shadow-sm cursor-pointer"
           >
-            <Volume2 className="h-3.5 w-3.5" /> Listen Ayah Recitation
+            <Volume2 className="h-3.5 w-3.5" />
+            <span>{isUrdu ? "تلاوت سنیں" : "Listen Ayah Recitation"}</span>
           </button>
         </div>
 
@@ -258,14 +274,14 @@ export function AyahFillGame({
 
         {/* Translations with Context */}
         <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs text-left">
-          {showEnglish && (
-            <p className="text-[var(--muted-foreground)] italic">
-              &ldquo;{sample.englishText}&rdquo;
+          {showUrdu && sample.urduText && (
+            <p className="font-urdu-nastaliq text-[var(--foreground)]/90 text-right leading-relaxed" dir="rtl">
+              &ldquo;{sample.urduText}&rdquo;
             </p>
           )}
-          {showUrdu && (
-            <p className="font-urdu-nastaliq text-[var(--muted-foreground)] text-right" dir="rtl">
-              {sample.urduText}
+          {showEnglish && sample.englishText && (
+            <p className="text-[var(--muted-foreground)] italic">
+              &ldquo;{sample.englishText}&rdquo;
             </p>
           )}
         </div>
@@ -292,16 +308,18 @@ export function AyahFillGame({
               type="button"
               disabled={isAnswered}
               onClick={() => handleSelectOption(idx)}
-              className={`p-4 rounded-2xl border-2 transition-all duration-200 text-center flex flex-col items-center justify-center gap-1 shadow-sm ${btnStyle}`}
+              className={`p-4 rounded-2xl border-2 transition-all duration-200 text-center flex flex-col items-center justify-center gap-1 shadow-sm cursor-pointer ${btnStyle}`}
             >
               <span className="font-arabic-amiri text-2xl md:text-3xl font-bold" dir="rtl">
                 {option.arabic}
               </span>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                {option.transliteration}
-              </span>
-              <span className="text-[11px] text-[var(--muted-foreground)]">
-                {langPreference === "urdu" ? option.urdu : option.english}
+              {!isUrdu && (
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                  {option.transliteration}
+                </span>
+              )}
+              <span className={`text-[11px] text-[var(--muted-foreground)] ${isUrdu ? "font-urdu-nastaliq" : ""}`} dir={isUrdu ? "rtl" : "ltr"}>
+                {isUrdu ? option.urdu : option.english}
               </span>
             </button>
           );
@@ -313,19 +331,23 @@ export function AyahFillGame({
         <div className="p-4 rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200 shadow-md">
           <div className="text-xs space-y-0.5">
             <span className="font-semibold text-emerald-700 dark:text-emerald-400 block">
-              Word: {currentQ.word.arabic} ({currentQ.word.english})
+              {isUrdu
+                ? `لفظ: ${currentQ.word.arabic} (${currentQ.word.urdu})`
+                : `Word: ${currentQ.word.arabic} (${currentQ.word.english})`}
             </span>
             <span className="text-[var(--muted-foreground)]">
-              {currentQ.word.frequency.toLocaleString()} occurrences in Quran &bull; {currentQ.word.posLabelAr}
+              {isUrdu
+                ? `قرآن میں ${currentQ.word.frequency.toLocaleString()} مرتبہ • ${currentQ.word.posLabelAr}`
+                : `${currentQ.word.frequency.toLocaleString()} occurrences in Quran • ${currentQ.word.posLabelAr}`}
             </span>
           </div>
 
           <button
             type="button"
             onClick={handleNext}
-            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2"
+            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
-            <span>Next Ayah</span>
+            <span>{isUrdu ? "اگلی آیت" : "Next Ayah"}</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
