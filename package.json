@@ -1,6 +1,6 @@
 {
   "name": "noor-al-quran",
-  "version": "1.41.2",
+  "version": "1.41.3",
   "private": true,
   "scripts": {
     "version:sync": "bun run scripts/sync-version.ts",
@@ -13,6 +13,9 @@
     "tauri": "tauri",
     "tauri:dev": "bun run scripts/sync-version.ts && tauri dev",
     "tauri:build": "bun run scripts/sync-version.ts && tauri build",
+    "tauri:install": "bun run scripts/build-and-install.ts --install-only",
+    "build:install": "bun run scripts/build-and-install.ts",
+    "build:install:silent": "bun run scripts/build-and-install.ts --silent",
     "tauri:android:init": "tauri android init",
     "tauri:android:dev": "tauri android dev",
     "tauri:android:build": "tauri android build",

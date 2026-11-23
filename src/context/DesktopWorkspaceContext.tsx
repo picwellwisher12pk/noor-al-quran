@@ -271,6 +271,8 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const openTafsirInInspector = (verseKey: string, arabicText: string) => {
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
+    const num = Number(verseKey.split(":")[1]);
+    if (!isNaN(num) && num > 0) setActiveAyahNumber(num);
     setActiveInspectorTab("tafseer");
     setRightInspectorOpen(true);
     setIsMobileInspectorOpen(true);
@@ -280,12 +282,16 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
     setSelectedWord(null);
+    const num = Number(verseKey.split(":")[1]);
+    if (!isNaN(num) && num > 0) setActiveAyahNumber(num);
   };
 
   const openAyahInInspector = (verseKey: string, arabicText: string) => {
     setSelectedAyahKey(verseKey);
     setSelectedAyahArabic(arabicText);
     setSelectedWord(null);
+    const num = Number(verseKey.split(":")[1]);
+    if (!isNaN(num) && num > 0) setActiveAyahNumber(num);
     setRightInspectorOpen(true);
     setIsMobileInspectorOpen(true);
   };

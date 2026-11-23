@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Chapter, Verse } from "@/types/quran";
 import { fetchVersesByChapter } from "@/services/quranApi";
 import { VerseItem } from "./VerseItem";
@@ -68,7 +68,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
   const { isUrdu } = useLanguage();
-  const { setActiveChapterId, setActiveAyahNumber, activeAyahNumber, readingMode } = useDesktopWorkspace();
+  const { setActiveChapterId, setActiveAyahNumber, activeAyahNumber, readingMode, selectedAyahKey } = useDesktopWorkspace();
   const { currentVerseKey, currentChapterId, isPlaying, updateVersesQueue } = useAudio();
 
   // Sync loaded verses with audio queue
@@ -469,6 +469,29 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
     verses.length,
   ]);
 
+  // Keep activeAyahNumber synchronized whenever audio recitation advances to a new verse
+  useEffect(() => {
+    if (!isPlaying || currentChapterId !== chapter.id || !currentVerseKey) return;
+    const parts = currentVerseKey.split(":");
+    const ayahNum = Number(parts[1]);
+    if (!isNaN(ayahNum) && ayahNum > 0) {
+      setActiveAyahNumber(ayahNum);
+    }
+  }, [isPlaying, currentChapterId, chapter.id, currentVerseKey, setActiveAyahNumber]);
+
+  // Compute effective active ayah taking into account live audio recitation and selected card
+  const effectiveActiveAyah = useMemo(() => {
+    if (isPlaying && currentChapterId === chapter.id && currentVerseKey) {
+      const playingNum = Number(currentVerseKey.split(":")[1]);
+      if (!isNaN(playingNum) && playingNum > 0) return playingNum;
+    }
+    if (selectedAyahKey && selectedAyahKey.startsWith(`${chapter.id}:`)) {
+      const selectedNum = Number(selectedAyahKey.split(":")[1]);
+      if (!isNaN(selectedNum) && selectedNum > 0) return selectedNum;
+    }
+    return activeAyahNumber || 1;
+  }, [isPlaying, currentChapterId, chapter.id, currentVerseKey, selectedAyahKey, activeAyahNumber]);
+
   // Explicitly opens dedicated Tafseer modal WITHOUT touching the right inspector pane!
   const handleOpenTafsir = (verseKey: string, arabicText: string) => {
     setTafsirAyahKey(verseKey);
@@ -714,7 +737,7 @@ export function SurahReader({ chapter, initialVerses, totalPages }: SurahReaderP
         <VerseScrollNavigator
           chapterId={chapter.id}
           totalVerses={chapter.verses_count}
-          currentVerse={activeAyahNumber || 1}
+          currentVerse={effectiveActiveAyah}
           onSelectVerse={(ayahNum) => jumpToAyah(ayahNum)}
           isUrdu={isUrdu}
         />
