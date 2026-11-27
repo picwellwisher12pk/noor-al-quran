@@ -26,6 +26,7 @@ import {
   ShieldAlert,
   Settings,
   Download,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -52,6 +53,7 @@ export function DesktopSidebar() {
     activeChapterId,
     setActiveChapterId,
     openSettingsModal,
+    setIsAboutOpen,
   } = useDesktopWorkspace();
 
   const { bookmarks, lastRead, removeBookmark } = useBookmarks();
@@ -337,6 +339,16 @@ export function DesktopSidebar() {
           >
             <Download className="h-4 w-4" />
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setIsAboutOpen(true)}
+            className="p-2 rounded-xl text-[var(--muted-foreground)] hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-[var(--surface-card)] transition-colors cursor-pointer"
+            title={isUrdu ? "تعارف، کریڈٹس اور صدقہ جاریہ" : "About, Credits & Sadaqah Jariyah"}
+            aria-label="About Noor Al-Quran"
+          >
+            <Info className="h-4 w-4" />
+          </button>
 
           <button
             type="button"

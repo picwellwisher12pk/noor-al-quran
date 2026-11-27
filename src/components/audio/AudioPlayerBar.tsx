@@ -19,6 +19,7 @@ export function AudioPlayerBar() {
   const {
     isPlaying,
     isLoading,
+    isPlayingBismillah,
     isPlayingTranslation,
     isTranslationLoading,
     currentVerseKey,
@@ -92,7 +93,7 @@ export function AudioPlayerBar() {
           </div>
           <div className="truncate">
             <div className="text-xs font-semibold text-[var(--foreground)] truncate">
-              Ayah {currentVerseKey}
+              {isPlayingBismillah ? `Bismillah • Ayah ${currentVerseKey}` : `Ayah ${currentVerseKey}`}
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)] truncate">
               <span>{currentReciter ? currentReciter.reciter_name : "Reciter"}</span>

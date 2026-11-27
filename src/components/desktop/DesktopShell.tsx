@@ -18,7 +18,9 @@ import { DraggableSettingsPanel } from "@/components/modals/DraggableSettingsPan
 import { SearchModal } from "@/components/modals/SearchModal";
 import { DownloadManagerModal } from "@/components/modals/DownloadManagerModal";
 import { VerseIdentifierModal } from "@/components/modals/VerseIdentifierModal";
+import { AboutModal } from "@/components/modals/AboutModal";
 import { UpdateNotificationBanner } from "@/components/common/UpdateNotificationBanner";
+import { SadqaJariyaBanner } from "@/components/common/SadqaJariyaBanner";
 
 interface DesktopShellProps {
   children: React.ReactNode;
@@ -41,6 +43,9 @@ export function DesktopShell({ children }: DesktopShellProps) {
     setIsLiveSettingsOpen,
     isDownloadManagerOpen,
     setIsDownloadManagerOpen,
+    isAboutOpen,
+    setIsAboutOpen,
+    openSettingsModal,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
   } = useDesktopWorkspace();
@@ -143,6 +148,19 @@ export function DesktopShell({ children }: DesktopShellProps) {
         isOpen={isDownloadManagerOpen}
         onClose={() => setIsDownloadManagerOpen(false)}
       />
+
+      {/* About, Credits & Sadaqah Jariyah Modal */}
+      <AboutModal
+        isOpen={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
+        onOpenUpdates={() => {
+          setIsAboutOpen(false);
+          openSettingsModal("updates");
+        }}
+      />
+
+      {/* Gentle Sadaqah Jariyah Dedication Notification */}
+      <SadqaJariyaBanner />
     </div>
   );
 }

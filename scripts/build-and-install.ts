@@ -10,16 +10,15 @@ const rootDir = path.resolve(__dirname, '..');
 const isSilent = process.argv.includes('--silent') || process.argv.includes('-s');
 const isInstallOnly = process.argv.includes('--install-only') || process.argv.includes('-i');
 const isBuildOnly = process.argv.includes('--build-only') || process.argv.includes('-b');
+const isLite = process.argv.includes('--lite');
 
-// Read package.json
 const pkgPath = path.join(rootDir, 'package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-const version = pkg.version;
-const appName = pkg.name || 'noor-al-quran';
+const version: string = pkg.version;
+const appName: string = pkg.displayName || pkg.name || path.basename(rootDir);
 
-// Detect Product Name and Binary Name from tauri.conf.json / Cargo.toml
-let productName = 'Noor Al-Quran';
-let binaryName = 'noor-al-quran';
+let productName = appName;
+let binaryName = pkg.name || path.basename(rootDir);
 
 const tauriConfPath = path.join(rootDir, 'src-tauri', 'tauri.conf.json');
 if (fs.existsSync(tauriConfPath)) {
@@ -52,31 +51,49 @@ function run(cmd: string, description: string) {
   execSync(cmd, { cwd: rootDir, stdio: 'inherit' });
 }
 
+function cleanLocks() {
+  if (fs.existsSync(path.join(rootDir, 'scripts', 'clean-locks.ts'))) {
+    run('bun run scripts/clean-locks.ts', 'Clean Locks');
+  } else if (fs.existsSync(path.join(rootDir, 'scripts', 'clean-locks.js'))) {
+    run('bun run scripts/clean-locks.js', 'Clean Locks');
+  }
+}
+
 // Step 1: Version Sync (if building)
 if (!isInstallOnly) {
   console.log('\n[1/5] Synchronizing project version across manifests...');
   if (fs.existsSync(path.join(rootDir, 'scripts', 'sync-version.ts'))) {
     run('bun run scripts/sync-version.ts', 'Sync Version');
-  } else if (pkg.scripts?.['version:sync']) {
-    run('bun run version:sync', 'Sync Version');
+  } else if (fs.existsSync(path.join(rootDir, 'scripts', 'sync-version.js'))) {
+    run('bun run scripts/sync-version.js', 'Sync Version');
+  } else if (fs.existsSync(path.join(rootDir, 'scripts', 'version-manager.ts'))) {
+    run('bun run scripts/version-manager.ts sync', 'Sync Version');
+  } else if (pkg.scripts?.['sync:version']) {
+    run('bun run sync:version', 'Sync Version');
+  } else if (pkg.scripts?.['sync-version']) {
+    run('bun run sync-version', 'Sync Version');
   }
 }
 
 // Step 2: Clean Stale Locks & Stop Running Processes
-console.log('\n[2/5] Stopping any running app instances...');
-const stopNames = Array.from(new Set([binaryName, productName, 'noor-al-quran'])).filter(Boolean);
-const stopNamesStr = stopNames.map((n) => `'${n}'`).join(', ');
-try {
-  execSync(
-    `powershell -NoProfile -Command "Stop-Process -Name ${stopNamesStr} -Force -ErrorAction SilentlyContinue"`,
-    { stdio: 'ignore' }
-  );
-} catch {}
+console.log('\n[2/5] Cleaning stale locks & stopping running app instances...');
+cleanLocks();
 
 // Step 3: Build Production Bundle
 if (!isInstallOnly) {
   console.log(`\n[3/5] Building release binary & NSIS installer for v${version}...`);
-  run('bun run tauri build --bundles nsis', 'Tauri Build');
+  if (pkg.scripts?.['build:tauri:renderer']) {
+    run('bun run build:tauri:renderer', 'Build Renderer');
+  }
+
+  const liteConf = path.join(rootDir, 'src-tauri', 'tauri.lite.conf.json');
+  if (isLite && fs.existsSync(liteConf)) {
+    run('bunx tauri build --bundles nsis --config src-tauri/tauri.lite.conf.json', 'Tauri Build (Lite)');
+  } else if (fs.existsSync(path.join(rootDir, 'scripts', 'build-distribution.ts'))) {
+    run('bun run scripts/build-distribution.ts --installer', 'Build Distribution Installer');
+  } else {
+    run('bunx tauri build --bundles nsis', 'Tauri Build');
+  }
 }
 
 // Step 4: Verify & Locate Installer
@@ -121,6 +138,9 @@ if (candidates.length === 0) {
 }
 
 candidates.sort((a, b) => {
+  const aFlavor = a.name.toLowerCase().includes('lite') === isLite ? 1 : 0;
+  const bFlavor = b.name.toLowerCase().includes('lite') === isLite ? 1 : 0;
+  if (aFlavor !== bFlavor) return bFlavor - aFlavor;
   const aVer = a.name.includes(version) ? 1 : 0;
   const bVer = b.name.includes(version) ? 1 : 0;
   if (aVer !== bVer) return bVer - aVer;
@@ -135,12 +155,7 @@ console.log(`  Size: ${(candidates[0].size / (1024 * 1024)).toFixed(2)} MB`);
 // Step 5: Execute Installation (if not build-only)
 if (!isBuildOnly) {
   console.log('\n[5/5] Launching installation...');
-  try {
-    execSync(
-      `powershell -NoProfile -Command "Stop-Process -Name ${stopNamesStr} -Force -ErrorAction SilentlyContinue"`,
-      { stdio: 'ignore' }
-    );
-  } catch {}
+  cleanLocks();
 
   if (targetInstaller.endsWith('.msi')) {
     if (isSilent) {
@@ -159,7 +174,6 @@ if (!isBuildOnly) {
       console.log('✓ Installer launched on your desktop screen!');
     }
   } else {
-    // NSIS .exe setup
     if (isSilent) {
       console.log('⚙ Running silent NSIS installation (/S)...');
       execSync(
@@ -167,6 +181,20 @@ if (!isBuildOnly) {
         { stdio: 'inherit' }
       );
       console.log('✓ Silent installation completed successfully!');
+
+      try {
+        const localAppData = process.env.LOCALAPPDATA || path.join(process.env.USERPROFILE || '', 'AppData', 'Local');
+        const installDir = path.join(localAppData, productName);
+        const exeCandidates = Array.from(new Set([`${binaryName}.exe`, `${productName}.exe`, 'app.exe']));
+        for (const exeName of exeCandidates) {
+          const installedExe = path.join(installDir, exeName);
+          if (fs.existsSync(installedExe)) {
+            execSync(`powershell -NoProfile -Command "Start-Process -FilePath '${installedExe}'"`, { stdio: 'ignore' });
+            console.log(`✓ Automatically launched updated ${productName} (v${version})!`);
+            break;
+          }
+        }
+      } catch {}
     } else {
       console.log('🖥 Launching Windows setup installer...');
       execSync(

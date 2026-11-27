@@ -19,6 +19,7 @@ import { reconcileProgress } from "@/services/googleDriveSync";
 import { APP_CONFIG } from "@/config/version";
 import NoteEditorModal from "@/components/modals/NoteEditorModal";
 import { UpdateChecker } from "@/components/common/UpdateChecker";
+import { AboutContent } from "@/components/about/AboutContent";
 import {
   Settings,
   Sparkles,
@@ -55,6 +56,7 @@ import {
   Search,
   Trash2,
   Edit3,
+  Info,
 } from "lucide-react";
 
 interface SettingsModalProps {
@@ -421,6 +423,7 @@ export function SettingsModal({
     { id: "live", labelEn: "Live Settings Panel", labelUr: "لائیو ترتیبات", icon: Sliders },
     { id: "storage", labelEn: "Storage & Offline", labelUr: "آف لائن ڈیٹا", icon: CloudDownload },
     { id: "updates", labelEn: "Updates & Releases", labelUr: "ایپ اپ ڈیٹس", icon: RefreshCw },
+    { id: "about", labelEn: "About & Sadaqah Jariyah", labelUr: "تعارف و صدقہ جاریہ", icon: Info },
   ];
 
   return (
@@ -1819,6 +1822,16 @@ export function SettingsModal({
             <div className="space-y-4">
               <UpdateChecker />
             </div>
+          )}
+
+          {/* TAB 14: About, Credits & Sadaqah Jariyah */}
+          {activeTab === "about" && (
+            <AboutContent
+              onOpenUpdates={() => {
+                setActiveTab("updates");
+                setSettingsTab("updates");
+              }}
+            />
           )}
         </div>
       </div>

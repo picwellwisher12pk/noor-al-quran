@@ -56,7 +56,7 @@ export function GrammarRulesBrowser({ onStartQuiz }: GrammarRulesBrowserProps) {
     e.stopPropagation();
     const verseKey = `${ayah.surah}:${ayah.ayah}`;
     try {
-      playVerse(ayah.surah, verseKey);
+      playVerse(ayah.surah, verseKey, undefined, { skipBismillah: true });
     } catch {
       playAudioSafely(getVerseAudioUrl(ayah.surah, ayah.ayah), ayah.verseText);
     }

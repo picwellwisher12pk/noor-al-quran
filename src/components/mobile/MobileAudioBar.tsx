@@ -23,6 +23,7 @@ export function MobileAudioBar() {
   const {
     isPlaying,
     isLoading,
+    isPlayingBismillah,
     isPlayingTranslation,
     isTranslationLoading,
     currentVerseKey,
@@ -149,6 +150,7 @@ export function MobileAudioBar() {
               </div>
               {/* Secondary: Ayah N of M • reciter */}
               <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                {isPlayingBismillah ? "Bismillah • " : ""}
                 Ayah {verseNum}
                 {versesCount ? ` of ${versesCount}` : ""} •{" "}
                 {isPlayingTranslation ? "🗣️ Translation Audio" : (currentReciter?.reciter_name ?? "Reciter")}

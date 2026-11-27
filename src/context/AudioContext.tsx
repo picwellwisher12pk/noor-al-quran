@@ -11,9 +11,14 @@ import { LanguageContext } from "@/context/LanguageContext";
 
 export type RepeatMode = "none" | "verse" | "infinite";
 
+export interface PlayVerseOptions {
+  skipBismillah?: boolean;
+}
+
 interface AudioContextType {
   isPlaying: boolean;
   isLoading: boolean;
+  isPlayingBismillah: boolean;
   isPlayingTranslation: boolean;
   isTranslationLoading: boolean;
   currentVerseKey: string | null;
@@ -26,7 +31,7 @@ interface AudioContextType {
   translationDuration: number;
   playbackRate: number;
   repeatMode: RepeatMode;
-  playVerse: (chapterId: number, verseKey: string, versesList?: Verse[]) => Promise<void>;
+  playVerse: (chapterId: number, verseKey: string, versesList?: Verse[], options?: PlayVerseOptions) => Promise<void>;
   playSurah: (chapterId: number, startAyah?: number, versesList?: Verse[]) => Promise<void>;
   updateVersesQueue: (verses: Verse[]) => void;
   playWord: (audioUrl: string) => void;
@@ -48,6 +53,7 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPlayingBismillah, setIsPlayingBismillah] = useState(false);
   const [isPlayingTranslation, setIsPlayingTranslation] = useState(false);
   const [isTranslationLoading, setIsTranslationLoading] = useState(false);
   const [currentVerseKey, setCurrentVerseKey] = useState<string | null>(null);
@@ -74,6 +80,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const currentReciterRef = useRef<Reciter | null>(null);
   const playbackRateRef = useRef<number>(1);
   const isPlayingRef = useRef<boolean>(false);
+  const isPlayingBismillahRef = useRef<boolean>(false);
+  const bismillahTargetRef = useRef<{ chapterId: number; verseKey: string } | null>(null);
   const isPlayingTranslationRef = useRef<boolean>(false);
   const handleVerseEndedRef = useRef<() => void>(() => {});
   const handleTranslationEndedRef = useRef<() => void>(() => {});
@@ -119,6 +127,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, [isPlaying]);
 
   const handleVerseEnded = () => {
+    // If Bismillah just finished playing before a midway verse, immediately start the target verse
+    if (isPlayingBismillahRef.current && bismillahTargetRef.current) {
+      const target = bismillahTargetRef.current;
+      isPlayingBismillahRef.current = false;
+      setIsPlayingBismillah(false);
+      bismillahTargetRef.current = null;
+      playVerse(target.chapterId, target.verseKey, undefined, { skipBismillah: true });
+      return;
+    }
+
     if (repeatModeRef.current === "infinite") {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -218,6 +236,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       setIsPlaying(false);
       isPlayingRef.current = false;
+      isPlayingBismillahRef.current = false;
+      setIsPlayingBismillah(false);
+      bismillahTargetRef.current = null;
     };
 
     audio.addEventListener("timeupdate", handleTimeUpdate);
@@ -396,10 +417,59 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const playVerse = async (chapterId: number, verseKey: string, versesList?: Verse[]) => {
+  const resolveVerseAudioUrl = async (reciterId: number, key: string): Promise<string | null> => {
+    let url = await offlineStorage.getVerseAudioUrl(reciterId, key);
+
+    if (!url && preloadedNextAudioRef.current?.verseKey === key && preloadedNextAudioRef.current?.url) {
+      url = preloadedNextAudioRef.current.url;
+    }
+
+    if (!url) {
+      url = await fetchVerseAudioUrl(reciterId, key);
+      if (url) {
+        offlineStorage.cacheVerseAudio(reciterId, key, url).catch(() => {});
+      }
+    }
+
+    return url;
+  };
+
+  const preloadTargetVerse = async (reciterId: number, targetKey: string) => {
+    try {
+      const url = await resolveVerseAudioUrl(reciterId, targetKey);
+      if (url) {
+        const preAudio = new Audio();
+        preAudio.preload = "auto";
+        preAudio.src = url;
+        preAudio.load();
+        preloadedNextAudioRef.current = { verseKey: targetKey, url, element: preAudio };
+      }
+    } catch (e) {
+      console.warn("Preload target verse audio skipped:", e);
+    }
+  };
+
+  const playVerse = async (
+    chapterId: number,
+    verseKey: string,
+    versesList?: Verse[],
+    options?: PlayVerseOptions
+  ) => {
     if (versesList && versesList.length > 0) {
       versesQueueRef.current = versesList;
     }
+
+    const verseNumber = Number(verseKey.split(":")[1]) || 1;
+    const isFreshSession =
+      currentChapterIdRef.current !== chapterId ||
+      !currentVerseKeyRef.current ||
+      isPlayingBismillahRef.current;
+    const shouldPrependBismillah =
+      !options?.skipBismillah &&
+      chapterId !== 9 &&
+      verseNumber > 1 &&
+      isFreshSession;
+
     setCurrentChapterId(chapterId);
     currentChapterIdRef.current = chapterId;
     setCurrentVerseKey(verseKey);
@@ -441,22 +511,41 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     const reciterId = currentReciterRef.current ? currentReciterRef.current.id : 7;
 
-    // Check 1: Offline cached audio
-    let audioUrl: string | null = await offlineStorage.getVerseAudioUrl(reciterId, verseKey);
+    if (shouldPrependBismillah) {
+      const bismillahUrl = await resolveVerseAudioUrl(reciterId, "1:1");
+      if (bismillahUrl && audioRef.current) {
+        isPlayingBismillahRef.current = true;
+        setIsPlayingBismillah(true);
+        bismillahTargetRef.current = { chapterId, verseKey };
+        try {
+          audioRef.current.src = bismillahUrl;
+          audioRef.current.playbackRate = playbackRateRef.current;
+          await audioRef.current.play();
+          setIsPlaying(true);
+          isPlayingRef.current = true;
+          setIsLoading(false);
 
-    // Check 2: Preloaded memory audio
-    if (!audioUrl && preloadedNextAudioRef.current?.verseKey === verseKey && preloadedNextAudioRef.current?.url) {
-      audioUrl = preloadedNextAudioRef.current.url;
-    }
-
-    // Check 3: Fetch online
-    if (!audioUrl) {
-      audioUrl = await fetchVerseAudioUrl(reciterId, verseKey);
-      if (audioUrl) {
-        // Cache in background for zero-latency replays
-        offlineStorage.cacheVerseAudio(reciterId, verseKey, audioUrl).catch(() => {});
+          // Preload the target verse while Bismillah plays for zero-gap transition
+          preloadTargetVerse(reciterId, verseKey);
+          return;
+        } catch (e) {
+          console.error("Bismillah playback error:", e);
+          isPlayingBismillahRef.current = false;
+          setIsPlayingBismillah(false);
+          bismillahTargetRef.current = null;
+          setIsLoading(false);
+          setIsPlaying(false);
+          isPlayingRef.current = false;
+          return;
+        }
       }
     }
+
+    isPlayingBismillahRef.current = false;
+    setIsPlayingBismillah(false);
+    bismillahTargetRef.current = null;
+
+    const audioUrl = await resolveVerseAudioUrl(reciterId, verseKey);
 
     if (!audioUrl || !audioRef.current) {
       setIsLoading(false);
@@ -597,7 +686,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === activeKey);
       if (currentIndex !== -1 && currentIndex < versesQueueRef.current.length - 1) {
         const nextVerse = versesQueueRef.current[currentIndex + 1];
-        playVerse(chapId, nextVerse.verse_key);
+        playVerse(chapId, nextVerse.verse_key, undefined, { skipBismillah: true });
         return;
       }
     }
@@ -605,7 +694,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     // 2. Continuous numerical progression for the whole Surah
     if (currentAyah < totalAyahs) {
       const nextKey = `${chapId}:${currentAyah + 1}`;
-      playVerse(chapId, nextKey);
+      playVerse(chapId, nextKey, undefined, { skipBismillah: true });
     } else {
       // Completed full Surah recitation
       setIsPlaying(false);
@@ -629,14 +718,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       const currentIndex = versesQueueRef.current.findIndex((v) => v.verse_key === activeKey);
       if (currentIndex > 0) {
         const prevVerse = versesQueueRef.current[currentIndex - 1];
-        playVerse(chapId, prevVerse.verse_key);
+        playVerse(chapId, prevVerse.verse_key, undefined, { skipBismillah: true });
         return;
       }
     }
 
     if (currentAyah > 1) {
       const prevKey = `${chapId}:${currentAyah - 1}`;
-      playVerse(chapId, prevKey);
+      playVerse(chapId, prevKey, undefined, { skipBismillah: true });
     }
   };
 
@@ -658,7 +747,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setCurrentReciter(reciter);
     currentReciterRef.current = reciter;
     if (currentChapterIdRef.current && currentVerseKeyRef.current && isPlayingRef.current) {
-      playVerse(currentChapterIdRef.current, currentVerseKeyRef.current);
+      playVerse(currentChapterIdRef.current, currentVerseKeyRef.current, undefined, {
+        skipBismillah: !isPlayingBismillahRef.current,
+      });
     }
   };
 
@@ -699,6 +790,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
     setIsPlaying(false);
     isPlayingRef.current = false;
+    isPlayingBismillahRef.current = false;
+    setIsPlayingBismillah(false);
+    bismillahTargetRef.current = null;
     setIsPlayingTranslation(false);
     isPlayingTranslationRef.current = false;
     setCurrentTime(0);
@@ -712,6 +806,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       value={{
         isPlaying,
         isLoading,
+        isPlayingBismillah,
         isPlayingTranslation,
         isTranslationLoading,
         currentVerseKey,

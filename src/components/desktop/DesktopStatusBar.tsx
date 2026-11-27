@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 export function DesktopStatusBar() {
-  const { chapters, activeChapterId, activeAyahNumber } = useDesktopWorkspace();
+  const { chapters, activeChapterId, activeAyahNumber, setIsAboutOpen } = useDesktopWorkspace();
   const { isPlaying, currentVerseKey, togglePlayPause, currentReciter } = useAudio();
   const { plan, targetInfo } = useKhatmah();
   const { prefs } = useReadingPreferences();
@@ -170,8 +170,15 @@ export function DesktopStatusBar() {
 
         <span className="text-[var(--border-subtle)]">|</span>
 
-        {/* App Version */}
-        <span className="text-emerald-400/80">v{APP_CONFIG.version}</span>
+        {/* App Version (Click to open About & Sadaqah Jariyah) */}
+        <button
+          type="button"
+          onClick={() => setIsAboutOpen(true)}
+          className="text-emerald-700 dark:text-emerald-400/90 hover:underline cursor-pointer"
+          title="About Noor Al-Quran • Credits & Sadaqah Jariyah"
+        >
+          v{APP_CONFIG.version}
+        </button>
       </div>
     </footer>
   );

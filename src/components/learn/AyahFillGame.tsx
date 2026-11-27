@@ -135,7 +135,7 @@ export function AyahFillGame({
     const { surah, ayah } = currentQ.word.sampleAyah;
     const verseKey = `${surah}:${ayah}`;
     try {
-      playVerse(surah, verseKey);
+      playVerse(surah, verseKey, undefined, { skipBismillah: true });
     } catch {
       console.log("Verse playback trigger for", verseKey);
     }

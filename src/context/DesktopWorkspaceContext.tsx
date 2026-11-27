@@ -21,7 +21,8 @@ export type SettingsModalTab =
   | "shortcuts"
   | "live"
   | "storage"
-  | "updates";
+  | "updates"
+  | "about";
 
 interface DesktopWorkspaceContextType {
   // Sidebar state
@@ -81,6 +82,8 @@ interface DesktopWorkspaceContextType {
   setIsLiveSettingsOpen: (open: boolean) => void;
   isDownloadManagerOpen: boolean;
   setIsDownloadManagerOpen: (open: boolean) => void;
+  isAboutOpen: boolean;
+  setIsAboutOpen: (open: boolean) => void;
 
   // Mobile specific drawers & sheets
   isMobileSurahDrawerOpen: boolean;
@@ -118,6 +121,7 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
   const [settingsTab, setSettingsTab] = useState<SettingsModalTab>("theme");
   const [isLiveSettingsOpen, setIsLiveSettingsOpen] = useState(false);
   const [isDownloadManagerOpen, setIsDownloadManagerOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const openSettingsModal = (tab?: SettingsModalTab) => {
     if (tab) setSettingsTab(tab);
@@ -370,6 +374,8 @@ export function DesktopWorkspaceProvider({ children }: { children: React.ReactNo
         setIsLiveSettingsOpen,
         isDownloadManagerOpen,
         setIsDownloadManagerOpen,
+        isAboutOpen,
+        setIsAboutOpen,
 
         isMobileSurahDrawerOpen,
         setIsMobileSurahDrawerOpen,

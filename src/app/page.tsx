@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { APP_CONFIG } from "@/config/version";
 import { isTauri as checkIsTauri } from "@/utils/platform";
+import { useDesktopWorkspace } from "@/context/DesktopWorkspaceContext";
 import {
   Sparkles,
   Download,
@@ -27,6 +28,8 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
+  Heart,
+  Info,
 } from "lucide-react";
 
 interface DownloadAsset {
@@ -286,6 +289,7 @@ const FAQS = [
 
 export default function MarketingHomePage() {
   const router = useRouter();
+  const { setIsAboutOpen } = useDesktopWorkspace();
   const [selectedPlatform, setSelectedPlatform] = useState<string>("windows");
   const [detectedOs, setDetectedOs] = useState<string>("windows");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -921,6 +925,32 @@ export default function MarketingHomePage() {
           </a>
         </div>
       </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          7. Creator Credits & Sadaqah Jariyah Dedication Footer
+      ───────────────────────────────────────────────────────────── */}
+      <footer className="rounded-2xl bg-[var(--surface-raised)] border border-[var(--card-border)] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="space-y-1 max-w-2xl">
+          <p className="text-xs sm:text-sm font-bold text-[var(--foreground)] flex items-center justify-center sm:justify-start gap-1.5">
+            <span>Made with</span>
+            <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/40" />
+            <span>by {APP_CONFIG.author}</span>
+            <span className="text-[var(--muted-foreground)] font-normal">• v{APP_CONFIG.version}</span>
+          </p>
+          <p className="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            {APP_CONFIG.sadaqahJariyah.shortEn}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsAboutOpen(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--hover-bg)] border border-[var(--border-subtle)] text-xs font-semibold text-[var(--foreground)] transition-colors cursor-pointer shrink-0"
+        >
+          <Info className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span>About &amp; Du&apos;a</span>
+        </button>
+      </footer>
     </div>
   );
 }

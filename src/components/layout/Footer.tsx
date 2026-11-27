@@ -78,9 +78,13 @@ export function Footer() {
         </div>
 
         <div className="pt-6 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px]">
-          <p>© 2026 {APP_CONFIG.name}. Built with authentic reverence.</p>
-          <p className="flex items-center gap-1 text-[var(--muted-foreground)]">
-            Dedicated for seekers of knowledge and remembrance.
+          <p className="flex items-center gap-1.5">
+            <span>© 2026 {APP_CONFIG.name}. Made with</span>
+            <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500/40 inline" />
+            <span>by {APP_CONFIG.author}.</span>
+          </p>
+          <p className="text-[var(--muted-foreground)] text-center sm:text-right">
+            {APP_CONFIG.sadaqahJariyah.shortEn}
           </p>
         </div>
       </div>
